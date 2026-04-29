@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpHosp - Abrir Chamado Técnico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --white: #ffffff;
+            --radius: 16px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f0f9ff 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { display: flex; align-items: center; gap: 15px; }
+        .logo-icon {
+            width: 55px; height: 55px;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+        }
+        .logo-text h1 { font-size: 24px; font-weight: 700; }
+        .logo-text span { font-size: 11px; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
+
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .whatsapp-btn {
+            background: #25d366; color: white; padding: 14px 28px;
+            border-radius: 30px; text-decoration: none;
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 600; font-size: 15px; transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            animation: pulse-whatsapp 2s infinite;
+        }
+        @keyframes pulse-whatsapp {
+            0%, 100% { box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+            50% { box-shadow: 0 4px 30px rgba(37, 211, 102, 0.6); }
+        }
+        .whatsapp-btn:hover { background: #128c7e; transform: translateY(-3px); }
+
+        .btn-area-tecnica {
+            background: rgba(255,255,255,0.1); color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 12px 24px; border-radius: 30px; cursor: pointer;
+            font-weight: 500; text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+            transition: var(--transition); font-size: 14px;
+        }
+        .btn-area-tecnica:hover { background: rgba(255,255,255,0.2); }
+
+        .main-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+        .banner {
+            background: white; border-radius: 24px; padding: 50px;
+            text-align: center; box-shadow: var(--shadow); margin-bottom: 30px;
+        }
+        .banner-icon { font-size: 60px; margin-bottom: 20px; }
+        .banner h2 { font-size: 30px; margin-bottom: 15px; }
+        .banner p { font-size: 18px; color: var(--gray); }
+
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+        .card {
+            background: white; border-radius: 20px; padding: 35px;
+            box-shadow: var(--shadow); cursor: pointer; transition: var(--transition);
+            border: 2px solid transparent; text-align: center;
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .card-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 36px; color: var(--primary);
+        }
+        .card h3 { font-size: 20px; margin-bottom: 10px; }
+        .card p { color: var(--gray); font-size: 14px; }
+
+        .form-container {
+            background: white; border-radius: 24px; padding: 40px;
+            box-shadow: var(--shadow); display: none; animation: slideDown 0.4s ease;
+        }
+        .form-container.active { display: block; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;
+        }
+        .btn-close {
+            width: 40px; height: 40px; border-radius: 12px; border: none;
+            background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 18px;
+        }
+        .btn-close:hover { background: var(--danger); color: white; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-weight: 600; margin-bottom: 8px; display: block; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0;
+            border-radius: 12px; font-size: 15px; font-family: inherit;
+            background: #fafbfc; transition: var(--transition);
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary); background: white;
+        }
+
+        .upload-area {
+            border: 2px dashed #d0d5dd; border-radius: 14px; padding: 30px;
+            text-align: center; cursor: pointer; background: #fafbfc; margin-bottom: 15px;
+        }
+        .upload-area:hover { border-color: var(--primary); background: #f8faff; }
+        .upload-area i { font-size: 40px; color: var(--primary); }
+
+        .btn-submit {
+            width: 100%; padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; border: none; border-radius: 14px;
+            font-size: 17px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,70,229,0.3); }
+
+        .chamado-card {
+            background: white; border-radius: 16px; padding: 20px 25px;
+            margin-bottom: 12px; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer; border-left: 4px solid var(--primary);
+        }
+        .chamado-card.critico { border-left-color: var(--danger); background: #fff5f5; }
+
+        .status-badge {
+            padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        }
+        .status-a-fazer { background: #e3f2fd; color: #1976d2; }
+        .status-em-andamento { background: #fff3e0; color: #f57c00; }
+        .status-pendente { background: #fce4ec; color: #c2185b; }
+        .status-concluido { background: #e8f5e9; color: #388e3c; }
+
+        .whatsapp-float {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #25d366; color: white;
+            width: 65px; height: 65px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px; box-shadow: 0 8px 25px rgba(37,211,102,0.4);
+            z-index: 99; text-decoration: none; animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; padding: 15px 20px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-laptop-medical"></i></div>
+            <div class="logo-text">
+                <h1>HelpHosp</h1>
+                <span>Suporte Técnico</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="https://wa.me/5582981845421?text=Olá!%20Preciso%20de%20suporte%20técnico." class="whatsapp-btn" target="_blank">
+                <i class="fab fa-whatsapp"></i> Falar com Suporte
+            </a>
+            <a href="admin.html" class="btn-area-tecnica">
+                <i class="fas fa-lock"></i> Área do Técnico
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="banner" id="bannerInicial">
+            <div class="banner-icon">🏥</div>
+            <h2>Precisa de ajuda com equipamentos de TI?</h2>
+            <p>Abra um chamado rapidamente. Nossa equipe técnica está pronta para ajudar você!</p>
+        </div>
+
+        <div class="cards-grid" id="cardsAcao">
+            <div class="card" onclick="mostrarFormulario()">
+                <div class="card-icon"><i class="fas fa-plus-circle"></i></div>
+                <h3>Abrir Novo Chamado</h3>
+                <p>Registre um problema com computador, impressora, rede ou sistema</p>
+            </div>
+            <div class="card" onclick="mostrarMeusChamados()">
+                <div class="card-icon"><i class="fas fa-list-check"></i></div>
+                <h3>Meus Chamados</h3>
+                <p>Acompanhe o andamento dos seus chamados abertos</p>
+            </div>
+        </div>
+
+        <div class="form-container" id="formContainer">
+            <div class="form-header">
+                <h2>Novo Chamado</h2>
+                <button class="btn-close" onclick="voltarParaInicio()">&times;</button>
+            </div>
+            <form id="formChamado" onsubmit="abrirChamado(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Seu Nome *</label>
+                        <input type="text" id="solicitante" placeholder="Nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contato / Ramal</label>
+                        <input type="text" id="contato" placeholder="Ex: 1234 ou WhatsApp">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Setor *</label>
+                    <select id="setor" required>
+                        <option value="">Selecione seu setor...</option>
+                        <option>UTI I</option><option>UTI II</option>
+                        <option>Emergencia/Vermelha</option><option>Centro Cirurgico</option>
+                        <option>Oncologia I</option><option>Oncologia II</option>
+                        <option>CME</option><option>Hotelaria</option><option>NIR</option>
+                        <option>Clinica Medica I</option><option>Clinica Medica II</option>
+                        <option>Clinica Cirurgica</option><option>Pediatria</option>
+                        <option>Farmacia</option><option>Laboratorio</option>
+                        <option>Direção Geral</option><option>Direção Adm</option>
+                        <option>Direção Medica</option><option>Direção Enfermagem</option>
+                        <option>RH</option><option>Faturamento</option><option>Sesmet</option>
+                        <option>Manutenção</option><option>Nutrição</option><option>Gavua</option>
+                        <option>Recepção Geral</option><option>Recepção Nefrologia</option>
+                        <option>Recepção CR</option><option>Sala Telemedicina</option>
+                        <option>Ortopedia CR</option><option>Auditorio</option>
+                        <option>Patrimonio</option><option>Serviço Social</option>
+                        <option>Fisioterapia</option><option>Psicologia</option>
+                        <option>Ouvidoria/Juridico</option><option>Comunicação</option>
+                        <option>Radiologia</option><option>Outros</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo de Problema *</label>
+                        <select id="categoria" required>
+                            <option value="">Selecione...</option>
+                            <option>Computador</option><option>Notebook</option>
+                            <option>Impressora</option><option>Sistema / Software</option>
+                            <option>Internet / Rede</option><option>Telefone / Ramal</option>
+                            <option>Monitor</option><option>Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Urgência *</label>
+                        <select id="prioridade" required>
+                            <option value="Baixa">Baixa - Pode aguardar</option>
+                            <option value="Média" selected>Média - Normal</option>
+                            <option value="Alta">Alta - Urgente</option>
+                            <option value="Crítica">Crítica - Impacta pacientes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Título do Chamado *</label>
+                    <input type="text" id="titulo" placeholder="Ex: Computador da recepção não liga" required>
+                </div>
+                <div class="form-group">
+                    <label>Descreva o Problema *</label>
+                    <textarea id="descricao" rows="4" placeholder="Descreva detalhadamente o que está acontecendo..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Foto do Problema (opcional)</label>
+                    <div class="upload-area" onclick="document.getElementById('fotoInput').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Clique para tirar foto ou selecionar imagem</p>
+                        <input type="file" id="fotoInput" accept="image/*" capture="environment" style="display:none;" onchange="previewFoto(this)">
+                    </div>
+                    <div id="imagePreview" style="margin-top:10px;text-align:center;"></div>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Enviar Chamado
+                </button>
+            </form>
+        </div>
+
+        <div id="chamadosContainer" style="display:none;">
+            <h2 style="margin-bottom:20px;">Meus Chamados</h2>
+            <div id="listaChamados"></div>
+            <div style="text-align:center;margin-top:25px;">
+                <button onclick="voltarParaInicio()" style="padding:14px 35px;background:#64748b;color:white;border:none;border-radius:30px;cursor:pointer;font-weight:600;">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/5582981845421?text=Olá!%20Preciso%20de%20suporte%20técnico." class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script>
+        var chamados = JSON.parse(localStorage.getItem('db_chamados')) || [];
+        var fotoBase64 = null;
+
+        function mostrarFormulario() {
+            document.getElementById('bannerInicial').style.display = 'none';
+            document.getElementById('cardsAcao').style.display = 'none';
+            document.getElementById('formContainer').classList.add('active');
+            document.getElementById('chamadosContainer').style.display = 'none';
+        }
+
+        function mostrarMeusChamados() {
+            document.getElementById('bannerInicial').style.display = 'none';
+            document.getElementById('cardsAcao').style.display = 'none';
+            document.getElementById('formContainer').classList.remove('active');
+            document.getElementById('chamadosContainer').style.display = 'block';
+            carregarChamados();
+        }
+
+        function voltarParaInicio() {
+            document.getElementById('bannerInicial').style.display = 'block';
+            document.getElementById('cardsAcao').style.display = 'grid';
+            document.getElementById('formContainer').classList.remove('active');
+            document.getElementById('chamadosContainer').style.display = 'none';
+            document.getElementById('formChamado').reset();
+            fotoBase64 = null;
+            document.getElementById('imagePreview').innerHTML = '';
+        }
+
+        function previewFoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoBase64 = e.target.result;
+                    document.getElementById('imagePreview').innerHTML = '<img src="' + fotoBase64 + '" style="max-width:200px;border-radius:10px;">';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function gerarProtocolo() {
+            var a = new Date();
+            return 'CH-' + a.getFullYear() + String(a.getMonth()+1).padStart(2,'0') + String(a.getDate()).padStart(2,'0') + '-' + String(a.getHours()).padStart(2,'0') + String(a.getMinutes()).padStart(2,'0') + String(a.getSeconds()).padStart(2,'0');
+        }
+
+        function abrirChamado(event) {
+            event.preventDefault();
+            var protocolo = gerarProtocolo();
+            var novo = {
+                id: Date.now(), protocolo: protocolo,
+                solicitante: document.getElementById('solicitante').value.trim(),
+                contato: document.getElementById('contato').value.trim(),
+                setor: document.getElementById('setor').value,
+                categoria: document.getElementById('categoria').value,
+                prioridade: document.getElementById('prioridade').value,
+                titulo: document.getElementById('titulo').value.trim(),
+                descricao: document.getElementById('descricao').value.trim(),
+                foto: fotoBase64, status: 'A Fazer',
+                data_abertura: new Date().toISOString(),
+                historico: [{ data: new Date().toISOString(), acao: 'Chamado aberto pelo usuário' }]
+            };
+            chamados.unshift(novo);
+            localStorage.setItem('db_chamados', JSON.stringify(chamados));
+            document.getElementById('formChamado').reset();
+            fotoBase64 = null;
+            document.getElementById('imagePreview').innerHTML = '';
+            mostrarMeusChamados();
+            alert('✅ Chamado aberto!\nProtocolo: ' + protocolo);
+        }
+
+        function carregarChamados() {
+            chamados = JSON.parse(localStorage.getItem('db_chamados')) || [];
+            var c = document.getElementById('listaChamados');
+            if (chamados.length === 0) {
+                c.innerHTML = '<p style="text-align:center;padding:50px;color:#94a3b8;">Nenhum chamado</p>';
+                return;
+            }
+            c.innerHTML = chamados.map(function(ch) {
+                var sc = 'status-' + ch.status.toLowerCase().replace(/ /g, '-');
+                return '<div class="chamado-card ' + (ch.prioridade === 'Crítica' ? 'critico' : '') + '"><div><h4>' + ch.titulo + '</h4><small>' + ch.protocolo + ' | ' + ch.setor + ' | ' + new Date(ch.data_abertura).toLocaleDateString('pt-BR') + '</small></div><span class="status-badge ' + sc + '">' + ch.status + '</span></div>';
+            }).join('');
+        }
+    </script>
+</body>
+</html>

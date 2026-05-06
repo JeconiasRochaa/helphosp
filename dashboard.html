@@ -56,6 +56,47 @@
         @media (max-width: 768px) { .sidebar { width: 55px; } .sidebar-header h2, .sidebar-header span, .sidebar-nav a span, .sidebar-footer div { display: none; } .main-content { margin-left: 55px; padding: 16px; } }
     </style>
 </head>
+
+<button onclick="limparChamadosTeste()" style="position:fixed;bottom:20px;right:20px;z-index:999;background:#dc2626;color:white;border:none;padding:14px 22px;border-radius:12px;cursor:pointer;font-weight:600;box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+    🗑️ Limpar Chamados de Teste
+</button>
+
+<script>
+function limparChamadosTeste() {
+    if (!confirm('⚠️ Tem certeza? Isso vai apagar TODOS os chamados que contenham "teste" ou "Teste" no título!')) return;
+    
+    db.collection('chamados').get().then(function(snapshot) {
+        var deletados = 0;
+        var promises = [];
+        
+        snapshot.forEach(function(doc) {
+            var data = doc.data();
+            var titulo = (data.titulo || '').toLowerCase();
+            
+            // Verificar se é chamado de teste
+            if (titulo.includes('teste') || titulo.includes('chamado teste') || titulo.includes('chamado de teste')) {
+                promises.push(doc.ref.delete());
+                deletados++;
+            }
+        });
+        
+        if (deletados === 0) {
+            alert('✅ Nenhum chamado de teste encontrado!');
+            return;
+        }
+        
+        Promise.all(promises).then(function() {
+            alert('✅ ' + deletados + ' chamados de teste foram removidos!');
+            location.reload();
+        }).catch(function(error) {
+            alert('❌ Erro ao remover: ' + error.message);
+        });
+    }).catch(function(error) {
+        alert('❌ Erro: ' + error.message);
+    });
+}
+</script>
+    
 <body>
 <aside class="sidebar">
     <div class="sidebar-header"><i class="fas fa-laptop-medical"></i><div><h2>HelpHosp</h2><span>PAINEL TI</span></div></div>

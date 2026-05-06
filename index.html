@@ -3,212 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Abrir Chamado</title>
+    <title>HelpHosp - Suporte Técnico</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #4f46e5; --primary-dark: #3730a3; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; --light: #f8fafc; --white: #fff; --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --success: #059669; --warning: #d97706; --danger: #dc2626; --dark: #111827; --gray: #6b7280; --light: #f9fafb; --white: #fff; --radius: 14px; --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); --shadow-lg: 0 10px 15px rgba(0,0,0,0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #eef2ff, #e0e7ff, #f0f9ff); min-height: 100vh; color: var(--dark); }
-        .header { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 18px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f3f4f6; color: var(--dark); min-height: 100vh; }
+        .header { background: var(--dark); color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
         .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #818cf8); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .logo-text h1 { font-size: 22px; font-weight: 700; } .logo-text span { font-size: 10px; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; }
-        .header-actions { display: flex; gap: 12px; align-items: center; }
-        .whatsapp-btn { background: #25d366; color: white; padding: 12px 22px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-        .whatsapp-btn:hover { background: #128c7e; }
-        .btn-area-tecnica { background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-        .main-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .banner { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: var(--shadow); margin-bottom: 25px; }
-        .banner h2 { font-size: 26px; margin-bottom: 10px; } .banner p { font-size: 16px; color: var(--gray); }
-        .card { background: white; border-radius: 18px; padding: 30px; box-shadow: var(--shadow); cursor: pointer; border: 2px solid transparent; text-align: center; margin-bottom: 20px; }
-        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
-        .card-icon { width: 70px; height: 70px; background: #eef2ff; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 30px; color: var(--primary); }
-        .form-container { background: white; border-radius: 20px; padding: 35px; box-shadow: var(--shadow); display: none; }
-        .form-container.active { display: block; animation: slideDown 0.3s ease; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f1f5f9; }
-        .btn-close { width: 36px; height: 36px; border-radius: 10px; border: none; background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 16px; }
-        .btn-close:hover { background: var(--danger); color: white; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { font-weight: 600; margin-bottom: 6px; display: block; font-size: 13px; }
-        .form-group input, .form-group select { width: 100%; padding: 13px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fafbfc; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); background: white; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; padding: 12px; background: #fffbeb; border-radius: 10px; border: 2px solid #fde68a; }
-        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
-        .btn-submit { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btn-submit:hover { transform: translateY(-2px); }
-        .chamado-card { background: white; border-radius: 14px; padding: 18px 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); }
-        .status-badge { padding: 5px 14px; border-radius: 15px; font-size: 11px; font-weight: 600; }
-        .status-a-fazer { background: #e3f2fd; color: #1976d2; } .status-em-andamento { background: #fff3e0; color: #f57c00; }
-        .status-concluido { background: #e8f5e9; color: #388e3c; }
-        .whatsapp-float { position: fixed; bottom: 25px; right: 25px; background: #25d366; color: white; width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 6px 20px rgba(37,211,102,0.4); z-index: 99; text-decoration: none; animation: bounce 2s infinite; }
-        @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @media (max-width: 600px) { .header { flex-direction: column; gap: 10px; } .header-actions { flex-direction: column; width: 100%; } .whatsapp-btn { width: 100%; justify-content: center; } }
+        .logo i { font-size: 28px; color: #60a5fa; }
+        .logo h1 { font-size: 20px; font-weight: 700; } .logo span { font-size: 10px; color: #9ca3af; letter-spacing: 1px; display: block; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .btn-whatsapp { background: #25d366; color: white; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .btn-whatsapp:hover { background: #128c7e; }
+        .btn-admin { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px 18px; border-radius: 25px; text-decoration: none; font-size: 13px; }
+        .main-container { max-width: 720px; margin: 32px auto; padding: 0 16px; }
+        .card { background: white; border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        .card-click { cursor: pointer; border: 2px solid transparent; transition: all 0.2s; text-align: center; }
+        .card-click:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); }
+        .card-icon { width: 56px; height: 56px; background: #eff6ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 24px; color: var(--primary); }
+        .form-container { display: none; }
+        .form-container.active { display: block; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 5px; color: #374151; }
+        .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 14px; font-family: inherit; background: #f9fafb; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: white; }
+        .btn { padding: 11px 22px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: white; border: 1.5px solid #d1d5db; color: #374151; }
+        .toggle-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .toggle-btn { padding: 8px 16px; border: 1.5px solid #d1d5db; border-radius: 20px; background: white; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+        .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .chamado-item { background: white; border-radius: 12px; padding: 16px 18px; margin-bottom: 8px; border-left: 4px solid var(--primary); box-shadow: var(--shadow); }
+        .chamado-item.toner { border-left-color: #d97706; }
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .status-a-fazer { background: #dbeafe; color: #1e40af; } .status-em-andamento { background: #fef3c7; color: #92400e; } .status-concluido { background: #d1fae5; color: #065f46; }
+        @media (max-width: 600px) { .header { flex-direction: column; gap: 10px; padding: 12px 16px; } .header-actions { flex-direction: column; width: 100%; } .btn-whatsapp { width: 100%; justify-content: center; } }
     </style>
 </head>
 <body>
 
 <header class="header">
-    <div class="logo">
-        <div class="logo-icon"><i class="fas fa-laptop-medical"></i></div>
-        <div class="logo-text"><h1>HelpHosp</h1><span>Suporte Técnico</span></div>
-    </div>
+    <div class="logo"><i class="fas fa-laptop-medical"></i><div><h1>HelpHosp</h1><span>Suporte Técnico</span></div></div>
     <div class="header-actions">
-        <a href="https://wa.me/5582981845421?text=Olá!%20Preciso%20de%20suporte%20técnico." class="whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> Falar com Suporte</a>
-        <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-lock"></i> Área do Técnico</a>
+        <div style="position:relative;">
+            <button class="btn-whatsapp" onclick="toggleWhatsappList()" style="padding-right:35px;">
+                <i class="fab fa-whatsapp"></i> Falar com Suporte <i class="fas fa-chevron-down" style="font-size:10px;margin-left:4px;"></i>
+            </button>
+            <div id="whatsappList" style="display:none;position:absolute;top:100%;right:0;background:white;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.2);z-index:100;min-width:250px;margin-top:8px;overflow:hidden;">
+                <a href="https://wa.me/5582981845421?text=Olá!%20Preciso%20de%20suporte%20técnico." target="_blank" style="display:flex;align-items:center;gap:10px;padding:14px 16px;color:#111827;text-decoration:none;border-bottom:1px solid #f3f4f6;"><i class="fab fa-whatsapp" style="color:#25d366;font-size:20px;"></i><div><strong>Jeconias Rocha</strong><br><small style="color:#6b7280;">Coordenador TI</small></div></a>
+                <a href="https://wa.me/5582999999999?text=Olá!%20Preciso%20de%20suporte%20técnico." target="_blank" style="display:flex;align-items:center;gap:10px;padding:14px 16px;color:#111827;text-decoration:none;"><i class="fab fa-whatsapp" style="color:#25d366;font-size:20px;"></i><div><strong>Técnico Plantão</strong><br><small style="color:#6b7280;">Suporte Técnico</small></div></a>
+            </div>
+        </div>
+        <a href="admin.html" class="btn-admin"><i class="fas fa-lock"></i> Área Técnica</a>
     </div>
 </header>
 
 <div class="main-container">
-    <div class="banner" id="bannerInicial">
-        <h2>🏥 Precisa de ajuda com TI?</h2>
-        <p>Abra um chamado rapidamente. Nossa equipe está pronta para ajudar!</p>
+    <div id="telaInicial">
+        <div class="card card-click" onclick="mostrarFormulario()"><div class="card-icon"><i class="fas fa-plus-circle"></i></div><h3>Abrir Chamado</h3><p style="color:#6b7280;font-size:14px;">Problema com equipamento ou troca de toner</p></div>
+        <div class="card card-click" onclick="mostrarChamados()"><div class="card-icon"><i class="fas fa-list-ul"></i></div><h3>Meus Chamados</h3><p style="color:#6b7280;font-size:14px;">Acompanhar status dos chamados</p></div>
     </div>
 
-    <div id="cardsAcao">
-        <div class="card" onclick="mostrarFormulario()"><div class="card-icon"><i class="fas fa-plus-circle"></i></div><h3>Abrir Chamado</h3><p>Registre um problema ou troca de toner</p></div>
-        <div class="card" onclick="mostrarMeusChamados()"><div class="card-icon"><i class="fas fa-list-check"></i></div><h3>Meus Chamados</h3><p>Acompanhe seus chamados</p></div>
+    <div id="telaFormulario" class="form-container">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h2 style="font-size:18px;">Novo Chamado</h2><button onclick="voltar()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280;">&times;</button></div>
+            <form onsubmit="abrirChamado(event)">
+                <div class="form-group"><label>Seu Nome</label><input type="text" id="solicitante" required></div>
+                <div class="form-group"><label>Setor</label><select id="setor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergencia/Vermelha</option><option>Centro Cirurgico</option><option>Oncologia I</option><option>Oncologia II</option><option>CME</option><option>Hotelaria</option><option>Clinica Medica I</option><option>Clinica Medica II</option><option>Pediatria</option><option>Farmacia</option><option>Laboratorio</option><option>Direção Geral</option><option>RH</option><option>Faturamento</option><option>Manutenção</option><option>Nutrição</option><option>Recepção Geral</option><option>Radiologia</option><option>Outros</option></select></div>
+                <div class="form-group"><label>Tipo de Solicitação</label>
+                    <div class="toggle-group" id="tipoSolicitacao">
+                        <button type="button" class="toggle-btn active" onclick="selecionarTipo('chamado', this)">🔧 Chamado Técnico</button>
+                        <button type="button" class="toggle-btn" onclick="selecionarTipo('toner', this)">🖨️ Troca de Toner</button>
+                        <button type="button" class="toggle-btn" onclick="selecionarTipo('equipamento', this)">💻 Troca de Equipamento</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Equipamento / Problema</label><select id="categoria" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Impressora</option><option>Monitor</option><option>Teclado/Mouse</option><option>Sistema</option><option>Internet/Rede</option><option>Telefone</option><option>Outros</option></select></div>
+                <div class="form-group"><label>Urgência</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
+                <div class="form-group"><label>Título</label><input type="text" id="titulo" required placeholder="Descreva em poucas palavras"></div>
+                <div id="camposExtras"></div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+            </form>
+        </div>
     </div>
 
-    <div class="form-container" id="formContainer">
-        <div class="form-header"><h2>Novo Chamado</h2><button class="btn-close" onclick="voltar()">&times;</button></div>
-        <form id="formChamado" onsubmit="abrirChamado(event)">
-            <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
-            <div class="form-group">
-                <label>Setor *</label>
-                <select id="setor" required>
-                    <option value="">Selecione...</option>
-                    <option>UTI I</option><option>UTI II</option><option>Emergencia/Vermelha</option>
-                    <option>Centro Cirurgico</option><option>Oncologia I</option><option>Oncologia II</option>
-                    <option>CME</option><option>Hotelaria</option><option>NIR</option>
-                    <option>Clinica Medica I</option><option>Clinica Medica II</option><option>Clinica Cirurgica</option>
-                    <option>Pediatria</option><option>Farmacia</option><option>Laboratorio</option>
-                    <option>Direção Geral</option><option>Direção Adm</option><option>Direção Medica</option>
-                    <option>Direção Enfermagem</option><option>RH</option><option>Faturamento</option>
-                    <option>Sesmet</option><option>Manutenção</option><option>Nutrição</option>
-                    <option>Gavua</option><option>Recepção Geral</option><option>Recepção Nefrologia</option>
-                    <option>Recepção CR</option><option>Sala Telemedicina</option><option>Ortopedia CR</option>
-                    <option>Auditorio</option><option>Patrimonio</option><option>Serviço Social</option>
-                    <option>Fisioterapia</option><option>Psicologia</option><option>Ouvidoria/Juridico</option>
-                    <option>Comunicação</option><option>Radiologia</option><option>Outros</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Tipo de Problema *</label>
-                <select id="categoria" required>
-                    <option value="">Selecione...</option>
-                    <option>Computador</option><option>Notebook</option><option>Impressora</option>
-                    <option>Sistema</option><option>Internet/Rede</option><option>Telefone</option>
-                    <option>Monitor</option><option>🖨️ Troca de Toner</option><option>Outros</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Urgência *</label>
-                <select id="prioridade" required>
-                    <option value="Baixa">Baixa</option><option value="Média" selected>Média</option>
-                    <option value="Alta">Alta</option><option value="Crítica">Crítica</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
-
-            <!-- CAMPO DE TONER -->
-            <div class="checkbox-group">
-                <input type="checkbox" id="isToner" onchange="toggleTonerFields()">
-                <label for="isToner" style="margin:0;cursor:pointer;"><strong>🖨️ É troca de toner?</strong> (Marque para registrar)</label>
-            </div>
-            <div id="tonerFields" style="display:none;">
-                <div class="form-group"><label>Modelo do Toner</label><input type="text" id="modeloToner" placeholder="Ex: HP 12A, Samsung MLT-D101S"></div>
-                <div class="form-group"><label>Número de Série/Patrimônio da Impressora</label><input type="text" id="patrimonioImpressora" placeholder="Ex: PAT-12345"></div>
-            </div>
-
-            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-        </form>
-    </div>
-
-    <div id="chamadosContainer" style="display:none;">
-        <h2 style="margin-bottom:15px;">Meus Chamados</h2>
-        <div id="listaChamados"></div>
-        <div style="text-align:center;margin-top:20px;"><button onclick="voltar()" style="padding:12px 30px;background:#64748b;color:white;border:none;border-radius:25px;cursor:pointer;">Voltar</button></div>
+    <div id="telaChamados" class="form-container">
+        <div class="card"><h2 style="font-size:18px;margin-bottom:16px;">Meus Chamados</h2><div id="listaChamados"></div><button onclick="voltar()" class="btn btn-outline" style="margin-top:16px;width:100%;justify-content:center;">Voltar</button></div>
     </div>
 </div>
-
-<a href="https://wa.me/5582981845421?text=Olá!%20Preciso%20de%20suporte%20técnico." class="whatsapp-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
 
 <script>
 const firebaseConfig = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+var tipoSelecionado = 'chamado';
 
-function toggleTonerFields() { document.getElementById('tonerFields').style.display = document.getElementById('isToner').checked ? 'block' : 'none'; }
+function toggleWhatsappList() { var el = document.getElementById('whatsappList'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+document.addEventListener('click', function(e) { if (!e.target.closest('.btn-whatsapp')) document.getElementById('whatsappList').style.display = 'none'; });
 
-function mostrarFormulario() {
-    document.getElementById('bannerInicial').style.display = 'none';
-    document.getElementById('cardsAcao').style.display = 'none';
-    document.getElementById('formContainer').classList.add('active');
-    document.getElementById('chamadosContainer').style.display = 'none';
+function selecionarTipo(tipo, btn) {
+    tipoSelecionado = tipo;
+    document.querySelectorAll('#tipoSolicitacao .toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var extras = document.getElementById('camposExtras');
+    if (tipo === 'toner') { extras.innerHTML = '<div class="form-group"><label>Modelo do Toner</label><input type="text" id="modeloToner" placeholder="Ex: HP 12A"></div><div class="form-group"><label>Patrimônio da Impressora</label><input type="text" id="patrimonio"></div>'; }
+    else if (tipo === 'equipamento') { extras.innerHTML = '<div class="form-group"><label>Equipamento Trocado</label><input type="text" id="equipTrocado" placeholder="Ex: Monitor Dell 19"></div><div class="form-group"><label>Equipamento Antigo (se houver)</label><input type="text" id="equipAntigo"></div><div class="form-group"><label>Patrimônio</label><input type="text" id="patrimonioEquip"></div>'; }
+    else { extras.innerHTML = ''; }
 }
 
-function mostrarMeusChamados() {
-    document.getElementById('bannerInicial').style.display = 'none';
-    document.getElementById('cardsAcao').style.display = 'none';
-    document.getElementById('formContainer').classList.remove('active');
-    document.getElementById('chamadosContainer').style.display = 'block';
-    carregarChamados();
-}
+function mostrarFormulario() { document.getElementById('telaInicial').style.display = 'none'; document.getElementById('telaFormulario').classList.add('active'); document.getElementById('telaChamados').classList.remove('active'); }
+function mostrarChamados() { document.getElementById('telaInicial').style.display = 'none'; document.getElementById('telaFormulario').classList.remove('active'); document.getElementById('telaChamados').classList.add('active'); carregarChamados(); }
+function voltar() { document.getElementById('telaInicial').style.display = 'block'; document.getElementById('telaFormulario').classList.remove('active'); document.getElementById('telaChamados').classList.remove('active'); document.getElementById('camposExtras').innerHTML = ''; }
 
-function voltar() {
-    document.getElementById('bannerInicial').style.display = 'block';
-    document.getElementById('cardsAcao').style.display = 'block';
-    document.getElementById('formContainer').classList.remove('active');
-    document.getElementById('chamadosContainer').style.display = 'none';
-    document.getElementById('formChamado').reset();
-    document.getElementById('tonerFields').style.display = 'none';
-}
-
-function gerarProtocolo() {
-    var a = new Date();
-    return 'CH-' + a.getFullYear() + String(a.getMonth()+1).padStart(2,'0') + String(a.getDate()).padStart(2,'0') + '-' + String(a.getHours()).padStart(2,'0') + String(a.getMinutes()).padStart(2,'0');
-}
-
-function abrirChamado(event) {
-    event.preventDefault();
-    var isToner = document.getElementById('isToner').checked;
-    var novo = {
-        protocolo: gerarProtocolo(),
+function abrirChamado(e) {
+    e.preventDefault();
+    var chamado = {
+        protocolo: 'CH-' + Date.now().toString(36).toUpperCase(),
         solicitante: document.getElementById('solicitante').value.trim(),
         setor: document.getElementById('setor').value,
         categoria: document.getElementById('categoria').value,
         prioridade: document.getElementById('prioridade').value,
         titulo: document.getElementById('titulo').value.trim(),
+        tipo: tipoSelecionado,
         status: 'A Fazer',
-        data_abertura: new Date().toISOString(),
-        isToner: isToner,
-        modeloToner: isToner ? document.getElementById('modeloToner').value : '',
-        patrimonioImpressora: isToner ? document.getElementById('patrimonioImpressora').value : '',
-        data_troca_toner: isToner ? new Date().toISOString() : null,
-        historico: [{ data: new Date().toISOString(), acao: 'Chamado aberto' + (isToner ? ' - Troca de Toner' : '') }]
+        data_abertura: new Date().toISOString()
     };
-    db.collection('chamados').add(novo).then(function() {
-        document.getElementById('formChamado').reset();
-        document.getElementById('tonerFields').style.display = 'none';
-        mostrarMeusChamados();
-        alert('✅ Chamado aberto!\nProtocolo: ' + novo.protocolo);
-    }).catch(function(e) { alert('Erro ao salvar.'); });
+    if (tipoSelecionado === 'toner') { chamado.modeloToner = document.getElementById('modeloToner')?.value || ''; chamado.patrimonio = document.getElementById('patrimonio')?.value || ''; chamado.data_troca_toner = new Date().toISOString(); }
+    if (tipoSelecionado === 'equipamento') { chamado.equipTrocado = document.getElementById('equipTrocado')?.value || ''; chamado.equipAntigo = document.getElementById('equipAntigo')?.value || ''; chamado.patrimonioEquip = document.getElementById('patrimonioEquip')?.value || ''; }
+    db.collection('chamados').add(chamado).then(function() { document.querySelector('form').reset(); document.getElementById('camposExtras').innerHTML = ''; mostrarChamados(); alert('✅ Chamado ' + chamado.protocolo + ' aberto!'); }).catch(function() { alert('Erro!'); });
 }
 
 function carregarChamados() {
     var c = document.getElementById('listaChamados');
-    c.innerHTML = '<p style="text-align:center;padding:30px;">Carregando...</p>';
+    c.innerHTML = '<p style="text-align:center;padding:20px;">Carregando...</p>';
     db.collection('chamados').orderBy('data_abertura', 'desc').limit(30).get().then(function(snap) {
-        var chamados = [];
-        snap.forEach(function(doc) { var d = doc.data(); d.id = doc.id; chamados.push(d); });
-        if (chamados.length === 0) { c.innerHTML = '<p style="text-align:center;padding:40px;">Nenhum chamado</p>'; return; }
-        c.innerHTML = chamados.map(function(ch) {
+        var list = []; snap.forEach(function(d) { var x = d.data(); x.id = d.id; list.push(x); });
+        if (list.length === 0) { c.innerHTML = '<p style="text-align:center;padding:30px;color:#9ca3af;">Nenhum chamado</p>'; return; }
+        c.innerHTML = list.map(function(ch) {
             var sc = 'status-' + ch.status.toLowerCase().replace(/ /g, '-');
-            var tonerInfo = ch.isToner ? ' 🖨️ Toner: ' + (ch.modeloToner || 'N/I') : '';
-            return '<div class="chamado-card"><div><h4>' + ch.titulo + tonerInfo + '</h4><small>📋 ' + ch.protocolo + ' | 📍 ' + ch.setor + ' | 📅 ' + new Date(ch.data_abertura).toLocaleDateString('pt-BR') + '</small></div><span class="status-badge ' + sc + '">' + ch.status + '</span></div>';
+            var icone = ch.tipo === 'toner' ? '🖨️' : ch.tipo === 'equipamento' ? '💻' : '🔧';
+            return '<div class="chamado-item' + (ch.tipo === 'toner' ? ' toner' : '') + '"><div><h4>' + icone + ' ' + ch.titulo + '</h4><small>📋 ' + ch.protocolo + ' | 📍 ' + ch.setor + ' | 📅 ' + new Date(ch.data_abertura).toLocaleDateString('pt-BR') + '</small></div><span class="status-badge ' + sc + '">' + ch.status + '</span></div>';
         }).join('');
     });
 }

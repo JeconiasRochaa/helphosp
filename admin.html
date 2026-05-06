@@ -5,151 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HelpHosp - Login Técnico</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root { --primary: #4f46e5; --primary-dark: #3730a3; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; --white: #ffffff; --radius: 20px; --shadow: 0 20px 60px rgba(0,0,0,0.15); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-container { background: white; border-radius: 28px; padding: 50px 45px; width: 100%; max-width: 440px; box-shadow: var(--shadow); }
-        .login-header { text-align: center; margin-bottom: 40px; }
-        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #818cf8); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 38px; color: white; }
-        .login-header h2 { font-size: 26px; color: var(--dark); margin-bottom: 8px; }
-        .login-error { background: #fee2e2; color: #991b1b; padding: 14px 18px; border-radius: 14px; margin-bottom: 22px; font-size: 14px; display: none; }
-        .login-error.show { display: block; }
-        .form-group { margin-bottom: 22px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .form-group input { width: 100%; padding: 16px 16px 16px 48px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 16px; font-family: inherit; background: #fafbfc; }
-        .form-group input:focus { outline: none; border-color: var(--primary); }
-        .btn-login { width: 100%; padding: 17px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
-        .btn-login:hover { transform: translateY(-2px); }
-        .login-footer { text-align: center; margin-top: 28px; font-size: 13px; color: #94a3b8; }
-        .login-footer a { color: var(--primary); text-decoration: none; }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="login-logo"><i class="fas fa-user-shield"></i></div>
-            <h2>Área Técnica</h2>
-            <p>Acesso restrito à equipe de TI</p>
-        </div>
-        <div id="loginError" class="login-error"></div>
-        <form onsubmit="fazerLogin(event)">
-            <div class="form-group">
-                <label>Usuário</label>
-                <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="loginUsuario" placeholder="Digite seu usuário" required></div>
-            </div>
-            <div class="form-group">
-                <label>Senha</label>
-                <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="loginSenha" placeholder="Digite sua senha" required></div>
-            </div>
-            <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-        </form>
-        <div class="login-footer"><p>← <a href="index.html">Voltar para área do usuário</a></p></div>
-    </div>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
-            authDomain: "helphosp.firebaseapp.com",
-            projectId: "helphosp",
-            storageBucket: "helphosp.firebasestorage.app",
-            messagingSenderId: "1075623193163",
-            appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    // ========== FIREBASE ==========
+    const firebaseConfig = {
+        apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+        authDomain: "helphosp.firebaseapp.com",
+        projectId: "helphosp",
+        storageBucket: "helphosp.firebasestorage.app",
+        messagingSenderId: "1075623193163",
+        appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        function fazerLogin(event) {
-            event.preventDefault();
-            var user = document.getElementById('loginUsuario').value.toLowerCase().trim();
-            var senha = document.getElementById('loginSenha').value;
-            var errorDiv = document.getElementById('loginError');
+    // ========== INICIALIZAR ADMIN ==========
+    function inicializarAdmin() {
+        db.collection('usuarios').where('usuario', '==', 'jeconias').get()
+            .then(function(snapshot) {
+                if (snapshot.empty) {
+                    // Criar admin se não existir
+                    db.collection('usuarios').add({
+                        nome: 'Jeconias Rocha',
+                        usuario: 'jeconias',
+                        senha: 'Parana2026',
+                        cargo: 'Analista de Sistemas',
+                        tipo: 'admin',
+                        whatsapp: '82981845421',
+                        status: 'ativo',
+                        primeiro_acesso: false,
+                        data_criacao: new Date().toISOString(),
+                        ultima_alteracao_senha: new Date().toISOString()
+                    }).then(function() {
+                        console.log('✅ Admin Jeconias criado!');
+                    }).catch(function(error) {
+                        console.error('Erro ao criar admin:', error);
+                    });
+                } else {
+                    console.log('✅ Admin Jeconias já existe!');
+                }
+            })
+            .catch(function(error) {
+                console.error('Erro ao verificar admin:', error);
+            });
+    }
 
-            // Buscar usuário no Firebase
-            db.collection('usuarios').where('usuario', '==', user).get()
-                .then(function(querySnapshot) {
-                    if (querySnapshot.empty) {
-                        // Se não encontrou no Firebase, verifica localStorage
-                        var usuarios = JSON.parse(localStorage.getItem('db_usuarios')) || [];
-                        var usuario = usuarios.find(function(u) { return u.usuario === user; });
-                        if (!usuario) {
-                            errorDiv.textContent = '❌ Usuário não encontrado';
-                            errorDiv.classList.add('show');
-                            return;
-                        }
-                        if (usuario.senha !== senha) {
-                            errorDiv.textContent = '❌ Senha incorreta';
-                            errorDiv.classList.add('show');
-                            return;
-                        }
-                        fazerLoginSucesso(usuario);
-                    } else {
-                        var usuario = querySnapshot.docs[0].data();
-                        usuario.id = querySnapshot.docs[0].id;
-                        if (usuario.senha !== senha) {
-                            errorDiv.textContent = '❌ Senha incorreta';
-                            errorDiv.classList.add('show');
-                            return;
-                        }
-                        fazerLoginSucesso(usuario);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Erro:', error);
-                    // Fallback para localStorage
-                    var usuarios = JSON.parse(localStorage.getItem('db_usuarios')) || [];
-                    var usuario = usuarios.find(function(u) { return u.usuario === user && u.senha === senha; });
-                    if (usuario) {
-                        fazerLoginSucesso(usuario);
-                    } else {
-                        errorDiv.textContent = '❌ Erro ao conectar';
-                        errorDiv.classList.add('show');
-                    }
-                });
-        }
+    // ========== LOGIN ==========
+    function fazerLogin(event) {
+        event.preventDefault();
+        
+        var user = document.getElementById('loginUsuario').value.toLowerCase().trim();
+        var senha = document.getElementById('loginSenha').value;
+        var errorDiv = document.getElementById('loginError');
+        
+        console.log('🔍 Tentando login:', user);
+        
+        // BUSCAR NO FIREBASE
+        db.collection('usuarios').where('usuario', '==', user).get()
+            .then(function(snapshot) {
+                if (snapshot.empty) {
+                    console.log('❌ Usuário não encontrado no Firebase');
+                    errorDiv.innerHTML = '❌ Usuário não encontrado!<br><small>Verifique o nome de usuário.</small>';
+                    errorDiv.classList.add('show');
+                    setTimeout(function() { errorDiv.classList.remove('show'); }, 5000);
+                    return;
+                }
+                
+                var doc = snapshot.docs[0];
+                var usuario = doc.data();
+                usuario.id = doc.id;
+                
+                console.log('✅ Usuário encontrado:', usuario.nome);
+                
+                // Verificar senha
+                if (usuario.senha !== senha) {
+                    console.log('❌ Senha incorreta');
+                    errorDiv.innerHTML = '❌ Senha incorreta!<br><small>Tente novamente.</small>';
+                    errorDiv.classList.add('show');
+                    setTimeout(function() { errorDiv.classList.remove('show'); }, 5000);
+                    return;
+                }
+                
+                // Verificar status
+                if (usuario.status && usuario.status !== 'ativo') {
+                    errorDiv.textContent = '❌ Usuário inativo. Contate o administrador.';
+                    errorDiv.classList.add('show');
+                    setTimeout(function() { errorDiv.classList.remove('show'); }, 5000);
+                    return;
+                }
+                
+                // LOGIN COM SUCESSO!
+                console.log('✅ Login bem-sucedido!');
+                
+                localStorage.setItem('usuario_logado', JSON.stringify({
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    usuario: usuario.usuario,
+                    cargo: usuario.cargo,
+                    tipo: usuario.tipo
+                }));
+                
+                // Verificar primeiro acesso
+                if (usuario.primeiro_acesso === true) {
+                    console.log('⚠️ Primeiro acesso - redirecionando para trocar senha');
+                    window.location.href = 'trocar-senha.html?id=' + usuario.id;
+                } else {
+                    console.log('➡️ Redirecionando para dashboard');
+                    window.location.href = 'dashboard.html';
+                }
+            })
+            .catch(function(error) {
+                console.error('❌ Erro no Firebase:', error);
+                errorDiv.textContent = '❌ Erro de conexão. Tente novamente.';
+                errorDiv.classList.add('show');
+                setTimeout(function() { errorDiv.classList.remove('show'); }, 5000);
+            });
+    }
 
-        function fazerLoginSucesso(usuario) {
-            localStorage.setItem('usuario_logado', JSON.stringify({
-                id: usuario.id, nome: usuario.nome, usuario: usuario.usuario,
-                cargo: usuario.cargo, tipo: usuario.tipo
-            }));
-            if (usuario.primeiro_acesso) {
-                window.location.href = 'trocar-senha.html?id=' + usuario.id;
-            } else {
-                window.location.href = 'dashboard.html';
-            }
-        }
-
-        // Inicializar admin se não existir
-        function inicializarAdmin() {
-            db.collection('usuarios').where('usuario', '==', 'jeconias').get()
-                .then(function(querySnapshot) {
-                    if (querySnapshot.empty) {
-                        db.collection('usuarios').add({
-                            nome: 'Jeconias Rocha',
-                            usuario: 'jeconias',
-                            senha: 'Parana2026',
-                            cargo: 'Analista de Sistemas',
-                            tipo: 'admin',
-                            whatsapp: '82981845421',
-                            status: 'ativo',
-                            primeiro_acesso: false,
-                            data_criacao: new Date().toISOString()
-                        }).then(function() {
-                            console.log('✅ Admin criado no Firebase!');
-                        });
-                    }
-                });
-        }
-
-        inicializarAdmin();
-    </script>
-</body>
-</html>
+    // Limpar sessão anterior
+    localStorage.removeItem('usuario_logado');
+    
+    // Inicializar
+    inicializarAdmin();
+    
+    console.log('🚀 Sistema de login pronto!');
+</script>

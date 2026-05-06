@@ -6,51 +6,36 @@
     <title>HelpHosp - Trocar Senha</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #f59e0b; --primary-dark: #d97706; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; --white: #ffffff; --radius: 20px; --shadow: 0 20px 60px rgba(0,0,0,0.15); --transition: all 0.3s ease; }
+        :root { --primary: #f59e0b; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #fffbeb, #fef3c7, #fff7ed); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .container { background: white; border-radius: 28px; padding: 45px 40px; width: 100%; max-width: 480px; box-shadow: var(--shadow); animation: fadeInUp 0.5s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #fffbeb, #fef3c7); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 28px; padding: 45px 40px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
         .header { text-align: center; margin-bottom: 35px; }
-        .icon-box { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; color: white; }
-        .header h2 { font-size: 24px; color: var(--dark); margin-bottom: 8px; }
-        .header p { color: var(--gray); font-size: 14px; }
+        .icon-box { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #d97706); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; color: white; }
+        .header h2 { font-size: 24px; margin-bottom: 8px; }
         .alerta { padding: 14px 18px; border-radius: 14px; margin-bottom: 20px; font-size: 14px; display: none; }
-        .alerta-erro { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--danger); display: block; }
+        .alerta-erro { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--danger); }
         .alerta-sucesso { background: #d1fae5; color: #065f46; border-left: 4px solid var(--success); }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
         .form-group input { width: 100%; padding: 16px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 16px; font-family: inherit; }
-        .form-group input:focus { outline: none; border-color: var(--primary); }
-        .btn { width: 100%; padding: 17px; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; transition: var(--transition); }
-        .btn-salvar { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
-        .btn-salvar:hover { transform: translateY(-2px); }
+        .btn { width: 100%; padding: 17px; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
+        .btn-salvar { background: linear-gradient(135deg, var(--primary), #d97706); color: white; }
         .btn-cancelar { background: #f1f5f9; color: var(--gray); margin-top: 10px; }
-        .btn-cancelar:hover { background: #e2e8f0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="icon-box"><i class="fas fa-key"></i></div>
-            <h2>🔐 Primeiro Acesso</h2>
-            <p>Olá, <strong id="nomeUsuario">Técnico</strong>!<br>Crie uma senha pessoal para acessar o sistema.</p>
-        </div>
-        <div id="alertaErro" class="alerta alerta-erro" style="display:none;"></div>
-        <div id="alertaSucesso" class="alerta alerta-sucesso" style="display:none;"></div>
-        <form id="formTrocaSenha" onsubmit="trocarSenha(event)">
+        <div class="header"><div class="icon-box"><i class="fas fa-key"></i></div><h2>🔐 Primeiro Acesso</h2><p>Olá, <strong id="nomeUsuario">Técnico</strong>!<br>Crie uma senha pessoal.</p></div>
+        <div id="alertaErro" class="alerta alerta-erro"></div>
+        <div id="alertaSucesso" class="alerta alerta-sucesso"></div>
+        <form onsubmit="trocarSenha(event)">
             <input type="hidden" id="userId">
-            <div class="form-group">
-                <label>Nova Senha</label>
-                <input type="password" id="novaSenha" placeholder="Mínimo 8 caracteres" required minlength="8">
-            </div>
-            <div class="form-group">
-                <label>Confirmar Senha</label>
-                <input type="password" id="confirmarSenha" placeholder="Repita a nova senha" required>
-            </div>
-            <button type="submit" class="btn btn-salvar"><i class="fas fa-save"></i> Salvar Nova Senha</button>
+            <div class="form-group"><label>Nova Senha</label><input type="password" id="novaSenha" placeholder="Mínimo 8 caracteres" required minlength="8"></div>
+            <div class="form-group"><label>Confirmar Senha</label><input type="password" id="confirmarSenha" placeholder="Repita a nova senha" required></div>
+            <button type="submit" class="btn btn-salvar"><i class="fas fa-save"></i> Salvar</button>
         </form>
-        <button class="btn btn-cancelar" onclick="cancelar()">Cancelar e sair</button>
+        <button class="btn btn-cancelar" onclick="cancelar()">Cancelar</button>
     </div>
 
     <script>
@@ -65,30 +50,20 @@
         function trocarSenha(event) {
             event.preventDefault();
             var nova = document.getElementById('novaSenha').value;
-            var confirmar = document.getElementById('confirmarSenha').value;
-            var erro = document.getElementById('alertaErro');
-            var sucesso = document.getElementById('alertaSucesso');
-            erro.style.display = 'none'; sucesso.style.display = 'none';
-            if (nova.length < 8) { erro.textContent = '❌ Mínimo 8 caracteres'; erro.style.display = 'block'; return; }
-            if (nova !== confirmar) { erro.textContent = '❌ Senhas não conferem'; erro.style.display = 'block'; return; }
-            if (nova === '12345') { erro.textContent = '❌ Não use a senha padrão'; erro.style.display = 'block'; return; }
-            var index = usuarios.findIndex(function(u) { return u.id === userId; });
-            usuarios[index].senha = nova;
-            usuarios[index].primeiro_acesso = false;
-            usuarios[index].ultima_alteracao_senha = new Date().toISOString();
+            var conf = document.getElementById('confirmarSenha').value;
+            if (nova.length < 8) { document.getElementById('alertaErro').textContent = '❌ Mínimo 8 caracteres'; document.getElementById('alertaErro').style.display = 'block'; return; }
+            if (nova !== conf) { document.getElementById('alertaErro').textContent = '❌ Senhas não conferem'; document.getElementById('alertaErro').style.display = 'block'; return; }
+            var idx = usuarios.findIndex(function(u) { return u.id === userId; });
+            usuarios[idx].senha = nova;
+            usuarios[idx].primeiro_acesso = false;
             localStorage.setItem('db_usuarios', JSON.stringify(usuarios));
-            sucesso.innerHTML = '✅ Senha alterada! Redirecionando...';
-            sucesso.style.display = 'block';
-            localStorage.setItem('usuario_logado', JSON.stringify({ id: usuarios[index].id, nome: usuarios[index].nome, usuario: usuarios[index].usuario, cargo: usuarios[index].cargo, tipo: usuarios[index].tipo }));
+            document.getElementById('alertaSucesso').innerHTML = '✅ Senha alterada! Redirecionando...';
+            document.getElementById('alertaSucesso').style.display = 'block';
+            localStorage.setItem('usuario_logado', JSON.stringify({ id: usuarios[idx].id, nome: usuarios[idx].nome, usuario: usuarios[idx].usuario, cargo: usuarios[idx].cargo, tipo: usuarios[idx].tipo }));
             setTimeout(function() { window.location.href = 'dashboard.html'; }, 2000);
         }
 
-        function cancelar() {
-            if (confirm('Tem certeza? Você precisará trocar a senha no próximo acesso.')) {
-                localStorage.removeItem('usuario_logado');
-                window.location.href = 'admin.html';
-            }
-        }
+        function cancelar() { localStorage.removeItem('usuario_logado'); window.location.href = 'admin.html'; }
     </script>
 </body>
 </html>

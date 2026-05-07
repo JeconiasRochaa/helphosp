@@ -164,26 +164,50 @@
         <div class="chart-full"><h3>🖨️ Toners por Setor</h3><canvas id="gToner"></canvas></div>
     </section>
 
-    <!-- CHAMADOS -->
-    <section id="secao-chamados" class="secao">
-        <div class="top-bar"><h1>🎫 Chamados</h1></div>
-        <div class="filtros">
-            <select id="fS" onchange="carregarChamados()">
-                <option value="">Todos Status</option>
-                <option>A Fazer</option>
-                <option>Em Andamento</option>
-                <option>Concluído</option>
-            </select>
-            <select id="fT" onchange="carregarChamados()">
-                <option value="">Todos Tipos</option>
-                <option value="chamado">🔧 Chamado</option>
-                <option value="toner">🖨️ Toner</option>
-                <option value="equipamento">💻 Equipamento</option>
-            </select>
-            <input type="text" id="fB" placeholder="🔍 Buscar por título ou protocolo..." onkeyup="carregarChamados()">
+   <!-- CHAMADOS -->
+<section id="secao-chamados" class="secao">
+    <div class="top-bar">
+        <h1>🎫 Chamados</h1>
+        <span style="font-size:12px;color:#888;" id="totalChamadosFiltrados">Total: 0</span>
+    </div>
+    
+    <div class="filtros">
+        <select id="fS" onchange="carregarChamados()">
+            <option value="">Todos Status</option>
+            <option>A Fazer</option>
+            <option>Em Andamento</option>
+            <option>Pendente</option>
+            <option>Concluído</option>
+        </select>
+        
+        <select id="fT" onchange="carregarChamados()">
+            <option value="">Todos Tipos</option>
+            <option value="chamado">🔧 Chamado Técnico</option>
+            <option value="toner">🖨️ Troca de Toner</option>
+            <option value="equipamento">💻 Troca de Equipamento</option>
+        </select>
+        
+        <select id="fSetor" onchange="carregarChamados()">
+            <option value="">Todos Setores</option>
+            <option>UTI I</option>
+            <option>UTI II</option>
+            <option>Emergencia/Vermelha</option>
+            <option>Centro Cirurgico</option>
+            <option>Farmacia</option>
+            <option>TI</option>
+        </select>
+        
+        <input type="text" id="fB" placeholder="🔍 Buscar por título, protocolo ou solicitante..." onkeyup="carregarChamados()">
+    </div>
+    
+    <div id="listaChamadosAdmin">
+        <div style="text-align:center;padding:60px;color:#9ca3af;">
+            <i class="fas fa-inbox" style="font-size:50px;display:block;margin-bottom:15px;"></i>
+            <p>Nenhum chamado encontrado</p>
+            <p style="font-size:12px;">Os chamados aparecerão aqui</p>
         </div>
-        <div id="listaChamadosAdmin"></div>
-    </section>
+    </div>
+</section>
 
     <!-- TONERS -->
     <section id="secao-toners" class="secao">
@@ -277,9 +301,20 @@
     <div class="modal-box">
         <h3><i class="fas fa-print"></i> Troca Preventiva de Toner</h3>
         <form onsubmit="addToner(event)">
-            <div class="form-group"><label>Setor *</label><select id="ts" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergencia/Vermelha</option><option>Centro Cirurgico</option></select></div>
-            <div class="form-group"><label>Modelo do Toner *</label><input type="text" id="tm" required placeholder="Ex: HP 12A"></div>
-            <div class="form-group"><label>Patrimônio da Impressora</label><input type="text" id="tp" placeholder="Ex: PAT-12345"></div>
+            <div class="form-group"><label>Setor *</label><select id="ts" required>
+                <option value="">Selecione...</option>
+                <option>UTI I</option>
+                <option>UTI II</option>
+                <option>Oncologia</option>
+                <option>Centro Cirurgico</option>
+                <option>NIR</option>
+                <option>RECEPÇÃO GERAL</option>
+                <option>RECEPÇÃO CR</option>
+                <option>ADMINISTRAÇÃO</option>
+                <option>FARMACIA CAF</option>
+                <option>FATURAMENTO</option>
+            </select>
+            </div>
             <div style="display:flex;gap:8px;">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Registrar</button>
                 <button type="button" class="btn btn-outline" onclick="document.getElementById('modalToner').classList.remove('ativa')">Cancelar</button>
@@ -434,39 +469,72 @@ function atualizarDash() {
 function carregarChamados() {
     var statusFiltro = document.getElementById('fS').value;
     var tipoFiltro = document.getElementById('fT').value;
+    var setorFiltro = document.getElementById('fSetor').value;
     var busca = document.getElementById('fB').value.toLowerCase();
     
     var filtrados = chamados.filter(function(c) {
         if (statusFiltro && c.status !== statusFiltro) return false;
-        if (tipoFiltro && c.tipo !== tipoFiltro) return false;
-        if (busca && (c.titulo || '').toLowerCase().indexOf(busca) < 0 && (c.protocolo || '').toLowerCase().indexOf(busca) < 0) return false;
+        if (tipoFiltro && c.tipo !== tipoFiltro && !(tipoFiltro === 'toner' && c.isToner)) return false;
+        if (setorFiltro && c.setor !== setorFiltro) return false;
+        if (busca && 
+            (c.titulo || '').toLowerCase().indexOf(busca) < 0 && 
+            (c.protocolo || '').toLowerCase().indexOf(busca) < 0 &&
+            (c.solicitante || '').toLowerCase().indexOf(busca) < 0) return false;
         return true;
     });
+    
+    // Atualizar contador
+    var totalEl = document.getElementById('totalChamadosFiltrados');
+    if (totalEl) totalEl.textContent = 'Total: ' + filtrados.length;
     
     var container = document.getElementById('listaChamadosAdmin');
     
     if (filtrados.length === 0) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:#9ca3af;"><i class="fas fa-inbox" style="font-size:40px;display:block;margin-bottom:10px;"></i>Nenhum chamado encontrado</div>';
+        container.innerHTML = '<div style="text-align:center;padding:60px;color:#9ca3af;"><i class="fas fa-inbox" style="font-size:50px;display:block;margin-bottom:15px;"></i><p>Nenhum chamado encontrado</p></div>';
         return;
     }
     
     container.innerHTML = filtrados.map(function(c) {
-        var statusClass = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue';
+        var statusClass = c.status === 'Concluído' ? 'badge-green' : 
+                         c.status === 'Em Andamento' ? 'badge-amber' : 
+                         c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
+        
         var tipoClass = c.tipo === 'toner' ? 'toner' : c.tipo === 'equipamento' ? 'equip' : '';
         var icone = c.tipo === 'toner' ? '🖨️' : c.tipo === 'equipamento' ? '💻' : '🔧';
         
-        // Botão excluir só aparece para admin
-        var btnExcluir = uLogado.tipo === 'admin' ? 
-            '<button class="btn btn-sm btn-danger" onclick="excluirChamado(\'' + c.fid + '\')" title="Excluir"><i class="fas fa-trash"></i></button>' : '';
+        var dataHora = c.data_abertura ? new Date(c.data_abertura).toLocaleString('pt-BR') : 'Data não informada';
         
-        return '<div class="chamado-item ' + tipoClass + '">' +
-            '<div>' +
-                '<h4>' + icone + ' ' + (c.titulo || 'Sem título') + '</h4>' +
-                '<small>📋 ' + (c.protocolo || 'N/I') + ' | 👤 ' + (c.solicitante || 'Anônimo') + ' | 📍 ' + (c.setor || 'N/I') + ' | 📅 ' + new Date(c.data_abertura).toLocaleDateString('pt-BR') + '</small>' +
+        // Botão excluir só para admin
+        var btnExcluir = uLogado.tipo === 'admin' ? 
+            '<button class="btn btn-sm btn-danger" onclick="excluirChamado(\'' + c.fid + '\')" title="Excluir chamado"><i class="fas fa-trash"></i></button>' : '';
+        
+        // Informações extras
+        var infoExtra = '';
+        if (c.tipo === 'toner' && c.modeloToner) {
+            infoExtra = '<br><small style="color:#d97706;">🖨️ Toner: ' + c.modeloToner + ' | Patrimônio: ' + (c.patrimonio || 'N/I') + '</small>';
+        } else if (c.tipo === 'equipamento' && c.equipTrocado) {
+            infoExtra = '<br><small style="color:#8b5cf6;">💻 Equipamento: ' + c.equipTrocado + ' | Patrimônio: ' + (c.patrimonioEquip || 'N/I') + '</small>';
+        }
+        
+        // Contato
+        var contatoInfo = c.contato ? ' | 📞 ' + c.contato : '';
+        
+        return '<div class="chamado-item ' + tipoClass + '" style="border-left:4px solid ' + (c.tipo === 'toner' ? '#d97706' : c.tipo === 'equipamento' ? '#8b5cf6' : '#4f8ef7') + ';">' +
+            '<div style="flex:1;">' +
+                '<h4 style="margin:0 0 4px 0;font-size:14px;">' + icone + ' ' + (c.titulo || 'Sem título') + '</h4>' +
+                '<small style="color:#6b7280;">' +
+                    '📋 <strong>' + (c.protocolo || 'N/I') + '</strong>' +
+                    ' | 👤 ' + (c.solicitante || 'Anônimo') +
+                    ' | 📍 ' + (c.setor || 'N/I') +
+                    contatoInfo +
+                    ' | 🕐 ' + dataHora +
+                    ' | ⚡ ' + (c.prioridade || 'Média') +
+                '</small>' +
+                infoExtra +
             '</div>' +
-            '<div class="chamado-actions">' +
-                '<span class="badge ' + statusClass + '">' + (c.status || 'A Fazer') + '</span>' +
-                '<button class="btn btn-sm btn-outline" onclick="avancarStatus(\'' + c.fid + '\')" title="Avançar Status">▶</button>' +
+            '<div class="chamado-actions" style="display:flex;align-items:center;gap:8px;margin-left:12px;">' +
+                '<span class="badge ' + statusClass + '" style="font-size:11px;">' + (c.status || 'A Fazer') + '</span>' +
+                '<button class="btn btn-sm btn-outline" onclick="avancarStatus(\'' + c.fid + '\')" title="Avançar status">▶</button>' +
                 btnExcluir +
             '</div>' +
         '</div>';

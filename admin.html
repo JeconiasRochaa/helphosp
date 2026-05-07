@@ -3,158 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Login Técnico</title>
+    <title>HelpHosp - Login</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #4f46e5; --primary-dark: #3730a3; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; }
+        :root { --primary: #2563eb; --dark: #111827; --gray: #6b7280; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { background: white; border-radius: 24px; padding: 45px 40px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        .login-header { text-align: center; margin-bottom: 35px; }
-        .login-icon { width: 72px; height: 72px; background: linear-gradient(135deg, var(--primary), #818cf8); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 34px; color: white; }
-        .login-header h2 { font-size: 24px; color: var(--dark); margin-bottom: 6px; }
-        .login-header p { color: var(--gray); font-size: 14px; }
-        .erro { background: #fee2e2; color: #991b1b; padding: 12px 16px; border-radius: 12px; margin-bottom: 18px; font-size: 14px; display: none; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; border-radius: 22px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-icon { width: 64px; height: 64px; background: var(--primary); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 28px; color: white; }
+        .login-header h2 { font-size: 22px; } .login-header p { color: var(--gray); font-size: 13px; }
+        .erro { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; display: none; }
         .erro.show { display: block; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 7px; font-weight: 600; font-size: 13px; color: var(--dark); }
-        .input-box { position: relative; }
-        .input-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-        .form-group input { width: 100%; padding: 15px 15px 15px 45px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; font-family: inherit; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; }
+        .input-box { position: relative; } .input-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+        .form-group input { width: 100%; padding: 14px 14px 14px 42px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 15px; font-family: inherit; }
         .form-group input:focus { outline: none; border-color: var(--primary); }
-        .btn-login { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btn-login:hover { transform: translateY(-2px); }
-        .login-footer { text-align: center; margin-top: 25px; font-size: 13px; color: #94a3b8; }
-        .login-footer a { color: var(--primary); text-decoration: none; }
+        .btn-login { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-login:hover { background: #1d4ed8; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #9ca3af; }
+        .footer a { color: var(--primary); text-decoration: none; }
     </style>
 </head>
 <body>
-
 <div class="login-box">
-    <div class="login-header">
-        <div class="login-icon"><i class="fas fa-user-shield"></i></div>
-        <h2>Área Técnica</h2>
-        <p>Acesso restrito à equipe de TI</p>
-    </div>
-
+    <div class="login-header"><div class="login-icon"><i class="fas fa-user-shield"></i></div><h2>Área Técnica</h2><p>Acesso restrito</p></div>
     <div id="erroLogin" class="erro"></div>
-
-    <form onsubmit="fazerLogin(event)">
-        <div class="form-group">
-            <label>Usuário</label>
-            <div class="input-box"><i class="fas fa-user"></i><input type="text" id="usuario" placeholder="Digite seu usuário" required></div>
-        </div>
-        <div class="form-group">
-            <label>Senha</label>
-            <div class="input-box"><i class="fas fa-lock"></i><input type="password" id="senha" placeholder="Digite sua senha" required></div>
-        </div>
+    <form onsubmit="login(event)">
+        <div class="form-group"><label>Usuário</label><div class="input-box"><i class="fas fa-user"></i><input type="text" id="usuario" required></div></div>
+        <div class="form-group"><label>Senha</label><div class="input-box"><i class="fas fa-lock"></i><input type="password" id="senha" required></div></div>
         <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Entrar</button>
     </form>
-
-    <div class="login-footer">
-        <p>← <a href="index.html">Voltar para área do usuário</a></p>
-    </div>
+    <div class="footer"><p>← <a href="index.html">Área do Usuário</a></p></div>
 </div>
 
 <script>
-// Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
-    authDomain: "helphosp.firebaseapp.com",
-    projectId: "helphosp",
-    storageBucket: "helphosp.firebasestorage.app",
-    messagingSenderId: "1075623193163",
-    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
+firebase.initializeApp(fc); const db = firebase.firestore();
 
-console.log('✅ Firebase conectado!');
-
-// Criar admin automaticamente se não existir
-db.collection('usuarios').where('usuario', '==', 'jeconias').get().then(function(snap) {
-    if (snap.empty) {
-        db.collection('usuarios').add({
-            nome: 'Jeconias Rocha',
-            usuario: 'jeconias',
-            senha: 'Parana2026',
-            cargo: 'Analista de Sistemas',
-            tipo: 'admin',
-            whatsapp: '82981845421',
-            status: 'ativo',
-            primeiro_acesso: false,
-            data_criacao: new Date().toISOString()
-        }).then(function() {
-            console.log('✅ Admin Jeconias criado!');
-        });
-    } else {
-        console.log('✅ Admin Jeconias já existe!');
-    }
+db.collection('usuarios').where('usuario', '==', 'jeconias').get().then(function(s) {
+    if (s.empty) db.collection('usuarios').add({ nome: 'Jeconias Rocha', usuario: 'jeconias', senha: 'Parana2026', cargo: 'Analista de Sistemas', tipo: 'admin', whatsapp: '82981845421', status: 'ativo', primeiro_acesso: false });
 });
 
-function fazerLogin(event) {
-    event.preventDefault();
-    
-    var user = document.getElementById('usuario').value.toLowerCase().trim();
-    var senhaDigitada = document.getElementById('senha').value;
-    var erroDiv = document.getElementById('erroLogin');
-    
-    erroDiv.classList.remove('show');
-    
-    console.log('🔍 Tentando login:', user);
-    
-    db.collection('usuarios').where('usuario', '==', user).get()
-        .then(function(snapshot) {
-            if (snapshot.empty) {
-                console.log('❌ Usuário NÃO encontrado!');
-                erroDiv.textContent = '❌ Usuário não encontrado!';
-                erroDiv.classList.add('show');
-                return;
-            }
-            
-            var doc = snapshot.docs[0];
-            var usuario = doc.data();
-            
-            console.log('✅ Usuário encontrado:', usuario.nome);
-            console.log('📝 Senha digitada:', senhaDigitada);
-            console.log('📝 Senha no banco:', usuario.senha);
-            
-            if (usuario.senha !== senhaDigitada) {
-                console.log('❌ Senha INCORRETA!');
-                erroDiv.textContent = '❌ Senha incorreta!';
-                erroDiv.classList.add('show');
-                return;
-            }
-            
-            if (usuario.status === 'inativo') {
-                erroDiv.textContent = '❌ Usuário inativo!';
-                erroDiv.classList.add('show');
-                return;
-            }
-            
-            console.log('✅ LOGIN BEM-SUCEDIDO!');
-            
-            localStorage.setItem('usuario_logado', JSON.stringify({
-                id: doc.id,
-                nome: usuario.nome,
-                usuario: usuario.usuario,
-                cargo: usuario.cargo,
-                tipo: usuario.tipo
-            }));
-            
-            if (usuario.primeiro_acesso === true) {
-                window.location.href = 'trocar-senha.html?id=' + doc.id;
-            } else {
-                window.location.href = 'dashboard.html';
-            }
-        })
-        .catch(function(error) {
-            console.error('❌ Erro Firebase:', error);
-            erroDiv.textContent = '❌ Erro de conexão!';
-            erroDiv.classList.add('show');
-        });
+function login(e) {
+    e.preventDefault();
+    var u = document.getElementById('usuario').value.toLowerCase().trim();
+    var s = document.getElementById('senha').value;
+    var err = document.getElementById('erroLogin');
+    err.classList.remove('show');
+    db.collection('usuarios').where('usuario', '==', u).get().then(function(snap) {
+        if (snap.empty) { err.textContent = '❌ Usuário não encontrado!'; err.classList.add('show'); return; }
+        var doc = snap.docs[0], user = doc.data();
+        if (user.senha !== s) { err.textContent = '❌ Senha incorreta!'; err.classList.add('show'); return; }
+        if (user.status === 'inativo') { err.textContent = '❌ Usuário inativo!'; err.classList.add('show'); return; }
+        localStorage.setItem('usuario_logado', JSON.stringify({ id: doc.id, nome: user.nome, usuario: user.usuario, cargo: user.cargo, tipo: user.tipo }));
+        if (user.primeiro_acesso) { window.location.href = 'trocar-senha.html?id=' + doc.id; } else { window.location.href = 'dashboard.html'; }
+    }).catch(function() { err.textContent = '❌ Erro de conexão!'; err.classList.add('show'); });
 }
 </script>
 </body>

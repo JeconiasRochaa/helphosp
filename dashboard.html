@@ -660,7 +660,14 @@ function excluirChamado(firebaseId) {
 }
 
 // ========== TONERS ==========
-function addToner(event) {
+function abrirModalToner() {
+    document.getElementById('modalToner').classList.add('ativa');
+    // Limpar campos ao abrir
+    document.getElementById('tm').value = '';
+    document.getElementById('tp').value = '';
+    document.getElementById('ts').selectedIndex = 0;
+}
+    function addToner(event) {
     event.preventDefault();
     
     var setor = document.getElementById('ts').value;

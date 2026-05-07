@@ -643,14 +643,24 @@ function excluirChamado(firebaseId) {
 }
 
 // ========== TONERS ==========
+// ========== MODAL TONER ==========
 function abrirModalToner() {
-    document.getElementById('modalToner').classList.add('ativa');
-    // Limpar campos ao abrir
-    document.getElementById('tm').value = '';
-    document.getElementById('tp').value = '';
-    document.getElementById('ts').selectedIndex = 0;
+    var modal = document.getElementById('modalToner');
+    if (modal) {
+        modal.classList.add('ativa');
+        // Limpar campos
+        var tm = document.getElementById('tm');
+        var tp = document.getElementById('tp');
+        var ts = document.getElementById('ts');
+        if (tm) tm.value = '';
+        if (tp) tp.value = '';
+        if (ts) ts.selectedIndex = 0;
+    } else {
+        console.error('❌ Modal #modalToner não encontrado!');
+    }
 }
-    function addToner(event) {
+
+function addToner(event) {
     event.preventDefault();
     
     var setor = document.getElementById('ts').value;
@@ -663,17 +673,22 @@ function abrirModalToner() {
     var novoToner = {
         protocolo: 'TN-' + Date.now().toString(36).toUpperCase(),
         setor: setor,
+        modeloToner: modelo,
+        patrimonio: patrimonio,
         tipo: 'toner',
         isToner: true,
         status: 'Concluído',
         solicitante: 'TI (Preventivo)',
-        titulo: 'Troca preventiva de toner',
+        titulo: 'Troca preventiva de toner - ' + modelo,
         data_abertura: new Date().toISOString(),
         data_troca_toner: new Date().toISOString()
     };
     
+    console.log('💾 Salvando toner:', novoToner);
+    
     db.collection('chamados').add(novoToner)
-        .then(function() {
+        .then(function(docRef) {
+            console.log('✅ Toner salvo! ID:', docRef.id);
             document.getElementById('modalToner').classList.remove('ativa');
             document.getElementById('tm').value = '';
             document.getElementById('tp').value = '';
@@ -682,7 +697,8 @@ function abrirModalToner() {
             mostrarToast('✅ Troca preventiva registrada!');
         })
         .catch(function(error) {
-            alert('❌ Erro ao registrar: ' + error.message);
+            console.error('❌ Erro:', error);
+            alert('❌ Erro ao registrar!');
         });
 }
 

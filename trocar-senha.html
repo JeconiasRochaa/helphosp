@@ -3,67 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Trocar Senha</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Trocar Senha</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #f59e0b; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --gray: #64748b; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #fffbeb, #fef3c7); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .container { background: white; border-radius: 28px; padding: 45px 40px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-        .header { text-align: center; margin-bottom: 35px; }
-        .icon-box { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #d97706); border-radius: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; color: white; }
-        .header h2 { font-size: 24px; margin-bottom: 8px; }
-        .alerta { padding: 14px 18px; border-radius: 14px; margin-bottom: 20px; font-size: 14px; display: none; }
-        .alerta-erro { background: #fee2e2; color: #991b1b; border-left: 4px solid var(--danger); }
-        .alerta-sucesso { background: #d1fae5; color: #065f46; border-left: 4px solid var(--success); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input { width: 100%; padding: 16px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 16px; font-family: inherit; }
-        .btn { width: 100%; padding: 17px; border: none; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; }
-        .btn-salvar { background: linear-gradient(135deg, var(--primary), #d97706); color: white; }
-        .btn-cancelar { background: #f1f5f9; color: var(--gray); margin-top: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #fef3c7; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .box { background: white; border-radius: 18px; padding: 35px; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+        .box h2 { margin-bottom: 20px; }
+        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group label { font-weight: 600; font-size: 12px; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        .btn { width: 100%; padding: 14px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header"><div class="icon-box"><i class="fas fa-key"></i></div><h2>🔐 Primeiro Acesso</h2><p>Olá, <strong id="nomeUsuario">Técnico</strong>!<br>Crie uma senha pessoal.</p></div>
-        <div id="alertaErro" class="alerta alerta-erro"></div>
-        <div id="alertaSucesso" class="alerta alerta-sucesso"></div>
-        <form onsubmit="trocarSenha(event)">
-            <input type="hidden" id="userId">
-            <div class="form-group"><label>Nova Senha</label><input type="password" id="novaSenha" placeholder="Mínimo 8 caracteres" required minlength="8"></div>
-            <div class="form-group"><label>Confirmar Senha</label><input type="password" id="confirmarSenha" placeholder="Repita a nova senha" required></div>
-            <button type="submit" class="btn btn-salvar"><i class="fas fa-save"></i> Salvar</button>
-        </form>
-        <button class="btn btn-cancelar" onclick="cancelar()">Cancelar</button>
-    </div>
-
-    <script>
-        var urlParams = new URLSearchParams(window.location.search);
-        var userId = parseInt(urlParams.get('id'));
-        var usuarios = JSON.parse(localStorage.getItem('db_usuarios')) || [];
-        var usuario = usuarios.find(function(u) { return u.id === userId; });
-        if (!usuario) { alert('Usuário não encontrado!'); window.location.href = 'admin.html'; }
-        document.getElementById('nomeUsuario').textContent = usuario.nome;
-        document.getElementById('userId').value = usuario.id;
-
-        function trocarSenha(event) {
-            event.preventDefault();
-            var nova = document.getElementById('novaSenha').value;
-            var conf = document.getElementById('confirmarSenha').value;
-            if (nova.length < 8) { document.getElementById('alertaErro').textContent = '❌ Mínimo 8 caracteres'; document.getElementById('alertaErro').style.display = 'block'; return; }
-            if (nova !== conf) { document.getElementById('alertaErro').textContent = '❌ Senhas não conferem'; document.getElementById('alertaErro').style.display = 'block'; return; }
-            var idx = usuarios.findIndex(function(u) { return u.id === userId; });
-            usuarios[idx].senha = nova;
-            usuarios[idx].primeiro_acesso = false;
-            localStorage.setItem('db_usuarios', JSON.stringify(usuarios));
-            document.getElementById('alertaSucesso').innerHTML = '✅ Senha alterada! Redirecionando...';
-            document.getElementById('alertaSucesso').style.display = 'block';
-            localStorage.setItem('usuario_logado', JSON.stringify({ id: usuarios[idx].id, nome: usuarios[idx].nome, usuario: usuarios[idx].usuario, cargo: usuarios[idx].cargo, tipo: usuarios[idx].tipo }));
-            setTimeout(function() { window.location.href = 'dashboard.html'; }, 2000);
-        }
-
-        function cancelar() { localStorage.removeItem('usuario_logado'); window.location.href = 'admin.html'; }
-    </script>
+<div class="box">
+    <h2>🔐 Primeiro Acesso</h2>
+    <p style="margin-bottom:18px;color:#666;">Crie sua senha pessoal</p>
+    <form onsubmit="trocar(event)">
+        <input type="hidden" id="uid">
+        <div class="form-group"><label>Nova Senha</label><input type="password" id="s1" required minlength="8"></div>
+        <div class="form-group"><label>Confirmar</label><input type="password" id="s2" required></div>
+        <button type="submit" class="btn">Salvar</button>
+    </form>
+</div>
+<script>
+const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
+firebase.initializeApp(fc); const db = firebase.firestore();
+var id = new URLSearchParams(window.location.search).get('id');
+document.getElementById('uid').value = id;
+function trocar(e) {
+    e.preventDefault();
+    var s1 = document.getElementById('s1').value, s2 = document.getElementById('s2').value;
+    if (s1 !== s2) { alert('Senhas não conferem!'); return; }
+    if (s1.length < 8) { alert('Mínimo 8 caracteres!'); return; }
+    db.collection('usuarios').doc(id).update({ senha: s1, primeiro_acesso: false }).then(function() {
+        alert('Senha alterada!');
+        window.location.href = 'admin.html';
+    });
+}
+</script>
 </body>
 </html>

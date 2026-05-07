@@ -663,13 +663,11 @@ function abrirModalToner() {
     var novoToner = {
         protocolo: 'TN-' + Date.now().toString(36).toUpperCase(),
         setor: setor,
-        modeloToner: modelo,
-        patrimonio: patrimonio,
         tipo: 'toner',
         isToner: true,
         status: 'Concluído',
         solicitante: 'TI (Preventivo)',
-        titulo: 'Troca preventiva de toner - ' + modelo,
+        titulo: 'Troca preventiva de toner',
         data_abertura: new Date().toISOString(),
         data_troca_toner: new Date().toISOString()
     };

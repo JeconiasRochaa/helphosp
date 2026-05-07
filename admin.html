@@ -3,174 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Painel Técnico</title>
+    <title>HelpHosp - Login</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --success: #059669; --warning: #d97706; --danger: #dc2626; --dark: #111827; --gray: #6b7280; --light: #f9fafb; --white: #fff; --sidebar-width: 240px; --radius: 12px; --shadow: 0 1px 3px rgba(0,0,0,0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: #f3f4f6; color: var(--dark); display: flex; min-height: 100vh; }
-        .sidebar { width: var(--sidebar-width); background: var(--dark); color: white; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1f2937; }
-        .sidebar-header i { font-size: 22px; color: #60a5fa; } .sidebar-header h2 { font-size: 15px; } .sidebar-header span { font-size: 9px; color: #9ca3af; display: block; }
-        .sidebar-nav { flex: 1; padding: 12px 8px; display: flex; flex-direction: column; gap: 3px; }
-        .sidebar-nav a { color: #9ca3af; text-decoration: none; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; }
-        .sidebar-nav a:hover { background: #1f2937; color: #e5e7eb; } .sidebar-nav a.ativo { background: var(--primary); color: white; }
-        .sidebar-footer { padding: 14px 16px; border-top: 1px solid #1f2937; display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 32px; height: 32px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
-        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 22px 26px; }
-        .secao { display: none; } .secao.ativa { display: block; animation: fadeIn 0.3s; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
-        .top-bar h1 { font-size: 20px; font-weight: 700; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
-        .stat-card { background: white; border-radius: var(--radius); padding: 16px 18px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
-        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .stat-icon.blue { background: #eff6ff; color: var(--primary); } .stat-icon.amber { background: #fffbeb; color: #d97706; }
-        .stat-icon.green { background: #ecfdf5; color: var(--success); } .stat-icon.red { background: #fef2f2; color: var(--danger); }
-        .stat-info small { font-size: 10px; color: var(--gray); text-transform: uppercase; } .stat-info strong { font-size: 22px; display: block; }
-        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-        .chart-card { background: white; border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
-        .chart-card h3 { font-size: 13px; margin-bottom: 12px; } .chart-card canvas { width: 100% !important; height: 300px !important; }
-        .chart-full { background: white; border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 18px; }
-        .chart-full canvas { width: 100% !important; height: 220px !important; }
-        .table-card { background: white; border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; } th { background: #f9fafb; padding: 9px 10px; text-align: left; font-weight: 600; color: var(--gray); font-size: 10px; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; } td { padding: 9px 10px; border-bottom: 1px solid #f3f4f6; }
-        .badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; } .badge-blue { background: #dbeafe; color: #1e40af; } .badge-green { background: #d1fae5; color: #065f46; } .badge-amber { background: #fef3c7; color: #92400e; } .badge-red { background: #fee2e2; color: #991b1b; }
-        .btn { padding: 8px 14px; border: none; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-        .btn-primary { background: var(--primary); color: white; } .btn-outline { background: white; border: 1.5px solid #d1d5db; } .btn-danger { background: var(--danger); color: white; } .btn-sm { padding: 4px 8px; font-size: 10px; }
-        .filtros { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; } .filtros select, .filtros input { padding: 7px 10px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 12px; }
-        .chamado-item { background: white; padding: 12px 14px; border-radius: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 3px solid var(--primary); }
-        .equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-        .equip-card { background: white; padding: 14px; border-radius: 10px; box-shadow: var(--shadow); }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
-        .modal-overlay.ativa { display: flex; } .modal-box { background: white; border-radius: 14px; padding: 22px 26px; width: 90%; max-width: 440px; }
-        .form-group { margin-bottom: 12px; } .form-group label { display: block; font-size: 11px; font-weight: 600; margin-bottom: 3px; }
-        .form-group input, .form-group select { width: 100%; padding: 9px 11px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 13px; }
-        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .sidebar { width: 55px; } .sidebar-header h2, .sidebar-header span, .sidebar-nav a span, .sidebar-footer div { display: none; } .main-content { margin-left: 55px; padding: 14px; } }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; border-radius: 20px; padding: 40px 35px; width: 100%; max-width: 390px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-icon { width: 60px; height: 60px; background: #4f8ef7; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px; color: white; }
+        .login-header h2 { font-size: 20px; } .login-header p { color: #888; font-size: 13px; }
+        .erro { background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; display: none; }
+        .erro.show { display: block; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; }
+        .input-box { position: relative; } .input-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; }
+        .form-group input { width: 100%; padding: 14px 14px 14px 42px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; font-family: inherit; }
+        .form-group input:focus { outline: none; border-color: #4f8ef7; }
+        .btn-login { width: 100%; padding: 15px; background: #4f8ef7; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-login:hover { background: #3b7de6; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #999; }
+        .footer a { color: #4f8ef7; text-decoration: none; }
     </style>
 </head>
 <body>
-<aside class="sidebar">
-    <div class="sidebar-header"><i class="fas fa-laptop-medical"></i><div><h2>HelpHosp</h2><span>Painel TI</span></div></div>
-    <nav class="sidebar-nav">
-        <a class="ativo" onclick="mudarSecao('dashboard',this)"><i class="fas fa-chart-bar"></i><span>Dashboard</span></a>
-        <a onclick="mudarSecao('chamados',this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span></a>
-        <a onclick="mudarSecao('toners',this)"><i class="fas fa-print"></i><span>Toners</span></a>
-        <a onclick="mudarSecao('equipamentos',this)"><i class="fas fa-server"></i><span>Equipamentos</span></a>
-        <a onclick="mudarSecao('equipe',this)"><i class="fas fa-user-gear"></i><span>Equipe TI</span></a>
-        <a onclick="mudarSecao('config',this)"><i class="fas fa-sliders"></i><span>Config</span></a>
-    </nav>
-    <div class="sidebar-footer"><div class="avatar" id="userIniciais">JR</div><div><strong style="font-size:11px;" id="userNome"></strong><br><small style="font-size:8px;color:#9ca3af;" id="userCargo"></small></div><button onclick="logout()" style="margin-left:auto;background:none;border:none;color:#9ca3af;cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button></div>
-</aside>
-<main class="main-content">
-    <section id="secao-dashboard" class="secao ativa">
-        <div class="top-bar"><h1>📊 Dashboard</h1><div style="display:flex;gap:8px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:7px 10px;border-radius:8px;border:1.5px solid #d1d5db;"><option value="7">7d</option><option value="30" selected>30d</option><option value="90">90d</option></select><button class="btn btn-primary" onclick="gerarRelatorio()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div>
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong id="stTotal">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Abertos</small><strong id="stAbertos">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong id="stConcluidos">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong id="stCriticos">0</strong></div></div>
-        </div>
-        <div class="charts-grid">
-            <div class="chart-card"><h3>Setores</h3><canvas id="grafSetor"></canvas></div>
-            <div class="chart-card"><h3>Prioridades</h3><canvas id="grafPrioridade"></canvas></div>
-        </div>
-        <div class="chart-full"><h3>Toners por Setor</h3><canvas id="grafToner"></canvas></div>
-    </section>
-    <section id="secao-chamados" class="secao"><div class="top-bar"><h1>Chamados</h1></div><div class="filtros"><select id="fStatus" onchange="carregarChamados()"><option value="">Status</option><option>A Fazer</option><option>Em Andamento</option><option>Concluído</option></select><select id="fTipo" onchange="carregarChamados()"><option value="">Tipo</option><option value="chamado">Chamado</option><option value="toner">Toner</option><option value="equipamento">Equipamento</option></select><input type="text" id="fBusca" placeholder="Buscar..." onkeyup="carregarChamados()"></div><div id="listaChamadosAdmin"></div></section>
-    <section id="secao-toners" class="secao"><div class="top-bar"><h1>Toners</h1><button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Preventiva</button></div><div class="table-card"><table><thead><tr><th>Setor</th><th>Modelo</th><th>Patrimônio</th><th>Data</th><th>Dias</th></tr></thead><tbody id="tabelaToners"></tbody></table></div></section>
-    <section id="secao-equipamentos" class="secao"><div class="top-bar"><h1>Equipamentos</h1><button class="btn btn-primary" onclick="mostrarFormEquip()"><i class="fas fa-plus"></i> Novo</button></div><div id="formEquipContainer" style="display:none;background:white;padding:16px;border-radius:10px;margin-bottom:12px;"><form onsubmit="salvarEquip(event)" style="display:grid;gap:8px;grid-template-columns:1fr 1fr;"><div class="form-group"><label>Nome</label><input type="text" id="equipNome" required></div><div class="form-group"><label>Tipo</label><select id="equipTipo"><option>Computador</option><option>Monitor</option><option>Impressora</option></select></div><div class="form-group"><label>Modelo</label><input type="text" id="equipModelo"></div><div class="form-group"><label>Setor</label><select id="equipSetor"><option>UTI I</option><option>TI</option></select></div><div><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('formEquipContainer').style.display='none'" style="margin-left:4px;">Cancelar</button></div></form></div><div id="listaEquip" class="equip-grid"></div></section>
-    <section id="secao-equipe" class="secao"><div class="top-bar"><h1>Equipe TI</h1><button class="btn btn-primary" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo</button></div><div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th id="thCargo">Cargo</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaEquipe"></tbody></table></div></section>
-    <section id="secao-config" class="secao"><div class="table-card" style="max-width:420px;"><h3>Alterar Senha</h3><form onsubmit="alterarSenha(event)" style="margin-top:10px;"><div class="form-group"><label>Atual</label><input type="password" id="senhaAtual" required></div><div class="form-group"><label>Nova</label><input type="password" id="senhaNova" required minlength="8"></div><button type="submit" class="btn btn-primary">Alterar</button></form><button class="btn btn-danger" onclick="logout()" style="margin-top:10px;">Sair</button></div></section>
-</main>
-<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>Novo Técnico</h3><form onsubmit="addTecnico(event)"><div class="form-group"><label>Nome</label><input type="text" id="tnome" required></div><div class="form-group"><label>Usuário</label><input type="text" id="tusuario" required></div><div class="form-group"><label>Cargo</label><select id="tcargo"><option>Técnico</option><option>Analista</option></select></div><p style="font-size:11px;color:#d97706;">Senha: 12345</p><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('modalTecnico').classList.remove('ativa')" style="margin-left:6px;">Cancelar</button></form></div></div>
-<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>Troca Preventiva</h3><form onsubmit="addTonerPreventivo(event)"><div class="form-group"><label>Setor</label><select id="tsetor"><option>UTI I</option></select></div><div class="form-group"><label>Modelo</label><input type="text" id="tmodelo" required></div><div class="form-group"><label>Patrimônio</label><input type="text" id="tpatrimonio"></div><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('modalToner').classList.remove('ativa')" style="margin-left:6px;">Cancelar</button></form></div></div>
+<div class="login-box">
+    <div class="login-header"><div class="login-icon"><i class="fas fa-lock"></i></div><h2>Área Técnica</h2><p>Acesso restrito</p></div>
+    <div id="erroLogin" class="erro"></div>
+    <form onsubmit="login(event)">
+        <div class="form-group"><label>Usuário</label><div class="input-box"><i class="fas fa-user"></i><input type="text" id="usuario" required></div></div>
+        <div class="form-group"><label>Senha</label><div class="input-box"><i class="fas fa-key"></i><input type="password" id="senha" required></div></div>
+        <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+    </form>
+    <div class="footer"><p>← <a href="index.html">Área do Usuário</a></p></div>
+</div>
 
-    <script>
+<script>
 const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
 firebase.initializeApp(fc); const db = firebase.firestore();
-var uLogado = JSON.parse(localStorage.getItem('usuario_logado'));
-if (!uLogado) { window.location.href = 'admin.html'; }
-var chamados = [], equipamentos = [], charts = {}, equipEditando = null;
 
-window.onload = function() {
-    document.getElementById('userNome').textContent = uLogado.nome;
-    document.getElementById('userCargo').textContent = uLogado.cargo;
-    document.getElementById('userIniciais').textContent = uLogado.nome.split(' ').map(function(n) { return n[0]; }).join('').substring(0,2).toUpperCase();
-    if (uLogado.tipo !== 'admin') { document.getElementById('thCargo').style.display = 'none'; }
-    db.collection('chamados').orderBy('data_abertura', 'desc').onSnapshot(function(s) { chamados = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; chamados.push(x); }); atualizarDashboard(); });
-    carregarEquip(); carregarEquipe();
-    if (Notification.permission === 'default') { Notification.requestPermission(); }
-    setInterval(function() { if (chamados.some(function(c) { return (new Date() - new Date(c.data_abertura)) < 30000; })) { if (Notification.permission === 'granted') new Notification('Novo Chamado!', { body: 'Um novo chamado foi aberto.' }); } }, 30000);
-};
+// Criar admin se não existir
+db.collection('usuarios').where('usuario', '==', 'jeconias').get().then(function(s) {
+    if (s.empty) db.collection('usuarios').add({ nome: 'Jeconias Rocha', usuario: 'jeconias', senha: 'Parana2026', cargo: 'Coordenador TI', tipo: 'admin', whatsapp: '82981845421', status: 'ativo', primeiro_acesso: false, data_criacao: new Date().toISOString() });
+});
 
-function mudarSecao(s, el) { document.querySelectorAll('.sidebar-nav a').forEach(function(a) { a.classList.remove('ativo'); }); document.querySelectorAll('.secao').forEach(function(x) { x.classList.remove('ativa'); }); el.classList.add('ativo'); document.getElementById('secao-' + s).classList.add('ativa'); if (s === 'chamados') carregarChamados(); if (s === 'toners') carregarToners(); if (s === 'equipamentos') carregarEquip(); if (s === 'equipe') carregarEquipe(); }
-
-function atualizarDashboard() {
-    var p = parseInt(document.getElementById('periodo').value || 30), dl = new Date(); dl.setDate(dl.getDate() - p);
-    var f = chamados.filter(function(c) { return new Date(c.data_abertura) >= dl; });
-    document.getElementById('stTotal').textContent = f.length;
-    document.getElementById('stAbertos').textContent = f.filter(function(c) { return c.status !== 'Concluído'; }).length;
-    document.getElementById('stConcluidos').textContent = f.filter(function(c) { return c.status === 'Concluído'; }).length;
-    document.getElementById('stCriticos').textContent = f.filter(function(c) { return c.prioridade === 'Crítica'; }).length;
-    var setor = {}, prio = {}, tonerSetor = {};
-    f.forEach(function(c) { setor[c.setor] = (setor[c.setor] || 0) + 1; prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1; if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1; });
-    Object.values(charts).forEach(function(c) { if (c) c.destroy(); }); charts = {};
-    var cores = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2'];
-    var c1 = document.getElementById('grafSetor'); if (c1) charts.setor = new Chart(c1, { type: 'doughnut', data: { labels: Object.keys(setor), datasets: [{ data: Object.values(setor), backgroundColor: cores, borderWidth: 3, borderColor: '#fff' }] }, options: { devicePixelRatio: 2, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 14, font: { size: 10 } } } } } });
-    var c2 = document.getElementById('grafPrioridade'); if (c2) charts.prio = new Chart(c2, { type: 'pie', data: { labels: Object.keys(prio), datasets: [{ data: Object.values(prio), backgroundColor: ['#059669','#d97706','#ea580c','#dc2626'], borderWidth: 4, borderColor: '#fff' }] }, options: { devicePixelRatio: 2, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } } });
-    var c3 = document.getElementById('grafToner'); if (c3) charts.toner = new Chart(c3, { type: 'bar', data: { labels: Object.keys(tonerSetor), datasets: [{ data: Object.values(tonerSetor), backgroundColor: '#d97706', borderRadius: 6 }] }, options: { devicePixelRatio: 2, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+function login(e) {
+    e.preventDefault();
+    var u = document.getElementById('usuario').value.toLowerCase().trim();
+    var s = document.getElementById('senha').value;
+    var err = document.getElementById('erroLogin');
+    err.classList.remove('show');
+    
+    db.collection('usuarios').where('usuario', '==', u).get().then(function(snap) {
+        if (snap.empty) { err.textContent = 'Usuário não encontrado!'; err.classList.add('show'); return; }
+        var doc = snap.docs[0], user = doc.data();
+        if (user.senha !== s) { err.textContent = 'Senha incorreta!'; err.classList.add('show'); return; }
+        if (user.status !== 'ativo') { err.textContent = 'Usuário inativo!'; err.classList.add('show'); return; }
+        
+        localStorage.setItem('usuario_logado', JSON.stringify({ id: doc.id, nome: user.nome, usuario: user.usuario, cargo: user.cargo, tipo: user.tipo }));
+        
+        if (user.primeiro_acesso) { window.location.href = 'trocar-senha.html?id=' + doc.id; }
+        else { window.location.href = 'dashboard.html'; }
+    }).catch(function() { err.textContent = 'Erro de conexão!'; err.classList.add('show'); });
 }
-
-function carregarChamados() {
-    var fs = document.getElementById('fStatus').value, ft = document.getElementById('fTipo').value, fb = document.getElementById('fBusca').value.toLowerCase();
-    var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (ft && c.tipo !== ft && !(ft === 'toner' && c.isToner)) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0) return false; return true; });
-    var el = document.getElementById('listaChamadosAdmin');
-    if (f.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;color:#9ca3af;">Nenhum</p>'; return; }
-    el.innerHTML = f.map(function(c) {
-        var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue';
-        return '<div class="chamado-item" style="border-left-color:' + (c.tipo === 'toner' ? '#d97706' : '#2563eb') + '"><div><strong>' + c.titulo + '</strong><br><small>' + c.protocolo + ' | ' + c.solicitante + ' | ' + c.setor + '</small></div><div style="display:flex;align-items:center;gap:8px;"><span class="badge ' + sc + '">' + c.status + '</span><button class="btn btn-sm btn-outline" onclick="avancarStatus(\'' + c.fid + '\')">▶</button>' + (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluirChamado(\'' + c.fid + '\')"><i class="fas fa-trash"></i></button>' : '') + '</div></div>';
-    }).join('');
-}
-
-function avancarStatus(id) { var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' }; db.collection('chamados').doc(id).get().then(function(d) { if (d.exists) db.collection('chamados').doc(id).update({ status: fluxo[d.data().status] || 'A Fazer' }); }); }
-
-function excluirChamado(id) { if (confirm('Excluir este chamado permanentemente?')) { db.collection('chamados').doc(id).delete().then(function() { carregarChamados(); }); } }
-
-function carregarToners() { var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }); document.getElementById('tabelaToners').innerHTML = t.length === 0 ? '<tr><td colspan="5">Nenhum</td></tr>' : t.map(function(x) { return '<tr><td>' + x.setor + '</td><td>' + (x.modeloToner || '-') + '</td><td>' + (x.patrimonio || '-') + '</td><td>' + new Date(x.data_troca_toner || x.data_abertura).toLocaleDateString('pt-BR') + '</td><td>' + Math.floor((new Date() - new Date(x.data_troca_toner || x.data_abertura)) / 86400000) + 'd</td></tr>'; }).join(''); }
-function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); }
-function addTonerPreventivo(e) { e.preventDefault(); db.collection('chamados').add({ protocolo: 'TN-' + Date.now().toString(36).toUpperCase(), setor: document.getElementById('tsetor').value, modeloToner: document.getElementById('tmodelo').value, patrimonio: document.getElementById('tpatrimonio').value, tipo: 'toner', isToner: true, status: 'Concluído', solicitante: 'TI (Preventivo)', titulo: 'Troca preventiva', data_abertura: new Date().toISOString(), data_troca_toner: new Date().toISOString() }); document.getElementById('modalToner').classList.remove('ativa'); carregarToners(); }
-
-function carregarEquip() { db.collection('equipamentos').get().then(function(s) { equipamentos = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; equipamentos.push(x); }); document.getElementById('listaEquip').innerHTML = equipamentos.map(function(eq, i) { return '<div class="equip-card"><h3>' + eq.nome + '</h3><small>' + eq.tipo + ' | ' + (eq.setor || '-') + '</small><div style="margin-top:6px;"><button class="btn btn-sm btn-outline" onclick="editarEquip(' + i + ')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="removerEquip(' + i + ')"><i class="fas fa-trash"></i></button></div></div>'; }).join('') || '<p>Nenhum</p>'; }); }
-function mostrarFormEquip() { document.getElementById('formEquipContainer').style.display = 'block'; equipEditando = null; }
-function editarEquip(i) { var eq = equipamentos[i]; document.getElementById('formEquipContainer').style.display = 'block'; document.getElementById('equipNome').value = eq.nome; document.getElementById('equipTipo').value = eq.tipo; document.getElementById('equipModelo').value = eq.modelo || ''; document.getElementById('equipSetor').value = eq.setor || ''; equipEditando = i; }
-function salvarEquip(e) { e.preventDefault(); var eq = { nome: document.getElementById('equipNome').value, tipo: document.getElementById('equipTipo').value, modelo: document.getElementById('equipModelo').value, setor: document.getElementById('equipSetor').value }; if (equipEditando !== null) db.collection('equipamentos').doc(equipamentos[equipEditando].fid).update(eq); else db.collection('equipamentos').add(eq); document.getElementById('formEquipContainer').style.display = 'none'; carregarEquip(); }
-function removerEquip(i) { if (confirm('Remover?')) { db.collection('equipamentos').doc(equipamentos[i].fid).delete(); carregarEquip(); } }
-
-function carregarEquipe() { db.collection('usuarios').get().then(function(s) { var h = ''; s.forEach(function(d) { var u = d.data(); u.fid = d.id; h += '<tr><td>' + u.nome + '</td><td>@' + u.usuario + '</td>' + (uLogado.tipo === 'admin' ? '<td>' + (u.cargo || '-') + '</td>' : '') + '<td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-red') + '">' + u.status + '</span></td><td>' + (u.tipo !== 'admin' ? '<button class="btn btn-sm btn-danger" onclick="removerTecnico(\'' + u.fid + '\')"><i class="fas fa-trash"></i></button>' : '<span class="badge badge-blue">Admin</span>') + '</td></tr>'; }); document.getElementById('tabelaEquipe').innerHTML = h; }); }
-function abrirModalTecnico() { document.getElementById('modalTecnico').classList.add('ativa'); }
-function addTecnico(e) { e.preventDefault(); var user = document.getElementById('tusuario').value.toLowerCase().trim(); db.collection('usuarios').where('usuario', '==', user).get().then(function(s) { if (!s.empty) { alert('❌ Usuário já existe!'); return; } db.collection('usuarios').add({ nome: document.getElementById('tnome').value, usuario: user, senha: '12345', cargo: document.getElementById('tcargo').value, tipo: 'tecnico', status: 'ativo', primeiro_acesso: true }); document.getElementById('modalTecnico').classList.remove('ativa'); carregarEquipe(); alert('✅ Técnico cadastrado!\nUsuário: ' + user + '\nSenha: 12345'); }); }
-function removerTecnico(id) { if (confirm('Remover?')) { db.collection('usuarios').doc(id).delete(); carregarEquipe(); } }
-
-function alterarSenha(e) { e.preventDefault(); db.collection('usuarios').where('usuario', '==', uLogado.usuario).get().then(function(s) { if (!s.empty) { var d = s.docs[0]; if (d.data().senha !== document.getElementById('senhaAtual').value) { alert('Senha atual incorreta!'); return; } d.ref.update({ senha: document.getElementById('senhaNova').value, primeiro_acesso: false }); alert('✅ Alterada!'); e.target.reset(); } }); }
-
-function gerarRelatorio() {
-    var el = document.createElement('div'); el.style.cssText = 'padding:30px 40px;background:white;font-family:Arial;width:850px;';
-    el.innerHTML = '<div style="text-align:center;border-bottom:2px solid #2563eb;padding-bottom:16px;margin-bottom:20px;"><h1 style="color:#2563eb;margin:0;font-size:22px;">HELPHOSP</h1><h2 style="margin:4px 0;font-size:16px;">Relatório de Chamados</h2><p style="color:#666;font-size:11px;">Gerado em: ' + new Date().toLocaleString('pt-BR') + ' | Total: ' + chamados.length + ' chamados</p></div>';
-    el.innerHTML += '<h3 style="color:#2563eb;font-size:13px;margin-bottom:8px;">RESUMO GERAL</h3><table style="width:100%;border-collapse:collapse;margin-bottom:18px;"><tr style="background:#f9fafb;"><th style="padding:6px 8px;border:1px solid #ddd;font-size:10px;">Total</th><th style="padding:6px 8px;border:1px solid #ddd;font-size:10px;">Abertos</th><th style="padding:6px 8px;border:1px solid #ddd;font-size:10px;">Toners</th><th style="padding:6px 8px;border:1px solid #ddd;font-size:10px;">Concluídos</th><th style="padding:6px 8px;border:1px solid #ddd;font-size:10px;">Críticos</th></tr><tr><td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">' + chamados.length + '</td><td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">' + chamados.filter(function(c) { return c.status !== 'Concluído'; }).length + '</td><td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">' + chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }).length + '</td><td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">' + chamados.filter(function(c) { return c.status === 'Concluído'; }).length + '</td><td style="padding:6px 8px;border:1px solid #ddd;text-align:center;">' + chamados.filter(function(c) { return c.prioridade === 'Crítica'; }).length + '</td></tr></table>';
-    el.innerHTML += '<h3 style="color:#2563eb;font-size:13px;margin-bottom:8px;">CHAMADOS</h3><table style="width:100%;border-collapse:collapse;"><tr style="background:#f9fafb;"><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Protocolo</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Título</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Setor</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Solicitante</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Tipo</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Status</th><th style="padding:5px 6px;border:1px solid #ddd;font-size:9px;">Data</th></tr>';
-    chamados.slice(0, 50).forEach(function(c) { el.innerHTML += '<tr><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + c.protocolo + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + c.titulo + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + c.setor + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + (c.solicitante || '-') + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + (c.tipo || 'Chamado') + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + c.status + '</td><td style="padding:4px 6px;border:1px solid #ddd;font-size:9px;">' + new Date(c.data_abertura).toLocaleDateString('pt-BR') + '</td></tr>'; });
-    el.innerHTML += '</table><div style="text-align:center;margin-top:16px;color:#999;font-size:9px;">HelpHosp - Sistema de TI</div>';
-    document.body.appendChild(el);
-    html2canvas(el, { scale: 2, backgroundColor: '#fff' }).then(function(c) { document.body.removeChild(el); var pdf = new jspdf.jsPDF('p', 'mm', 'a4'); pdf.addImage(c.toDataURL('image/png'), 'PNG', 8, 8, 194, (c.height * 194) / c.width); pdf.save('relatorio-helpdesk.pdf'); });
-}
-
-function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'admin.html'; }
 </script>
 </body>
 </html>

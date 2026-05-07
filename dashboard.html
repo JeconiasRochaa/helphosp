@@ -161,7 +161,40 @@ function carregarChamados() {
     var el = document.getElementById('listaChamadosAdmin');
     if (f.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;color:#999;">Nenhum</p>'; return; }
     el.innerHTML = f.map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<div class="chamado-item"><div><strong>' + c.titulo + '</strong><br><small>' + c.protocolo + ' | ' + c.solicitante + ' | ' + c.setor + '</small></div><div style="display:flex;align-items:center;gap:6px;"><span class="badge ' + sc + '">' + c.status + '</span><button class="btn btn-sm btn-outline" onclick="avancar(\'' + c.fid + '\')">▶</button>' + (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluir(\'' + c.fid + '\')"><i class="fas fa-trash"></i></button>' : '') + '</div></div>'; }).join(''); }
-function avancar(id) { var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' }; db.collection('chamados').doc(id).get().then(function(d) { if (d.exists) db.collection('chamados').doc(id).update({ status: fluxo[d.data().status] || 'A Fazer' }); }); }
+function avancar(id) {
+    var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' };
+    
+    db.collection('chamados').doc(id).get().then(function(doc) {
+        if (doc.exists) {
+            var dados = doc.data();
+            var statusAtual = dados.status || 'A Fazer';
+            var novoStatus = fluxo[statusAtual] || 'A Fazer';
+            
+            // Atualizar no Firebase
+            db.collection('chamados').doc(id).update({
+                status: novoStatus
+            }).then(function() {
+                console.log('✅ Status alterado de ' + statusAtual + ' para ' + novoStatus);
+                
+                // Adicionar ao histórico
+                var historico = dados.historico || [];
+                historico.push({
+                    data: new Date().toISOString(),
+                    acao: 'Status alterado para: ' + novoStatus + ' por ' + uLogado.nome
+                });
+                db.collection('chamados').doc(id).update({ historico: historico });
+            }).catch(function(error) {
+                console.error('❌ Erro ao atualizar:', error);
+                alert('Erro ao atualizar status!');
+            });
+        } else {
+            alert('Chamado não encontrado!');
+        }
+    }).catch(function(error) {
+        console.error('❌ Erro:', error);
+        alert('Erro de conexão!');
+    });
+}
 function excluir(id) { if (confirm('Excluir permanentemente?')) { db.collection('chamados').doc(id).delete(); } }
 
 function carregarToners() { var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }); document.getElementById('tabelaToners').innerHTML = t.map(function(x) { return '<tr><td>' + x.setor + '</td><td>' + (x.modeloToner || '-') + '</td><td>' + (x.patrimonio || '-') + '</td><td>' + new Date(x.data_troca_toner || x.data_abertura).toLocaleDateString('pt-BR') + '</td><td>' + Math.floor((new Date() - new Date(x.data_troca_toner || x.data_abertura)) / 86400000) + 'd</td></tr>'; }).join('') || '<tr><td colspan="5">Nenhum</td></tr>'; }

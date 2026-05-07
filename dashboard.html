@@ -195,17 +195,413 @@ function mudarSecao(s, el) { document.querySelectorAll('.sidebar-nav a').forEach
 function atualizarDashboard() {
     var p = parseInt(document.getElementById('periodo').value || 30), dl = new Date(); dl.setDate(dl.getDate() - p);
     var f = chamados.filter(function(c) { return new Date(c.data_abertura) >= dl; });
+    
     document.getElementById('stTotal').textContent = f.length;
     document.getElementById('stAbertos').textContent = f.filter(function(c) { return c.status !== 'Concluído'; }).length;
     document.getElementById('stConcluidos').textContent = f.filter(function(c) { return c.status === 'Concluído'; }).length;
     document.getElementById('stCriticos').textContent = f.filter(function(c) { return c.prioridade === 'Crítica'; }).length;
+    
     var setor = {}, prio = {}, tonerSetor = {};
-    f.forEach(function(c) { setor[c.setor] = (setor[c.setor] || 0) + 1; prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1; if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1; });
-    Object.values(charts).forEach(function(c) { if (c) c.destroy(); }); charts = {};
-    var cores = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2'];
-    var c1 = document.getElementById('grafSetor'); if (c1) charts.setor = new Chart(c1, { type: 'doughnut', data: { labels: Object.keys(setor), datasets: [{ data: Object.values(setor), backgroundColor: cores }] }, options: { cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 14, font: { size: 10 } } } } } });
-    var c2 = document.getElementById('grafPrioridade'); if (c2) charts.prio = new Chart(c2, { type: 'pie', data: { labels: Object.keys(prio), datasets: [{ data: Object.values(prio), backgroundColor: ['#059669','#d97706','#ea580c','#dc2626'] }] }, options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } } });
-    var c3 = document.getElementById('grafToner'); if (c3) charts.toner = new Chart(c3, { type: 'bar', data: { labels: Object.keys(tonerSetor), datasets: [{ data: Object.values(tonerSetor), backgroundColor: '#d97706', borderRadius: 6 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+    f.forEach(function(c) { 
+        setor[c.setor] = (setor[c.setor] || 0) + 1; 
+        prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1; 
+        if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1; 
+    });
+    
+    Object.values(charts).forEach(function(c) { if (c) c.destroy(); }); 
+    charts = {};
+    
+    var cores = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#e11d48','#ca8a04'];
+    
+    // GRÁFICO 1 - SETORES (ROSQUINHA)
+    var c1 = document.getElementById('grafSetor');
+    if (c1 && Object.keys(setor).length > 0) {
+        // Aumentar o canvas para melhor resolução
+        c1.parentElement.style.height = '320px';
+        c1.style.height = '320px';
+        
+        charts.setor = new Chart(c1, { 
+            type: 'doughnut', 
+            data: { 
+                labels: Object.keys(setor), 
+                datasets: [{ 
+                    data: Object.values(setor), 
+                    backgroundColor: cores,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 4,
+                    hoverBorderColor: '#ffffff'
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2, // ← ISSO MELHORA A RESOLUÇÃO!
+                cutout: '60%',
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 20, 
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 11, family: "'Inter', system-ui, sans-serif" },
+                            generateLabels: function(chart) {
+                                var data = chart.data;
+                                return data.labels.map(function(label, i) {
+                                    return {
+                                        text: label + ' (' + data.datasets[0].data[i] + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        pointStyle: 'circle',
+                                        index: i
+                                    };
+                                });
+                            }
+                        } 
+                    },
+                    title: {
+                        display: true,
+                        text: 'Chamados por Setor',
+                        font: { size: 14, weight: 'bold', family: "'Inter', system-ui, sans-serif" },
+                        padding: { bottom: 15 }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1000
+                }
+            } 
+        });
+    }
+
+    // GRÁFICO 2 - PRIORIDADES (PIZZA)
+    var c2 = document.getElementById('grafPrioridade');
+    if (c2 && Object.keys(prio).length > 0) {
+        c2.parentElement.style.height = '320px';
+        c2.style.height = '320px';
+        
+        charts.prio = new Chart(c2, { 
+            type: 'pie', 
+            data: { 
+                labels: Object.keys(prio), 
+                datasets: [{ 
+                    data: Object.values(prio), 
+                    backgroundColor: ['#059669','#d97706','#ea580c','#dc2626'],
+                    borderWidth: 4,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#ffffff'
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2,
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 20, 
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 11 },
+                            generateLabels: function(chart) {
+                                var data = chart.data;
+                                return data.labels.map(function(label, i) {
+                                    return {
+                                        text: label + ' (' + data.datasets[0].data[i] + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        pointStyle: 'circle',
+                                        index: i
+                                    };
+                                });
+                            }
+                        } 
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribuição por Prioridade',
+                        font: { size: 14, weight: 'bold' },
+                        padding: { bottom: 15 }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1000
+                }
+            } 
+        });
+    }
+
+    // GRÁFICO 3 - TONER POR SETOR (BARRAS)
+    var c3 = document.getElementById('grafToner');
+    if (c3 && Object.keys(tonerSetor).length > 0) {
+        c3.parentElement.style.height = '250px';
+        c3.style.height = '250px';
+        
+        charts.toner = new Chart(c3, { 
+            type: 'bar', 
+            data: { 
+                labels: Object.keys(tonerSetor), 
+                datasets: [{ 
+                    label: 'Toners Trocados',
+                    data: Object.values(tonerSetor), 
+                    backgroundColor: '#d97706',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2,
+                plugins: { 
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Consumo de Toner por Setor',
+                        font: { size: 14, weight: 'bold' },
+                        padding: { bottom: 15 }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { 
+                            stepSize: 1,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: '#f3f4f6',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: 10 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000
+                }
+            } 
+        });
+    }
+}function atualizarDashboard() {
+    var p = parseInt(document.getElementById('periodo').value || 30), dl = new Date(); dl.setDate(dl.getDate() - p);
+    var f = chamados.filter(function(c) { return new Date(c.data_abertura) >= dl; });
+    
+    document.getElementById('stTotal').textContent = f.length;
+    document.getElementById('stAbertos').textContent = f.filter(function(c) { return c.status !== 'Concluído'; }).length;
+    document.getElementById('stConcluidos').textContent = f.filter(function(c) { return c.status === 'Concluído'; }).length;
+    document.getElementById('stCriticos').textContent = f.filter(function(c) { return c.prioridade === 'Crítica'; }).length;
+    
+    var setor = {}, prio = {}, tonerSetor = {};
+    f.forEach(function(c) { 
+        setor[c.setor] = (setor[c.setor] || 0) + 1; 
+        prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1; 
+        if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1; 
+    });
+    
+    Object.values(charts).forEach(function(c) { if (c) c.destroy(); }); 
+    charts = {};
+    
+    var cores = ['#2563eb','#059669','#d97706','#dc2626','#7c3aed','#0891b2','#e11d48','#ca8a04'];
+    
+    // GRÁFICO 1 - SETORES (ROSQUINHA)
+    var c1 = document.getElementById('grafSetor');
+    if (c1 && Object.keys(setor).length > 0) {
+        // Aumentar o canvas para melhor resolução
+        c1.parentElement.style.height = '320px';
+        c1.style.height = '320px';
+        
+        charts.setor = new Chart(c1, { 
+            type: 'doughnut', 
+            data: { 
+                labels: Object.keys(setor), 
+                datasets: [{ 
+                    data: Object.values(setor), 
+                    backgroundColor: cores,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 4,
+                    hoverBorderColor: '#ffffff'
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2, // ← ISSO MELHORA A RESOLUÇÃO!
+                cutout: '60%',
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 20, 
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 11, family: "'Inter', system-ui, sans-serif" },
+                            generateLabels: function(chart) {
+                                var data = chart.data;
+                                return data.labels.map(function(label, i) {
+                                    return {
+                                        text: label + ' (' + data.datasets[0].data[i] + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        pointStyle: 'circle',
+                                        index: i
+                                    };
+                                });
+                            }
+                        } 
+                    },
+                    title: {
+                        display: true,
+                        text: 'Chamados por Setor',
+                        font: { size: 14, weight: 'bold', family: "'Inter', system-ui, sans-serif" },
+                        padding: { bottom: 15 }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1000
+                }
+            } 
+        });
+    }
+
+    // GRÁFICO 2 - PRIORIDADES (PIZZA)
+    var c2 = document.getElementById('grafPrioridade');
+    if (c2 && Object.keys(prio).length > 0) {
+        c2.parentElement.style.height = '320px';
+        c2.style.height = '320px';
+        
+        charts.prio = new Chart(c2, { 
+            type: 'pie', 
+            data: { 
+                labels: Object.keys(prio), 
+                datasets: [{ 
+                    data: Object.values(prio), 
+                    backgroundColor: ['#059669','#d97706','#ea580c','#dc2626'],
+                    borderWidth: 4,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#ffffff'
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2,
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 20, 
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 11 },
+                            generateLabels: function(chart) {
+                                var data = chart.data;
+                                return data.labels.map(function(label, i) {
+                                    return {
+                                        text: label + ' (' + data.datasets[0].data[i] + ')',
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        pointStyle: 'circle',
+                                        index: i
+                                    };
+                                });
+                            }
+                        } 
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribuição por Prioridade',
+                        font: { size: 14, weight: 'bold' },
+                        padding: { bottom: 15 }
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1000
+                }
+            } 
+        });
+    }
+
+    // GRÁFICO 3 - TONER POR SETOR (BARRAS)
+    var c3 = document.getElementById('grafToner');
+    if (c3 && Object.keys(tonerSetor).length > 0) {
+        c3.parentElement.style.height = '250px';
+        c3.style.height = '250px';
+        
+        charts.toner = new Chart(c3, { 
+            type: 'bar', 
+            data: { 
+                labels: Object.keys(tonerSetor), 
+                datasets: [{ 
+                    label: 'Toners Trocados',
+                    data: Object.values(tonerSetor), 
+                    backgroundColor: '#d97706',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7
+                }] 
+            }, 
+            options: { 
+                responsive: true,
+                maintainAspectRatio: false,
+                devicePixelRatio: 2,
+                plugins: { 
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Consumo de Toner por Setor',
+                        font: { size: 14, weight: 'bold' },
+                        padding: { bottom: 15 }
+                    }
+                },
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { 
+                            stepSize: 1,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: '#f3f4f6',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: { size: 10 }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000
+                }
+            } 
+        });
+    }
 }
 
 function carregarChamados() { var fs = document.getElementById('fStatus').value, ft = document.getElementById('fTipo').value, fb = document.getElementById('fBusca').value.toLowerCase(); var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (ft && c.tipo !== ft && !(ft === 'toner' && c.isToner)) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0) return false; return true; }); document.getElementById('listaChamadosAdmin').innerHTML = f.length === 0 ? '<p style="text-align:center;padding:30px;color:#9ca3af;">Nenhum</p>' : f.map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<div style="background:white;padding:14px 16px;border-radius:10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 2px rgba(0,0,0,0.05);border-left:3px solid ' + (c.tipo === 'toner' ? '#d97706' : '#2563eb') + ';"><div><strong>' + c.titulo + '</strong><br><small style="color:#6b7280;">' + c.protocolo + ' | ' + c.solicitante + ' | ' + c.setor + '</small></div><div style="display:flex;align-items:center;gap:8px;"><span class="badge ' + sc + '">' + c.status + '</span><button onclick="avancarStatus(\'' + c.fid + '\')" style="background:#f3f4f6;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">▶</button></div></div>'; }).join(''); }

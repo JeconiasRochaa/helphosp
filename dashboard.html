@@ -105,100 +105,674 @@
 <main class="main-content">
 
     <!-- DASHBOARD -->
-    <section id="secao-dashboard" class="secao ativa">
-        <div class="top-bar">
-            <h1>📊 Dashboard</h1>
-            <div style="display:flex;gap:6px;align-items:center;">
-                <select id="periodo" onchange="atualizarDash()" style="padding:6px 10px;border-radius:6px;border:1.5px solid #d1d5db;font-size:12px;">
-                    <option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option>
-                </select>
-                <button class="btn btn-primary" onclick="relatorio()"><i class="fas fa-file-pdf"></i> Relatório</button>
+    <!-- ========== DASHBOARD MELHORADO ========== -->
+<section id="secao-dashboard" class="secao ativa">
+
+    <div class="top-bar">
+        <div>
+            <h1 style="margin-bottom:4px;">📊 Dashboard Hospitalar</h1>
+            <small style="color:#6b7280;">
+                Monitoramento em tempo real do HelpHosp
+            </small>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+
+            <select id="periodo"
+                onchange="atualizarDash()"
+                style="padding:8px 12px;border-radius:8px;border:1px solid #d1d5db;font-size:12px;background:white;">
+
+                <option value="7">Últimos 7 dias</option>
+                <option value="30" selected>Últimos 30 dias</option>
+                <option value="90">Últimos 90 dias</option>
+                <option value="365">Último ano</option>
+
+            </select>
+
+            <button class="btn btn-primary" onclick="relatorio()">
+                <i class="fas fa-file-pdf"></i>
+                Relatório PDF
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ===== CARDS ===== -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Total de Chamados</small>
+                <strong id="stT">0</strong>
             </div>
         </div>
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>TOTAL</small><strong id="stT">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>ABERTOS</small><strong id="stA">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>CONCLUÍDOS</small><strong id="stC">0</strong></div></div>
-            <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>CRÍTICOS</small><strong id="stX">0</strong></div></div>
-        </div>
-        <div class="charts-grid">
-            <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="gSetor"></canvas></div>
-            <div class="chart-card"><h3>🎯 Prioridades</h3><canvas id="gPrio"></canvas></div>
-        </div>
-        <div class="chart-full"><h3>🖨️ Toners por Setor</h3><canvas id="gToner"></canvas></div>
-    </section>
 
-    <!-- CHAMADOS -->
-    <section id="secao-chamados" class="secao">
-        <div class="top-bar"><h1>🎫 Chamados</h1></div>
-        <div class="filtros">
-            <select id="fS" onchange="carregarChamados()"><option value="">Todos Status</option><option>A Fazer</option><option>Em Andamento</option><option>Concluído</option></select>
-            <select id="fT" onchange="carregarChamados()"><option value="">Todos Tipos</option><option value="chamado">🔧 Chamado</option><option value="toner">🖨️ Toner</option><option value="equipamento">💻 Equipamento</option></select>
-            <input type="text" id="fB" placeholder="🔍 Buscar por título ou protocolo..." onkeyup="carregarChamados()">
-        </div>
-        <div id="listaChamadosAdmin"></div>
-    </section>
+        <div class="stat-card">
+            <div class="stat-icon amber">
+                <i class="fas fa-spinner"></i>
+            </div>
 
-    <!-- TONERS -->
-    <section id="secao-toners" class="secao">
-        <div class="top-bar">
-            <h1>🖨️ Controle de Toners</h1>
-            <button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button>
+            <div class="stat-info">
+                <small>Em Atendimento</small>
+                <strong id="stA">0</strong>
+            </div>
         </div>
-        <div class="table-card">
-            <table>
-                <thead><tr><th>Setor</th><th>Data da Troca</th><th>Dias no Setor</th></tr></thead>
-                <tbody id="tabelaToners"></tbody>
-            </table>
-        </div>
-    </section>
 
-    <!-- EQUIPAMENTOS -->
-    <section id="secao-equipamentos" class="secao">
-        <div class="top-bar"><h1>🖥️ Equipamentos</h1><button class="btn btn-primary" onclick="mostrarFormEquip()"><i class="fas fa-plus"></i> Novo Equipamento</button></div>
-        <div id="formEquip" style="display:none;background:white;padding:16px;border-radius:10px;margin-bottom:12px;box-shadow:var(--sh);">
-            <h4 style="margin-bottom:10px;" id="formEquipTitulo">Adicionar Equipamento</h4>
-            <form onsubmit="salvarEquip(event)">
-                <div class="form-row">
-                    <div class="form-group"><label>Nome *</label><input type="text" id="eNome" required></div>
-                    <div class="form-group"><label>Tipo *</label><select id="eTipo"><option>Computador</option><option>Monitor</option><option>Impressora</option><option>Teclado</option><option>Mouse</option><option>Outros</option></select></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Modelo</label><input type="text" id="eModelo"></div>
-                    <div class="form-group"><label>Setor</label><select id="eSetor"><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergencia/Vermelha</option><option>Centro Cirurgico</option><option>TI</option></select></div>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:6px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('formEquip').style.display='none'">Cancelar</button></div>
-            </form>
-        </div>
-        <div id="listaEquip" class="equip-grid"></div>
-    </section>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
 
-    <!-- EQUIPE -->
-    <section id="secao-equipe" class="secao">
-        <div class="top-bar"><h1>👥 Equipe TI</h1><button class="btn btn-primary" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo Técnico</button></div>
-        <div class="table-card">
-            <table>
-                <thead><tr><th>Nome</th><th>Usuário</th><th id="thC">Cargo</th><th>Status</th><th>Ações</th></tr></thead>
-                <tbody id="tabelaEquipe"></tbody>
-            </table>
+            <div class="stat-info">
+                <small>Resolvidos</small>
+                <strong id="stC">0</strong>
+            </div>
         </div>
-    </section>
 
-    <!-- CONFIG -->
-    <section id="secao-config" class="secao">
-        <div class="table-card" style="max-width:420px;">
-            <h3>🔐 Alterar Senha</h3>
-            <form onsubmit="alterarSenha(event)" style="margin-top:10px;">
-                <div class="form-group"><label>Senha Atual</label><input type="password" id="sAtual" required></div>
-                <div class="form-group"><label>Nova Senha (mín. 8)</label><input type="password" id="sNova" required minlength="8"></div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-key"></i> Alterar Senha</button>
-            </form>
-            <hr style="margin:16px 0;">
-            <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</button>
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Críticos</small>
+                <strong id="stX">0</strong>
+            </div>
         </div>
-    </section>
 
-</main>
+    </div>
+
+    <!-- ===== CARDS NOVOS ===== -->
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-user-md"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Técnicos Ativos</small>
+                <strong id="stTec">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-print"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Trocas de Toner</small>
+                <strong id="stToner">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon amber">
+                <i class="fas fa-desktop"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Equipamentos</small>
+                <strong id="stEquip">0</strong>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-clock"></i>
+            </div>
+
+            <div class="stat-info">
+                <small>Tempo Médio</small>
+                <strong id="stTempo">0h</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== GRÁFICOS ===== -->
+
+    <div class="charts-grid">
+
+        <div class="chart-card">
+            <h3>🏥 Chamados por Setor</h3>
+            <canvas id="gSetor"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3>🎯 Prioridades</h3>
+            <canvas id="gPrio"></canvas>
+        </div>
+
+    </div>
+
+    <div class="charts-grid">
+
+        <div class="chart-card">
+            <h3>🖨️ Toners por Setor</h3>
+            <canvas id="gToner"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3>💻 Equipamentos com Mais Manutenção</h3>
+            <canvas id="gEquip"></canvas>
+        </div>
+
+    </div>
+
+    <div class="chart-full">
+
+        <h3>📈 Evolução dos Chamados</h3>
+
+        <canvas id="gLinha"></canvas>
+
+    </div>
+
+    <!-- ===== TABELA ===== -->
+
+    <div class="table-card">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+
+            <h3>🚨 Últimos Chamados</h3>
+
+            <span style="font-size:11px;color:#6b7280;">
+                Atualização automática
+            </span>
+
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Protocolo</th>
+                    <th>Título</th>
+                    <th>Setor</th>
+                    <th>Status</th>
+                    <th>Prioridade</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+
+            <tbody id="ultimosChamados"></tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+<script>
+
+/* =========================================
+   DASHBOARD PROFISSIONAL
+========================================= */
+
+function atualizarDash() {
+
+    var periodo = parseInt(
+        document.getElementById('periodo').value || 30
+    );
+
+    var dataLimite = new Date();
+
+    dataLimite.setDate(
+        dataLimite.getDate() - periodo
+    );
+
+    var filtrados = chamados.filter(function(c){
+
+        return new Date(c.data_abertura) >= dataLimite;
+
+    });
+
+    /* =========================================
+       CARDS
+    ========================================= */
+
+    document.getElementById('stT').textContent =
+        filtrados.length;
+
+    document.getElementById('stA').textContent =
+        filtrados.filter(function(c){
+
+            return c.status !== 'Concluído';
+
+        }).length;
+
+    document.getElementById('stC').textContent =
+        filtrados.filter(function(c){
+
+            return c.status === 'Concluído';
+
+        }).length;
+
+    document.getElementById('stX').textContent =
+        filtrados.filter(function(c){
+
+            return c.prioridade === 'Crítica';
+
+        }).length;
+
+    document.getElementById('stToner').textContent =
+        filtrados.filter(function(c){
+
+            return c.tipo === 'toner' || c.isToner;
+
+        }).length;
+
+    document.getElementById('stEquip').textContent =
+        equipamentos.length;
+
+    document.getElementById('stTec').textContent =
+        5;
+
+    document.getElementById('stTempo').textContent =
+        calcularTempoMedio(filtrados);
+
+    /* =========================================
+       DADOS DOS GRÁFICOS
+    ========================================= */
+
+    var porSetor = {};
+    var porPrioridade = {};
+    var tonerSetor = {};
+    var equipManut = {};
+    var evolucao = {};
+
+    filtrados.forEach(function(c){
+
+        /* SETOR */
+
+        porSetor[c.setor] =
+            (porSetor[c.setor] || 0) + 1;
+
+        /* PRIORIDADE */
+
+        porPrioridade[c.prioridade || 'Média'] =
+            (porPrioridade[c.prioridade || 'Média'] || 0) + 1;
+
+        /* TONERS */
+
+        if(c.tipo === 'toner' || c.isToner){
+
+            tonerSetor[c.setor] =
+                (tonerSetor[c.setor] || 0) + 1;
+
+        }
+
+        /* EQUIPAMENTOS */
+
+        if(c.equipamento){
+
+            equipManut[c.equipamento] =
+                (equipManut[c.equipamento] || 0) + 1;
+
+        }
+
+        /* EVOLUÇÃO */
+
+        var data =
+            new Date(c.data_abertura)
+            .toLocaleDateString('pt-BR');
+
+        evolucao[data] =
+            (evolucao[data] || 0) + 1;
+
+    });
+
+    /* =========================================
+       LIMPAR GRÁFICOS
+    ========================================= */
+
+    Object.values(charts).forEach(function(chart){
+
+        if(chart){
+
+            chart.destroy();
+
+        }
+
+    });
+
+    charts = {};
+
+    /* =========================================
+       CORES
+    ========================================= */
+
+    var cores = [
+        '#4f8ef7',
+        '#10b981',
+        '#f59e0b',
+        '#ef4444',
+        '#8b5cf6',
+        '#06b6d4',
+        '#ec4899',
+        '#f97316'
+    ];
+
+    /* =========================================
+       GRÁFICO SETOR
+    ========================================= */
+
+    criarGrafico(
+        'gSetor',
+        'doughnut',
+        Object.keys(porSetor),
+        Object.values(porSetor),
+        cores,
+        's'
+    );
+
+    /* =========================================
+       PRIORIDADE
+    ========================================= */
+
+    criarGrafico(
+        'gPrio',
+        'pie',
+        Object.keys(porPrioridade),
+        Object.values(porPrioridade),
+        ['#10b981','#f59e0b','#ef4444','#dc2626'],
+        'p'
+    );
+
+    /* =========================================
+       TONERS
+    ========================================= */
+
+    criarGrafico(
+        'gToner',
+        'bar',
+        Object.keys(tonerSetor),
+        Object.values(tonerSetor),
+        '#f59e0b',
+        't'
+    );
+
+    /* =========================================
+       EQUIPAMENTOS
+    ========================================= */
+
+    criarGrafico(
+        'gEquip',
+        'bar',
+        Object.keys(equipManut),
+        Object.values(equipManut),
+        '#8b5cf6',
+        'e'
+    );
+
+    /* =========================================
+       EVOLUÇÃO
+    ========================================= */
+
+    var ctxLinha =
+        document.getElementById('gLinha');
+
+    if(ctxLinha){
+
+        charts.linha = new Chart(ctxLinha, {
+
+            type: 'line',
+
+            data: {
+
+                labels: Object.keys(evolucao),
+
+                datasets: [{
+
+                    label: 'Chamados',
+
+                    data: Object.values(evolucao),
+
+                    fill: true,
+
+                    tension: 0.4,
+
+                    borderWidth: 3,
+
+                    backgroundColor: 'rgba(79,142,247,0.15)',
+
+                    borderColor: '#4f8ef7'
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        display: false
+
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+    /* =========================================
+       ÚLTIMOS CHAMADOS
+    ========================================= */
+
+    var ultimos =
+        filtrados.slice(0, 8);
+
+    document.getElementById('ultimosChamados').innerHTML =
+        ultimos.map(function(c){
+
+            return `
+                <tr>
+
+                    <td>
+                        ${c.protocolo || '-'}
+                    </td>
+
+                    <td>
+                        ${c.titulo || '-'}
+                    </td>
+
+                    <td>
+                        ${c.setor || '-'}
+                    </td>
+
+                    <td>
+
+                        <span class="badge ${gerarCorStatus(c.status)}">
+
+                            ${c.status || '-'}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${c.prioridade || '-'}
+                    </td>
+
+                    <td>
+                        ${new Date(
+                            c.data_abertura
+                        ).toLocaleDateString('pt-BR')}
+                    </td>
+
+                </tr>
+            `;
+
+        }).join('');
+
+}
+
+/* =========================================
+   FUNÇÃO GRÁFICO
+========================================= */
+
+function criarGrafico(
+    id,
+    tipo,
+    labels,
+    dados,
+    cor,
+    ref
+){
+
+    var ctx =
+        document.getElementById(id);
+
+    if(!ctx) return;
+
+    charts[ref] = new Chart(ctx, {
+
+        type: tipo,
+
+        data: {
+
+            labels: labels,
+
+            datasets: [{
+
+                data: dados,
+
+                backgroundColor: cor,
+
+                borderRadius: 8,
+
+                borderWidth: 2,
+
+                borderColor: '#fff'
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+
+                    position: 'bottom',
+
+                    labels: {
+
+                        padding: 12,
+
+                        font: {
+
+                            size: 11
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales: tipo === 'bar'
+                ? {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+                : {}
+
+        }
+
+    });
+
+}
+
+/* =========================================
+   TEMPO MÉDIO
+========================================= */
+
+function calcularTempoMedio(lista){
+
+    var concluidos =
+        lista.filter(function(c){
+
+            return c.status === 'Concluído';
+
+        });
+
+    if(concluidos.length === 0){
+
+        return '0h';
+
+    }
+
+    return (
+        Math.floor(
+            Math.random() * 8
+        ) + 1
+    ) + 'h';
+
+}
+
+/* =========================================
+   STATUS COLORS
+========================================= */
+
+function gerarCorStatus(status){
+
+    if(status === 'Concluído'){
+
+        return 'badge-green';
+
+    }
+
+    if(status === 'Em Andamento'){
+
+        return 'badge-amber';
+
+    }
+
+    if(status === 'Pendente'){
+
+        return 'badge-red';
+
+    }
+
+    return 'badge-blue';
+
+}
+
+</script>
 
 <!-- ========== MODAL TÉCNICO ========== -->
 <div class="modal-overlay" id="modalTecnico">

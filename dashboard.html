@@ -337,19 +337,38 @@
     <div class="modal-box">
         <h3><i class="fas fa-print"></i> Troca Preventiva de Toner</h3>
         <form onsubmit="addToner(event)">
-            <div class="form-group"><label>Setor *</label><select id="ts" required>
-                <option value="">Selecione...</option>
-                <option>UTI I</option>
-                <option>UTI II</option>
-                <option>Oncologia</option>
-                <option>Centro Cirurgico</option>
-                <option>NIR</option>
-                <option>RECEPÇÃO GERAL</option>
-                <option>RECEPÇÃO CR</option>
-                <option>ADMINISTRAÇÃO</option>
-                <option>FARMACIA CAF</option>
-                <option>FATURAMENTO</option>
-            </select>
+            <div class="form-group">
+                <label>Setor *</label>
+                <select id="ts" required>
+                    <option value="">Selecione...</option>
+                    <option>UTI I</option>
+                    <option>UTI II</option>
+                    <option>Emergencia/Vermelha</option>
+                    <option>Centro Cirurgico</option>
+                    <option>Oncologia I</option>
+                    <option>Oncologia II</option>
+                    <option>Clinica Medica I</option>
+                    <option>Clinica Medica II</option>
+                    <option>Pediatria</option>
+                    <option>Farmacia</option>
+                    <option>Laboratorio</option>
+                    <option>Recepção Geral</option>
+                    <option>Recepção CR</option>
+                    <option>Administração</option>
+                    <option>Faturamento</option>
+                    <option>NIR</option>
+                    <option>RH</option>
+                    <option>TI</option>
+                    <option>Outros</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Modelo do Toner *</label>
+                <input type="text" id="tm" required placeholder="Ex: HP 12A, Samsung MLT-D101S">
+            </div>
+            <div class="form-group">
+                <label>Patrimônio da Impressora</label>
+                <input type="text" id="tp" placeholder="Ex: PAT-12345">
             </div>
             <div style="display:flex;gap:8px;">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Registrar</button>
@@ -641,43 +660,26 @@ function excluirChamado(firebaseId) {
 }
 
 // ========== TONERS ==========
-function carregarToners() {
-    var toners = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; });
-    var tbody = document.getElementById('tabelaToners');
-    
-    if (toners.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;">Nenhum toner registrado</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = toners.map(function(t) {
-        var dataTroca = t.data_troca_toner || t.data_abertura;
-        var dias = Math.floor((new Date() - new Date(dataTroca)) / (1000 * 60 * 60 * 24));
-        return '<tr>' +
-            '<td><strong>' + (t.setor || '-') + '</strong></td>' +
-            '<td>' + (t.modeloToner || '-') + '</td>' +
-            '<td>' + (t.patrimonio || '-') + '</td>' +
-            '<td>' + new Date(dataTroca).toLocaleDateString('pt-BR') + '</td>' +
-            '<td><strong>' + dias + ' dias</strong></td>' +
-        '</tr>';
-    }).join('');
-}
-
-function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); }
-
 function addToner(event) {
     event.preventDefault();
     
+    var setor = document.getElementById('ts').value;
+    var modelo = document.getElementById('tm').value.trim();
+    var patrimonio = document.getElementById('tp').value.trim();
+    
+    if (!setor) { alert('Selecione um setor!'); return; }
+    if (!modelo) { alert('Informe o modelo do toner!'); return; }
+    
     var novoToner = {
         protocolo: 'TN-' + Date.now().toString(36).toUpperCase(),
-        setor: document.getElementById('ts').value,
-        modeloToner: document.getElementById('tm').value,
-        patrimonio: document.getElementById('tp').value,
+        setor: setor,
+        modeloToner: modelo,
+        patrimonio: patrimonio,
         tipo: 'toner',
         isToner: true,
         status: 'Concluído',
         solicitante: 'TI (Preventivo)',
-        titulo: 'Troca preventiva de toner - ' + document.getElementById('tm').value,
+        titulo: 'Troca preventiva de toner - ' + modelo,
         data_abertura: new Date().toISOString(),
         data_troca_toner: new Date().toISOString()
     };
@@ -685,11 +687,14 @@ function addToner(event) {
     db.collection('chamados').add(novoToner)
         .then(function() {
             document.getElementById('modalToner').classList.remove('ativa');
-            document.querySelector('#modalToner form').reset();
+            document.getElementById('tm').value = '';
+            document.getElementById('tp').value = '';
+            document.getElementById('ts').selectedIndex = 0;
+            carregarToners();
             mostrarToast('✅ Troca preventiva registrada!');
         })
         .catch(function(error) {
-            alert('Erro ao registrar!');
+            alert('❌ Erro ao registrar: ' + error.message);
         });
 }
 

@@ -25,7 +25,8 @@
         .card-click:hover { border-color: #4f8ef7; transform: translateY(-3px); }
         .card-icon { width: 55px; height: 55px; background: #eef2ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 24px; color: #4f8ef7; }
         .card h3 { font-size: 17px; margin-bottom: 4px; } .card p { color: #666; font-size: 13px; }
-        .form-container { display: none; } .form-container.active { display: block; }
+        .form-container { display: none; } .form-container.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: #333; }
         .form-group input, .form-group select { width: 100%; padding: 11px 13px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fafafa; }
@@ -34,8 +35,7 @@
         .toggle-btn { padding: 8px 14px; border: 2px solid #e0e0e0; border-radius: 20px; background: white; cursor: pointer; font-size: 12px; }
         .toggle-btn.active { background: #4f8ef7; color: white; border-color: #4f8ef7; }
         .btn { padding: 14px 20px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; }
-        .btn-primary { background: #4f8ef7; color: white; }
-        .btn-primary:hover { background: #3b7de6; }
+        .btn-primary { background: #4f8ef7; color: white; } .btn-primary:hover { background: #3b7de6; }
         .btn-outline { background: white; border: 2px solid #e0e0e0; color: #555; }
         .chamado-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 8px; border-left: 4px solid #4f8ef7; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .chamado-item.toner { border-left-color: #e67e22; }
@@ -59,155 +59,236 @@
         <a href="admin.html" class="btn-admin"><i class="fas fa-lock"></i> Área Técnica</a>
     </div>
 </header>
-    
-    <div id="telaForm" class="form-container">
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2>Novo Chamado</h2>
-            <button onclick="voltar()" style="background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+
+<div class="container">
+    <!-- TELA INICIAL -->
+    <div id="telaInicial">
+        <div class="card card-click" onclick="mostrarForm()">
+            <div class="card-icon"><i class="fas fa-plus-circle"></i></div>
+            <h3>Abrir Chamado</h3>
+            <p>Problema técnico, toner ou equipamento</p>
         </div>
-        <form onsubmit="abrirChamado(event)">
-            <div class="form-group">
-                <label>Nome *</label>
-                <input type="text" id="solicitante" required>
-            </div>
-            <div class="form-group">
-                <label>Contato (WhatsApp/Ramal)</label>
-                <input type="text" id="contato" placeholder="Ex: 82999999999">
-            </div>
-            <div class="form-group">
-                <label>Setor *</label>
-                <select id="setor" required>
-                    <option value="">Selecione o setor...</option>
-                    <option>Almoxarifado</option>
-                    <option>Auditorio</option>
-                    <option>Centro Cirurgico</option>
-                    <option>Clinica Cirurgica</option>
-                    <option>Clinica Medica I</option>
-                    <option>Clinica Medica II</option>
-                    <option>CME</option>
-                    <option>Comunicação</option>
-                    <option>Direção Administrativa</option>
-                    <option>Direção Enfermagem</option>
-                    <option>Direção Geral</option>
-                    <option>Direção Medica</option>
-                    <option>Emergencia/Vermelha</option>
-                    <option>Farmacia</option>
-                    <option>Faturamento</option>
-                    <option>Fisioterapia</option>
-                    <option>GAVUA</option>
-                    <option>Hotelaria</option>
-                    <option>Laboratorio</option>
-                    <option>Manutenção</option>
-                    <option>NIR</option>
-                    <option>Nutrição</option>
-                    <option>Oncologia I</option>
-                    <option>Oncologia II</option>
-                    <option>Ortopedia CR</option>
-                    <option>Outros</option>
-                    <option>Ouvidoria/Juridico</option>
-                    <option>Patrimonio</option>
-                    <option>Pediatria</option>
-                    <option>Psicologia</option>
-                    <option>Raio-X</option>
-                    <option>Recepção CR</option>
-                    <option>Recepção Geral</option>
-                    <option>Recepção Nefrologia</option>
-                    <option>RH</option>
-                    <option>Sala Dialise</option>
-                    <option>Sala Telemedicina</option>
-                    <option>Serviço Social</option>
-                    <option>SESMT</option>
-                    <option>Tomografia</option>
-                    <option>UTI I</option>
-                    <option>UTI II</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Tipo *</label>
-                <div class="toggle-group" id="tipos">
-                    <button type="button" class="toggle-btn active" onclick="setTipo('chamado',this)">🔧 Chamado</button>
-                    <button type="button" class="toggle-btn" onclick="setTipo('toner',this)">🖨️ Toner</button>
-                    <button type="button" class="toggle-btn" onclick="setTipo('equipamento',this)">💻 Equipamento</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Categoria *</label>
-                <select id="categoria" required>
-                    <option value="">Selecione...</option>
-                    <option>Computador</option>
-                    <option>Notebook</option>
-                    <option>Impressora</option>
-                    <option>Monitor</option>
-                    <option>Teclado/Mouse</option>
-                    <option>Sistema</option>
-                    <option>Internet/Rede</option>
-                    <option>Telefone</option>
-                    <option>Outros</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Prioridade</label>
-                <select id="prioridade">
-                    <option value="Baixa">Baixa</option>
-                    <option value="Média" selected>Média</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Crítica">Crítica</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Título *</label>
-                <input type="text" id="titulo" required placeholder="Descreva em poucas palavras">
-            </div>
-            <div id="camposExtras"></div>
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-paper-plane"></i> Enviar Chamado
-            </button>
-        </form>
+        <div class="card card-click" onclick="mostrarChamados()">
+            <div class="card-icon"><i class="fas fa-list"></i></div>
+            <h3>Meus Chamados</h3>
+            <p>Acompanhar status</p>
+        </div>
     </div>
-</div>
-                <div class="form-group"><label>Tipo *</label>
+
+    <!-- FORMULÁRIO -->
+    <div id="telaForm" class="form-container">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>Novo Chamado</h2>
+                <button onclick="voltar()" style="background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+            </div>
+            <form onsubmit="abrirChamado(event)">
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" id="solicitante" required>
+                </div>
+                <div class="form-group">
+                    <label>Contato (WhatsApp/Ramal)</label>
+                    <input type="text" id="contato" placeholder="Ex: 82999999999">
+                </div>
+                <div class="form-group">
+                    <label>Setor *</label>
+                    <select id="setor" required>
+                        <option value="">Selecione o setor...</option>
+                        <option>Almoxarifado</option>
+                        <option>Auditorio</option>
+                        <option>Centro Cirurgico</option>
+                        <option>Clinica Cirurgica</option>
+                        <option>Clinica Medica I</option>
+                        <option>Clinica Medica II</option>
+                        <option>CME</option>
+                        <option>Comunicação</option>
+                        <option>Direção Administrativa</option>
+                        <option>Direção Enfermagem</option>
+                        <option>Direção Geral</option>
+                        <option>Direção Medica</option>
+                        <option>Emergencia/Vermelha</option>
+                        <option>Farmacia</option>
+                        <option>Faturamento</option>
+                        <option>Fisioterapia</option>
+                        <option>GAVUA</option>
+                        <option>Hotelaria</option>
+                        <option>Laboratorio</option>
+                        <option>Manutenção</option>
+                        <option>NIR</option>
+                        <option>Nutrição</option>
+                        <option>Oncologia I</option>
+                        <option>Oncologia II</option>
+                        <option>Ortopedia CR</option>
+                        <option>Outros</option>
+                        <option>Ouvidoria/Juridico</option>
+                        <option>Patrimonio</option>
+                        <option>Pediatria</option>
+                        <option>Psicologia</option>
+                        <option>Raio-X</option>
+                        <option>Recepção CR</option>
+                        <option>Recepção Geral</option>
+                        <option>Recepção Nefrologia</option>
+                        <option>RH</option>
+                        <option>Sala Dialise</option>
+                        <option>Sala Telemedicina</option>
+                        <option>Serviço Social</option>
+                        <option>SESMT</option>
+                        <option>Tomografia</option>
+                        <option>UTI I</option>
+                        <option>UTI II</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo *</label>
                     <div class="toggle-group" id="tipos">
                         <button type="button" class="toggle-btn active" onclick="setTipo('chamado',this)">🔧 Chamado</button>
                         <button type="button" class="toggle-btn" onclick="setTipo('toner',this)">🖨️ Toner</button>
                         <button type="button" class="toggle-btn" onclick="setTipo('equipamento',this)">💻 Equipamento</button>
                     </div>
                 </div>
-                <div class="form-group"><label>Categoria *</label><select id="categoria" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Impressora</option><option>Monitor</option><option>Teclado/Mouse</option><option>Sistema</option><option>Internet/Rede</option><option>Telefone</option><option>Outros</option></select></div>
-                <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
-                <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
+                <div class="form-group">
+                    <label>Categoria *</label>
+                    <select id="categoria" required>
+                        <option value="">Selecione...</option>
+                        <option>Computador</option>
+                        <option>Notebook</option>
+                        <option>Impressora</option>
+                        <option>Monitor</option>
+                        <option>Teclado/Mouse</option>
+                        <option>Sistema</option>
+                        <option>Internet/Rede</option>
+                        <option>Telefone</option>
+                        <option>Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Prioridade</label>
+                    <select id="prioridade">
+                        <option value="Baixa">Baixa</option>
+                        <option value="Média" selected>Média</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Crítica">Crítica</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Título *</label>
+                    <input type="text" id="titulo" required placeholder="Descreva em poucas palavras">
+                </div>
                 <div id="camposExtras"></div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
             </form>
         </div>
     </div>
 
+    <!-- MEUS CHAMADOS -->
     <div id="telaChamados" class="form-container">
-        <div class="card"><h2 style="margin-bottom:14px;">Meus Chamados</h2><div id="listaChamados"></div><button onclick="voltar()" class="btn btn-outline" style="margin-top:12px;">Voltar</button></div>
+        <div class="card">
+            <h2 style="margin-bottom:14px;">Meus Chamados</h2>
+            <div id="listaChamados"></div>
+            <button onclick="voltar()" class="btn btn-outline" style="margin-top:12px;">Voltar</button>
+        </div>
     </div>
 </div>
 
 <script>
 const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
 firebase.initializeApp(fc); const db = firebase.firestore();
+
 var tipoSel = 'chamado';
-function setTipo(t, b) { tipoSel = t; document.querySelectorAll('#tipos .toggle-btn').forEach(function(x) { x.classList.remove('active'); }); b.classList.add('active'); var e = document.getElementById('camposExtras'); if (t === 'toner') e.innerHTML = '<div class="form-group"><label>Modelo Toner</label><input type="text" id="modeloToner"></div><div class="form-group"><label>Patrimônio</label><input type="text" id="patrimonio"></div>'; else if (t === 'equipamento') e.innerHTML = '<div class="form-group"><label>Equipamento Trocado</label><input type="text" id="equipTrocado"></div><div class="form-group"><label>Patrimônio</label><input type="text" id="patrimonioEquip"></div>'; else e.innerHTML = ''; }
-function mostrarForm() { document.getElementById('telaInicial').style.display = 'none'; document.getElementById('telaForm').classList.add('active'); document.getElementById('telaChamados').classList.remove('active'); }
-function mostrarChamados() { document.getElementById('telaInicial').style.display = 'none'; document.getElementById('telaForm').classList.remove('active'); document.getElementById('telaChamados').classList.add('active'); carregar(); }
-function voltar() { document.getElementById('telaInicial').style.display = 'block'; document.getElementById('telaForm').classList.remove('active'); document.getElementById('telaChamados').classList.remove('active'); }
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.btn-wpp') && !e.target.closest('.wpp-drop')) {
+        document.getElementById('wppDrop').style.display = 'none';
+    }
+});
+
+function setTipo(t, b) {
+    tipoSel = t;
+    document.querySelectorAll('#tipos .toggle-btn').forEach(function(x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    var e = document.getElementById('camposExtras');
+    if (t === 'toner') {
+        e.innerHTML = '<div class="form-group"><label>Modelo Toner</label><input type="text" id="modeloToner"></div><div class="form-group"><label>Patrimônio</label><input type="text" id="patrimonio"></div>';
+    } else if (t === 'equipamento') {
+        e.innerHTML = '<div class="form-group"><label>Equipamento Trocado</label><input type="text" id="equipTrocado"></div><div class="form-group"><label>Patrimônio</label><input type="text" id="patrimonioEquip"></div>';
+    } else {
+        e.innerHTML = '';
+    }
+}
+
+function mostrarForm() {
+    document.getElementById('telaInicial').style.display = 'none';
+    document.getElementById('telaForm').classList.add('active');
+    document.getElementById('telaChamados').classList.remove('active');
+}
+
+function mostrarChamados() {
+    document.getElementById('telaInicial').style.display = 'none';
+    document.getElementById('telaForm').classList.remove('active');
+    document.getElementById('telaChamados').classList.add('active');
+    carregar();
+}
+
+function voltar() {
+    document.getElementById('telaInicial').style.display = 'block';
+    document.getElementById('telaForm').classList.remove('active');
+    document.getElementById('telaChamados').classList.remove('active');
+}
+
 function abrirChamado(e) {
     e.preventDefault();
-    var c = { protocolo: 'CH-' + Date.now().toString(36).toUpperCase(), solicitante: document.getElementById('solicitante').value.trim(), contato: document.getElementById('contato').value.trim(), setor: document.getElementById('setor').value, categoria: document.getElementById('categoria').value, prioridade: document.getElementById('prioridade').value, titulo: document.getElementById('titulo').value.trim(), tipo: tipoSel, status: 'A Fazer', data_abertura: new Date().toISOString() };
-    if (tipoSel === 'toner') { c.modeloToner = document.getElementById('modeloToner')?.value || ''; c.patrimonio = document.getElementById('patrimonio')?.value || ''; c.data_troca_toner = new Date().toISOString(); }
-    if (tipoSel === 'equipamento') { c.equipTrocado = document.getElementById('equipTrocado')?.value || ''; c.patrimonioEquip = document.getElementById('patrimonioEquip')?.value || ''; }
-    db.collection('chamados').add(c).then(function() { document.querySelector('form').reset(); document.getElementById('camposExtras').innerHTML = ''; mostrarChamados(); alert('✅ Chamado ' + c.protocolo + ' aberto!'); });
+    var c = {
+        protocolo: 'CH-' + Date.now().toString(36).toUpperCase(),
+        solicitante: document.getElementById('solicitante').value.trim(),
+        contato: document.getElementById('contato').value.trim(),
+        setor: document.getElementById('setor').value,
+        categoria: document.getElementById('categoria').value,
+        prioridade: document.getElementById('prioridade').value,
+        titulo: document.getElementById('titulo').value.trim(),
+        tipo: tipoSel,
+        status: 'A Fazer',
+        data_abertura: new Date().toISOString()
+    };
+    if (tipoSel === 'toner') {
+        c.modeloToner = document.getElementById('modeloToner')?.value || '';
+        c.patrimonio = document.getElementById('patrimonio')?.value || '';
+        c.data_troca_toner = new Date().toISOString();
+    }
+    if (tipoSel === 'equipamento') {
+        c.equipTrocado = document.getElementById('equipTrocado')?.value || '';
+        c.patrimonioEquip = document.getElementById('patrimonioEquip')?.value || '';
+    }
+    db.collection('chamados').add(c).then(function() {
+        document.querySelector('form').reset();
+        document.getElementById('camposExtras').innerHTML = '';
+        document.querySelectorAll('#tipos .toggle-btn').forEach(function(x) { x.classList.remove('active'); });
+        document.querySelector('#tipos .toggle-btn').classList.add('active');
+        tipoSel = 'chamado';
+        mostrarChamados();
+        alert('✅ Chamado ' + c.protocolo + ' aberto!');
+    });
 }
+
 function carregar() {
-    var el = document.getElementById('listaChamados'); el.innerHTML = '<p style="text-align:center;padding:20px;">Carregando...</p>';
+    var el = document.getElementById('listaChamados');
+    el.innerHTML = '<p style="text-align:center;padding:20px;">Carregando...</p>';
     db.collection('chamados').orderBy('data_abertura', 'desc').limit(30).get().then(function(s) {
-        var l = []; s.forEach(function(d) { var x = d.data(); x.id = d.id; l.push(x); });
-        if (l.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;">Nenhum</p>'; return; }
-        el.innerHTML = l.map(function(c) { return '<div class="chamado-item' + (c.tipo === 'toner' ? ' toner' : '') + '"><div><strong>' + c.titulo + '</strong><br><small>📋 ' + c.protocolo + ' | 📍 ' + c.setor + ' | 📅 ' + new Date(c.data_abertura).toLocaleDateString('pt-BR') + '</small></div><span class="status-badge s-' + c.status.toLowerCase().replace(/ /g, '-') + '">' + c.status + '</span></div>'; }).join('');
+        var l = [];
+        s.forEach(function(d) { var x = d.data(); x.id = d.id; l.push(x); });
+        if (l.length === 0) {
+            el.innerHTML = '<p style="text-align:center;padding:30px;color:#999;">Nenhum chamado encontrado</p>';
+            return;
+        }
+        el.innerHTML = l.map(function(c) {
+            var icone = c.tipo === 'toner' ? '🖨️' : c.tipo === 'equipamento' ? '💻' : '🔧';
+            var sc = 's-' + c.status.toLowerCase().replace(/ /g, '-');
+            return '<div class="chamado-item' + (c.tipo === 'toner' ? ' toner' : '') + '">' +
+                '<div><strong>' + icone + ' ' + c.titulo + '</strong><br>' +
+                '<small>📋 ' + c.protocolo + ' | 📍 ' + c.setor + ' | 🕐 ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</small></div>' +
+                '<span class="status-badge ' + sc + '">' + c.status + '</span>' +
+            '</div>';
+        }).join('');
     });
 }
 </script>

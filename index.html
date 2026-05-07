@@ -67,56 +67,111 @@
     </div>
 
     <div id="telaForm" class="form-container">
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2>Novo Chamado</h2><button onclick="voltar()" style="background:none;border:none;font-size:22px;cursor:pointer;">&times;</button></div>
-            <form onsubmit="abrirChamado(event)">
-                <div class="form-group"><label>Nome *</label><input type="text" id="solicitante" required></div>
-                <div class="form-group"><label>Contato (WhatsApp/Ramal)</label><input type="text" id="contato" placeholder="Ex: 82999999999"></div>
-                <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2>Novo Chamado</h2>
+            <button onclick="voltar()" style="background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+        </div>
+        <form onsubmit="abrirChamado(event)">
+            <div class="form-group">
+                <label>Nome *</label>
+                <input type="text" id="solicitante" required>
+            </div>
+            <div class="form-group">
+                <label>Contato (WhatsApp/Ramal)</label>
+                <input type="text" id="contato" placeholder="Ex: 82999999999">
+            </div>
+            <div class="form-group">
+                <label>Setor *</label>
                 <select id="setor" required>
-    <option>Almoxarifado</option>
-    <option>Auditorio</option>
-    <option>Centro Cirurgico</option>
-    <option>Clinica Cirurgica</option>
-    <option>Clinica Medica I</option>
-    <option>Clinica Medica II</option>
-    <option>CME</option>
-    <option>Comunicação</option>
-    <option>Direção Administrativa</option>
-    <option>Direção Enfermagem</option>
-    <option>Direção Geral</option>
-    <option>Direção Medica</option>
-    <option>Emergencia/Vermelha</option>
-    <option>Farmacia</option>
-    <option>Faturamento</option>
-    <option>Fisioterapia</option>
-    <option>GAVUA</option>
-    <option>Hotelaria</option>
-    <option>Laboratorio</option>
-    <option>Manutenção</option>
-    <option>NIR</option>
-    <option>Nutrição</option>
-    <option>Oncologia I</option>
-    <option>Oncologia II</option>
-    <option>Ortopedia CR</option>
-    <option>Outros</option>
-    <option>Ouvidoria/Juridico</option>
-    <option>Patrimonio</option>
-    <option>Pediatria</option>
-    <option>Psicologia</option>
-    <option>Raio-X</option>
-    <option>Recepção CR</option>
-    <option>Recepção Geral</option>
-    <option>Recepção Nefrologia</option>
-    <option>RH</option>
-    <option>Sala Dialise</option>
-    <option>Sala Telemedicina</option>
-    <option>Serviço Social</option>
-    <option>SESMT</option>
-    <option>Tomografia</option>
-    <option>UTI I</option>
-    <option>UTI II</option>
-</select>
+                    <option value="">Selecione o setor...</option>
+                    <option>Almoxarifado</option>
+                    <option>Auditorio</option>
+                    <option>Centro Cirurgico</option>
+                    <option>Clinica Cirurgica</option>
+                    <option>Clinica Medica I</option>
+                    <option>Clinica Medica II</option>
+                    <option>CME</option>
+                    <option>Comunicação</option>
+                    <option>Direção Administrativa</option>
+                    <option>Direção Enfermagem</option>
+                    <option>Direção Geral</option>
+                    <option>Direção Medica</option>
+                    <option>Emergencia/Vermelha</option>
+                    <option>Farmacia</option>
+                    <option>Faturamento</option>
+                    <option>Fisioterapia</option>
+                    <option>GAVUA</option>
+                    <option>Hotelaria</option>
+                    <option>Laboratorio</option>
+                    <option>Manutenção</option>
+                    <option>NIR</option>
+                    <option>Nutrição</option>
+                    <option>Oncologia I</option>
+                    <option>Oncologia II</option>
+                    <option>Ortopedia CR</option>
+                    <option>Outros</option>
+                    <option>Ouvidoria/Juridico</option>
+                    <option>Patrimonio</option>
+                    <option>Pediatria</option>
+                    <option>Psicologia</option>
+                    <option>Raio-X</option>
+                    <option>Recepção CR</option>
+                    <option>Recepção Geral</option>
+                    <option>Recepção Nefrologia</option>
+                    <option>RH</option>
+                    <option>Sala Dialise</option>
+                    <option>Sala Telemedicina</option>
+                    <option>Serviço Social</option>
+                    <option>SESMT</option>
+                    <option>Tomografia</option>
+                    <option>UTI I</option>
+                    <option>UTI II</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tipo *</label>
+                <div class="toggle-group" id="tipos">
+                    <button type="button" class="toggle-btn active" onclick="setTipo('chamado',this)">🔧 Chamado</button>
+                    <button type="button" class="toggle-btn" onclick="setTipo('toner',this)">🖨️ Toner</button>
+                    <button type="button" class="toggle-btn" onclick="setTipo('equipamento',this)">💻 Equipamento</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Categoria *</label>
+                <select id="categoria" required>
+                    <option value="">Selecione...</option>
+                    <option>Computador</option>
+                    <option>Notebook</option>
+                    <option>Impressora</option>
+                    <option>Monitor</option>
+                    <option>Teclado/Mouse</option>
+                    <option>Sistema</option>
+                    <option>Internet/Rede</option>
+                    <option>Telefone</option>
+                    <option>Outros</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Prioridade</label>
+                <select id="prioridade">
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média" selected>Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Crítica">Crítica</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Título *</label>
+                <input type="text" id="titulo" required placeholder="Descreva em poucas palavras">
+            </div>
+            <div id="camposExtras"></div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Enviar Chamado
+            </button>
+        </form>
+    </div>
+</div>
                 <div class="form-group"><label>Tipo *</label>
                     <div class="toggle-group" id="tipos">
                         <button type="button" class="toggle-btn active" onclick="setTipo('chamado',this)">🔧 Chamado</button>

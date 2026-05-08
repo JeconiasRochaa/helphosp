@@ -100,6 +100,15 @@
         @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } .sidebar { width: 80px; min-width: 80px; } .sidebar .nav-item span, .sidebar .user-details, .sidebar-header p, .nav-section-title { display: none; } .main-content { margin-left: 80px; } }
     </style>
 </head>
+    <div class="modal-overlay" id="modalDetalhes">
+    <div class="modal-box" style="max-width:550px;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h3>Detalhes do Chamado</h3>
+            <button onclick="document.getElementById('modalDetalhes').classList.remove('ativa')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);">&times;</button>
+        </div>
+        <div id="detalhesConteudo"></div>
+    </div>
+</div>
 <body>
 
 <div class="sidebar">
@@ -217,23 +226,26 @@ function atualizarDash() {
 
 function carregarChamados() {
     var fs = document.getElementById('fS').value, ft = document.getElementById('fT').value, fb = document.getElementById('fB').value.toLowerCase();
-    var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (ft && c.tipo !== ft) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0) return false; return true; });
-    var el = document.getElementById('listaChamadosAdmin'); if (f.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;">Nenhum</p>'; return; }
-    el.innerHTML = f.map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<div class="chamado-item"><div><strong>' + c.titulo + '</strong><br><small>' + c.protocolo + ' | ' + c.solicitante + ' | ' + c.setor + ' | ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</small></div><div class="chamado-actions"><span class="badge ' + sc + '">' + c.status + '</span><button class="btn btn-sm btn-outline" onclick="avancar(\'' + c.fid + '\')">▶</button>' + (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluir(\'' + c.fid + '\')"><i class="fas fa-trash"></i></button>' : '') + '</div></div>'; }).join('');
+    var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (ft && c.tipo !== ft) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0 && (c.protocolo || '').toLowerCase().indexOf(fb) < 0 && (c.solicitante || '').toLowerCase().indexOf(fb) < 0) return false; return true; });
+    var el = document.getElementById('listaChamadosAdmin');
+    if (f.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;">Nenhum chamado</p>'; return; }
+    el.innerHTML = f.map(function(c) {
+        var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue';
+        var icone = c.tipo === 'toner' ? '🖨️' : c.tipo === 'equipamento' ? '💻' : '🔧';
+        var contato = c.contato ? ' | 📞 <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank" style="color:#25d366;font-weight:600;">' + c.contato + ' <i class="fab fa-whatsapp"></i></a>' : '';
+        return '<div class="chamado-item' + (c.prioridade === 'Crítica' ? ' critico' : '') + (c.tipo === 'toner' ? ' toner' : '') + '" onclick="verDetalhes(\'' + c.fid + '\')" style="cursor:pointer;">' +
+            '<div style="flex:1;">' +
+                '<h4>' + icone + ' ' + (c.titulo || 'Sem título') + '</h4>' +
+                '<small>📋 <strong>' + (c.protocolo || 'N/I') + '</strong> | 👤 ' + (c.solicitante || 'Anônimo') + contato + ' | 📍 ' + (c.setor || 'N/I') + ' | 🕐 ' + new Date(c.data_abertura).toLocaleString('pt-BR') + ' | ⚡ ' + (c.prioridade || 'Média') + '</small>' +
+            '</div>' +
+            '<div class="chamado-actions" onclick="event.stopPropagation();">' +
+                '<span class="badge ' + sc + '">' + (c.status || 'A Fazer') + '</span>' +
+                '<button class="btn btn-sm btn-outline" onclick="avancar(\'' + c.fid + '\')" title="Avançar status">▶</button>' +
+                (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluir(\'' + c.fid + '\')" title="Excluir"><i class="fas fa-trash"></i></button>' : '') +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
-function avancar(id) { var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' }; db.collection('chamados').doc(id).get().then(function(d) { if (d.exists) db.collection('chamados').doc(id).update({ status: fluxo[d.data().status] || 'A Fazer' }).then(function() { mostrarToast('✅ Status atualizado!'); }); }); }
-function excluir(id) { if (!confirm('Excluir?')) return; db.collection('chamados').doc(id).delete().then(function() { mostrarToast('🗑️ Excluído!'); }); }
-
-function carregarToners() { var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }); document.getElementById('tabelaToners').innerHTML = t.length === 0 ? '<tr><td colspan="4">Nenhum</td></tr>' : t.map(function(x) { var d = x.data_troca_toner || x.data_abertura; return '<tr><td><strong>' + x.setor + '</strong></td><td>' + (x.solicitante || 'TI') + '</td><td>' + new Date(d).toLocaleString('pt-BR') + '</td><td>' + Math.floor((new Date() - new Date(d)) / 86400000) + 'd</td></tr>'; }).join(''); }
-function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); document.getElementById('ts').selectedIndex = 0; }
-function addToner(e) { e.preventDefault(); var s = document.getElementById('ts').value; if (!s) { alert('Selecione um setor!'); return; } db.collection('chamados').add({ protocolo: 'TN-' + Date.now().toString(36).toUpperCase(), setor: s, tipo: 'toner', isToner: true, status: 'Concluído', solicitante: uLogado.nome, titulo: 'Troca de toner - ' + s, data_abertura: new Date().toISOString(), data_troca_toner: new Date().toISOString() }).then(function() { document.getElementById('modalToner').classList.remove('ativa'); carregarToners(); mostrarToast('✅ Troca registrada em ' + s); }); }
-
-function carregarEquip() { db.collection('equipamentos').get().then(function(s) { equipamentos = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; equipamentos.push(x); }); document.getElementById('listaEquip').innerHTML = equipamentos.map(function(eq, i) { return '<div class="equip-card"><h4>' + eq.nome + '</h4><small>' + eq.tipo + '</small><div style="margin-top:6px;"><button class="btn btn-sm btn-outline" onclick="editarEquip(' + i + ')">Editar</button> <button class="btn btn-sm btn-danger" onclick="remEquip(' + i + ')">Excluir</button></div></div>'; }).join('') || '<p>Nenhum</p>'; }); }
-function mostrarFormEquip() { document.getElementById('formEquip').style.display = 'block'; equipEditando = null; }
-function editarEquip(i) { var eq = equipamentos[i]; document.getElementById('formEquip').style.display = 'block'; document.getElementById('eNome').value = eq.nome; document.getElementById('eTipo').value = eq.tipo; equipEditando = i; }
-function salvarEquip(e) { e.preventDefault(); var eq = { nome: document.getElementById('eNome').value, tipo: document.getElementById('eTipo').value }; if (equipEditando !== null) db.collection('equipamentos').doc(equipamentos[equipEditando].fid).update(eq); else db.collection('equipamentos').add(eq); document.getElementById('formEquip').style.display = 'none'; carregarEquip(); }
-function remEquip(i) { if (confirm('Remover?')) { db.collection('equipamentos').doc(equipamentos[i].fid).delete(); carregarEquip(); } }
-
 // ========== EQUIPE (SÓ ADMIN) ==========
 function carregarEquipe() {
     db.collection('usuarios').get().then(function(s) {
@@ -302,7 +314,38 @@ function editarTecnico(id) {
         };
     });
 }
-
+function verDetalhes(fid) {
+    var c = chamados.find(function(x) { return x.fid === fid; });
+    if (!c) return;
+    
+    var historico = c.historico || [];
+    var historicoHtml = historico.map(function(h) {
+        return '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:11px;"><strong>' + new Date(h.data).toLocaleString('pt-BR') + '</strong><br>' + h.acao + '</div>';
+    }).join('');
+    
+    var contatoHtml = c.contato ? 
+        '<p><strong>📞 Contato:</strong> <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank" style="color:#25d366;font-weight:600;">' + c.contato + ' <i class="fab fa-whatsapp"></i></a></p>' : '';
+    
+    var html = '<div style="padding:10px;">' +
+        '<h3 style="color:var(--primary);margin-bottom:10px;">🔧 ' + (c.titulo || 'Sem título') + '</h3>' +
+        '<p><strong>📋 Protocolo:</strong> ' + (c.protocolo || 'N/I') + '</p>' +
+        '<p><strong>👤 Solicitante:</strong> ' + (c.solicitante || 'Anônimo') + '</p>' +
+        contatoHtml +
+        '<p><strong>📍 Setor:</strong> ' + (c.setor || 'N/I') + '</p>' +
+        '<p><strong>🏷️ Categoria:</strong> ' + (c.categoria || 'N/I') + '</p>' +
+        '<p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || 'Média') + '</p>' +
+        '<p><strong>📊 Status:</strong> <span class="badge ' + (c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue') + '">' + (c.status || 'A Fazer') + '</span></p>' +
+        '<p><strong>🕐 Abertura:</strong> ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</p>' +
+        (c.descricao ? '<p><strong>📝 Descrição:</strong> ' + c.descricao + '</p>' : '') +
+        (c.tipo === 'toner' ? '<p><strong>🖨️ Toner:</strong> ' + (c.modeloToner || 'N/I') + '</p>' : '') +
+        '<hr style="margin:10px 0;"><h4 style="margin-bottom:8px;">📜 Histórico</h4>' +
+        (historicoHtml || '<p style="color:var(--gray);">Nenhuma atualização</p>') +
+        '<div style="text-align:center;margin-top:12px;"><button class="btn btn-outline" onclick="document.getElementById(\'modalDetalhes\').classList.remove(\'ativa\')">Fechar</button></div>' +
+        '</div>';
+    
+    document.getElementById('detalhesConteudo').innerHTML = html;
+    document.getElementById('modalDetalhes').classList.add('ativa');
+}
 function remTec(id) { if (confirm('Remover?')) { db.collection('usuarios').doc(id).delete(); carregarEquipe(); } }
 
 function alterarSenha(e) { e.preventDefault(); db.collection('usuarios').where('usuario', '==', uLogado.usuario).get().then(function(s) { if (s.empty) return; var d = s.docs[0]; if (d.data().senha !== document.getElementById('sAtual').value) { alert('Senha atual incorreta!'); return; } d.ref.update({ senha: document.getElementById('sNova').value, primeiro_acesso: false }); alert('✅ Alterada!'); e.target.reset(); }); }

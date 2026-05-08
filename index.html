@@ -3,243 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Sistema de Chamados Hospitalar</title>
+    <title>HelpHosp - Painel Técnico</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        :root { --primary: #0B3B5C; --primary-light: #1E4F6E; --secondary: #2F9B8F; --accent: #00C9B7; --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6; --dark: #0F172A; --gray: #64748B; --light: #F8FAFC; --white: #FFFFFF; --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%); }
-        body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
-        .header { background: var(--gradient); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
-        .logo { display: flex; align-items: center; gap: 15px; } .logo i { font-size: 40px; color: var(--accent); } .logo h1 { font-size: 28px; font-weight: 700; } .logo span { display: block; font-size: 12px; color: var(--accent); letter-spacing: 2px; }
-        .header-right { display: flex; align-items: center; gap: 20px; }
-        .hospital-info { background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; }
-        .btn-tecnico { background: var(--secondary); color: white; border: none; padding: 10px 25px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 500; text-decoration: none; font-size: 14px; }
-        .btn-tecnico:hover { background: var(--accent); transform: translateY(-2px); }
-        .whatsapp-float { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
-        .whatsapp-float-btn { width: 60px; height: 60px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 10px 25px rgba(37,211,102,0.4); border: none; color: white; font-size: 30px; position: relative; }
-        .whatsapp-float-btn:hover { transform: scale(1.1); }
-        .whatsapp-float-btn .pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: #25D366; animation: pulse-whatsapp 2s infinite; opacity: 0; }
-        @keyframes pulse-whatsapp { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
-        .whatsapp-popup { position: absolute; bottom: 70px; right: 0; background: white; border-radius: 20px; padding: 20px; width: 300px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: none; animation: slideUp 0.3s; }
-        .whatsapp-popup.show { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .whatsapp-popup h3 { color: var(--primary); margin-bottom: 15px; font-size: 16px; }
-        .whatsapp-popup .close-popup { position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; color: var(--gray); font-size: 18px; }
-        .whatsapp-contact { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; text-decoration: none; color: var(--dark); }
-        .whatsapp-contact:hover { background: #f0fdf4; }
-        .whatsapp-contact .contact-avatar { width: 40px; height: 40px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
-        .whatsapp-contact .contact-info h4 { font-size: 14px; } .whatsapp-contact .contact-info small { font-size: 11px; color: var(--gray); }
-        .whatsapp-contact i { color: #25D366; font-size: 20px; margin-left: auto; }
-        .main-container { max-width: 1000px; margin: 30px auto; padding: 0 30px; }
-        .welcome-banner { background: var(--gradient); border-radius: 30px; padding: 40px; margin-bottom: 30px; color: white; }
-        .welcome-banner h2 { font-size: 32px; margin-bottom: 10px; } .welcome-banner p { font-size: 16px; opacity: 0.9; }
-        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 30px; }
-        .action-card { background: white; border-radius: 25px; padding: 35px; text-align: center; cursor: pointer; transition: all 0.4s; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); }
-        .action-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(47,155,143,0.2); border-color: var(--secondary); }
-        .card-icon { width: 80px; height: 80px; background: var(--gradient); border-radius: 25px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-        .card-icon i { font-size: 40px; color: white; } .action-card h3 { color: var(--primary); font-size: 22px; margin-bottom: 10px; } .action-card p { color: var(--gray); font-size: 14px; }
-        .form-container { background: white; border-radius: 30px; padding: 35px; margin-bottom: 30px; display: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .form-container.active { display: block; animation: slideDown 0.5s; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; } .form-header h2 { color: var(--primary); font-size: 24px; }
-        .btn-close { width: 40px; height: 40px; border-radius: 12px; border: none; background: var(--light); color: var(--gray); cursor: pointer; font-size: 20px; }
-        .btn-close:hover { background: var(--danger); color: white; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 20px; } .form-group label { display: block; margin-bottom: 8px; color: var(--primary); font-weight: 500; font-size: 14px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #E5E7EB; border-radius: 12px; font-size: 15px; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--secondary); outline: none; }
-        .btn-submit { width: 100%; padding: 16px; background: var(--gradient); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .btn-submit:hover { transform: translateY(-2px); }
-        .chamados-container { background: white; border-radius: 30px; padding: 35px; display: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .chamados-container.active { display: block; }
-        .chamado-card { background: var(--light); border-radius: 20px; padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; border: 1px solid transparent; }
-        .chamado-card:hover { transform: translateX(5px); border-color: var(--secondary); }
-        .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .status-afazer { background: #FEF3C7; color: #92400E; } .status-andamento { background: #DBEAFE; color: #1E40AF; } .status-pendente { background: #FFEDD5; color: #9A3412; } .status-concluido { background: #D1FAE5; color: #065F46; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(5px); }
-        .modal-content { background: white; width: 90%; max-width: 600px; margin: 40px auto; border-radius: 25px; padding: 30px; max-height: 85vh; overflow-y: auto; }
-        @media (max-width: 768px) { .header { flex-direction: column; padding: 15px; } .action-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+        :root {
+            --primary: #0B3B5C; --primary-light: #1E4F6E; --secondary: #2F9B8F;
+            --accent: #00C9B7; --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
+            --info: #3B82F6; --dark: #0F172A; --gray: #64748B; --light: #F8FAFC; --white: #FFFFFF;
+            --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%);
+            --sw: 280px; --r: 14px; --sh: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; color: var(--dark); display: flex; min-height: 100vh; }
+
+        .sidebar { width: var(--sw); min-width: var(--sw); background: var(--gradient); color: white; position: fixed; left: 0; top: 0; height: 100vh; z-index: 100; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.3); padding: 20px; }
+        .sidebar-header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .sidebar-header i { font-size: 50px; color: var(--accent); margin-bottom: 10px; }
+        .sidebar-header h2 { font-size: 22px; margin-bottom: 5px; }
+        .sidebar-header p { font-size: 12px; color: var(--accent); }
+        .user-info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 45px; height: 45px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 600; color: var(--dark); }
+        .user-details h4 { font-size: 14px; margin-bottom: 3px; } .user-details small { font-size: 11px; opacity: 0.7; }
+        .sidebar-nav { flex: 1; overflow-y: auto; }
+        .nav-section { margin-bottom: 20px; }
+        .nav-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.4); margin-bottom: 10px; padding-left: 12px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 12px; cursor: pointer; transition: all 0.3s; margin-bottom: 5px; color: rgba(255,255,255,0.7); text-decoration: none; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: var(--secondary); color: white; font-weight: 500; }
+        .nav-item i { width: 20px; text-align: center; }
+        .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .btn-logout { width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .btn-logout:hover { background: var(--danger); }
+
+        .main-content { margin-left: var(--sw); flex: 1; padding: 24px 28px; }
+        .secao { display: none; } .secao.ativa { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .top-bar h1 { font-size: 22px; font-weight: 700; color: var(--primary); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: var(--r); padding: 18px 20px; display: flex; align-items: center; gap: 14px; box-shadow: var(--sh); }
+        .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-icon.blue { background: #eef2ff; color: #3B82F6; } .stat-icon.amber { background: #fffbeb; color: #d97706; }
+        .stat-icon.green { background: #ecfdf5; color: #10b981; } .stat-icon.red { background: #fef2f2; color: #ef4444; }
+        .stat-info small { font-size: 10px; color: var(--gray); text-transform: uppercase; } .stat-info strong { font-size: 24px; display: block; }
+
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .chart-card { background: white; border-radius: var(--r); padding: 20px; box-shadow: var(--sh); }
+        .chart-card h3 { font-size: 14px; margin-bottom: 12px; color: var(--primary); }
+        .chart-card canvas { width: 100% !important; height: 280px !important; max-height: 280px; }
+        .chart-full { background: white; border-radius: var(--r); padding: 20px; box-shadow: var(--sh); margin-bottom: 20px; }
+        .chart-full canvas { width: 100% !important; height: 200px !important; max-height: 200px; }
+
+        .table-card { background: white; border-radius: var(--r); padding: 18px; box-shadow: var(--sh); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: var(--gradient); color: white; padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 500; }
+        th:first-child { border-radius: 8px 0 0 0; } th:last-child { border-radius: 0 8px 0 0; }
+        td { padding: 9px 12px; border-bottom: 1px solid #e5e7eb; font-size: 12px; }
+
+        .badge { padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+        .badge-blue { background: #dbeafe; color: #1e40af; } .badge-green { background: #d1fae5; color: #065f46; } .badge-amber { background: #fef3c7; color: #92400e; }
+
+        .btn { padding: 8px 16px; border: none; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .btn-primary { background: var(--info); color: white; } .btn-outline { background: white; border: 1.5px solid #d1d5db; }
+        .btn-danger { background: var(--danger); color: white; } .btn-sm { padding: 5px 10px; font-size: 10px; }
+
+        .filtros { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .filtros select, .filtros input { padding: 8px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 12px; }
+        .filtros input { flex: 1; min-width: 150px; }
+
+        .chamado-item { background: white; padding: 13px 16px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 3px solid var(--info); }
+        .chamado-item.toner { border-left-color: #d97706; } .chamado-item.critico { border-left-color: var(--danger); background: #fff5f5; }
+        .chamado-actions { display: flex; align-items: center; gap: 6px; }
+
+        .equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .equip-card { background: white; padding: 14px; border-radius: 10px; box-shadow: var(--sh); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal-overlay.ativa { display: flex; }
+        .modal-box { background: white; border-radius: 16px; padding: 24px 28px; width: 90%; max-width: 440px; }
+        .form-group { margin-bottom: 14px; } .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--primary); }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 13px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--success); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; z-index: 9999; animation: toastIn 0.3s, toastOut 0.3s 2.5s forwards; }
+        @keyframes toastIn { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(80px); opacity: 0; } }
+
+        .alert-card { background: #fff3cd; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; display: none; align-items: center; gap: 8px; }
+
+        @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } .sidebar { width: 80px; min-width: 80px; } .sidebar .nav-item span, .sidebar .user-details, .sidebar-header p, .nav-section-title { display: none; } .main-content { margin-left: 80px; } }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo"><i class="fas fa-laptop-medical"></i><div><h1>HelpHosp</h1><span>SISTEMA DE CHAMADOS HOSPITALAR</span></div></div>
-        <div class="header-right">
-            <div class="hospital-info"><i class="fas fa-hospital-alt"></i><span>HRPI - Hospital Regional de Palmeira dos Indios</span></div>
-            <a href="admin.html" class="btn-tecnico"><i class="fas fa-user-cog"></i> Área Técnica</a>
+
+<div class="sidebar">
+    <div class="sidebar-header"><i class="fas fa-laptop-medical"></i><h2>HelpHosp</h2><p>PAINEL TÉCNICO</p></div>
+    <div class="user-info"><div class="user-avatar" id="ui">T</div><div class="user-details"><h4 id="un">Técnico</h4><small id="uc">Carregando...</small></div></div>
+    <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">Principal</div>
+            <div class="nav-item active" onclick="muda('dashboard', this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
+            <div class="nav-item" onclick="muda('chamados', this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span></div>
         </div>
-    </div>
-
-    <!-- WHATSAPP -->
-    <div class="whatsapp-float">
-        <div class="whatsapp-popup" id="whatsappPopup">
-            <button class="close-popup" onclick="toggleWhatsappPopup()">&times;</button>
-            <h3><i class="fab fa-whatsapp"></i> Contatos da TI</h3>
-            <div id="whatsappContacts"></div>
+        <div class="nav-section"><div class="nav-section-title">Gestão</div>
+            <div class="nav-item" onclick="muda('toners', this)"><i class="fas fa-print"></i><span>Toners</span></div>
+            <div class="nav-item" onclick="muda('equipamentos', this)"><i class="fas fa-server"></i><span>Equipamentos</span></div>
+            <div class="nav-item" onclick="muda('equipe', this)" id="navEquipe" style="display:none;"><i class="fas fa-users-cog"></i><span>Técnicos</span></div>
         </div>
-        <button class="whatsapp-float-btn" onclick="toggleWhatsappPopup()"><div class="pulse"></div><i class="fab fa-whatsapp"></i></button>
-    </div>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Sair</span></button></div>
+</div>
 
-    <div class="main-container">
-        <div class="welcome-banner"><h2>🏥 Suporte de TI Hospitalar</h2><p>Precisa de ajuda? Abra um chamado rapidamente.</p></div>
+<main class="main-content">
 
-        <div class="action-grid">
-            <div class="action-card" onclick="mostrarFormulario()"><div class="card-icon"><i class="fas fa-plus-circle"></i></div><h3>Abrir Chamado</h3><p>Registre uma solicitação de suporte técnico</p></div>
-            <div class="action-card" onclick="mostrarChamados()"><div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3>Meus Chamados</h3><p>Acompanhe o status dos seus chamados</p></div>
+    <section id="secao-dashboard" class="secao ativa">
+        <div class="top-bar"><h1>📊 Dashboard</h1><div style="display:flex;gap:8px;"><select id="periodo" onchange="atualizarDash()" style="padding:8px 12px;border-radius:8px;border:1.5px solid #d1d5db;"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option></select><button class="btn btn-primary" onclick="relatorio()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div>
+        <div class="alert-card" id="alertaCriticos"><i class="fas fa-exclamation-triangle"></i> <span id="msgCriticos"></span></div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>TOTAL</small><strong id="stT">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>ABERTOS</small><strong id="stA">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>CONCLUÍDOS</small><strong id="stC">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>CRÍTICOS</small><strong id="stX">0</strong></div></div>
         </div>
-
-        <div class="form-container" id="formContainer">
-            <div class="form-header"><h2>Novo Chamado</h2><button class="btn-close" onclick="fecharFormulario()">&times;</button></div>
-            <form onsubmit="criarChamado(event)">
-                <div class="form-row">
-                    <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" placeholder="Nome completo" required></div>
-                    <div class="form-group"><label>Contato (WhatsApp)</label><input type="text" id="contato" placeholder="(82) 99999-9999"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Setor *</label>
-                        <select id="setor" required>
-                            <option value="">Selecione...</option>
-                           <option>Almoxarifado</option>
-                        <option>Auditorio</option>
-                        <option>Centro Cirurgico</option>
-                        <option>Clinica Cirurgica</option>
-                        <option>Clinica Medica I</option>
-                        <option>Clinica Medica II</option>
-                        <option>CME</option>
-                        <option>Comunicação</option>
-                        <option>Direção Administrativa</option>
-                        <option>Direção Enfermagem</option>
-                        <option>Direção Geral</option>
-                        <option>Direção Medica</option>
-                        <option>Emergencia/Vermelha</option>
-                        <option>Farmacia</option>
-                        <option>Faturamento</option>
-                        <option>Fisioterapia</option>
-                        <option>GAVUA</option>
-                        <option>Hotelaria</option>
-                        <option>Laboratorio</option>
-                        <option>Manutenção</option>
-                        <option>NIR</option>
-                        <option>Nutrição</option>
-                        <option>Oncologia I</option>
-                        <option>Oncologia II</option>
-                        <option>Ortopedia CR</option>
-                        <option>Outros</option>
-                        <option>Ouvidoria/Juridico</option>
-                        <option>Patrimonio</option>
-                        <option>Pediatria</option>
-                        <option>Psicologia</option>
-                        <option>Raio-X</option>
-                        <option>Recepção CR</option>
-                        <option>Recepção Geral</option>
-                        <option>Recepção Nefrologia</option>
-                        <option>RH</option>
-                        <option>Sala Dialise</option>
-                        <option>Sala Telemedicina</option>
-                        <option>Serviço Social</option>
-                        <option>SESMT</option>
-                        <option>Tomografia</option>
-                        <option>UTI I</option>
-                        <option>UTI II</option>
-                        <option>Outros</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Problema *</label>
-                        <select id="categoria" required>
-                            <option value="">Selecione...</option>
-                            <option>Computador</option>
-                            <option>Impressora</option>
-                            <option>Sistema/GestHosp</option>
-                            <option>Internet/Rede</option>
-                            <option>Ramal</option>
-                            <option>Outros</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Prioridade *</label>
-                    <select id="prioridade" required>
-                        <option value="Baixa">Baixa</option><option value="Média" selected>Média</option>
-                        <option value="Alta">Alta</option><option value="Crítica">Crítica</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Título *</label><input type="text" id="titulo" placeholder="Resuma o problema" required></div>
-                <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3" placeholder="Descreva o problema..."></textarea></div>
-                <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-            </form>
+        <div class="charts-grid">
+            <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="gSetor"></canvas></div>
+            <div class="chart-card"><h3>🎯 Prioridades</h3><canvas id="gPrio"></canvas></div>
         </div>
+        <div class="chart-full"><h3>🖨️ Toners por Setor</h3><canvas id="gToner"></canvas></div>
+        <div class="table-card" style="margin-top:18px;"><h3 style="margin-bottom:10px;">🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Solicitante</th><th>Status</th><th>Data/Hora</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
+    </section>
 
-        <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">Meus Chamados</h2><div id="listaChamados"></div></div>
-    </div>
+    <section id="secao-chamados" class="secao"><div class="top-bar"><h1>🎫 Chamados</h1></div><div class="filtros"><select id="fS" onchange="carregarChamados()"><option value="">Status</option><option>A Fazer</option><option>Em Andamento</option><option>Concluído</option></select><select id="fT" onchange="carregarChamados()"><option value="">Tipo</option><option value="chamado">Chamado</option><option value="toner">Toner</option><option value="equipamento">Equipamento</option></select><input type="text" id="fB" placeholder="Buscar..." onkeyup="carregarChamados()"></div><div id="listaChamadosAdmin"></div></section>
 
-    <script>
-        const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
-        firebase.initializeApp(fc); const db = firebase.firestore();
+    <section id="secao-toners" class="secao"><div class="top-bar"><h1>🖨️ Toners</h1><button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button></div><div class="table-card"><table><thead><tr><th>Setor</th><th>Realizado por</th><th>Data/Hora</th><th>Dias</th></tr></thead><tbody id="tabelaToners"></tbody></table></div></section>
 
-        function toggleWhatsappPopup() {
-            var p = document.getElementById('whatsappPopup');
-            p.classList.toggle('show');
-            if (p.classList.contains('show')) carregarContatos();
-        }
+    <section id="secao-equipamentos" class="secao"><div class="top-bar"><h1>🖥️ Equipamentos</h1><button class="btn btn-primary" onclick="mostrarFormEquip()"><i class="fas fa-plus"></i> Novo</button></div><div id="formEquip" style="display:none;background:white;padding:14px;border-radius:10px;margin-bottom:12px;"><form onsubmit="salvarEquip(event)" style="display:grid;gap:8px;grid-template-columns:1fr 1fr;"><div class="form-group"><label>Nome</label><input type="text" id="eNome" required></div><div class="form-group"><label>Tipo</label><select id="eTipo"><option>Computador</option><option>Monitor</option><option>Impressora</option></select></div><div><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('formEquip').style.display='none'" style="margin-left:4px;">Cancelar</button></div></form></div><div id="listaEquip" class="equip-grid"></div></section>
 
-        function carregarContatos() {
-            var c = document.getElementById('whatsappContacts');
-            db.collection('usuarios').where('status', '==', 'ativo').get().then(function(s) {
-                if (s.empty) { c.innerHTML = '<p style="color:var(--gray);text-align:center;">Nenhum técnico</p>'; return; }
-                c.innerHTML = '';
-                s.forEach(function(d) {
-                    var u = d.data();
-                    if (u.whatsapp) {
-                        c.innerHTML += '<a href="https://wa.me/55' + u.whatsapp.replace(/\D/g,'') + '" target="_blank" class="whatsapp-contact"><div class="contact-avatar"><i class="fas fa-user"></i></div><div class="contact-info"><h4>' + u.nome + '</h4><small>' + u.cargo + '</small></div><i class="fab fa-whatsapp"></i></a>';
-                    }
-                });
-            });
-        }
+    <section id="secao-equipe" class="secao"><div class="top-bar"><h1>👥 Técnicos</h1><button class="btn btn-primary" id="btnAddTecnico" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo</button></div><div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaEquipe"></tbody></table></div></section>
 
-        function mostrarFormulario() { document.getElementById('formContainer').classList.add('active'); document.getElementById('chamadosContainer').classList.remove('active'); }
-        function fecharFormulario() { document.getElementById('formContainer').classList.remove('active'); }
-        function mostrarChamados() { document.getElementById('chamadosContainer').classList.add('active'); document.getElementById('formContainer').classList.remove('active'); carregarChamados(); }
+    <section id="secao-config" class="secao"><div class="table-card" style="max-width:400px;"><h3>🔐 Alterar Senha</h3><form onsubmit="alterarSenha(event)"><div class="form-group"><label>Atual</label><input type="password" id="sAtual" required></div><div class="form-group"><label>Nova</label><input type="password" id="sNova" required minlength="8"></div><button type="submit" class="btn btn-primary">Alterar</button></form><button class="btn btn-danger" onclick="logout()" style="margin-top:10px;">Sair</button></div></section>
+</main>
 
-        function criarChamado(e) {
-            e.preventDefault();
-            var protocolo = 'CH-' + Date.now().toString(36).toUpperCase();
-            db.collection('chamados').add({
-                protocolo: protocolo,
-                titulo: document.getElementById('titulo').value,
-                descricao: document.getElementById('descricao').value,
-                solicitante: document.getElementById('solicitante').value,
-                contato: document.getElementById('contato').value,
-                setor: document.getElementById('setor').value,
-                categoria: document.getElementById('categoria').value,
-                prioridade: document.getElementById('prioridade').value,
-                status: 'A Fazer',
-                tipo: 'chamado',
-                data_abertura: new Date().toISOString(),
-                historico: [{ data: new Date().toISOString(), acao: 'Chamado criado pelo usuário' }]
+<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>Novo Técnico</h3><form onsubmit="addTecnico(event)"><div class="form-group"><label>Nome *</label><input type="text" id="tn" required></div><div class="form-group"><label>Usuário *</label><input type="text" id="tu" required></div><div class="form-group"><label>Cargo *</label><select id="tc"><option>Técnico de Suporte</option><option>Analista de Sistemas</option><option>Coordenador TI</option></select></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tw" placeholder="82999999999" required></div><p style="font-size:11px;color:#d97706;">🔑 Senha: 12345</p><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('modalTecnico').classList.remove('ativa')">Cancelar</button></form></div></div>
+<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>Registrar Troca de Toner</h3><form onsubmit="addToner(event)"><div class="form-group"><label>Setor *</label><select id="ts" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergencia/Vermelha</option><option>Centro Cirurgico</option><option>Farmacia</option><option>TI</option><option>Outros</option></select></div><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="document.getElementById('modalToner').classList.remove('ativa')">Cancelar</button></form></div></div>
+
+<script>
+const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
+firebase.initializeApp(fc); const db = firebase.firestore();
+var uLogado = JSON.parse(localStorage.getItem('usuario_logado'));
+if (!uLogado) { window.location.href = 'admin.html'; }
+var chamados = [], equipamentos = [], charts = {}, equipEditando = null;
+
+window.onload = function() {
+    document.getElementById('un').textContent = uLogado.nome;
+    document.getElementById('uc').textContent = uLogado.cargo;
+    document.getElementById('ui').textContent = uLogado.nome.charAt(0).toUpperCase();
+    
+    // SÓ ADMIN vê menu e botões de equipe
+    if (uLogado.tipo === 'admin') {
+        document.getElementById('navEquipe').style.display = 'flex';
+        document.getElementById('btnAddTecnico').style.display = 'inline-flex';
+    }
+    
+    db.collection('chamados').orderBy('data_abertura', 'desc').onSnapshot(function(s) {
+        chamados = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; chamados.push(x); });
+        atualizarDash(); if (document.getElementById('secao-chamados').classList.contains('ativa')) carregarChamados(); if (document.getElementById('secao-toners').classList.contains('ativa')) carregarToners();
+    });
+    carregarEquip(); carregarEquipe();
+};
+
+function muda(s, el) {
+    document.querySelectorAll('.nav-item').forEach(function(a) { a.classList.remove('active'); });
+    document.querySelectorAll('.secao').forEach(function(x) { x.classList.remove('ativa'); });
+    el.classList.add('active'); document.getElementById('secao-' + s).classList.add('ativa');
+    if (s === 'dashboard') atualizarDash(); if (s === 'chamados') carregarChamados(); if (s === 'toners') carregarToners(); if (s === 'equipamentos') carregarEquip(); if (s === 'equipe') carregarEquipe();
+}
+
+function atualizarDash() {
+    var p = parseInt(document.getElementById('periodo').value || 30), dl = new Date(); dl.setDate(dl.getDate() - p);
+    var f = chamados.filter(function(c) { return new Date(c.data_abertura) >= dl; });
+    document.getElementById('stT').textContent = f.length; document.getElementById('stA').textContent = f.filter(function(c) { return c.status !== 'Concluído'; }).length;
+    document.getElementById('stC').textContent = f.filter(function(c) { return c.status === 'Concluído'; }).length;
+    document.getElementById('stX').textContent = f.filter(function(c) { return c.prioridade === 'Crítica'; }).length;
+    var criticos = f.filter(function(c) { return c.prioridade === 'Crítica' && c.status !== 'Concluído'; });
+    document.getElementById('alertaCriticos').style.display = criticos.length > 0 ? 'flex' : 'none';
+    if (criticos.length > 0) document.getElementById('msgCriticos').textContent = criticos.length + ' chamado(s) crítico(s) em aberto!';
+    var setor = {}, prio = {}, tonerSetor = {};
+    f.forEach(function(c) { setor[c.setor] = (setor[c.setor] || 0) + 1; prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1; if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1; });
+    Object.values(charts).forEach(function(c) { if (c) c.destroy(); }); charts = {};
+
+    // CORES PADRÃO (azul, verde, laranja, vermelho)
+    var cores = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#EC4899','#F97316'];
+
+    var ctx1 = document.getElementById('gSetor');
+    if (ctx1 && Object.keys(setor).length > 0) {
+        charts.s = new Chart(ctx1, { type: 'doughnut', data: { labels: Object.keys(setor), datasets: [{ data: Object.values(setor), backgroundColor: cores, borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 10 } } } } } });
+    }
+    var ctx2 = document.getElementById('gPrio');
+    if (ctx2 && Object.keys(prio).length > 0) {
+        charts.p = new Chart(ctx2, { type: 'pie', data: { labels: Object.keys(prio), datasets: [{ data: Object.values(prio), backgroundColor: ['#10B981','#F59E0B','#EF4444','#dc2626'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 10 } } } } } });
+    }
+    var ctx3 = document.getElementById('gToner');
+    if (ctx3 && Object.keys(tonerSetor).length > 0) {
+        charts.t = new Chart(ctx3, { type: 'bar', data: { labels: Object.keys(tonerSetor), datasets: [{ data: Object.values(tonerSetor), backgroundColor: '#F59E0B', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+    }
+    document.getElementById('ultimosChamados').innerHTML = f.slice(0, 8).map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<tr><td>' + (c.protocolo || '-') + '</td><td>' + (c.titulo || '-') + '</td><td>' + (c.setor || '-') + '</td><td>' + (c.solicitante || '-') + '</td><td><span class="badge ' + sc + '">' + (c.status || '-') + '</span></td><td>' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</td></tr>'; }).join('') || '<tr><td colspan="6">Nenhum</td></tr>';
+}
+
+function carregarChamados() {
+    var fs = document.getElementById('fS').value, ft = document.getElementById('fT').value, fb = document.getElementById('fB').value.toLowerCase();
+    var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (ft && c.tipo !== ft) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0) return false; return true; });
+    var el = document.getElementById('listaChamadosAdmin'); if (f.length === 0) { el.innerHTML = '<p style="text-align:center;padding:30px;">Nenhum</p>'; return; }
+    el.innerHTML = f.map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<div class="chamado-item"><div><strong>' + c.titulo + '</strong><br><small>' + c.protocolo + ' | ' + c.solicitante + ' | ' + c.setor + ' | ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</small></div><div class="chamado-actions"><span class="badge ' + sc + '">' + c.status + '</span><button class="btn btn-sm btn-outline" onclick="avancar(\'' + c.fid + '\')">▶</button>' + (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluir(\'' + c.fid + '\')"><i class="fas fa-trash"></i></button>' : '') + '</div></div>'; }).join('');
+}
+function avancar(id) { var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' }; db.collection('chamados').doc(id).get().then(function(d) { if (d.exists) db.collection('chamados').doc(id).update({ status: fluxo[d.data().status] || 'A Fazer' }).then(function() { mostrarToast('✅ Status atualizado!'); }); }); }
+function excluir(id) { if (!confirm('Excluir?')) return; db.collection('chamados').doc(id).delete().then(function() { mostrarToast('🗑️ Excluído!'); }); }
+
+function carregarToners() { var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }); document.getElementById('tabelaToners').innerHTML = t.length === 0 ? '<tr><td colspan="4">Nenhum</td></tr>' : t.map(function(x) { var d = x.data_troca_toner || x.data_abertura; return '<tr><td><strong>' + x.setor + '</strong></td><td>' + (x.solicitante || 'TI') + '</td><td>' + new Date(d).toLocaleString('pt-BR') + '</td><td>' + Math.floor((new Date() - new Date(d)) / 86400000) + 'd</td></tr>'; }).join(''); }
+function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); document.getElementById('ts').selectedIndex = 0; }
+function addToner(e) { e.preventDefault(); var s = document.getElementById('ts').value; if (!s) { alert('Selecione um setor!'); return; } db.collection('chamados').add({ protocolo: 'TN-' + Date.now().toString(36).toUpperCase(), setor: s, tipo: 'toner', isToner: true, status: 'Concluído', solicitante: uLogado.nome, titulo: 'Troca de toner - ' + s, data_abertura: new Date().toISOString(), data_troca_toner: new Date().toISOString() }).then(function() { document.getElementById('modalToner').classList.remove('ativa'); carregarToners(); mostrarToast('✅ Troca registrada em ' + s); }); }
+
+function carregarEquip() { db.collection('equipamentos').get().then(function(s) { equipamentos = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; equipamentos.push(x); }); document.getElementById('listaEquip').innerHTML = equipamentos.map(function(eq, i) { return '<div class="equip-card"><h4>' + eq.nome + '</h4><small>' + eq.tipo + '</small><div style="margin-top:6px;"><button class="btn btn-sm btn-outline" onclick="editarEquip(' + i + ')">Editar</button> <button class="btn btn-sm btn-danger" onclick="remEquip(' + i + ')">Excluir</button></div></div>'; }).join('') || '<p>Nenhum</p>'; }); }
+function mostrarFormEquip() { document.getElementById('formEquip').style.display = 'block'; equipEditando = null; }
+function editarEquip(i) { var eq = equipamentos[i]; document.getElementById('formEquip').style.display = 'block'; document.getElementById('eNome').value = eq.nome; document.getElementById('eTipo').value = eq.tipo; equipEditando = i; }
+function salvarEquip(e) { e.preventDefault(); var eq = { nome: document.getElementById('eNome').value, tipo: document.getElementById('eTipo').value }; if (equipEditando !== null) db.collection('equipamentos').doc(equipamentos[equipEditando].fid).update(eq); else db.collection('equipamentos').add(eq); document.getElementById('formEquip').style.display = 'none'; carregarEquip(); }
+function remEquip(i) { if (confirm('Remover?')) { db.collection('equipamentos').doc(equipamentos[i].fid).delete(); carregarEquip(); } }
+
+// ========== EQUIPE (SÓ ADMIN) ==========
+function carregarEquipe() {
+    db.collection('usuarios').get().then(function(s) {
+        var h = '';
+        s.forEach(function(d) {
+            var u = d.data();
+            var acoes = '';
+            if (uLogado.tipo === 'admin' && u.tipo !== 'admin') {
+                acoes = '<button class="btn btn-sm btn-outline" onclick="editarTecnico(\'' + d.id + '\')"><i class="fas fa-edit"></i></button> ' +
+                        '<button class="btn btn-sm btn-danger" onclick="remTec(\'' + d.id + '\')"><i class="fas fa-trash"></i></button>';
+            } else if (u.tipo === 'admin') {
+                acoes = '<span class="badge badge-blue">Admin</span>';
+            }
+            h += '<tr><td>' + u.nome + '</td><td>@' + u.usuario + '</td><td>' + (u.cargo || '-') + '</td><td>' + (u.whatsapp ? '<a class="link-wpp" href="https://wa.me/55' + u.whatsapp.replace(/\D/g,'') + '" target="_blank"><i class="fab fa-whatsapp"></i> ' + u.whatsapp + '</a>' : '-') + '</td><td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + u.status + '</span></td><td>' + acoes + '</td></tr>';
+        });
+        document.getElementById('tabelaEquipe').innerHTML = h;
+    });
+}
+
+function abrirModalTecnico() { document.getElementById('modalTecnico').classList.add('ativa'); document.querySelector('#modalTecnico form').reset(); }
+
+function addTecnico(e) {
+    e.preventDefault();
+    var u = document.getElementById('tu').value.toLowerCase().trim();
+    var w = document.getElementById('tw').value.trim();
+    if (!w) { alert('Informe o WhatsApp!'); return; }
+    db.collection('usuarios').where('usuario', '==', u).get().then(function(s) {
+        if (!s.empty) { alert('Usuário já existe!'); return; }
+        db.collection('usuarios').add({
+            nome: document.getElementById('tn').value, usuario: u, senha: '12345',
+            cargo: document.getElementById('tc').value, tipo: 'tecnico',
+            whatsapp: w, status: 'ativo', primeiro_acesso: true
+        }).then(function() {
+            document.getElementById('modalTecnico').classList.remove('ativa');
+            carregarEquipe();
+            alert('✅ Técnico cadastrado!\nUsuário: ' + u + '\nWhatsApp: ' + w + '\nSenha: 12345');
+        });
+    });
+}
+
+function editarTecnico(id) {
+    db.collection('usuarios').doc(id).get().then(function(d) {
+        if (!d.exists) return;
+        var u = d.data();
+        document.getElementById('tn').value = u.nome;
+        document.getElementById('tu').value = u.usuario;
+        document.getElementById('tu').disabled = true;
+        document.getElementById('tc').value = u.cargo;
+        document.getElementById('tw').value = u.whatsapp || '';
+        document.getElementById('modalTecnico').classList.add('ativa');
+        // Mudar o formulário para editar
+        var form = document.querySelector('#modalTecnico form');
+        form.onsubmit = function(ev) {
+            ev.preventDefault();
+            d.ref.update({
+                nome: document.getElementById('tn').value,
+                cargo: document.getElementById('tc').value,
+                whatsapp: document.getElementById('tw').value
             }).then(function() {
-                alert('✅ Chamado criado!\nProtocolo: ' + protocolo);
-                fecharFormulario();
-                mostrarChamados();
-            }).catch(function(err) { alert('Erro ao criar chamado!'); });
-        }
-
-        function carregarChamados() {
-            var el = document.getElementById('listaChamados');
-            el.innerHTML = '<p style="text-align:center;padding:20px;">Carregando...</p>';
-            db.collection('chamados').orderBy('data_abertura', 'desc').limit(30).get().then(function(s) {
-                if (s.empty) { el.innerHTML = '<p style="text-align:center;padding:40px;">Nenhum chamado</p>'; return; }
-                el.innerHTML = '';
-                s.forEach(function(d) {
-                    var c = d.data();
-                    var sc = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '-');
-                    el.innerHTML += '<div class="chamado-card"><div><strong>' + c.titulo + '</strong><br><small>📋 ' + c.protocolo + ' | 📍 ' + c.setor + ' | 🕐 ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</small></div><span class="status-badge ' + sc + '">' + (c.status || 'A Fazer') + '</span></div>';
-                });
+                document.getElementById('modalTecnico').classList.remove('ativa');
+                document.getElementById('tu').disabled = false;
+                form.onsubmit = addTecnico;
+                carregarEquipe();
+                mostrarToast('✅ Técnico atualizado!');
             });
-        }
-    </script>
+        };
+    });
+}
+
+function remTec(id) { if (confirm('Remover?')) { db.collection('usuarios').doc(id).delete(); carregarEquipe(); } }
+
+function alterarSenha(e) { e.preventDefault(); db.collection('usuarios').where('usuario', '==', uLogado.usuario).get().then(function(s) { if (s.empty) return; var d = s.docs[0]; if (d.data().senha !== document.getElementById('sAtual').value) { alert('Senha atual incorreta!'); return; } d.ref.update({ senha: document.getElementById('sNova').value, primeiro_acesso: false }); alert('✅ Alterada!'); e.target.reset(); }); }
+
+function relatorio() { var el = document.createElement('div'); el.style.cssText = 'padding:24px;background:white;font-family:Arial;width:850px;'; el.innerHTML = '<h1 style="color:#0B3B5C;">HelpHosp - Relatório</h1><p>' + new Date().toLocaleString('pt-BR') + ' | Total: ' + chamados.length + '</p><br>'; el.innerHTML += '<table style="width:100%;border-collapse:collapse;font-size:10px;"><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Status</th><th>Data</th></tr>'; chamados.slice(0, 40).forEach(function(c) { el.innerHTML += '<tr><td>' + c.protocolo + '</td><td>' + c.titulo + '</td><td>' + c.setor + '</td><td>' + c.status + '</td><td>' + new Date(c.data_abertura).toLocaleDateString('pt-BR') + '</td></tr>'; }); el.innerHTML += '</table>'; document.body.appendChild(el); html2canvas(el, { scale: 2 }).then(function(c) { document.body.removeChild(el); var pdf = new jspdf.jsPDF('p', 'mm', 'a4'); pdf.addImage(c.toDataURL('image/png'), 'PNG', 8, 8, 194, (c.height * 194) / c.width); pdf.save('relatorio.pdf'); }); }
+
+function mostrarToast(m) { var t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(function() { t.remove(); }, 3000); }
+function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'admin.html'; }
+</script>
 </body>
 </html>

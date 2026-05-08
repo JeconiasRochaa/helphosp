@@ -163,27 +163,28 @@
         function mostrarChamados() { document.getElementById('chamadosContainer').classList.add('active'); document.getElementById('formContainer').classList.remove('active'); carregarChamados(); }
 
         function criarChamado(e) {
-            e.preventDefault();
-            var protocolo = 'CH-' + Date.now().toString(36).toUpperCase();
-            db.collection('chamados').add({
-                protocolo: protocolo,
-                titulo: document.getElementById('titulo').value,
-                descricao: document.getElementById('descricao').value,
-                solicitante: document.getElementById('solicitante').value,
-                contato: document.getElementById('contato').value,
-                setor: document.getElementById('setor').value,
-                categoria: document.getElementById('categoria').value,
-                prioridade: document.getElementById('prioridade').value,
-                status: 'A Fazer',
-                tipo: 'chamado',
-                data_abertura: new Date().toISOString(),
-                historico: [{ data: new Date().toISOString(), acao: 'Chamado criado pelo usuário' }]
-            }).then(function() {
-                alert('✅ Chamado criado!\nProtocolo: ' + protocolo);
-                fecharFormulario();
-                mostrarChamados();
-            }).catch(function(err) { alert('Erro ao criar chamado!'); });
-        }
+    e.preventDefault();
+    var protocolo = 'CH-' + Date.now().toString(36).toUpperCase();
+    db.collection('chamados').add({
+        protocolo: protocolo,
+        titulo: document.getElementById('titulo').value,
+        descricao: document.getElementById('descricao').value,
+        solicitante: document.getElementById('solicitante').value,
+        contato: document.getElementById('contato').value,
+        setor: document.getElementById('setor').value,
+        categoria: document.getElementById('categoria').value,
+        prioridade: document.getElementById('prioridade').value,
+        status: 'A Fazer',
+        tipo: 'chamado',
+        data_abertura: new Date().toISOString(),
+        historico: [{ data: new Date().toISOString(), acao: 'Chamado criado pelo usuário' }]
+    }).then(function() {
+        alert('✅ Chamado criado!\nProtocolo: ' + protocolo);
+        document.querySelector('form').reset();
+        fecharFormulario();
+        mostrarChamados();
+    }).catch(function(err) { alert('Erro ao criar chamado!'); });
+}
 
         function carregarChamados() {
             var el = document.getElementById('listaChamados');

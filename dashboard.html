@@ -301,7 +301,33 @@ function editarEquip(i) { var eq = equipamentos[i]; document.getElementById('for
 function salvarEquip(e) { e.preventDefault(); var eq = { nome: document.getElementById('eNome').value, tipo: document.getElementById('eTipo').value }; if (equipEditando !== null) db.collection('equipamentos').doc(equipamentos[equipEditando].fid).update(eq); else db.collection('equipamentos').add(eq); document.getElementById('formEquip').style.display = 'none'; carregarEquip(); }
 function remEquip(i) { if (confirm('Remover?')) { db.collection('equipamentos').doc(equipamentos[i].fid).delete(); carregarEquip(); } }
 
-function carregarEquipe() { db.collection('usuarios').get().then(function(s) { var h = ''; s.forEach(function(d) { var u = d.data(); var acoes = ''; if (uLogado.tipo === 'admin' && u.tipo !== 'admin') { acoes = '<button class="btn btn-sm btn-outline" onclick="editarTecnico(\'' + d.id + '\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="remTec(\'' + d.id + '\')"><i class="fas fa-trash"></i></button>'; } else if (u.tipo === 'admin') { acoes = '<span class="badge badge-blue">Admin</span>'; } h += '<tr><td>' + u.nome + '</td><td>@' + u.usuario + '</td><td>' + (u.cargo || '-') + '</td><td>' + (u.whatsapp ? '<a class="link-wpp" href="https://wa.me/55' + u.whatsapp.replace(/\D/g,'') + '" target="_blank"><i class="fab fa-whatsapp"></i> ' + u.whatsapp + '</a>' : '-') + '</td><td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + u.status + '</span></td><td>' + acoes + '</td></tr>'; }); document.getElementById('tabelaEquipe').innerHTML = h; }); }
+function carregarEquipe() {
+    db.collection('usuarios').get().then(function(s) {
+        var h = '';
+        s.forEach(function(d) {
+            var u = d.data();
+            var acoes = '';
+            
+            // Admin vê botões para todos, exceto ele mesmo
+            if (uLogado.tipo === 'admin' && u.usuario !== uLogado.usuario) {
+                acoes = '<button class="btn btn-sm btn-outline" onclick="editarTecnico(\'' + d.id + '\')" title="Editar"><i class="fas fa-edit"></i></button> ' +
+                        '<button class="btn btn-sm btn-danger" onclick="remTec(\'' + d.id + '\')" title="Excluir"><i class="fas fa-trash"></i></button>';
+            } else if (u.usuario === uLogado.usuario) {
+                acoes = '<span class="badge badge-blue">Você</span>';
+            }
+            
+            h += '<tr>' +
+                '<td><strong>' + (u.nome || '-') + '</strong></td>' +
+                '<td>@' + (u.usuario || '-') + '</td>' +
+                '<td>' + (u.cargo || '-') + '</td>' +
+                '<td>' + (u.whatsapp ? '<a class="link-wpp" href="https://wa.me/55' + u.whatsapp.replace(/\D/g,'') + '" target="_blank"><i class="fab fa-whatsapp"></i> ' + u.whatsapp + '</a>' : '-') + '</td>' +
+                '<td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + (u.status || 'ativo') + '</span></td>' +
+                '<td style="white-space:nowrap;">' + acoes + '</td>' +
+            '</tr>';
+        });
+        document.getElementById('tabelaEquipe').innerHTML = h;
+    });
+}
 function abrirModalTecnico() { document.getElementById('modalTecnico').classList.add('ativa'); document.querySelector('#modalTecnico form').reset(); document.getElementById('tu').disabled = false; }
 function addTecnico(e) { e.preventDefault(); var u = document.getElementById('tu').value.toLowerCase().trim(); var w = document.getElementById('tw').value.trim(); if (!w) { alert('Informe o WhatsApp!'); return; } db.collection('usuarios').where('usuario', '==', u).get().then(function(s) { if (!s.empty) { alert('Usuário já existe!'); return; } db.collection('usuarios').add({ nome: document.getElementById('tn').value, usuario: u, senha: '12345', cargo: document.getElementById('tc').value, tipo: 'tecnico', whatsapp: w, status: 'ativo', primeiro_acesso: true }).then(function() { document.getElementById('modalTecnico').classList.remove('ativa'); carregarEquipe(); alert('✅ Técnico cadastrado!\nUsuário: ' + u + '\nWhatsApp: ' + w + '\nSenha: 12345'); }); }); }
 function editarTecnico(id) { db.collection('usuarios').doc(id).get().then(function(d) { if (!d.exists) return; var u = d.data(); document.getElementById('tn').value = u.nome; document.getElementById('tu').value = u.usuario; document.getElementById('tu').disabled = true; document.getElementById('tc').value = u.cargo; document.getElementById('tw').value = u.whatsapp || ''; document.getElementById('modalTecnico').classList.add('ativa'); var form = document.querySelector('#modalTecnico form'); form.onsubmit = function(ev) { ev.preventDefault(); d.ref.update({ nome: document.getElementById('tn').value, cargo: document.getElementById('tc').value, whatsapp: document.getElementById('tw').value }).then(function() { document.getElementById('modalTecnico').classList.remove('ativa'); document.getElementById('tu').disabled = false; form.onsubmit = addTecnico; carregarEquipe(); mostrarToast('✅ Técnico atualizado!'); }); }; }); }

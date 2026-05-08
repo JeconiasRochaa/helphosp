@@ -97,6 +97,17 @@
         .alert-card { background: #fff3cd; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; display: none; align-items: center; gap: 8px; }
         .link-wpp { color: #25d366; text-decoration: none; font-weight: 600; } .link-wpp:hover { text-decoration: underline; }
 
+        .badge-notificacao { display: inline-block; background: var(--danger); color: white; border-radius: 50%; width: 22px; height: 22px; text-align: center; line-height: 22px; font-size: 11px; font-weight: 700; animation: pulse 1.5s infinite; margin-left: 6px; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+
+        .notificacao-popup { position: fixed; top: 20px; right: 20px; background: white; border-radius: 14px; padding: 18px 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 9999; max-width: 380px; animation: slideInRight 0.4s ease, slideOutRight 0.4s ease 4.5s forwards; border-left: 5px solid var(--info); cursor: pointer; }
+        .notificacao-popup.toner { border-left-color: #f59e0b; }
+        @keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+        .notificacao-titulo { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--dark); }
+        .notificacao-info { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
+        .notificacao-fechar { position: absolute; top: 8px; right: 12px; background: none; border: none; color: #999; cursor: pointer; font-size: 16px; }
+
         @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .charts-grid { grid-template-columns: 1fr; } .sidebar { width: 80px; min-width: 80px; } .sidebar .nav-item span, .sidebar .user-details, .sidebar-header p, .nav-section-title { display: none; } .main-content { margin-left: 80px; } }
     </style>
 </head>
@@ -108,7 +119,7 @@
     <nav class="sidebar-nav">
         <div class="nav-section"><div class="nav-section-title">Principal</div>
             <div class="nav-item active" onclick="muda('dashboard', this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
-            <div class="nav-item" onclick="muda('chamados', this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span></div>
+            <div class="nav-item" onclick="muda('chamados', this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span><span class="badge-notificacao" id="badgeNotificacoes" style="display:none;">0</span></div>
         </div>
         <div class="nav-section"><div class="nav-section-title">Gestão</div>
             <div class="nav-item" onclick="muda('toners', this)"><i class="fas fa-print"></i><span>Toners</span></div>
@@ -136,7 +147,7 @@
             <div class="chart-card"><h3>🎯 Prioridades</h3><canvas id="gPrio"></canvas></div>
         </div>
         <div class="chart-full"><h3>🖨️ Toners por Setor</h3><canvas id="gToner"></canvas></div>
-        <div class="table-card" style="margin-top:18px;"><h3 style="margin-bottom:10px;">🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Solicitante</th><th>Status</th><th>Data/Hora</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
+        <div class="table-card" style="margin-top:18px;"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Solicitante</th><th>Status</th><th>Data/Hora</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
     </section>
 
     <!-- CHAMADOS (TABELA) -->
@@ -182,21 +193,65 @@ firebase.initializeApp(fc); const db = firebase.firestore();
 var uLogado = JSON.parse(localStorage.getItem('usuario_logado'));
 if (!uLogado) { window.location.href = 'admin.html'; }
 var chamados = [], equipamentos = [], charts = {}, equipEditando = null;
+var idsVistos = JSON.parse(localStorage.getItem('ids_vistos') || '[]');
+var audioNotificacao = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADgAECAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC/////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAwBLjIrAAAAAAAAAAAAAAAAAAAA//tQZAAD8AAAaGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 
 window.onload = function() {
     document.getElementById('un').textContent = uLogado.nome;
     document.getElementById('uc').textContent = uLogado.cargo;
     document.getElementById('ui').textContent = uLogado.nome.charAt(0).toUpperCase();
     if (uLogado.tipo === 'admin') { document.getElementById('navEquipe').style.display = 'flex'; document.getElementById('btnAddTecnico').style.display = 'inline-flex'; }
-    db.collection('chamados').orderBy('data_abertura', 'desc').onSnapshot(function(s) { chamados = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; chamados.push(x); }); atualizarDash(); if (document.getElementById('secao-chamados').classList.contains('ativa')) carregarChamados(); if (document.getElementById('secao-toners').classList.contains('ativa')) carregarToners(); });
+    
+    db.collection('chamados').orderBy('data_abertura', 'desc').onSnapshot(function(s) {
+        var chamadosAntigos = chamados.length;
+        chamados = [];
+        s.forEach(function(d) { var x = d.data(); x.fid = d.id; chamados.push(x); });
+        
+        if (chamadosAntigos > 0 && chamados.length > chamadosAntigos) {
+            var novos = chamados.slice(0, chamados.length - chamadosAntigos);
+            novos.forEach(function(c) {
+                if (idsVistos.indexOf(c.fid) === -1) {
+                    mostrarNotificacao(c);
+                    idsVistos.push(c.fid);
+                }
+            });
+            localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-200)));
+        }
+        if (chamadosAntigos === 0) { s.forEach(function(d) { if (idsVistos.indexOf(d.id) === -1) idsVistos.push(d.id); }); localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-200))); }
+        
+        var naoVistos = chamados.filter(function(c) { return idsVistos.indexOf(c.fid) === -1; }).length;
+        var badge = document.getElementById('badgeNotificacoes');
+        if (naoVistos > 0) { badge.style.display = 'inline-block'; badge.textContent = naoVistos; } else { badge.style.display = 'none'; }
+        
+        atualizarDash();
+        if (document.getElementById('secao-chamados').classList.contains('ativa')) carregarChamados();
+        if (document.getElementById('secao-toners').classList.contains('ativa')) carregarToners();
+    });
     carregarEquip(); carregarEquipe();
+    if (Notification.permission === 'default') Notification.requestPermission();
 };
+
+function mostrarNotificacao(chamado) {
+    if (audioNotificacao) { audioNotificacao.volume = 0.4; audioNotificacao.play().catch(function(){}); }
+    if (Notification.permission === 'granted') { new Notification('🔔 Novo Chamado!', { body: (chamado.titulo || 'Sem título') + ' - ' + (chamado.setor || 'N/I'), icon: 'https://cdn-icons-png.flaticon.com/512/684/684831.png' }); }
+    var popup = document.createElement('div');
+    popup.className = 'notificacao-popup' + (chamado.tipo === 'toner' ? ' toner' : '');
+    popup.onclick = function() { muda('chamados', document.querySelector('.sidebar-nav .nav-item:nth-child(2)')); popup.remove(); };
+    popup.innerHTML = '<button class="notificacao-fechar" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button>' +
+        '<div class="notificacao-titulo">🔔 Novo Chamado!</div>' +
+        '<div class="notificacao-info"><strong>' + (chamado.titulo || 'Sem título') + '</strong></div>' +
+        '<div class="notificacao-info">📍 ' + (chamado.setor || 'N/I') + ' | 👤 ' + (chamado.solicitante || 'Anônimo') + '</div>' +
+        '<div class="notificacao-info" style="font-size:10px;color:#999;">Clique para ver os chamados</div>';
+    document.body.appendChild(popup);
+    setTimeout(function() { if (popup.parentElement) popup.remove(); }, 5000);
+}
 
 function muda(s, el) {
     document.querySelectorAll('.nav-item').forEach(function(a) { a.classList.remove('active'); });
     document.querySelectorAll('.secao').forEach(function(x) { x.classList.remove('ativa'); });
     el.classList.add('active'); document.getElementById('secao-' + s).classList.add('ativa');
-    if (s === 'dashboard') atualizarDash(); if (s === 'chamados') carregarChamados(); if (s === 'toners') carregarToners(); if (s === 'equipamentos') carregarEquip(); if (s === 'equipe') carregarEquipe();
+    if (s === 'chamados') { carregarChamados(); document.getElementById('badgeNotificacoes').style.display = 'none'; idsVistos = chamados.map(function(c) { return c.fid; }); localStorage.setItem('ids_vistos', JSON.stringify(idsVistos)); }
+    if (s === 'dashboard') atualizarDash(); if (s === 'toners') carregarToners(); if (s === 'equipamentos') carregarEquip(); if (s === 'equipe') carregarEquipe();
 }
 
 function atualizarDash() {
@@ -218,71 +273,26 @@ function atualizarDash() {
     document.getElementById('ultimosChamados').innerHTML = f.slice(0, 8).map(function(c) { var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue'; return '<tr><td>' + (c.protocolo || '-') + '</td><td>' + (c.titulo || '-') + '</td><td>' + (c.setor || '-') + '</td><td>' + (c.solicitante || '-') + '</td><td><span class="badge ' + sc + '">' + (c.status || '-') + '</span></td><td>' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</td></tr>'; }).join('') || '<tr><td colspan="6">Nenhum</td></tr>';
 }
 
-// ========== CHAMADOS (TABELA) ==========
 function carregarChamados() {
-    var fs = document.getElementById('fS').value;
-    var fb = document.getElementById('fB').value.toLowerCase();
-    var f = chamados.filter(function(c) {
-        if (fs && c.status !== fs) return false;
-        if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0 && (c.protocolo || '').toLowerCase().indexOf(fb) < 0 && (c.solicitante || '').toLowerCase().indexOf(fb) < 0) return false;
-        return true;
-    });
+    var fs = document.getElementById('fS').value, fb = document.getElementById('fB').value.toLowerCase();
+    var f = chamados.filter(function(c) { if (fs && c.status !== fs) return false; if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0 && (c.protocolo || '').toLowerCase().indexOf(fb) < 0 && (c.solicitante || '').toLowerCase().indexOf(fb) < 0) return false; return true; });
     var tbody = document.getElementById('tabelaChamados');
-    if (f.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray);">Nenhum chamado encontrado</td></tr>'; return; }
+    if (f.length === 0) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;">Nenhum chamado</td></tr>'; return; }
     tbody.innerHTML = f.map(function(c) {
         var sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
-        var prioridadeColor = c.prioridade === 'Crítica' ? 'style="color:#ef4444;font-weight:700;"' : c.prioridade === 'Alta' ? 'style="color:#f97316;font-weight:600;"' : '';
-        var contato = c.contato ? ' <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank" title="WhatsApp" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>' : '';
-        return '<tr onclick="verDetalhes(\'' + c.fid + '\')" style="cursor:pointer;">' +
-            '<td><strong>' + (c.protocolo || 'N/I') + '</strong></td>' +
-            '<td style="font-size:11px;">' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</td>' +
-            '<td>' + (c.titulo || 'Sem título') + '</td>' +
-            '<td>' + (c.solicitante || 'Anônimo') + contato + '</td>' +
-            '<td>' + (c.setor || 'N/I') + '</td>' +
-            '<td><span ' + prioridadeColor + '>' + (c.prioridade || 'Média') + '</span></td>' +
-            '<td>' + (c.tecnico || 'Não atribuído') + '</td>' +
-            '<td><span class="badge ' + sc + '">' + (c.status || 'A Fazer') + '</span></td>' +
-            '<td onclick="event.stopPropagation();" style="white-space:nowrap;">' +
-                '<button class="btn btn-primary btn-sm" onclick="avancar(\'' + c.fid + '\')" title="Avançar" style="padding:4px 8px;font-size:10px;">▶</button> ' +
-                (uLogado.tipo === 'admin' ? '<button class="btn btn-danger btn-sm" onclick="excluir(\'' + c.fid + '\')" title="Excluir" style="padding:4px 8px;font-size:10px;"><i class="fas fa-trash"></i></button>' : '') +
-            '</td></tr>';
+        var pc = c.prioridade === 'Crítica' ? 'style="color:#ef4444;font-weight:700;"' : c.prioridade === 'Alta' ? 'style="color:#f97316;font-weight:600;"' : '';
+        var contato = c.contato ? ' <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>' : '';
+        return '<tr onclick="verDetalhes(\'' + c.fid + '\')"><td><strong>' + (c.protocolo || 'N/I') + '</strong></td><td style="font-size:11px;">' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</td><td>' + (c.titulo || '-') + '</td><td>' + (c.solicitante || '-') + contato + '</td><td>' + (c.setor || '-') + '</td><td><span ' + pc + '>' + (c.prioridade || 'Média') + '</span></td><td>' + (c.tecnico || 'Não atribuído') + '</td><td><span class="badge ' + sc + '">' + (c.status || 'A Fazer') + '</span></td><td onclick="event.stopPropagation();"><button class="btn btn-primary btn-sm" onclick="avancar(\'' + c.fid + '\')">▶</button> ' + (uLogado.tipo === 'admin' ? '<button class="btn btn-danger btn-sm" onclick="excluir(\'' + c.fid + '\')"><i class="fas fa-trash"></i></button>' : '') + '</td></tr>';
     }).join('');
 }
 
-function avancar(id) {
-    var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' };
-    db.collection('chamados').doc(id).get().then(function(doc) {
-        if (!doc.exists) return;
-        var dados = doc.data();
-        var novoStatus = fluxo[dados.status || 'A Fazer'] || 'A Fazer';
-        var update = { status: novoStatus };
-        if (novoStatus === 'Em Andamento' || novoStatus === 'Concluído') { update.tecnico = uLogado.nome; }
-        var historico = dados.historico || [];
-        historico.push({ data: new Date().toISOString(), acao: 'Status: ' + novoStatus + ' por ' + uLogado.nome });
-        update.historico = historico;
-        db.collection('chamados').doc(id).update(update).then(function() { mostrarToast('✅ Status: ' + novoStatus); });
-    });
-}
+function avancar(id) { var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' }; db.collection('chamados').doc(id).get().then(function(d) { if (!d.exists) return; var dados = d.data(); var ns = fluxo[dados.status || 'A Fazer'] || 'A Fazer'; var upd = { status: ns }; if (ns === 'Em Andamento' || ns === 'Concluído') upd.tecnico = uLogado.nome; var hist = dados.historico || []; hist.push({ data: new Date().toISOString(), acao: 'Status: ' + ns + ' por ' + uLogado.nome }); upd.historico = hist; db.collection('chamados').doc(id).update(upd).then(function() { mostrarToast('✅ Status: ' + ns); }); }); }
 function excluir(id) { if (!confirm('Excluir?')) return; db.collection('chamados').doc(id).delete().then(function() { mostrarToast('🗑️ Excluído!'); }); }
 
-function verDetalhes(fid) {
-    var c = chamados.find(function(x) { return x.fid === fid; }); if (!c) return;
-    var historico = c.historico || [];
-    var histHtml = historico.map(function(h) { return '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:11px;"><strong>' + new Date(h.data).toLocaleString('pt-BR') + '</strong><br>' + h.acao + '</div>'; }).join('');
-    var contatoHtml = c.contato ? '<p><strong>📞 Contato:</strong> <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank">' + c.contato + ' <i class="fab fa-whatsapp"></i></a></p>' : '';
-    document.getElementById('detalhesConteudo').innerHTML = '<div><h3 style="color:var(--primary);">🔧 ' + (c.titulo || 'Sem título') + '</h3>' +
-        '<p><strong>📋 Protocolo:</strong> ' + (c.protocolo || 'N/I') + '</p><p><strong>👤 Solicitante:</strong> ' + (c.solicitante || 'Anônimo') + '</p>' + contatoHtml +
-        '<p><strong>📍 Setor:</strong> ' + (c.setor || 'N/I') + '</p><p><strong>🏷️ Categoria:</strong> ' + (c.categoria || 'N/I') + '</p><p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || 'Média') + '</p>' +
-        '<p><strong>📊 Status:</strong> <span class="badge ' + (c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : 'badge-blue') + '">' + (c.status || 'A Fazer') + '</span></p>' +
-        '<p><strong>👨‍🔧 Técnico:</strong> ' + (c.tecnico || 'Não atribuído') + '</p>' +
-        '<p><strong>🕐 Abertura:</strong> ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</p>' + (c.descricao ? '<p><strong>📝 Descrição:</strong> ' + c.descricao + '</p>' : '') +
-        '<hr style="margin:10px 0;"><h4>📜 Histórico</h4>' + (histHtml || '<p style="color:var(--gray);">Nenhuma atualização</p>') +
-        '<div style="text-align:center;margin-top:12px;"><button class="btn btn-outline" onclick="document.getElementById(\'modalDetalhes\').classList.remove(\'ativa\')">Fechar</button></div></div>';
-    document.getElementById('modalDetalhes').classList.add('ativa');
-}
+function verDetalhes(fid) { var c = chamados.find(function(x) { return x.fid === fid; }); if (!c) return; var hist = c.historico || []; var histHtml = hist.map(function(h) { return '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:11px;"><strong>' + new Date(h.data).toLocaleString('pt-BR') + '</strong><br>' + h.acao + '</div>'; }).join(''); var contatoHtml = c.contato ? '<p><strong>📞 Contato:</strong> <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g,'') + '" target="_blank">' + c.contato + ' <i class="fab fa-whatsapp"></i></a></p>' : ''; document.getElementById('detalhesConteudo').innerHTML = '<div><h3>' + (c.titulo || '-') + '</h3><p><strong>📋 Protocolo:</strong> ' + (c.protocolo || '') + '</p><p><strong>👤 Solicitante:</strong> ' + (c.solicitante || '') + '</p>' + contatoHtml + '<p><strong>📍 Setor:</strong> ' + (c.setor || '') + '</p><p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || '') + '</p><p><strong>📊 Status:</strong> ' + (c.status || '') + '</p><p><strong>👨‍🔧 Técnico:</strong> ' + (c.tecnico || 'Não atribuído') + '</p><p><strong>🕐 Abertura:</strong> ' + new Date(c.data_abertura).toLocaleString('pt-BR') + '</p><hr><h4>📜 Histórico</h4>' + (histHtml || '<p>Nenhuma atualização</p>') + '<div style="text-align:center;margin-top:12px;"><button class="btn btn-outline" onclick="document.getElementById(\'modalDetalhes\').classList.remove(\'ativa\')">Fechar</button></div></div>'; document.getElementById('modalDetalhes').classList.add('ativa'); }
 
 function carregarToners() { var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; }); document.getElementById('tabelaToners').innerHTML = t.length === 0 ? '<tr><td colspan="4">Nenhum</td></tr>' : t.map(function(x) { var d = x.data_troca_toner || x.data_abertura; return '<tr><td><strong>' + x.setor + '</strong></td><td>' + (x.solicitante || 'TI') + '</td><td>' + new Date(d).toLocaleString('pt-BR') + '</td><td>' + Math.floor((new Date() - new Date(d)) / 86400000) + 'd</td></tr>'; }).join(''); }
-function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); document.getElementById('ts').selectedIndex = 0; }
+function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); }
 function addToner(e) { e.preventDefault(); var s = document.getElementById('ts').value; if (!s) { alert('Selecione um setor!'); return; } db.collection('chamados').add({ protocolo: 'TN-' + Date.now().toString(36).toUpperCase(), setor: s, tipo: 'toner', isToner: true, status: 'Concluído', solicitante: uLogado.nome, titulo: 'Troca de toner - ' + s, data_abertura: new Date().toISOString(), data_troca_toner: new Date().toISOString() }).then(function() { document.getElementById('modalToner').classList.remove('ativa'); carregarToners(); mostrarToast('✅ Troca registrada em ' + s); }); }
 
 function carregarEquip() { db.collection('equipamentos').get().then(function(s) { equipamentos = []; s.forEach(function(d) { var x = d.data(); x.fid = d.id; equipamentos.push(x); }); document.getElementById('listaEquip').innerHTML = equipamentos.map(function(eq, i) { return '<div class="equip-card"><h4>' + eq.nome + '</h4><small>' + eq.tipo + '</small><div style="margin-top:6px;"><button class="btn btn-sm btn-outline" onclick="editarEquip(' + i + ')">Editar</button> <button class="btn btn-sm btn-danger" onclick="remEquip(' + i + ')">Excluir</button></div></div>'; }).join('') || '<p>Nenhum</p>'; }); }

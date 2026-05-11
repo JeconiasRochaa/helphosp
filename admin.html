@@ -35,43 +35,25 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cabeçalho estilo GestHOSP */
         .login-header {
             background: linear-gradient(135deg, #0B3B5C 0%, #1a5a7a 50%, #0B3B5C 100%);
-            padding: 35px 30px 30px;
+            padding: 40px 30px 35px;
             text-align: center;
             color: white;
-            position: relative;
-        }
-
-        .login-header::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
         .login-logo {
-            width: 65px;
-            height: 65px;
-            background: white;
-            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 30px;
-            color: #0B3B5C;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            margin: 0 auto 18px;
+            font-size: 32px;
+            color: #00C9B7;
+            border: 2px solid rgba(255,255,255,0.2);
         }
 
         .login-header h1 {
@@ -84,20 +66,18 @@
         .login-header p {
             font-size: 13px;
             opacity: 0.8;
-            letter-spacing: 0.5px;
         }
 
         .login-header .subtitle {
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 3px;
-            opacity: 0.6;
-            margin-top: 8px;
+            opacity: 0.5;
+            margin-top: 10px;
         }
 
-        /* Corpo */
         .login-body {
-            padding: 40px 35px 35px;
+            padding: 35px 35px 30px;
         }
 
         .login-body .welcome {
@@ -162,24 +142,17 @@
             border-right: none;
         }
 
-        .form-group input,
-        .form-group select {
+        .form-group input {
             width: 100%;
             padding: 14px 14px 14px 60px;
             border: 2px solid #e5e7eb;
             border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
-            background: white;
             transition: all 0.3s;
         }
 
-        .form-group select {
-            padding-left: 14px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #0B3B5C;
             box-shadow: 0 0 0 4px rgba(11,59,92,0.08);
@@ -210,13 +183,9 @@
             box-shadow: 0 8px 25px rgba(11,59,92,0.3);
         }
 
-        .btn-login:active {
-            transform: scale(0.98);
-        }
-
         .login-footer {
             text-align: center;
-            padding: 0 35px 25px;
+            padding: 0 35px 30px;
             font-size: 12px;
             color: #999;
         }
@@ -232,14 +201,9 @@
             font-size: 11px;
         }
 
-        .login-footer .links span {
-            color: #ccc;
-            margin: 0 8px;
-        }
-
         @media (max-width: 480px) {
             .login-body { padding: 30px 20px 25px; }
-            .login-header { padding: 25px 20px 20px; }
+            .login-header { padding: 30px 20px; }
             .login-header h1 { font-size: 22px; }
         }
     </style>
@@ -247,7 +211,6 @@
 <body>
 
 <div class="login-container">
-    <!-- Cabeçalho -->
     <div class="login-header">
         <div class="login-logo">
             <i class="fas fa-laptop-medical"></i>
@@ -257,7 +220,6 @@
         <div class="subtitle">Área Técnica</div>
     </div>
 
-    <!-- Corpo -->
     <div class="login-body">
         <div class="welcome">
             <h2>Bem-vindo(a)!</h2>
@@ -271,7 +233,7 @@
                 <label>Usuário</label>
                 <div class="input-wrapper">
                     <div class="input-icon"><i class="fas fa-user"></i></div>
-                    <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required>
                 </div>
             </div>
 
@@ -279,17 +241,16 @@
                 <label>Senha</label>
                 <div class="input-wrapper">
                     <div class="input-icon"><i class="fas fa-lock"></i></div>
-                    <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                    <input type="password" id="senha" placeholder="Digite sua senha" required>
                 </div>
             </div>
 
             <button type="submit" class="btn-login">
-                <i class="fas fa-sign-in-alt" style="margin-right:8px;"></i> Enviar
+                Enviar
             </button>
         </form>
     </div>
 
-    <!-- Rodapé -->
     <div class="login-footer">
         <p>← <a href="index.html">Voltar para área do usuário</a></p>
         <div class="links">
@@ -310,46 +271,23 @@ const fc = {
 firebase.initializeApp(fc);
 const db = firebase.firestore();
 
-// Criar admin automaticamente se não existir
 db.collection('usuarios').where('usuario', '==', 'jeconias').get().then(snap => {
     if (snap.empty) {
         db.collection('usuarios').add({
-            nome: 'Jeconias Rocha',
-            usuario: 'jeconias',
-            senha: 'Parana2026',
-            cargo: 'Coordenador TI',
-            departamento: 'TI',
-            tipo: 'admin',
-            whatsapp: '82981845421',
-            status: 'ativo',
-            primeiro_acesso: false,
-            data_criacao: new Date().toISOString()
+            nome: 'Jeconias Rocha', usuario: 'jeconias', senha: 'Parana2026',
+            cargo: 'Coordenador TI', departamento: 'TI', tipo: 'admin',
+            whatsapp: '82981845421', status: 'ativo', primeiro_acesso: false
         });
-        console.log('✅ Admin criado!');
     }
 });
 
-// Bloqueio por tentativas
 var tentativas = 0;
-var bloqueadoAte = localStorage.getItem('bloqueado_ate') || 0;
-
-if (Date.now() < parseInt(bloqueadoAte)) {
-    document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:sans-serif;"><h1 style="color:#ef4444;">⛔ Acesso Bloqueado</h1><p>Aguarde ' + Math.ceil((parseInt(bloqueadoAte) - Date.now()) / 60000) + ' minutos.</p></div>';
-}
 
 function login(e) {
     e.preventDefault();
-
-    if (Date.now() < parseInt(localStorage.getItem('bloqueado_ate') || 0)) {
-        document.getElementById('erroLogin').textContent = '⛔ Acesso bloqueado. Aguarde.';
-        document.getElementById('erroLogin').classList.add('show');
-        return;
-    }
-
     var usuario = document.getElementById('usuario').value.toLowerCase().trim();
     var senha = document.getElementById('senha').value;
     var erroDiv = document.getElementById('erroLogin');
-    
     erroDiv.classList.remove('show');
 
     if (!usuario || !senha) {
@@ -358,62 +296,31 @@ function login(e) {
         return;
     }
 
-    db.collection('usuarios').where('usuario', '==', usuario).get()
-        .then(function(snapshot) {
-            if (snapshot.empty) {
-                tentativaErrada(erroDiv);
-                return;
-            }
+    db.collection('usuarios').where('usuario', '==', usuario).get().then(function(snapshot) {
+        if (snapshot.empty) { tentativaErrada(erroDiv); return; }
+        var doc = snapshot.docs[0], user = doc.data();
+        if (user.senha !== senha) { tentativaErrada(erroDiv); return; }
+        if (user.status !== 'ativo') { erroDiv.textContent = 'Usuário inativo.'; erroDiv.classList.add('show'); return; }
 
-            var doc = snapshot.docs[0];
-            var user = doc.data();
+        tentativas = 0;
+        localStorage.setItem('usuario_logado', JSON.stringify({
+            id: doc.id, nome: user.nome, usuario: user.usuario,
+            cargo: user.cargo, departamento: user.departamento || 'TI',
+            tipo: user.tipo || 'tecnico', expira: Date.now() + (8 * 60 * 60 * 1000)
+        }));
 
-            if (user.senha !== senha) {
-                tentativaErrada(erroDiv);
-                return;
-            }
-
-            if (user.status !== 'ativo') {
-                erroDiv.textContent = 'Usuário inativo. Contate o administrador.';
-                erroDiv.classList.add('show');
-                return;
-            }
-
-            // Login bem-sucedido
-            tentativas = 0;
-            localStorage.removeItem('bloqueado_ate');
-
-            localStorage.setItem('usuario_logado', JSON.stringify({
-                id: doc.id,
-                nome: user.nome,
-                usuario: user.usuario,
-                cargo: user.cargo,
-                departamento: user.departamento || 'TI',
-                tipo: user.tipo || 'tecnico',
-                expira: Date.now() + (8 * 60 * 60 * 1000)
-            }));
-
-            if (user.primeiro_acesso) {
-                window.location.href = 'trocar-senha.html?id=' + doc.id;
-            } else {
-                window.location.href = 'dashboard.html';
-            }
-        })
-        .catch(function(error) {
-            erroDiv.textContent = 'Erro de conexão. Tente novamente.';
-            erroDiv.classList.add('show');
-        });
+        if (user.primeiro_acesso) { window.location.href = 'trocar-senha.html?id=' + doc.id; }
+        else { window.location.href = 'dashboard.html'; }
+    });
 }
 
 function tentativaErrada(erroDiv) {
     tentativas++;
     if (tentativas >= 3) {
-        var bloqueio = Date.now() + (5 * 60 * 1000);
-        localStorage.setItem('bloqueado_ate', bloqueio);
         alert('⛔ Acesso bloqueado por 5 minutos!');
         return;
     }
-    erroDiv.textContent = 'Usuário ou senha inválidos! (' + tentativas + '/3 tentativas)';
+    erroDiv.textContent = 'Usuário ou senha inválidos!';
     erroDiv.classList.add('show');
 }
 </script>

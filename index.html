@@ -27,10 +27,11 @@
         .welcome-banner { background: var(--gradient); border-radius: 24px; padding: 30px; margin-bottom: 25px; color: white; } .welcome-banner h2 { font-size: 24px; } .welcome-banner p { font-size: 14px; opacity: 0.9; }
 
         .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 25px; }
-        .action-card { background: white; border-radius: 18px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent; }
+        .action-card { background: white; border-radius: 18px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent; position: relative; }
         .action-card:hover { transform: translateY(-4px); border-color: var(--secondary); box-shadow: 0 10px 25px rgba(47,155,143,0.15); }
         .card-icon { width: 55px; height: 55px; background: var(--gradient); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
         .card-icon i { font-size: 26px; color: white; } .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; } .action-card p { color: var(--gray); font-size: 12px; }
+        .card-wpp { position: absolute; top: 12px; right: 12px; background: #25d366; color: white; width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
 
         .form-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
         .form-container.active { display: block; animation: slideDown 0.3s; }
@@ -49,6 +50,7 @@
         .chamados-container.active { display: block; }
         .chamado-card { background: #f8fafc; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-left: 4px solid var(--info); cursor: pointer; }
         .chamado-card.gesthosp { border-left-color: #10B981; background: #f0fdf4; }
+        .chamado-card.manutencao { border-left-color: #8b5cf6; background: #f5f3ff; }
         .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; }
         .status-afazer { background: #fef3c7; color: #92400e; } .status-emandamento { background: #dbeafe; color: #1e40af; } .status-concluido { background: #d1fae5; color: #065f46; }
 
@@ -67,29 +69,37 @@
         <div class="welcome-banner"><h2>🏥 Central de Chamados</h2><p>Selecione o tipo de solicitação abaixo</p></div>
 
         <div class="action-grid">
-            <div class="action-card" onclick="mostrarFormularioChamado()">
-                <div class="card-icon"><i class="fas fa-tools"></i></div><h3>Chamado - Manutenção</h3><p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
+            <!-- CHAMADO TI -->
+            <div class="action-card" onclick="mostrarFormularioChamado('TI')">
+                <div class="card-wpp" onclick="event.stopPropagation();window.open('https://wa.me/5582981845421','_blank')"><i class="fab fa-whatsapp"></i></div>
+                <div class="card-icon"><i class="fas fa-desktop"></i></div><h3>Tecnologia da Informação</h3><p>Computadores, sistemas, rede, internet</p>
             </div>
+            <!-- CHAMADO MANUTENÇÃO -->
+            <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')">
+                <div class="card-icon"><i class="fas fa-tools"></i></div><h3>Manutenção</h3><p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
+            </div>
+            <!-- CADASTRO GESTHOSP -->
             <div class="action-card" onclick="mostrarFormularioGestHosp()">
                 <div class="card-icon"><i class="fas fa-user-plus"></i></div><h3>Cadastro GestHosp</h3><p>Solicitar cadastro de novo profissional no sistema</p>
             </div>
+            <!-- MEUS CHAMADOS -->
             <div class="action-card" onclick="mostrarChamados()">
                 <div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3>Meus Chamados</h3><p>Acompanhar status dos seus chamados</p>
             </div>
         </div>
 
-        <!-- FORMULÁRIO CHAMADO MANUTENÇÃO -->
+        <!-- FORMULÁRIO CHAMADO (TI OU MANUTENÇÃO) -->
         <div class="form-container" id="formChamado">
-            <div class="form-header"><h2>🔧 Chamado - Manutenção</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
+            <div class="form-header"><h2 id="formTitle">Novo Chamado</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
             <form onsubmit="criarChamado(event)">
-                <input type="hidden" id="departamento" value="MANUTENCAO">
+                <input type="hidden" id="departamento" value="">
                 <div class="form-row">
                     <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
                     <div class="form-group"><label>Contato (WhatsApp/Ramal)</label><input type="text" id="contato" placeholder="(82) 99999-9999"></div>
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergência/Vermelha</option><option>Centro Cirúrgico</option><option>Clínica Médica</option><option>Pediatria</option><option>Farmácia</option><option>Laboratório</option><option>Recepção Geral</option><option>Administração</option><option>Outros</option></select></div>
-                    <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required><option value="">Selecione...</option><option>Elétrica</option><option>Hidráulica</option><option>Ar-condicionado</option><option>Pintura</option><option>Marcenaria</option><option>Estrutura</option><option>Outros</option></select></div>
+                    <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required><option value="">Selecione...</option></select></div>
                 </div>
                 <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
                 <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
@@ -147,10 +157,18 @@
         const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
         firebase.initializeApp(fc); const db = firebase.firestore();
 
-        function mostrarFormularioChamado() {
+        const deptConfig = {
+            'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Telefone','E-mail','Outros'] },
+            'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Outros'] }
+        };
+
+        function mostrarFormularioChamado(dep) {
             document.getElementById('formChamado').classList.add('active');
             document.getElementById('formGestHosp').classList.remove('active');
             document.getElementById('chamadosContainer').classList.remove('active');
+            document.getElementById('departamento').value = dep;
+            document.getElementById('formTitle').textContent = 'Novo Chamado - ' + deptConfig[dep].nome;
+            document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' + deptConfig[dep].categorias.map(c => `<option>${c}</option>`).join('');
         }
 
         function mostrarFormularioGestHosp() {
@@ -174,9 +192,10 @@
 
         function criarChamado(e) {
             e.preventDefault();
+            const dep = document.getElementById('departamento').value;
             db.collection('chamados').add({
                 protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8),
-                departamento: 'MANUTENCAO', tipo: 'chamado',
+                departamento: dep, tipo: 'chamado',
                 titulo: document.getElementById('titulo').value,
                 descricao: document.getElementById('descricao').value,
                 solicitante: document.getElementById('solicitante').value,
@@ -235,7 +254,10 @@
                     let c = d.data(), data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
                     let sc = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g,'');
                     let isGestHosp = c.tipo === 'gesthosp';
-                    h += `<div class="chamado-card ${isGestHosp ? 'gesthosp' : ''}"><div><strong>${isGestHosp ? '🆕' : '🔧'} ${c.titulo}</strong><br><small>📋 ${c.protocolo} | 📍 ${c.setor} | 🕐 ${data.toLocaleString('pt-BR')}</small></div><span class="status-badge ${sc}">${c.status || 'A Fazer'}</span></div>`;
+                    let isManutencao = c.departamento === 'MANUTENCAO';
+                    let icone = isGestHosp ? '🆕' : '🔧';
+                    let cardClass = isGestHosp ? 'gesthosp' : isManutencao ? 'manutencao' : '';
+                    h += `<div class="chamado-card ${cardClass}"><div><strong>${icone} ${c.titulo}</strong><br><small>📋 ${c.protocolo} | 📍 ${c.setor} | 🕐 ${data.toLocaleString('pt-BR')}</small></div><span class="status-badge ${sc}">${c.status || 'A Fazer'}</span></div>`;
                 });
                 document.getElementById('listaChamados').innerHTML = h;
             });

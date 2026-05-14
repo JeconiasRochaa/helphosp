@@ -3,299 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Central de Chamados</title>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <title>GestHOSP - Prontuário Eletrônico do Paciente</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0B3B5C; --primary-light: #1E4F6E; --secondary: #2F9B8F;
-            --accent: #00C9B7; --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
-            --info: #3B82F6; --dark: #0F172A; --gray: #64748B; --light: #F8FAFC; --white: #FFFFFF;
-            --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-        /* FUNDO COM IMAGEM DO HOSPITAL */
-        body {
-            background: url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=1920') center/cover fixed;
-            min-height: 100vh;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.88);
-            z-index: 0;
-        }
-
-        /* ECG LINE */
-        .ecg-line {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 3px; z-index: 9999;
-            background: transparent; overflow: hidden; pointer-events: none;
-        }
-        .ecg-line::before {
-            content: ''; position: absolute; top: 0; left: -100%;
-            width: 200%; height: 100%;
-            background: linear-gradient(90deg, transparent 0%, #10B981 45%, #10B981 50%, transparent 55%);
-            animation: ecg-move 3s linear infinite;
-        }
-        @keyframes ecg-move { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
-
-        .header {
-            background: var(--gradient); padding: 15px 30px; display: flex;
-            justify-content: space-between; align-items: center; color: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100;
-        }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo i { font-size: 34px; color: var(--accent); }
-        .logo h1 { font-size: 20px; }
-        .logo span { display: block; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
-
-        .btn-area-tecnica {
-            background: rgba(255,255,255,0.12); color: white; padding: 10px 20px;
-            border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 500;
-            border: 2px solid rgba(255,255,255,0.25); display: flex; align-items: center;
-            gap: 8px; transition: all 0.3s; backdrop-filter: blur(10px); letter-spacing: 0.3px;
-        }
-        .btn-area-tecnica:hover {
-            background: rgba(255,255,255,0.2); border-color: var(--accent);
-            transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .main-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; position: relative; z-index: 1; }
-        .welcome-banner {
-            background: var(--gradient); border-radius: 24px; padding: 30px;
-            margin-bottom: 25px; color: white;
-        }
-        .welcome-banner h2 { font-size: 24px; } .welcome-banner p { font-size: 14px; opacity: 0.9; }
-
-        .suporte-container {
-            background: white; border-radius: 20px; padding: 22px; margin-bottom: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;
-        }
-        .suporte-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 15px;
-            cursor: pointer; user-select: none;
-        }
-        .suporte-header i { color: #25d366; font-size: 28px; }
-        .suporte-header h3 { color: var(--dark); font-size: 16px; }
-        .suporte-header .seta { margin-left: auto; transition: 0.3s; color: var(--gray); }
-        .suporte-header .seta.open { transform: rotate(180deg); }
-        .suporte-contatos { display: none; gap: 12px; flex-wrap: wrap; }
-        .suporte-contatos.open { display: flex; }
-        .contato-card {
-            display: flex; align-items: center; gap: 10px;
-            background: #f9fafb; padding: 12px 16px; border-radius: 12px;
-            text-decoration: none; color: var(--dark); border: 1px solid #e5e7eb;
-            transition: 0.3s; flex: 1; min-width: 200px;
-        }
-        .contato-card:hover { background: #f0fdf4; border-color: #bbf7d0; transform: translateY(-2px); }
-        .contato-card i { color: #25d366; font-size: 22px; }
-        .contato-card strong { font-size: 13px; display: block; }
-        .contato-card small { font-size: 10px; color: var(--gray); }
-        .depto-tag { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 600; margin-left: 8px; }
-        .depto-ti { background: #dbeafe; color: #1e40af; }
-        .depto-manutencao { background: #fef3c7; color: #92400e; }
-
-        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 25px; }
-        .action-card {
-            background: white; border-radius: 18px; padding: 28px; text-align: center;
-            cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-        }
-        .action-card:hover { transform: translateY(-4px); border-color: var(--secondary); }
-        .card-icon { width: 55px; height: 55px; background: var(--gradient); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
-        .card-icon i { font-size: 26px; color: white; }
-        .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; }
-        .action-card p { color: var(--gray); font-size: 12px; }
-
-        .form-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .form-container.active { display: block; animation: slideDown 0.3s; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-        .form-header h2 { color: var(--primary); font-size: 20px; }
-        .btn-close { width: 34px; height: 34px; border-radius: 8px; border: none; background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 16px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: var(--primary); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-family: inherit; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--secondary); }
-        .btn-submit { width: 100%; padding: 14px; background: var(--gradient); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .form-section { background: #f0fdf4; padding: 12px; border-radius: 10px; margin-bottom: 12px; border-left: 4px solid #10B981; }
-        .form-section h4 { color: #065f46; margin-bottom: 8px; font-size: 13px; }
-
-        .chamados-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .chamados-container.active { display: block; }
-        .chamado-card { background: #f8fafc; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-left: 4px solid var(--info); cursor: pointer; }
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; }
-        .status-afazer { background: #fef3c7; color: #92400e; } .status-emandamento { background: #dbeafe; color: #1e40af; } .status-concluido { background: #d1fae5; color: #065f46; }
-        .observacao-tecnico { background: #fff7ed; padding: 10px; border-radius: 8px; margin-top: 8px; border-left: 3px solid #f97316; font-size: 12px; color: #9a3412; }
-
-        @media (max-width: 600px) { .header { flex-direction: column; gap: 8px; } .action-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
-    </style>
 </head>
 <body>
 
-<div class="ecg-line"></div>
+    <!-- ========== FUNDO COM GRADE ========== -->
+    <div class="bg-grid"></div>
 
-<div class="header">
-    <div class="logo"><i class="fas fa-laptop-medical"></i><div><h1>HelpHosp</h1><span>CENTRAL DE CHAMADOS</span></div></div>
-    <div class="header-right">
-        <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-haltered"></i> Área Técnica</a>
-    </div>
-</div>
+    <!-- ========== EFEITO DE BRILHO ========== -->
+    <div class="glow"></div>
 
-<div class="main-container">
-    <div class="welcome-banner"><h2>🏥 Central de Chamados</h2><p>Selecione o tipo de solicitação abaixo</p></div>
-
-    <div class="suporte-container">
-        <div class="suporte-header" onclick="toggleSuporte()">
-            <i class="fab fa-whatsapp"></i><h3>📞 Suporte Técnico</h3>
-            <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+    <!-- ========== CONTAINER PRINCIPAL ========== -->
+    <div class="login-wrapper">
+        
+        <!-- BRASÃO / LOGO -->
+        <div class="logo-container">
+            <img src="img/logo.png" alt="Brasão" class="brasao" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="brasao-fallback" style="display:none;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
         </div>
-        <div class="suporte-contatos" id="contatosSuporte">
-            <a href="https://wa.me/5582981845421" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Jeconias Rocha</strong><small>Analista de Sistema</small></div><span class="depto-tag depto-ti">TI</span></a>
-            <a href="https://wa.me/5582996076571" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Allan Michel</strong><small>Suporte Técnico</small></div><span class="depto-tag depto-ti">TI</span></a>
-            <a href="https://wa.me/5582996271342" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Bruno</strong><small>Elétrica/Hidráulica</small></div><span class="depto-tag depto-manutencao">MANUTENÇÃO</span></a>
-            <a href="https://wa.me/5582999334549" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Benicio</strong><small>Elétrica/Hidráulica</small></div><span class="depto-tag depto-manutencao">MANUTENÇÃO</span></a>
+
+        <!-- NOME DO SISTEMA -->
+        <div class="system-name">
+            <span class="gest">Gest</span><span class="hosp">HOSP</span>
+        </div>
+        <div class="system-subtitle">PRONTUÁRIO ELETRÔNICO DO PACIENTE</div>
+        
+        <!-- LINHA DOURADA -->
+        <div class="golden-line"></div>
+        
+        <!-- SLOGAN -->
+        <div class="slogan">Sistema de Gestão Hospitalar</div>
+
+        <!-- FORMULÁRIO DE LOGIN -->
+        <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+            
+            <!-- CAMPO USUÁRIO -->
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="usuario" placeholder="Usuário" required autocomplete="username">
+            </div>
+
+            <!-- CAMPO SENHA -->
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="senha" placeholder="Senha" required autocomplete="current-password">
+                <button type="button" class="toggle-password" onclick="togglePassword()" tabindex="-1">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+
+            <!-- OPÇÕES -->
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="lembrar">
+                    <span>Lembrar-me</span>
+                </label>
+                <a href="#" class="forgot-password">Esqueci minha senha</a>
+            </div>
+
+            <!-- BOTÃO ENTRAR -->
+            <button type="submit" class="btn-entrar">
+                <span>Entrar</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <!-- MENSAGEM DE ERRO -->
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- MENSAGEM DE SUCESSO -->
+            <div class="success-message" id="successMessage"></div>
+        </form>
+
+        <!-- CREDENCIAIS DE TESTE -->
+        <div class="test-credentials">
+            <small>🔑 admin / 123456</small>
         </div>
     </div>
 
-    <div class="action-grid">
-        <div class="action-card" onclick="mostrarFormularioChamado('TI')"><div class="card-icon"><i class="fas fa-desktop"></i></div><h3>Tecnologia da Informação</h3><p>Computadores, sistemas, rede, internet</p></div>
-        <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')"><div class="card-icon"><i class="fas fa-tools"></i></div><h3>Manutenção</h3><p>Elétrica, hidráulica, ar-condicionado</p></div>
-        <div class="action-card" onclick="mostrarFormularioGestHosp()"><div class="card-icon"><i class="fas fa-user-plus"></i></div><h3>Cadastro GestHosp</h3><p>Solicitar cadastro de novo profissional</p></div>
-        <div class="action-card" onclick="mostrarChamados()"><div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3>Chamados</h3><p>Chamados de hoje</p></div>
+    <!-- ========== LINHA ECG ANIMADA ========== -->
+    <div class="ecg-line">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path class="ecg-path" d="M0,60 L100,60 L120,60 L130,10 L140,110 L150,60 L300,60"/>
+            <path class="ecg-path ecg-path-2" d="M300,60 L400,60 L420,60 L430,10 L440,110 L450,60 L600,60"/>
+            <path class="ecg-path ecg-path-3" d="M600,60 L700,60 L720,60 L730,10 L740,110 L750,60 L900,60"/>
+            <path class="ecg-path ecg-path-4" d="M900,60 L1000,60 L1020,60 L1030,10 L1040,110 L1050,60 L1200,60"/>
+        </svg>
     </div>
 
-    <!-- FORMULÁRIO CHAMADO -->
-    <div class="form-container" id="formChamado">
-        <div class="form-header"><h2 id="formTitle">Novo Chamado</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <form onsubmit="criarChamado(event)">
-            <input type="hidden" id="departamento" value="">
-            <div class="form-row">
-                <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
-                <div class="form-group"><label>Contato (WhatsApp)</label><input type="text" id="contato" placeholder="(82) 99999-9999"></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergência/Vermelha</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Recepção Geral</option><option>Administração</option><option>Outros</option></select></div>
-                <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required><option value="">Selecione...</option></select></div>
-            </div>
-            <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
-            <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
-            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3"></textarea></div>
-            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-        </form>
-    </div>
-
-    <!-- FORMULÁRIO GESTHOSP (SEM CARGO/FUNÇÃO) -->
-    <div class="form-container" id="formGestHosp">
-        <div class="form-header"><h2>🆕 Cadastro GestHosp</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <form onsubmit="criarChamadoGestHosp(event)">
-            <div class="form-section"><h4>👤 Dados do Profissional</h4>
-                <div class="form-row">
-                    <div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNomeProfissional" required></div>
-                    <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>RG</label><input type="text" id="ghRg"></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="ghEmailProfissional"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Data Nascimento</label><input type="date" id="ghDataNascimento"></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="ghTelefone"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Nº Registro Profissional</label><input type="text" id="ghRegistroProf"></div>
-                    <div class="form-group"><label>Conselho de Classe</label><input type="text" id="ghConselho" placeholder="CRM, COREN..."></div>
-                </div>
-            </div>
-            <div class="form-section"><h4>🔑 Acessos</h4>
-                <div class="form-row">
-                    <div class="form-group"><label>Acesso GestHosp</label><select id="ghAcessoGestHosp"><option value="Sim" selected>Sim</option><option value="Não">Não</option></select></div>
-                    <div class="form-group"><label>Perfil</label><select id="ghPerfil"><option>Medico</option><option>Enfermeiro</option><option>Fisioterapeuta</option><option>Assistente Social</option><option>Nutricionista</option><option>Psicologo</option><option>Outros</option></select></div>
-                </div>
-                <div class="form-group"><label>Observações</label><textarea id="ghObservacoes" rows="2"></textarea></div>
-            </div>
-            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10B981);"><i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
-        </form>
-    </div>
-
-    <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">📋 Chamados de Hoje</h2><button class="btn-submit" style="width:auto;padding:10px 20px;margin-bottom:15px;" onclick="fecharTudo()">← Voltar</button><div id="listaChamados"></div></div>
-</div>
-
-<script>
-const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
-firebase.initializeApp(fc); const db = firebase.firestore();
-
-const deptConfig = {
-    'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Telefone','E-mail','Outros'] },
-    'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Outros'] }
-};
-
-function toggleSuporte() { document.getElementById('contatosSuporte').classList.toggle('open'); document.getElementById('setaSuporte').classList.toggle('open'); }
-function mostrarFormularioChamado(dep) {
-    document.getElementById('formChamado').classList.add('active');
-    document.getElementById('formGestHosp').classList.remove('active');
-    document.getElementById('chamadosContainer').classList.remove('active');
-    document.getElementById('departamento').value = dep;
-    document.getElementById('formTitle').textContent = 'Novo Chamado - ' + deptConfig[dep].nome;
-    document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' + deptConfig[dep].categorias.map(c => `<option>${c}</option>`).join('');
-}
-function mostrarFormularioGestHosp() { document.getElementById('formGestHosp').classList.add('active'); document.getElementById('formChamado').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active'); document.querySelector('#formGestHosp form').reset(); }
-function mostrarChamados() { document.getElementById('chamadosContainer').classList.add('active'); document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active'); carregarChamados(); }
-function fecharTudo() { document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active'); }
-
-function criarChamado(e) {
-    e.preventDefault();
-    db.collection('chamados').add({
-        protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8),
-        departamento: document.getElementById('departamento').value, tipo: 'chamado',
-        titulo: document.getElementById('titulo').value, descricao: document.getElementById('descricao').value,
-        solicitante: document.getElementById('solicitante').value, contato: document.getElementById('contato').value,
-        setor: document.getElementById('setor').value, categoria: document.getElementById('categoria').value,
-        prioridade: document.getElementById('prioridade').value, status: 'A Fazer',
-        data_abertura: firebase.firestore.Timestamp.now()
-    }).then(() => { alert('✅ Chamado criado!'); document.querySelector('#formChamado form').reset(); fecharTudo(); mostrarChamados(); });
-}
-
-function criarChamadoGestHosp(e) {
-    e.preventDefault();
-    var dados = {
-        nome: document.getElementById('ghNomeProfissional').value, cpf: document.getElementById('ghCpf').value,
-        rg: document.getElementById('ghRg').value, email: document.getElementById('ghEmailProfissional').value,
-        dataNascimento: document.getElementById('ghDataNascimento').value, telefone: document.getElementById('ghTelefone').value,
-        registroProf: document.getElementById('ghRegistroProf').value, conselho: document.getElementById('ghConselho').value,
-        acessoGestHosp: document.getElementById('ghAcessoGestHosp').value, perfil: document.getElementById('ghPerfil').value,
-        observacoes: document.getElementById('ghObservacoes').value
-    };
-    db.collection('chamados').add({
-        protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-8),
-        departamento: 'TI', tipo: 'gesthosp', titulo: 'Cadastro GestHosp - ' + dados.nome,
-        solicitante: 'Solicitante', setor: 'N/I', categoria: 'Cadastro de Profissional',
-        prioridade: 'Média', status: 'A Fazer', dadosProfissional: dados,
-        data_abertura: firebase.firestore.Timestamp.now()
-    }).then(() => { alert('✅ Cadastro solicitado!'); document.querySelector('#formGestHosp form').reset(); fecharTudo(); mostrarChamados(); });
-}
-
-function carregarChamados() {
-    document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:30px;">Carregando...</p>';
-    var hoje = new Date(); hoje.setHours(0,0,0,0); var amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
-    db.collection('chamados').where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje)).where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha)).orderBy('data_abertura','desc').limit(50).get()
-    .then(s => {
-        if (s.empty) { document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:40px;">📭 Nenhum chamado hoje</p>'; return; }
-        let h = ''; s.forEach(d => {
-            let c = d.data(), data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
-            let sc = 'status-' + (c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-            let obs = c.observacaoTecnico ? '<div class="observacao-tecnico"><strong>🔧 Técnico:</strong> '+c.observacaoTecnico+'</div>' : '';
-            h += `<div class="chamado-card"><div><strong>${c.tipo==='gesthosp'?'🆕':'🔧'} ${c.titulo}</strong><br><small>📋 ${c.protocolo} | 📍 ${c.setor} | 🕐 ${data.toLocaleString('pt-BR')}</small>${obs}</div><span class="status-badge ${sc}">${c.status||'A Fazer'}</span></div>`;
-        });
-        document.getElementById('listaChamados').innerHTML = h;
-    });
-}
-</script>
+    <!-- ========== SCRIPT ========== -->
+    <script src="script.js"></script>
 </body>
 </html>

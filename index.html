@@ -15,7 +15,20 @@
             --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: #f1f5f9; min-height: 100vh; }
+
+        /* FUNDO COM IMAGEM DO HOSPITAL */
+        body {
+            background: url('https://i.imgur.com/5Z4Z9zC.jpeg') center/cover fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.85);
+            z-index: 0;
+        }
 
         /* ECG LINE */
         .ecg-line {
@@ -36,35 +49,115 @@
         @keyframes ecg-move { 0% { transform: translateX(0); } 100% { transform: translateX(200%); } }
         @keyframes ecg-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        .header { background: var(--gradient); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; }
-        .logo { display: flex; align-items: center; gap: 12px; } .logo i { font-size: 34px; color: var(--accent); } .logo h1 { font-size: 20px; } .logo span { display: block; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
+        .header {
+            background: var(--gradient); padding: 15px 30px; display: flex;
+            justify-content: space-between; align-items: center; color: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo i { font-size: 34px; color: var(--accent); }
+        .logo h1 { font-size: 20px; }
+        .logo span { display: block; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
         .header-right { display: flex; align-items: center; gap: 15px; }
-        .btn-admin { background: rgba(255,255,255,0.1); color: white; padding: 10px 18px; border-radius: 25px; text-decoration: none; font-size: 12px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 6px; }
 
-        .main-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
-        .welcome-banner { background: var(--gradient); border-radius: 24px; padding: 30px; margin-bottom: 25px; color: white; } .welcome-banner h2 { font-size: 24px; } .welcome-banner p { font-size: 14px; opacity: 0.9; }
+        /* BOTÃO ÁREA TÉCNICA MAIS PROFISSIONAL */
+        .btn-area-tecnica {
+            background: rgba(255,255,255,0.12);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border: 2px solid rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            letter-spacing: 0.3px;
+        }
+        .btn-area-tecnica:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-area-tecnica i { font-size: 16px; }
 
-        /* WHATSAPP CONTAINER */
-        .wpp-container { background: white; border-radius: 16px; padding: 18px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: center; }
-        .wpp-container h4 { width: 100%; text-align: center; color: var(--primary); margin-bottom: 5px; font-size: 15px; }
-        .wpp-card { display: flex; align-items: center; gap: 10px; background: #f0fdf4; padding: 10px 16px; border-radius: 12px; text-decoration: none; color: var(--dark); border: 1px solid #bbf7d0; transition: 0.3s; }
-        .wpp-card:hover { background: #dcfce7; transform: translateY(-2px); }
-        .wpp-card i { color: #25d366; font-size: 22px; }
-        .wpp-card strong { font-size: 13px; } .wpp-card small { display: block; font-size: 10px; color: var(--gray); }
+        .main-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; position: relative; z-index: 1; }
+        .welcome-banner {
+            background: var(--gradient); border-radius: 24px; padding: 30px;
+            margin-bottom: 25px; color: white;
+        }
+        .welcome-banner h2 { font-size: 24px; }
+        .welcome-banner p { font-size: 14px; opacity: 0.9; }
+
+        /* CONTAINER DE SUPORTE MELHORADO */
+        .suporte-container {
+            background: white;
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+        }
+        .suporte-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .suporte-header i { color: #25d366; font-size: 28px; }
+        .suporte-header h3 { color: var(--dark); font-size: 16px; }
+        .suporte-header .seta { margin-left: auto; transition: 0.3s; color: var(--gray); }
+        .suporte-header .seta.open { transform: rotate(180deg); }
+        .suporte-contatos {
+            display: none;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .suporte-contatos.open { display: flex; }
+        .contato-card {
+            display: flex; align-items: center; gap: 10px;
+            background: #f9fafb; padding: 12px 16px;
+            border-radius: 12px; text-decoration: none; color: var(--dark);
+            border: 1px solid #e5e7eb; transition: 0.3s; flex: 1; min-width: 200px;
+        }
+        .contato-card:hover { background: #f0fdf4; border-color: #bbf7d0; transform: translateY(-2px); }
+        .contato-card i { color: #25d366; font-size: 22px; }
+        .contato-card strong { font-size: 13px; display: block; }
+        .contato-card small { font-size: 10px; color: var(--gray); }
+        .depto-tag {
+            font-size: 10px; padding: 3px 8px; border-radius: 6px;
+            font-weight: 600; margin-left: 8px;
+        }
+        .depto-ti { background: #dbeafe; color: #1e40af; }
+        .depto-manutencao { background: #fef3c7; color: #92400e; }
 
         .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 25px; }
-        .action-card { background: white; border-radius: 18px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent; }
+        .action-card {
+            background: white; border-radius: 18px; padding: 28px; text-align: center;
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+        }
         .action-card:hover { transform: translateY(-4px); border-color: var(--secondary); box-shadow: 0 10px 25px rgba(47,155,143,0.15); }
         .card-icon { width: 55px; height: 55px; background: var(--gradient); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
-        .card-icon i { font-size: 26px; color: white; } .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; } .action-card p { color: var(--gray); font-size: 12px; }
+        .card-icon i { font-size: 26px; color: white; }
+        .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; }
+        .action-card p { color: var(--gray); font-size: 12px; }
 
         .form-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
         .form-container.active { display: block; animation: slideDown 0.3s; }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; } .form-header h2 { color: var(--primary); font-size: 20px; }
+        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .form-header h2 { color: var(--primary); font-size: 20px; }
         .btn-close { width: 34px; height: 34px; border-radius: 8px; border: none; background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 16px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .form-group { margin-bottom: 14px; } .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: var(--primary); }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: var(--primary); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-family: inherit; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--secondary); }
         .btn-submit { width: 100%; padding: 14px; background: var(--gradient); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
@@ -91,28 +184,39 @@
 <div class="header">
     <div class="logo"><i class="fas fa-laptop-medical"></i><div><h1>HelpHosp</h1><span>CENTRAL DE CHAMADOS</span></div></div>
     <div class="header-right">
-        <a href="admin.html" class="btn-admin"><i class="fas fa-lock"></i> Área Técnica</a>
+        <a href="admin.html" class="btn-area-tecnica">
+            <i class="fas fa-shield-haltered"></i> Área Técnica
+        </a>
     </div>
 </div>
 
 <div class="main-container">
     <div class="welcome-banner"><h2>🏥 Central de Chamados</h2><p>Selecione o tipo de solicitação abaixo</p></div>
 
-    <!-- WHATSAPP CONTAINER -->
-    <div class="wpp-container">
-        <h4><i class="fab fa-whatsapp" style="color:#25d366;"></i> Contatos de Suporte</h4>
-        <a href="https://wa.me/5582981845421" target="_blank" class="wpp-card">
+    <!-- CONTAINER DE SUPORTE -->
+    <div class="suporte-container">
+        <div class="suporte-header" onclick="toggleSuporte()">
             <i class="fab fa-whatsapp"></i>
-            <div><strong>Jeconias Rocha</strong><small>TI - Coordenador</small></div>
-        </a>
-        <a href="https://wa.me/5582996076571" target="_blank" class="wpp-card">
-            <i class="fab fa-whatsapp"></i>
-            <div><strong>Allan Michel</strong><small>TI - Suporte Técnico</small></div>
-        </a>
-        <a href="https://wa.me/5582996271342" target="_blank" class="wpp-card">
-            <i class="fab fa-whatsapp"></i>
-            <div><strong>Manutenção</strong><small>Elétrica/Hidráulica</small></div>
-        </a>
+            <h3>📞 Suporte Técnico</h3>
+            <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+        </div>
+        <div class="suporte-contatos" id="contatosSuporte">
+            <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
+                <i class="fab fa-whatsapp"></i>
+                <div><strong>Jeconias Rocha</strong><small>Coordenador TI</small></div>
+                <span class="depto-tag depto-ti">TI</span>
+            </a>
+            <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
+                <i class="fab fa-whatsapp"></i>
+                <div><strong>Allan Michel</strong><small>Suporte Técnico</small></div>
+                <span class="depto-tag depto-ti">TI</span>
+            </a>
+            <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
+                <i class="fab fa-whatsapp"></i>
+                <div><strong>Manutenção</strong><small>Elétrica/Hidráulica</small></div>
+                <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
+            </a>
+        </div>
     </div>
 
     <div class="action-grid">
@@ -166,7 +270,7 @@
         </form>
     </div>
 
-    <!-- FORMULÁRIO GESTHOSP CORRIGIDO -->
+    <!-- FORMULÁRIO GESTHOSP -->
     <div class="form-container" id="formGestHosp">
         <div class="form-header"><h2>🆕 Cadastro GestHosp</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
         <form onsubmit="criarChamadoGestHosp(event)">
@@ -194,7 +298,6 @@
                     <div class="form-group"><label>Nº Registro Profissional</label><input type="text" id="ghRegistroProf"></div>
                     <div class="form-group"><label>Conselho de Classe</label><input type="text" id="ghConselho" placeholder="CRM, COREN..."></div>
                 </div>
-                <div class="form-group"><label>Cargo/Função *</label><input type="text" id="ghCargo" required></div>
             </div>
             <div class="form-section"><h4>🔑 Acessos</h4>
                 <div class="form-row">
@@ -207,7 +310,7 @@
         </form>
     </div>
 
-    <!-- MEUS CHAMADOS (SÓ DO DIA) -->
+    <!-- MEUS CHAMADOS -->
     <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">📋 Chamados de Hoje</h2><button class="btn-submit" style="width:auto;padding:10px 20px;margin-bottom:15px;" onclick="fecharTudo()">← Voltar</button><div id="listaChamados"></div></div>
 </div>
 
@@ -219,6 +322,11 @@ const deptConfig = {
     'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Telefone','E-mail','Outros'] },
     'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Outros'] }
 };
+
+function toggleSuporte() {
+    document.getElementById('contatosSuporte').classList.toggle('open');
+    document.getElementById('setaSuporte').classList.toggle('open');
+}
 
 function mostrarFormularioChamado(dep) {
     document.getElementById('formChamado').classList.add('active');
@@ -270,10 +378,8 @@ function criarChamado(e) {
     });
 }
 
-// CORRIGIDO: IDs únicos para cada campo do GestHosp
 function criarChamadoGestHosp(e) {
     e.preventDefault();
-    
     var dados = {
         nome: document.getElementById('ghNomeProfissional').value,
         cpf: document.getElementById('ghCpf').value,
@@ -283,12 +389,10 @@ function criarChamadoGestHosp(e) {
         telefone: document.getElementById('ghTelefone').value,
         registroProf: document.getElementById('ghRegistroProf').value,
         conselho: document.getElementById('ghConselho').value,
-        cargo: document.getElementById('ghCargo').value,
         acessoGestHosp: document.getElementById('ghAcessoGestHosp').value,
         perfil: document.getElementById('ghPerfil').value,
         observacoes: document.getElementById('ghObservacoes').value
     };
-
     db.collection('chamados').add({
         protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-8),
         departamento: 'TI', tipo: 'gesthosp',
@@ -302,30 +406,20 @@ function criarChamadoGestHosp(e) {
         dadosProfissional: dados,
         data_abertura: firebase.firestore.Timestamp.now()
     }).then(() => {
-        alert('✅ Cadastro solicitado com sucesso!');
+        alert('✅ Cadastro solicitado!');
         document.querySelector('#formGestHosp form').reset();
         fecharTudo(); mostrarChamados();
-    }).catch(err => {
-        alert('❌ Erro ao enviar: ' + err.message);
-    });
+    }).catch(err => { alert('❌ Erro: ' + err.message); });
 }
 
-// MOSTRAR APENAS CHAMADOS DO DIA
 function carregarChamados() {
     document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:30px;">Carregando...</p>';
-    
-    // Filtrar apenas chamados de hoje
-    var hoje = new Date();
-    hoje.setHours(0,0,0,0);
-    var amanha = new Date(hoje);
-    amanha.setDate(amanha.getDate() + 1);
-    
+    var hoje = new Date(); hoje.setHours(0,0,0,0);
+    var amanha = new Date(hoje); amanha.setDate(amanha.getDate() + 1);
     db.collection('chamados')
         .where('data_abertura', '>=', firebase.firestore.Timestamp.fromDate(hoje))
         .where('data_abertura', '<', firebase.firestore.Timestamp.fromDate(amanha))
-        .orderBy('data_abertura', 'desc')
-        .limit(50)
-        .get()
+        .orderBy('data_abertura', 'desc').limit(50).get()
         .then(s => {
             if (s.empty) { document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:40px;">📭 Nenhum chamado hoje</p>'; return; }
             let h = '';
@@ -336,17 +430,10 @@ function carregarChamados() {
                 let isManutencao = c.departamento === 'MANUTENCAO';
                 let icone = isGestHosp ? '🆕' : '🔧';
                 let cardClass = isGestHosp ? 'gesthosp' : isManutencao ? 'manutencao' : '';
-                
-                // Mostrar observação do técnico se existir
                 let obsTecnico = c.observacaoTecnico ? '<div class="observacao-tecnico"><strong>🔧 Técnico:</strong> ' + c.observacaoTecnico + '</div>' : '';
-                
                 h += `<div class="chamado-card ${cardClass}"><div><strong>${icone} ${c.titulo}</strong><br><small>📋 ${c.protocolo} | 📍 ${c.setor} | 🕐 ${data.toLocaleString('pt-BR')}</small>${obsTecnico}</div><span class="status-badge ${sc}">${c.status || 'A Fazer'}</span></div>`;
             });
             document.getElementById('listaChamados').innerHTML = h;
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:40px;">❌ Erro ao carregar</p>';
         });
 }
 </script>

@@ -72,10 +72,11 @@
             <!-- CHAMADO TI -->
             <div class="action-card" onclick="mostrarFormularioChamado('TI')">
                 <div class="card-wpp" onclick="event.stopPropagation();window.open('https://wa.me/5582981845421','_blank')"><i class="fab fa-whatsapp"></i></div>
-                <div class="card-icon"><i class="fas fa-desktop"></i></div><h3>Tecnologia da Informação</h3><p>Computadores, sistemas, rede, internet</p>
+                <div class="card-icon"><i class="fas fa-desktop"></i></div><h3>Tecnologia da Informação</h3><p>Computadores, sistemas, rede, internet/Wi-fi</p>
             </div>
             <!-- CHAMADO MANUTENÇÃO -->
             <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')">
+                <div class="card-wpp" onclick="event.stopPropagation();window.open('https://wa.me/5582996271342','_blank')"><i class="fab fa-whatsapp"></i></div>
                 <div class="card-icon"><i class="fas fa-tools"></i></div><h3>Manutenção</h3><p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
             </div>
             <!-- CADASTRO GESTHOSP -->
@@ -95,10 +96,56 @@
                 <input type="hidden" id="departamento" value="">
                 <div class="form-row">
                     <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
-                    <div class="form-group"><label>Contato (WhatsApp/Ramal)</label><input type="text" id="contato" placeholder="(82) 99999-9999"></div>
+                    <div class="form-group"><label>Contato (WhatsApp)</label><input type="text" id="contato" placeholder="(82) 99999-9999"></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergência/Vermelha</option><option>Centro Cirúrgico</option><option>Clínica Médica</option><option>Pediatria</option><option>Farmácia</option><option>Laboratório</option><option>Recepção Geral</option><option>Administração</option><option>Outros</option></select></div>
+                    <div class="form-group">
+                        <label>Setor *</label>
+                        <select id="setor" required>
+                            <option value="">Selecione...</option>
+                            <option>Almoxarifado</option>
+                            <option>Centro Cirúrgico</option>
+                            <option>Clínica Cirurgica</option>
+                            <option>Clínica Médica I</option>
+                            <option>Clínica Médica II</option>
+                            <option>Comunicação</option>
+                            <option>Direção Administrativa</option>
+                            <option>Direção Enfermagem</option>
+                            <option>Direção geral</option>
+                            <option>Direção Medica</option>
+                            <option>Emergência/Vermelha</option>
+                            <option>Engenharia Clinica</option>
+                            <option>Farmácia</option>
+                            <option>Faturamento</option>
+                            <option>Fisioterapia</option>
+                            <option>Hotelaria</option>
+                            <option>Juridico</option>
+                            <option>Laboratório</option>
+                            <option>NIR</option>
+                            <option>Nutrição</option>
+                            <option>Oncologia I</option>
+                            <option>Oncologia II</option>
+                            <option>Ouvidoria</option>
+                            <option>Patrimonio</option>
+                            <option>Pediatria</option>
+                            <option>Psicologia</option>
+                            <option>RH</option>
+                            <option>Raio-X</option>
+                            <option>Recepção CR</option>
+                            <option>Recepção Geral</option>
+                            <option>Recepção Nefrologia</option>
+                            <option>RH</option>
+                            <option>Same</option>
+                            <option>Saúde Mental</option>
+                            <option>Serviço Social</option>
+                            <option>Sesmt</option>
+                            <option>Telemedicina</option>
+                            <option>Tomografia</option>
+                            <option>UTI I</option>
+                            <option>UTI II</option>
+                            <option>Outros</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required><option value="">Selecione...</option></select></div>
                 </div>
                 <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
@@ -124,24 +171,38 @@
                         <div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNomeProfissional" required></div>
                         <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required></div>
                     </div>
+                     <div class="form-row">
+                        <div class="form-group"><label>RG*</label><input type="text" id="ghNomeProfissional" required></div>
+                        <div class="form-group"><label>Email*</label><input type="text" id="ghCpf" required></div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group"><label>Data Nascimento</label><input type="date" id="ghDataNascimento"></div>
                         <div class="form-group"><label>Telefone</label><input type="text" id="ghTelefone"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><label>Cargo/Função *</label><input type="text" id="ghCargo" required></div>
-                        <div class="form-group"><label>Conselho de Classe</label><input type="text" id="ghConselho"></div>
+                        <div class="form-group"><label>Nº Registro Profissional*</label><input type="text" id="ghCargo" required></div>
+                        <div class="form-group"><label>CEP</label><input type="text" id="ghConselho"></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><label>Nº Registro</label><input type="text" id="ghRegistro"></div>
-                        <div class="form-group"><label>Email</label><input type="email" id="ghEmail"></div>
+                        <div class="form-group"><label>Rua</label><input type="text" id="ghRegistro"></div>
+                        <div class="form-group"><label>Bairro</label><input type="email" id="ghEmail"></div>
                     </div>
-                    <div class="form-group"><label>Setor de Atuação *</label><select id="ghSetorAtuacao" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergência</option><option>Centro Cirúrgico</option><option>Clínica Médica</option><option>Pediatria</option><option>Farmácia</option><option>Laboratório</option><option>Outros</option></select></div>
-                </div>
+                     <div class="form-row">
+                        <div class="form-group"><label>Estado</label><input type="text" id="ghRegistro"></div>
+                        <div class="form-group"><label>Cidade</label><input type="email" id="ghEmail"></div>
+                    </div>
                 <div class="form-section"><h4>🔑 Acessos</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Acesso GestHosp</label><select id="ghAcessoGestHosp"><option value="Sim" selected>Sim</option><option value="Não">Não</option></select></div>
-                        <div class="form-group"><label>Perfil</label><select id="ghPerfil"><option>Padrão</option><option>Médico</option><option>Enfermeiro</option><option>Administrativo</option></select></div>
+                        <div class="form-group"><label>Perfil</label>
+                            <select id="ghPerfil">
+                            <option>Medico</option>
+                            <option>Enfermeiro</option>
+                            <option>Fisioterapeuta</option>
+                            <option>Assistente Social</option>
+                            <option>Nutricionista</option>
+                            <option>Psicologo</option>
+                        </select></div>
                     </div>
                     <div class="form-group"><label>Observações</label><textarea id="ghObservacoes" rows="2"></textarea></div>
                 </div>
@@ -150,7 +211,7 @@
         </div>
 
         <!-- MEUS CHAMADOS -->
-        <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">📋 Meus Chamados</h2><button class="btn-submit" style="width:auto;padding:10px 20px;margin-bottom:15px;" onclick="fecharTudo()">← Voltar</button><div id="listaChamados"></div></div>
+        <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">📋 Chamados</h2><button class="btn-submit" style="width:auto;padding:10px 20px;margin-bottom:15px;" onclick="fecharTudo()">← Voltar</button><div id="listaChamados"></div></div>
     </div>
 
     <script>

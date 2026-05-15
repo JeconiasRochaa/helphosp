@@ -9,277 +9,1504 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --primary: #0B3B5C; --primary-light: #1E4F6E; --secondary: #2F9B8F;
-            --accent: #00C9B7; --success: #10B981; --warning: #F59E0B; --danger: #EF4444;
-            --info: #3B82F6; --dark: #0F172A; --gray: #64748B; --light: #F8FAFC; --white: #FFFFFF;
+            --primary: #0B3B5C;
+            --primary-light: #1E4F6E;
+            --secondary: #2F9B8F;
+            --accent: #00C9B7;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --dark: #0F172A;
+            --gray: #64748B;
+            --light: #F8FAFC;
+            --white: #FFFFFF;
             --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%);
-            --azul-escuro: #06224a; --dourado: #c8a94a; --cinza-claro: #c9d2df;
+            --azul-escuro: #06224a;
+            --dourado: #c8a94a;
+            --cinza-claro: #c9d2df;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
 
         body {
             background: var(--azul-escuro);
             min-height: 100vh;
             position: relative;
+            overflow-x: hidden;
         }
+
         .bg-grid {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 60px 60px; pointer-events: none; z-index: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -50%;
+            right: -20%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(200, 169, 74, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: glowPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
         }
 
         /* ECG LINE DOURADA ANIMADA */
-        .ecg-line {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; z-index: 0; pointer-events: none; opacity: 0.5;
+        .ecg-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
         }
-        .ecg-line svg { width: 100%; height: 100%; }
-        .ecg-path { fill: none; stroke: var(--dourado); stroke-width: 2; animation: ecgMove 4s linear infinite; }
-        .ecg-path-2 { animation-delay: 1s; } .ecg-path-3 { animation-delay: 2s; } .ecg-path-4 { animation-delay: 3s; }
-        @keyframes ecgMove { 0% { stroke-dashoffset: 1200; } 100% { stroke-dashoffset: 0; } }
+
+        .ecg-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ecg-path {
+            fill: none;
+            stroke: var(--dourado);
+            stroke-width: 2;
+            stroke-dasharray: 1200;
+            animation: ecgAnimate 3s linear infinite;
+        }
+
+        .ecg-path:nth-child(2) {
+            animation-delay: 0.75s;
+            stroke-width: 1.5;
+            opacity: 0.7;
+        }
+
+        .ecg-path:nth-child(3) {
+            animation-delay: 1.5s;
+            stroke-width: 1;
+            opacity: 0.5;
+        }
+
+        .ecg-path:nth-child(4) {
+            animation-delay: 2.25s;
+            stroke-width: 2.5;
+            opacity: 0.3;
+        }
+
+        @keyframes ecgAnimate {
+            0% {
+                stroke-dashoffset: 1200;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* EFEITO DE PULSO NO ECG */
+        .ecg-pulse {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: var(--dourado);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+            animation: pulseDot 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(200, 169, 74, 0.8), 0 0 40px rgba(200, 169, 74, 0.4);
+        }
+
+        .ecg-pulse:nth-child(2) {
+            animation-delay: 0.75s;
+            left: 30%;
+        }
+
+        .ecg-pulse:nth-child(3) {
+            animation-delay: 1.5s;
+            left: 70%;
+        }
+
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(2);
+            }
+            75% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+        }
 
         .header {
-            background: var(--gradient); padding: 15px 30px; display: flex;
-            justify-content: space-between; align-items: center; color: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100;
+            background: var(--gradient);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid rgba(200, 169, 74, 0.2);
         }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo i { font-size: 34px; color: var(--accent); }
-        .logo h1 { font-size: 20px; } .logo span { display: block; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--dourado);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(200, 169, 74, 0.1);
+        }
+
+        .logo-icon i {
+            font-size: 24px;
+            color: var(--dourado);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-mini-ecg {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            height: 2px;
+            background: var(--dourado);
+            border-radius: 1px;
+            animation: miniEcg 1.5s ease-in-out infinite;
+        }
+
+        @keyframes miniEcg {
+            0%,
+            100% {
+                clip-path: inset(0 70% 0 0);
+                opacity: 0.4;
+            }
+            40% {
+                clip-path: inset(0 20% 0 0);
+                opacity: 0.8;
+            }
+            60% {
+                clip-path: inset(0 0 0 0);
+                opacity: 1;
+            }
+            80% {
+                clip-path: inset(0 30% 0 0);
+                opacity: 0.6;
+            }
+        }
+
+        .logo h1 {
+            font-size: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        .logo h1 .help {
+            color: var(--cinza-claro);
+            font-weight: 300;
+        }
+
+        .logo h1 .hosp {
+            color: white;
+            font-weight: 700;
+        }
+
+        .logo span {
+            display: block;
+            font-size: 10px;
+            color: var(--dourado);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .btn-area-tecnica {
-            background: rgba(255,255,255,0.12); color: white; padding: 10px 20px;
-            border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 500;
-            border: 2px solid rgba(255,255,255,0.25); display: flex; align-items: center;
-            gap: 8px; transition: all 0.3s; backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid rgba(200, 169, 74, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
         }
-        .btn-area-tecnica:hover { background: rgba(255,255,255,0.2); border-color: var(--accent); transform: translateY(-1px); }
 
-        .main-container { max-width: 1000px; margin: 30px auto; padding: 0 20px; position: relative; z-index: 1; }
-        .welcome-banner { background: var(--gradient); border-radius: 24px; padding: 30px; margin-bottom: 25px; color: white; }
-        .welcome-banner h2 { font-size: 24px; } .welcome-banner p { font-size: 14px; opacity: 0.9; }
+        .btn-area-tecnica:hover {
+            background: rgba(200, 169, 74, 0.15);
+            border-color: var(--dourado);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(200, 169, 74, 0.2);
+        }
 
-        .suporte-container { background: white; border-radius: 20px; padding: 22px; margin-bottom: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        .suporte-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; }
-        .suporte-header i { color: #25d366; font-size: 28px; }
-        .suporte-header h3 { color: var(--dark); font-size: 16px; }
-        .suporte-header .seta { margin-left: auto; transition: 0.3s; color: var(--gray); }
-        .suporte-header .seta.open { transform: rotate(180deg); }
-        .suporte-contatos { display: none; gap: 12px; flex-wrap: wrap; }
-        .suporte-contatos.open { display: flex; }
-        .contato-card { display: flex; align-items: center; gap: 10px; background: #f9fafb; padding: 12px 16px; border-radius: 12px; text-decoration: none; color: var(--dark); border: 1px solid #e5e7eb; transition: 0.3s; flex: 1; min-width: 200px; }
-        .contato-card:hover { background: #f0fdf4; border-color: #bbf7d0; transform: translateY(-2px); }
-        .contato-card i { color: #25d366; font-size: 22px; }
-        .contato-card strong { font-size: 13px; display: block; } .contato-card small { font-size: 10px; color: var(--gray); }
-        .depto-tag { font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: 600; margin-left: 8px; }
-        .depto-ti { background: #dbeafe; color: #1e40af; } .depto-manutencao { background: #fef3c7; color: #92400e; }
+        .main-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
 
-        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 25px; }
-        .action-card { background: white; border-radius: 18px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent; }
-        .action-card:hover { transform: translateY(-4px); border-color: var(--secondary); }
-        .card-icon { width: 55px; height: 55px; background: var(--gradient); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
-        .card-icon i { font-size: 26px; color: white; }
-        .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; } .action-card p { color: var(--gray); font-size: 12px; }
+        .welcome-banner {
+            background: var(--gradient);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 25px;
+            color: white;
+            border: 1px solid rgba(200, 169, 74, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
 
-        .form-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .form-container.active { display: block; animation: slideDown 0.3s; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-        .form-header h2 { color: var(--primary); font-size: 20px; }
-        .btn-close { width: 34px; height: 34px; border-radius: 8px; border: none; background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 16px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 4px; color: var(--primary); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; font-family: inherit; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--secondary); }
-        .btn-submit { width: 100%; padding: 14px; background: var(--gradient); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .form-section { background: #f0fdf4; padding: 12px; border-radius: 10px; margin-bottom: 12px; border-left: 4px solid #10B981; }
-        .form-section h4 { color: #065f46; margin-bottom: 8px; font-size: 13px; }
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(200, 169, 74, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
 
-        .chamados-container { background: white; border-radius: 22px; padding: 30px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .chamados-container.active { display: block; }
-        .chamado-card { background: #f8fafc; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-left: 4px solid var(--info); cursor: pointer; }
-        .chamado-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-        .status-afazer { background: #fef3c7; color: #92400e; } .status-emandamento { background: #dbeafe; color: #1e40af; } .status-concluido { background: #d1fae5; color: #065f46; } .status-pendente { background: #fee2e2; color: #991b1b; }
-        .tecnico-info { font-size: 11px; color: #3B82F6; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
-        .observacao-tecnico { background: #fff7ed; padding: 10px; border-radius: 8px; margin-top: 8px; border-left: 3px solid #f97316; font-size: 12px; color: #9a3412; }
+        .welcome-banner h2 {
+            font-size: 24px;
+            position: relative;
+        }
+
+        .welcome-banner p {
+            font-size: 14px;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .suporte-container {
+            background: white;
+            border-radius: 20px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .suporte-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .suporte-header i.fa-whatsapp {
+            color: #25d366;
+            font-size: 28px;
+        }
+
+        .suporte-header h3 {
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .suporte-header .seta {
+            margin-left: auto;
+            transition: 0.3s;
+            color: var(--gray);
+        }
+
+        .suporte-header .seta.open {
+            transform: rotate(180deg);
+        }
+
+        .suporte-contatos {
+            display: none;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .suporte-contatos.open {
+            display: flex;
+        }
+
+        .contato-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9fafb;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--dark);
+            border: 1px solid #e5e7eb;
+            transition: 0.3s;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .contato-card:hover {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .contato-card i.fa-whatsapp {
+            color: #25d366;
+            font-size: 22px;
+        }
+
+        .contato-card strong {
+            font-size: 13px;
+            display: block;
+        }
+
+        .contato-card small {
+            font-size: 10px;
+            color: var(--gray);
+        }
+
+        .depto-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .depto-ti {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .depto-manutencao {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--secondary);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            width: 55px;
+            height: 55px;
+            background: var(--gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            border: 1px solid rgba(200, 169, 74, 0.3);
+        }
+
+        .card-icon i {
+            font-size: 26px;
+            color: white;
+        }
+
+        .action-card h3 {
+            font-size: 17px;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .action-card p {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        /* NOTIFICAÇÃO TOAST */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            max-width: 380px;
+            animation: toastSlideIn 0.4s ease, toastSlideOut 0.4s ease 3.5s forwards;
+            border-left: 4px solid var(--success);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-container.active {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .form-header h2 {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .btn-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: none;
+            background: #f1f5f9;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-close:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(47, 155, 143, 0.08);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(200, 169, 74, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section {
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 4px solid #10B981;
+        }
+
+        .form-section h4 {
+            color: #065f46;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .chamados-container {
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .chamados-container.active {
+            display: block;
+        }
+
+        .chamado-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--info);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chamado-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateX(2px);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-afazer {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-emandamento {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-concluido {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pendente {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tecnico-info {
+            font-size: 11px;
+            color: #3B82F6;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .observacao-tecnico {
+            background: #fff7ed;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border-left: 3px solid #f97316;
+            font-size: 12px;
+            color: #9a3412;
+        }
 
         /* MODAL DETALHES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center; }
-        .modal-overlay.ativo { display: flex; }
-        .modal-box { background: white; border-radius: 18px; padding: 28px; width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .modal-box h3 { color: var(--primary); margin-bottom: 12px; }
-        .modal-box p { margin: 6px 0; font-size: 13px; }
-        .modal-box .fecha { float: right; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--gray); }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
 
-        @media (max-width: 600px) { .header { flex-direction: column; gap: 8px; } .action-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+        .modal-overlay.ativo {
+            display: flex;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-box h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .modal-box p {
+            margin: 6px 0;
+            font-size: 13px;
+        }
+
+        .modal-box .fecha {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.2s;
+        }
+
+        .modal-box .fecha:hover {
+            color: var(--danger);
+        }
+
+        /* LOADING SPINNER */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: #d1d5db;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="bg-grid"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
 
-<!-- ECG DOURADO -->
-<div class="ecg-line">
-    <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path class="ecg-path" d="M0,60 L100,60 L120,60 L130,10 L140,110 L150,60 L300,60"/>
-        <path class="ecg-path ecg-path-2" d="M300,60 L400,60 L420,60 L430,10 L440,110 L450,60 L600,60"/>
-        <path class="ecg-path ecg-path-3" d="M600,60 L700,60 L720,60 L730,10 L740,110 L750,60 L900,60"/>
-        <path class="ecg-path ecg-path-4" d="M900,60 L1000,60 L1020,60 L1030,10 L1040,110 L1050,60 L1200,60"/>
-    </svg>
-</div>
-
-<div class="header">
-    <div class="logo"><i class="fas fa-laptop-medical"></i><div><h1>HelpHosp</h1><span>CENTRAL DE CHAMADOS</span></div></div>
-    <div class="header-right">
-        <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-haltered"></i> Área Técnica</a>
-    </div>
-</div>
-
-<div class="main-container">
-    <div class="welcome-banner"><h2>🏥 Central de Chamados</h2><p>Selecione o tipo de solicitação abaixo</p></div>
-
-    <div class="suporte-container">
-        <div class="suporte-header" onclick="toggleSuporte()">
-            <i class="fab fa-whatsapp"></i><h3>📞 Suporte Técnico</h3>
-            <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
-        </div>
-        <div class="suporte-contatos" id="contatosSuporte">
-            <a href="https://wa.me/5582981845421" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Jeconias Rocha</strong><small>Analista de Sistema</small></div><span class="depto-tag depto-ti">TI</span></a>
-            <a href="https://wa.me/5582996076571" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Allan Michel</strong><small>Suporte Técnico</small></div><span class="depto-tag depto-ti">TI</span></a>
-            <a href="https://wa.me/5582996271342" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Bruno</strong><small>Elétrica/Hidráulica</small></div><span class="depto-tag depto-manutencao">MANUTENÇÃO</span></a>
-            <a href="https://wa.me/5582999334549" target="_blank" class="contato-card"><i class="fab fa-whatsapp"></i><div><strong>Benicio</strong><small>Elétrica/Hidráulica</small></div><span class="depto-tag depto-manutencao">MANUTENÇÃO</span></a>
-        </div>
+    <!-- ECG DOURADO ANIMADO -->
+    <div class="ecg-container">
+        <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+            <!-- Linha base com picos ECG -->
+            <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50" />
+            <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50" />
+            <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50" />
+            <path class="ecg-path" d="M900,50 L980,50 L1000,50 L1010,10 L1020,90 L1030,50 L1040,10 L1050,90 L1060,50 L1200,50" />
+        </svg>
     </div>
 
-    <div class="action-grid">
-        <div class="action-card" onclick="mostrarFormularioChamado('TI')"><div class="card-icon"><i class="fas fa-desktop"></i></div><h3>Tecnologia da Informação</h3><p>Computadores, sistemas, rede, internet</p></div>
-        <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')"><div class="card-icon"><i class="fas fa-tools"></i></div><h3>Manutenção</h3><p>Elétrica, hidráulica, ar-condicionado</p></div>
-        <div class="action-card" onclick="mostrarFormularioGestHosp()"><div class="card-icon"><i class="fas fa-user-plus"></i></div><h3>Cadastro GestHosp</h3><p>Solicitar cadastro de novo profissional</p></div>
-        <div class="action-card" onclick="mostrarChamados()"><div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3>Chamados</h3><p>Chamados de hoje</p></div>
-    </div>
+    <!-- Pontos de pulso do ECG -->
+    <div class="ecg-pulse" style="left: 25%;"></div>
+    <div class="ecg-pulse" style="left: 50%;"></div>
+    <div class="ecg-pulse" style="left: 75%;"></div>
 
-    <div class="form-container" id="formChamado">
-        <div class="form-header"><h2 id="formTitle">Novo Chamado</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <form onsubmit="criarChamado(event)">
-            <input type="hidden" id="departamento" value="">
-            <div class="form-row"><div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div><div class="form-group"><label>Contato</label><input type="text" id="contato"></div></div>
-            <div class="form-row"><div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Emergência</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Outros</option></select></div><div class="form-group"><label>Tipo *</label><select id="categoria" required><option value="">Selecione...</option></select></div></div>
-            <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">Baixa</option><option value="Média" selected>Média</option><option value="Alta">Alta</option><option value="Crítica">Crítica</option></select></div>
-            <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
-            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3"></textarea></div>
-            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-        </form>
-    </div>
-
-    <div class="form-container" id="formGestHosp">
-        <div class="form-header"><h2>🆕 Cadastro GestHosp</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <form onsubmit="criarChamadoGestHosp(event)">
-            <div class="form-section"><h4>👤 Dados do Profissional</h4>
-                <div class="form-row"><div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNomeProfissional" required></div><div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required></div></div>
-                <div class="form-row"><div class="form-group"><label>RG</label><input type="text" id="ghRg"></div><div class="form-group"><label>Email</label><input type="email" id="ghEmailProfissional"></div></div>
-                <div class="form-row"><div class="form-group"><label>Data Nascimento</label><input type="date" id="ghDataNascimento"></div><div class="form-group"><label>Telefone</label><input type="text" id="ghTelefone"></div></div>
-                <div class="form-row"><div class="form-group"><label>Nº Registro Profissional</label><input type="text" id="ghRegistroProf"></div><div class="form-group"><label>Conselho de Classe</label><input type="text" id="ghConselho"></div></div>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-heartbeat"></i>
+                <div class="logo-mini-ecg"></div>
             </div>
-            <div class="form-section"><h4>🔑 Acessos</h4>
-                <div class="form-row"><div class="form-group"><label>Acesso GestHosp</label><select id="ghAcessoGestHosp"><option value="Sim" selected>Sim</option><option value="Não">Não</option></select></div><div class="form-group"><label>Perfil</label><select id="ghPerfil"><option>Medico</option><option>Enfermeiro</option><option>Fisioterapeuta</option><option>Assistente Social</option><option>Nutricionista</option><option>Psicologo</option><option>Outros</option></select></div></div>
-                <div class="form-group"><label>Observações</label><textarea id="ghObservacoes" rows="2"></textarea></div>
+            <div>
+                <h1><span class="help">Help</span><span class="hosp">Hosp</span></h1>
+                <span>CENTRAL DE CHAMADOS</span>
             </div>
-            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10B981);"><i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
-        </form>
+        </div>
+        <div class="header-right">
+            <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-haltered"></i> Área Técnica</a>
+        </div>
     </div>
 
-    <div class="chamados-container" id="chamadosContainer"><h2 style="margin-bottom:15px;">📋 Chamados de Hoje</h2><button class="btn-submit" style="width:auto;padding:10px 20px;margin-bottom:15px;" onclick="fecharTudo()">← Voltar</button><div id="listaChamados"></div></div>
-</div>
+    <div class="main-container">
+        <div class="welcome-banner">
+            <h2>🏥 Central de Chamados</h2>
+            <p>Selecione o tipo de solicitação abaixo ou entre em contato direto com nosso suporte técnico</p>
+        </div>
 
-<!-- MODAL DETALHES -->
-<div class="modal-overlay" id="modalDetalhes">
-    <div class="modal-box">
-        <button class="fecha" onclick="document.getElementById('modalDetalhes').classList.remove('ativo')">&times;</button>
-        <div id="detalhesConteudo"></div>
+        <!-- SUPORTE TÉCNICO -->
+        <div class="suporte-container">
+            <div class="suporte-header" onclick="toggleSuporte()">
+                <i class="fab fa-whatsapp"></i>
+                <h3>📞 Suporte Técnico</h3>
+                <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+            </div>
+            <div class="suporte-contatos" id="contatosSuporte">
+                <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <div><strong>Jeconias Rocha</strong><small>Analista de Sistema</small></div>
+                    <span class="depto-tag depto-ti">TI</span>
+                </a>
+                <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <div><strong>Allan Michel</strong><small>Suporte Técnico</small></div>
+                    <span class="depto-tag depto-ti">TI</span>
+                </a>
+                <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <div><strong>Bruno</strong><small>Elétrica/Hidráulica</small></div>
+                    <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
+                </a>
+                <a href="https://wa.me/5582999334549" target="_blank" class="contato-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <div><strong>Benicio</strong><small>Elétrica/Hidráulica</small></div>
+                    <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- GRID DE AÇÕES -->
+        <div class="action-grid">
+            <div class="action-card" onclick="mostrarFormularioChamado('TI')">
+                <div class="card-icon"><i class="fas fa-desktop"></i></div>
+                <h3>Tecnologia da Informação</h3>
+                <p>Computadores, sistemas, rede, internet, e-mail</p>
+            </div>
+            <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')">
+                <div class="card-icon"><i class="fas fa-tools"></i></div>
+                <h3>Manutenção</h3>
+                <p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
+            </div>
+            <div class="action-card" onclick="mostrarFormularioGestHosp()">
+                <div class="card-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Cadastro GestHosp</h3>
+                <p>Solicitar cadastro de novo profissional no sistema</p>
+            </div>
+            <div class="action-card" onclick="mostrarChamados()">
+                <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h3>Meus Chamados</h3>
+                <p>Acompanhar status dos chamados de hoje</p>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO CHAMADO TI/MANUTENÇÃO -->
+        <div class="form-container" id="formChamado">
+            <div class="form-header">
+                <h2 id="formTitle">Novo Chamado</h2>
+                <button class="btn-close" onclick="fecharTudo()">&times;</button>
+            </div>
+            <form onsubmit="criarChamado(event)">
+                <input type="hidden" id="departamento" value="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Seu Nome *</label>
+                        <input type="text" id="solicitante" required placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Contato (WhatsApp)</label>
+                        <input type="text" id="contato" placeholder="82999999999">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Setor *</label>
+                        <select id="setor" required>
+                            <option value="">Selecione o setor...</option>
+                            <option>UTI I</option>
+                            <option>UTI II</option>
+                            <option>Emergência</option>
+                            <option>Centro Cirúrgico</option>
+                            <option>Oncologia</option>
+                            <option>Farmácia</option>
+                            <option>Administração</option>
+                            <option>Recepção Geral</option>
+                            <option>Recepção CR</option>
+                            <option>NIR</option>
+                            <option>Faturamento</option>
+                            <option>Pediatria</option>
+                            <option>Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo *</label>
+                        <select id="categoria" required>
+                            <option value="">Selecione o tipo...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Prioridade</label>
+                    <select id="prioridade">
+                        <option value="Baixa">Baixa - Sem pressa</option>
+                        <option value="Média" selected>Média - Normal</option>
+                        <option value="Alta">Alta - Urgente</option>
+                        <option value="Crítica">Crítica - Emergência</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Título *</label>
+                    <input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras">
+                </div>
+                <div class="form-group">
+                    <label>Descrição Detalhada</label>
+                    <textarea id="descricao" rows="3" placeholder="Descreva o problema com detalhes para agilizar o atendimento..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
+            </form>
+        </div>
+
+        <!-- FORMULÁRIO GESTHOSP -->
+        <div class="form-container" id="formGestHosp">
+            <div class="form-header">
+                <h2>🆕 Cadastro GestHosp</h2>
+                <button class="btn-close" onclick="fecharTudo()">&times;</button>
+            </div>
+            <form onsubmit="criarChamadoGestHosp(event)">
+                <div class="form-section">
+                    <h4>👤 Dados do Profissional</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome Completo *</label>
+                            <input type="text" id="ghNomeProfissional" required placeholder="Nome completo do profissional">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF *</label>
+                            <input type="text" id="ghCpf" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>RG</label>
+                            <input type="text" id="ghRg" placeholder="Nº do RG">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="ghEmailProfissional" placeholder="email@exemplo.com">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data Nascimento</label>
+                            <input type="date" id="ghDataNascimento">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="ghTelefone" placeholder="(82) 99999-9999">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nº Registro Profissional</label>
+                            <input type="text" id="ghRegistroProf" placeholder="CRM, COREN, etc.">
+                        </div>
+                        <div class="form-group">
+                            <label>Conselho de Classe</label>
+                            <input type="text" id="ghConselho" placeholder="CRM, COREN, CREFITO...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>🔑 Acessos ao Sistema</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Acesso GestHosp</label>
+                            <select id="ghAcessoGestHosp">
+                                <option value="Sim" selected>Sim - Precisa de acesso</option>
+                                <option value="Não">Não - Apenas cadastro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Perfil de Acesso</label>
+                            <select id="ghPerfil">
+                                <option>Médico</option>
+                                <option>Enfermeiro</option>
+                                <option>Fisioterapeuta</option>
+                                <option>Assistente Social</option>
+                                <option>Nutricionista</option>
+                                <option>Psicólogo</option>
+                                <option>Farmacêutico</option>
+                                <option>Outros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações Adicionais</label>
+                        <textarea id="ghObservacoes" rows="2" placeholder="Detalhes adicionais sobre o cadastro..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10B981);">
+                    <i class="fas fa-user-plus"></i> Solicitar Cadastro
+                </button>
+            </form>
+        </div>
+
+        <!-- LISTA DE CHAMADOS -->
+        <div class="chamados-container" id="chamadosContainer">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                <h2>📋 Chamados de Hoje</h2>
+                <button class="btn-close" onclick="fecharTudo()" style="width:auto;padding:8px 16px;font-size:13px;">← Voltar</button>
+            </div>
+            <div id="listaChamados"></div>
+        </div>
     </div>
-</div>
 
-<script>
-const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
-firebase.initializeApp(fc); const db = firebase.firestore();
+    <!-- MODAL DETALHES -->
+    <div class="modal-overlay" id="modalDetalhes">
+        <div class="modal-box">
+            <button class="fecha" onclick="document.getElementById('modalDetalhes').classList.remove('ativo')">&times;</button>
+            <div id="detalhesConteudo"></div>
+        </div>
+    </div>
 
-const deptConfig = {
-    'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Telefone','E-mail','Outros'] },
-    'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Outros'] }
-};
+    <script>
+        // ========== FIREBASE ==========
+        const fc = {
+            apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+            authDomain: "helphosp.firebaseapp.com",
+            projectId: "helphosp",
+            storageBucket: "helphosp.firebasestorage.app",
+            messagingSenderId: "1075623193163",
+            appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+        };
+        firebase.initializeApp(fc);
+        const db = firebase.firestore();
 
-function toggleSuporte() { document.getElementById('contatosSuporte').classList.toggle('open'); document.getElementById('setaSuporte').classList.toggle('open'); }
-function mostrarFormularioChamado(dep) {
-    document.getElementById('formChamado').classList.add('active'); document.getElementById('formGestHosp').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active');
-    document.getElementById('departamento').value = dep; document.getElementById('formTitle').textContent = 'Novo Chamado - ' + deptConfig[dep].nome;
-    document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' + deptConfig[dep].categorias.map(c => `<option>${c}</option>`).join('');
-}
-function mostrarFormularioGestHosp() { document.getElementById('formGestHosp').classList.add('active'); document.getElementById('formChamado').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active'); document.querySelector('#formGestHosp form').reset(); }
-function mostrarChamados() { document.getElementById('chamadosContainer').classList.add('active'); document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active'); carregarChamados(); }
-function fecharTudo() { document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active'); }
+        // ========== CONFIGURAÇÕES ==========
+        const deptConfig = {
+            'TI': {
+                nome: 'Tecnologia da Informação',
+                categorias: ['Computador', 'Notebook', 'Impressora', 'Sistema', 'Internet/Rede', 'Telefone',
+                    'E-mail', 'Software', 'Hardware', 'Outros'
+                ]
+            },
+            'MANUTENCAO': {
+                nome: 'Manutenção',
+                categorias: ['Elétrica', 'Hidráulica', 'Ar-condicionado', 'Pintura', 'Marcenaria', 'Estrutura',
+                    'Telhado', 'Piso', 'Outros'
+                ]
+            }
+        };
 
-function criarChamado(e) {
-    e.preventDefault();
-    db.collection('chamados').add({
-        protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8), departamento: document.getElementById('departamento').value, tipo: 'chamado',
-        titulo: document.getElementById('titulo').value, descricao: document.getElementById('descricao').value,
-        solicitante: document.getElementById('solicitante').value, contato: document.getElementById('contato').value,
-        setor: document.getElementById('setor').value, categoria: document.getElementById('categoria').value,
-        prioridade: document.getElementById('prioridade').value, status: 'A Fazer', data_abertura: firebase.firestore.Timestamp.now()
-    }).then(() => { alert('✅ Chamado criado!'); document.querySelector('#formChamado form').reset(); fecharTudo(); mostrarChamados(); });
-}
+        // ========== FUNÇÕES DE NAVEGAÇÃO ==========
+        function toggleSuporte() {
+            document.getElementById('contatosSuporte').classList.toggle('open');
+            document.getElementById('setaSuporte').classList.toggle('open');
+        }
 
-function criarChamadoGestHosp(e) {
-    e.preventDefault();
-    var dados = { nome: document.getElementById('ghNomeProfissional').value, cpf: document.getElementById('ghCpf').value, rg: document.getElementById('ghRg').value, email: document.getElementById('ghEmailProfissional').value, dataNascimento: document.getElementById('ghDataNascimento').value, telefone: document.getElementById('ghTelefone').value, registroProf: document.getElementById('ghRegistroProf').value, conselho: document.getElementById('ghConselho').value, acessoGestHosp: document.getElementById('ghAcessoGestHosp').value, perfil: document.getElementById('ghPerfil').value, observacoes: document.getElementById('ghObservacoes').value };
-    db.collection('chamados').add({
-        protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-8), departamento: 'TI', tipo: 'gesthosp', titulo: 'Cadastro GestHosp - ' + dados.nome,
-        solicitante: 'Solicitante', setor: 'N/I', categoria: 'Cadastro de Profissional', prioridade: 'Média', status: 'A Fazer', dadosProfissional: dados, data_abertura: firebase.firestore.Timestamp.now()
-    }).then(() => { alert('✅ Cadastro solicitado!'); document.querySelector('#formGestHosp form').reset(); fecharTudo(); mostrarChamados(); });
-}
+        function mostrarFormularioChamado(dep) {
+            document.getElementById('formChamado').classList.add('active');
+            document.getElementById('formGestHosp').classList.remove('active');
+            document.getElementById('chamadosContainer').classList.remove('active');
 
-function carregarChamados() {
-    document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:30px;">Carregando...</p>';
-    var hoje = new Date(); hoje.setHours(0,0,0,0); var amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
-    db.collection('chamados').where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje)).where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha)).orderBy('data_abertura','desc').limit(50).get()
-    .then(s => {
-        if (s.empty) { document.getElementById('listaChamados').innerHTML = '<p style="text-align:center;padding:40px;">📭 Nenhum chamado hoje</p>'; return; }
-        let h = ''; s.forEach(d => {
-            let c = d.data(), data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
-            let sc = 'status-' + (c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-            let tecnico = c.tecnico ? '<div class="tecnico-info"><i class="fas fa-user-cog"></i> Técnico: ' + c.tecnico + '</div>' : '';
-            let obs = c.observacaoTecnico ? '<div class="observacao-tecnico"><strong>🔧 Observação do Técnico:</strong> ' + c.observacaoTecnico + '</div>' : '';
-            h += `<div class="chamado-card" onclick="verDetalhes('${d.id}')"><div><strong>${c.tipo==='gesthosp'?'🆕':'🔧'} ${c.titulo}</strong><br><small>📋 ${c.protocolo} | 📍 ${c.setor} | 🕐 ${data.toLocaleString('pt-BR')}</small>${tecnico}${obs}</div><span class="status-badge ${sc}">${c.status||'A Fazer'}</span></div>`;
+            document.getElementById('departamento').value = dep;
+            document.getElementById('formTitle').textContent = 'Novo Chamado - ' + deptConfig[dep].nome;
+
+            var catSelect = document.getElementById('categoria');
+            catSelect.innerHTML = '<option value="">Selecione o tipo...</option>' +
+                deptConfig[dep].categorias.map(function(c) {
+                    return '<option>' + c + '</option>';
+                }).join('');
+
+            // Reset form
+            document.querySelector('#formChamado form').reset();
+            document.getElementById('departamento').value = dep;
+
+            // Scroll to form
+            document.getElementById('formChamado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function mostrarFormularioGestHosp() {
+            document.getElementById('formGestHosp').classList.add('active');
+            document.getElementById('formChamado').classList.remove('active');
+            document.getElementById('chamadosContainer').classList.remove('active');
+            document.querySelector('#formGestHosp form').reset();
+            document.getElementById('formGestHosp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function mostrarChamados() {
+            document.getElementById('chamadosContainer').classList.add('active');
+            document.getElementById('formChamado').classList.remove('active');
+            document.getElementById('formGestHosp').classList.remove('active');
+            carregarChamados();
+            document.getElementById('chamadosContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function fecharTudo() {
+            document.getElementById('formChamado').classList.remove('active');
+            document.getElementById('formGestHosp').classList.remove('active');
+            document.getElementById('chamadosContainer').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ========== CRIAR CHAMADO ==========
+        function criarChamado(e) {
+            e.preventDefault();
+
+            var dept = document.getElementById('departamento').value;
+            var titulo = document.getElementById('titulo').value.trim();
+            var descricao = document.getElementById('descricao').value.trim();
+            var solicitante = document.getElementById('solicitante').value.trim();
+            var contato = document.getElementById('contato').value.trim();
+            var setor = document.getElementById('setor').value;
+            var categoria = document.getElementById('categoria').value;
+            var prioridade = document.getElementById('prioridade').value;
+
+            if (!titulo || !solicitante || !setor || !categoria) {
+                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'warning');
+                return;
+            }
+
+            var btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            db.collection('chamados').add({
+                    protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8),
+                    departamento: dept,
+                    tipo: 'chamado',
+                    titulo: titulo,
+                    descricao: descricao,
+                    solicitante: solicitante,
+                    contato: contato,
+                    setor: setor,
+                    categoria: categoria,
+                    prioridade: prioridade,
+                    status: 'A Fazer',
+                    data_abertura: firebase.firestore.Timestamp.now(),
+                    historico: [{
+                        data: new Date().toISOString(),
+                        acao: 'Chamado criado por ' + solicitante
+                    }]
+                })
+                .then(function() {
+                    mostrarToast('✅ Chamado criado com sucesso! Protocolo registrado.', 'success');
+                    document.querySelector('#formChamado form').reset();
+                    document.getElementById('departamento').value = dept;
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
+                    fecharTudo();
+                    // Mostrar chamados após criar
+                    setTimeout(mostrarChamados, 500);
+                })
+                .catch(function(err) {
+                    mostrarToast('❌ Erro ao criar chamado: ' + err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
+                });
+        }
+
+        // ========== CRIAR CHAMADO GESTHOSP ==========
+        function criarChamadoGestHosp(e) {
+            e.preventDefault();
+
+            var nome = document.getElementById('ghNomeProfissional').value.trim();
+            var cpf = document.getElementById('ghCpf').value.trim();
+
+            if (!nome || !cpf) {
+                mostrarToast('⚠️ Preencha Nome e CPF!', 'warning');
+                return;
+            }
+
+            var dados = {
+                nome: nome,
+                cpf: cpf,
+                rg: document.getElementById('ghRg').value.trim(),
+                email: document.getElementById('ghEmailProfissional').value.trim(),
+                dataNascimento: document.getElementById('ghDataNascimento').value,
+                telefone: document.getElementById('ghTelefone').value.trim(),
+                registroProf: document.getElementById('ghRegistroProf').value.trim(),
+                conselho: document.getElementById('ghConselho').value.trim(),
+                acessoGestHosp: document.getElementById('ghAcessoGestHosp').value,
+                perfil: document.getElementById('ghPerfil').value,
+                observacoes: document.getElementById('ghObservacoes').value.trim()
+            };
+
+            var btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            db.collection('chamados').add({
+                    protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-8),
+                    departamento: 'TI',
+                    tipo: 'gesthosp',
+                    titulo: 'Cadastro GestHosp - ' + dados.nome,
+                    descricao: '👤 Profissional: ' + dados.nome + '\n' +
+                        '📋 CPF: ' + dados.cpf + '\n' +
+                        '📧 Email: ' + (dados.email || 'N/I') + '\n' +
+                        '📞 Telefone: ' + (dados.telefone || 'N/I') + '\n' +
+                        '🏥 Registro: ' + (dados.registroProf || 'N/I') + ' (' + (dados.conselho || 'N/I') + ')\n' +
+                        '🔑 Acesso: ' + dados.acessoGestHosp + '\n' +
+                        '👤 Perfil: ' + dados.perfil + '\n' +
+                        '📝 Obs: ' + (dados.observacoes || 'Nenhuma'),
+                    solicitante: 'Solicitante',
+                    setor: 'N/I',
+                    categoria: 'Cadastro de Profissional',
+                    prioridade: 'Média',
+                    status: 'A Fazer',
+                    dadosProfissional: dados,
+                    data_abertura: firebase.firestore.Timestamp.now(),
+                    historico: [{
+                        data: new Date().toISOString(),
+                        acao: 'Solicitação de cadastro criada'
+                    }]
+                })
+                .then(function() {
+                    mostrarToast('✅ Solicitação de cadastro enviada com sucesso!', 'success');
+                    document.querySelector('#formGestHosp form').reset();
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
+                    fecharTudo();
+                })
+                .catch(function(err) {
+                    mostrarToast('❌ Erro: ' + err.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
+                });
+        }
+
+        // ========== CARREGAR CHAMADOS DE HOJE ==========
+        function carregarChamados() {
+            var lista = document.getElementById('listaChamados');
+            lista.innerHTML = '<div class="spinner"></div><p style="text-align:center;color:var(--gray);">Carregando chamados...</p>';
+
+            var hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            var amanha = new Date(hoje);
+            amanha.setDate(amanha.getDate() + 1);
+
+            db.collection('chamados')
+                .where('data_abertura', '>=', firebase.firestore.Timestamp.fromDate(hoje))
+                .where('data_abertura', '<', firebase.firestore.Timestamp.fromDate(amanha))
+                .orderBy('data_abertura', 'desc')
+                .limit(50)
+                .get()
+                .then(function(s) {
+                    if (s.empty) {
+                        lista.innerHTML = '<div class="empty-state"><i class="far fa-clipboard"></i><p>📭 Nenhum chamado registrado hoje</p><small style="color:var(--gray);">Os chamados abertos hoje aparecerão aqui</small></div>';
+                        return;
+                    }
+
+                    var h = '';
+                    s.forEach(function(d) {
+                        var c = d.data();
+                        var data = c.data_abertura && c.data_abertura.toDate ? c.data_abertura.toDate() :
+                            new Date(c.data_abertura);
+                        var sc = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '');
+                        var icon = c.tipo === 'gesthosp' ? '🆕' : '🔧';
+                        var tecnico = c.tecnico ? '<div class="tecnico-info"><i class="fas fa-user-cog"></i> Técnico: ' +
+                            c.tecnico + '</div>' : '';
+                        var obs = c.observacaoTecnico ? '<div class="observacao-tecnico"><strong>🔧 Observação do Técnico:</strong> ' +
+                            c.observacaoTecnico + '</div>' : '';
+                        var comentarios = c.comentarios && c.comentarios.length ? ' 💬' + c.comentarios
+                            .length : '';
+
+                        h += '<div class="chamado-card" onclick="verDetalhes(\'' + d.id + '\')">' +
+                            '<div style="flex:1;">' +
+                            '<strong>' + icon + ' ' + (c.titulo || 'Sem título') + comentarios + '</strong>' +
+                            '<br><small style="color:var(--gray);">📋 ' + (c.protocolo || '—') +
+                            ' | 📍 ' + (c.setor || '—') +
+                            ' | 🕐 ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit',
+                                minute: '2-digit' }) + '</small>' +
+                            tecnico + obs +
+                            '</div>' +
+                            '<span class="status-badge ' + sc + '">' + (c.status || 'A Fazer') +
+                            '</span>' +
+                            '</div>';
+                    });
+                    lista.innerHTML = h;
+                })
+                .catch(function(err) {
+                    lista.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar chamados</p><small>' +
+                        err.message + '</small></div>';
+                });
+        }
+
+        // ========== VER DETALHES ==========
+        function verDetalhes(id) {
+            db.collection('chamados').doc(id).get().then(function(doc) {
+                if (!doc.exists) {
+                    mostrarToast('Chamado não encontrado', 'error');
+                    return;
+                }
+
+                var c = doc.data();
+                var data = c.data_abertura && c.data_abertura.toDate ? c.data_abertura.toDate() : new Date(c
+                    .data_abertura);
+                var tecnico = c.tecnico || 'Não atribuído';
+                var obsTecnico = c.observacaoTecnico || 'Nenhuma observação registrada';
+                var statusClass = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '');
+
+                // Histórico
+                var histHtml = '';
+                if (c.historico && c.historico.length > 0) {
+                    histHtml = '<hr><h4 style="color:var(--primary);margin-bottom:8px;">📜 Histórico</h4>';
+                    c.historico.forEach(function(h) {
+                        histHtml += '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:11px;">' +
+                            '<strong>' + new Date(h.data).toLocaleString('pt-BR') + '</strong><br>' +
+                            '<span style="color:var(--gray);">' + h.acao + '</span></div>';
+                    });
+                }
+
+                // Comentários
+                var comentariosHtml = '';
+                if (c.comentarios && c.comentarios.length > 0) {
+                    comentariosHtml =
+                        '<hr><h4 style="color:var(--primary);margin-bottom:8px;">💬 Comentários do Técnico</h4>';
+                    c.comentarios.forEach(function(com) {
+                        comentariosHtml +=
+                            '<div style="background:#f0fdf4;padding:8px 12px;border-radius:8px;margin-bottom:6px;border-left:3px solid #10B981;">' +
+                            '<strong style="font-size:11px;">' + (com.autor || 'Técnico') +
+                            '</strong>' +
+                            '<span style="font-size:9px;color:var(--gray);margin-left:8px;">' + new Date(com
+                                .data).toLocaleString('pt-BR') + '</span>' +
+                            '<p style="font-size:12px;margin-top:4px;">' + (com.texto || '') + '</p></div>';
+                    });
+                }
+
+                var conteudo =
+                    '<h3 style="color:var(--primary);">📋 ' + (c.titulo || 'Sem título') + '</h3>' +
+                    '<span class="status-badge ' + statusClass + '" style="display:inline-block;margin-bottom:10px;">' +
+                    (c.status || 'A Fazer') + '</span>' +
+                    '<p><strong>📋 Protocolo:</strong> ' + (c.protocolo || '—') + '</p>' +
+                    '<p><strong>👤 Solicitante:</strong> ' + (c.solicitante || '—') + '</p>' +
+                    (c.contato ? '<p><strong>📞 Contato:</strong> <a href="https://wa.me/55' + c.contato.replace(/\D/g,
+                        '') + '" target="_blank" style="color:#25d366;">' + c.contato +
+                        ' <i class="fab fa-whatsapp"></i></a></p>' : '') +
+                    '<p><strong>📍 Setor:</strong> ' + (c.setor || '—') + '</p>' +
+                    '<p><strong>📂 Categoria:</strong> ' + (c.categoria || '—') + '</p>' +
+                    '<p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || '—') + '</p>' +
+                    '<p><strong>📝 Descrição:</strong> ' + (c.descricao || '—') + '</p>' +
+                    '<p><strong>🕐 Data/Hora:</strong> ' + data.toLocaleString('pt-BR') + '</p>' +
+                    '<hr>' +
+                    '<p><strong>👨‍🔧 Técnico Responsável:</strong> ' + tecnico + '</p>' +
+                    '<div class="observacao-tecnico"><strong>🔧 Observação do Técnico:</strong><br>' + obsTecnico +
+                    '</div>' +
+                    comentariosHtml +
+                    histHtml;
+
+                document.getElementById('detalhesConteudo').innerHTML = conteudo;
+                document.getElementById('modalDetalhes').classList.add('ativo');
+            }).catch(function(err) {
+                mostrarToast('Erro ao carregar detalhes', 'error');
+            });
+        }
+
+        // ========== TOAST ==========
+        function mostrarToast(mensagem, tipo) {
+            var toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            var icon = tipo === 'success' ? '✅' : tipo === 'warning' ? '⚠️' : '❌';
+            var borderColor = tipo === 'success' ? 'var(--success)' : tipo === 'warning' ? 'var(--warning)' :
+                'var(--danger)';
+            toast.style.borderLeftColor = borderColor;
+            toast.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<span style="font-size:20px;">' + icon + '</span>' +
+                '<div><strong style="font-size:13px;">' + (tipo === 'success' ? 'Sucesso' : tipo === 'warning' ?
+                    'Atenção' : 'Erro') + '</strong><br><span style="font-size:11px;color:var(--gray);">' + mensagem +
+                '</span></div>' +
+                '<button style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--gray);" onclick="this.parentElement.parentElement.remove();">&times;</button>' +
+                '</div>';
+            document.body.appendChild(toast);
+            setTimeout(function() {
+                if (toast.parentElement) toast.remove();
+            }, 4000);
+        }
+
+        // ========== FECHAR MODAL AO CLICAR FORA ==========
+        document.getElementById('modalDetalhes').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('ativo');
+            }
         });
-        document.getElementById('listaChamados').innerHTML = h;
-    });
-}
 
-// VER DETALHES COM TÉCNICO E OBSERVAÇÃO
-function verDetalhes(id) {
-    db.collection('chamados').doc(id).get().then(doc => {
-        if (!doc.exists) return;
-        let c = doc.data(), data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
-        let tecnico = c.tecnico || 'Não atribuído';
-        let obsTecnico = c.observacaoTecnico || 'Nenhuma observação registrada';
-        let conteudo = `
-            <h3>📋 ${c.titulo || 'Sem título'}</h3>
-            <p><strong>Protocolo:</strong> ${c.protocolo}</p>
-            <p><strong>Status:</strong> ${c.status||'A Fazer'}</p>
-            <p><strong>Solicitante:</strong> ${c.solicitante||'-'}</p>
-            <p><strong>Setor:</strong> ${c.setor||'-'}</p>
-            <p><strong>Prioridade:</strong> ${c.prioridade||'-'}</p>
-            <p><strong>Descrição:</strong> ${c.descricao||'-'}</p>
-            <p><strong>Data/Hora:</strong> ${data.toLocaleString('pt-BR')}</p>
-            <hr>
-            <p><strong>👨‍🔧 Técnico Responsável:</strong> ${tecnico}</p>
-            <div class="observacao-tecnico"><strong>🔧 Observação do Técnico:</strong><br>${obsTecnico}</div>
-        `;
-        document.getElementById('detalhesConteudo').innerHTML = conteudo;
-        document.getElementById('modalDetalhes').classList.add('ativo');
-    });
-}
-</script>
+        // ========== INICIALIZAÇÃO ==========
+        console.log('🚀 HelpHosp Central de Chamados - Pronto!');
+        console.log('📡 Conectado ao Firebase');
+        console.log('💓 ECG animado em execução');
+    </script>
 </body>
 </html>

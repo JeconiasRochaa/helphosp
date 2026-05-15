@@ -12,48 +12,53 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
-            --bg-deep: #06224a;
-            --bg-card: #0a2d5c;
-            --gold: #c8a94a;
-            --gold-light: rgba(200, 169, 74, 0.15);
-            --gold-glow: rgba(200, 169, 74, 0.12);
-            --text-light: #c9d2df;
-            --text-white: #ffffff;
-            --text-muted: #8899b4;
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-input: rgba(255, 255, 255, 0.12);
-            --input-bg: rgba(255, 255, 255, 0.04);
-            --input-focus: rgba(255, 255, 255, 0.08);
+            --bg-deep: #0F172A;
+            --bg-card: #1E293B;
+            --bg-hover: #334155;
+            --gold: #F59E0B;
+            --gold-light: rgba(245, 158, 11, 0.1);
+            --gold-border: rgba(245, 158, 11, 0.3);
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-light: rgba(255, 255, 255, 0.1);
             --success: #10B981;
             --warning: #F59E0B;
             --danger: #EF4444;
             --info: #3B82F6;
             --purple: #8B5CF6;
-            --gradient-btn: linear-gradient(135deg, #0d3d75, #06224a);
-            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
-            --shadow-gold: 0 0 20px rgba(200, 169, 74, 0.08);
-            --radius: 14px;
-            --radius-sm: 10px;
-            --sidebar-w: 280px;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            --transition: 200ms ease;
+            --sidebar-w: 260px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg-deep);
-            color: var(--text-light);
+            color: var(--text-secondary);
             display: flex;
             min-height: 100vh;
-            overflow-x: hidden;
+            font-size: 14px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
         /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-w);
             min-width: var(--sidebar-w);
-            background: linear-gradient(180deg, #071f40 0%, #06224a 100%);
-            color: white;
+            background: linear-gradient(180deg, #0F172A 0%, #1a2332 100%);
             position: fixed;
             left: 0;
             top: 0;
@@ -61,134 +66,190 @@
             z-index: 100;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(200, 169, 74, 0.15);
-            padding: 24px 16px;
+            border-right: 1px solid var(--border);
+            padding: 20px 14px;
             overflow-y: auto;
         }
 
         .sidebar-header {
             text-align: center;
-            padding: 16px 0 20px;
-            border-bottom: 1px solid rgba(200, 169, 74, 0.2);
+            padding: 8px 0 20px;
+            border-bottom: 1px solid var(--border);
             margin-bottom: 20px;
         }
 
-        .sidebar-logo {
-            width: 56px;
-            height: 56px;
+        .logo-container {
+            position: relative;
+            width: 70px;
+            height: 70px;
             margin: 0 auto 12px;
             border: 2px solid var(--gold);
-            border-radius: 16px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            background: rgba(200, 169, 74, 0.08);
-            position: relative;
+            background: rgba(245, 158, 11, 0.06);
             overflow: hidden;
         }
 
-        .sidebar-logo .ecg-line {
+        .logo-container i {
+            font-size: 32px;
+            color: var(--text-primary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .ecg-line {
             position: absolute;
-            bottom: 8px;
+            bottom: 12px;
             left: 8px;
             right: 8px;
             height: 2px;
             background: var(--gold);
-            animation: ecgAnim 1.5s ease-in-out infinite;
-            opacity: 0.6;
+            opacity: 0.7;
+            border-radius: 1px;
         }
 
-        @keyframes ecgAnim {
-            0%, 100% { clip-path: inset(0 80% 0 0); }
-            30% { clip-path: inset(0 60% 0 0); }
-            50% { clip-path: inset(0 0 0 0); }
-            70% { clip-path: inset(0 30% 0 0); }
-            90% { clip-path: inset(0 70% 0 0); }
+        .ecg-line::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: transparent;
+            animation: ecgScan 2s ease-in-out infinite;
+        }
+
+        @keyframes ecgScan {
+            0%, 100% { 
+                box-shadow: 
+                    5px 0 0 var(--gold),
+                    10px 0 0 var(--gold),
+                    15px 0 0 var(--gold),
+                    20px 0 0 var(--gold),
+                    25px -4px 0 var(--gold),
+                    30px 4px 0 var(--gold),
+                    35px -6px 0 var(--gold),
+                    40px 2px 0 var(--gold),
+                    45px 0 0 var(--gold),
+                    50px 0 0 var(--gold);
+                opacity: 0.4;
+            }
+            25% {
+                box-shadow: 
+                    5px 0 0 var(--gold),
+                    10px 0 0 var(--gold),
+                    15px 0 0 var(--gold),
+                    20px 0 0 var(--gold),
+                    25px -4px 0 var(--gold),
+                    30px 4px 0 var(--gold),
+                    35px -6px 0 var(--gold),
+                    40px 2px 0 var(--gold),
+                    45px 0 0 var(--gold),
+                    50px 0 0 var(--gold);
+                opacity: 0.9;
+            }
+            50% {
+                box-shadow: 
+                    10px 0 0 var(--gold),
+                    20px 0 0 var(--gold),
+                    30px -3px 0 var(--gold),
+                    40px 3px 0 var(--gold),
+                    50px -5px 0 var(--gold),
+                    60px 2px 0 var(--gold),
+                    70px 0 0 var(--gold);
+                opacity: 0.6;
+            }
+            75% {
+                box-shadow: 
+                    5px 0 0 var(--gold),
+                    15px 0 0 var(--gold),
+                    25px -2px 0 var(--gold),
+                    35px 2px 0 var(--gold),
+                    45px -4px 0 var(--gold),
+                    55px 1px 0 var(--gold),
+                    65px 0 0 var(--gold);
+                opacity: 0.8;
+            }
         }
 
         .sidebar-header h2 {
             font-size: 20px;
             letter-spacing: -0.5px;
-        }
-        .sidebar-header h2 .help { color: var(--text-light); font-weight: 300; }
-        .sidebar-header h2 .hosp { color: var(--text-white); font-weight: 700; }
-        .sidebar-header p {
-            font-size: 10px;
-            color: var(--gold);
-            letter-spacing: 3px;
-            text-transform: uppercase;
             margin-top: 4px;
+        }
+        .sidebar-header h2 .help { color: var(--text-secondary); font-weight: 400; }
+        .sidebar-header h2 .hosp { color: var(--text-primary); font-weight: 700; }
+        .sidebar-header .subtitle {
+            font-size: 9px;
+            color: var(--gold);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 600;
         }
 
         .user-info {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 14px;
+            background: var(--bg-card);
+            padding: 12px;
             border-radius: var(--radius-sm);
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border: 1px solid var(--border-subtle);
+            gap: 10px;
+            border: 1px solid var(--border);
         }
         .user-avatar {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, var(--gold), #a88a3a);
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), #d97706);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            color: #06224a;
+            color: #0F172A;
+            flex-shrink: 0;
         }
-        .user-details h4 { font-size: 13px; color: var(--text-white); }
+        .user-details h4 { font-size: 12px; color: var(--text-primary); font-weight: 600; }
         .user-details small { font-size: 10px; color: var(--text-muted); }
 
-        .nav-section { margin-bottom: 16px; }
+        .nav-section { margin-bottom: 14px; }
         .nav-section-title {
             font-size: 9px;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--gold);
-            margin-bottom: 8px;
-            padding-left: 12px;
-            opacity: 0.7;
+            letter-spacing: 2.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            padding-left: 10px;
+            font-weight: 700;
         }
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 11px 14px;
+            gap: 10px;
+            padding: 10px 12px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.25s;
-            margin-bottom: 3px;
+            transition: all var(--transition);
+            margin-bottom: 2px;
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
             position: relative;
+            font-weight: 500;
         }
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text-white);
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
         .nav-item.active {
-            background: rgba(200, 169, 74, 0.1);
+            background: var(--gold-light);
             color: var(--gold);
             font-weight: 600;
         }
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 8px;
-            bottom: 8px;
-            width: 3px;
-            background: var(--gold);
-            border-radius: 0 3px 3px 0;
-        }
-        .nav-item i { width: 20px; text-align: center; font-size: 14px; }
+        .nav-item i { width: 18px; text-align: center; font-size: 13px; }
 
         .badge-notificacao {
             position: absolute;
@@ -198,23 +259,22 @@
             background: var(--danger);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            min-width: 18px;
+            height: 18px;
             text-align: center;
-            line-height: 20px;
-            font-size: 10px;
+            line-height: 18px;
+            font-size: 9px;
             font-weight: 700;
-            animation: pulse 2s infinite;
+            padding: 0 4px;
             display: none;
         }
-        @keyframes pulse { 0%,100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.25); } }
 
-        .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+        .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
         .btn-logout {
             width: 100%;
-            padding: 11px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
+            padding: 10px;
+            background: transparent;
+            border: 1px solid var(--border);
             color: var(--text-muted);
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -222,506 +282,417 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            font-size: 13px;
-            transition: all 0.25s;
+            font-size: 12px;
+            transition: all var(--transition);
+            font-weight: 500;
         }
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
 
-        /* MAIN CONTENT */
-        .main-content {
-            margin-left: var(--sidebar-w);
-            flex: 1;
-            padding: 28px 32px;
-            min-height: 100vh;
-        }
+        /* MAIN */
+        .main-content { margin-left: var(--sidebar-w); flex: 1; padding: 24px 28px; min-height: 100vh; }
 
         .secao { display: none; }
-        .secao.ativa { display: block; animation: fadeIn 0.35s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .secao.ativa { display: block; animation: fadeSlideIn 0.3s ease; }
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* TOP BAR */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
-        .top-bar h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-white);
-            letter-spacing: -0.5px;
-        }
-        .top-bar h1 span { color: var(--gold); }
+        .top-bar h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+        .top-bar .breadcrumb { font-size: 11px; color: var(--text-muted); }
+        .top-bar .breadcrumb span { color: var(--gold); }
 
-        .page-header { margin-bottom: 24px; }
-        .page-header h1 { font-size: 22px; color: var(--text-white); }
-        .page-header p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+        .page-header { margin-bottom: 20px; }
+        .page-header h1 { font-size: 20px; color: var(--text-primary); font-weight: 700; }
+        .page-header p { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
 
-        /* STATS GRID */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
         .stat-card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 20px 24px;
+            padding: 18px 20px;
             display: flex;
             align-items: center;
-            gap: 16px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-card);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            gap: 14px;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+            cursor: default;
         }
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .stat-card:hover { border-color: rgba(200, 169, 74, 0.3); transform: translateY(-2px); }
-        .stat-card:hover::after { opacity: 1; }
+        .stat-card:hover { border-color: var(--border-light); transform: translateY(-1px); box-shadow: var(--shadow); }
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
         }
-        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-        .stat-icon.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-        .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .stat-info { z-index: 1; }
-        .stat-info small {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-        .stat-info strong {
-            font-size: 28px;
-            display: block;
-            color: var(--text-white);
-            font-weight: 700;
-        }
+        .stat-icon.blue { background: rgba(59,130,246,0.1); color: #60a5fa; }
+        .stat-icon.amber { background: rgba(245,158,11,0.1); color: #fbbf24; }
+        .stat-icon.green { background: rgba(16,185,129,0.1); color: #34d399; }
+        .stat-icon.red { background: rgba(239,68,68,0.1); color: #f87171; }
+        .stat-icon.purple { background: rgba(139,92,246,0.1); color: #a78bfa; }
+        .stat-info small { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .stat-info strong { font-size: 26px; display: block; color: var(--text-primary); font-weight: 700; line-height: 1.1; }
 
         /* CHARTS */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
         .chart-card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-card);
+            padding: 18px;
+            border: 1px solid var(--border);
         }
-        .chart-card h3 {
-            font-size: 14px;
-            margin-bottom: 16px;
-            color: var(--text-white);
-            font-weight: 600;
-        }
-        .chart-card canvas { width: 100% !important; height: 260px !important; max-height: 260px; }
+        .chart-card h3 { font-size: 13px; margin-bottom: 14px; color: var(--text-primary); font-weight: 600; }
+        .chart-card canvas { width: 100% !important; height: 250px !important; max-height: 250px; }
         .chart-full {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-card);
-            margin-bottom: 24px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
         }
-        .chart-full h3 { color: var(--text-white); font-size: 14px; margin-bottom: 16px; }
-        .chart-full canvas { width: 100% !important; height: 200px !important; max-height: 200px; }
+        .chart-full canvas { width: 100% !important; height: 220px !important; max-height: 220px; }
 
         /* TABLE */
         .table-card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 20px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--shadow-card);
+            padding: 18px;
+            border: 1px solid var(--border);
             overflow-x: auto;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .table-card h3 { color: var(--text-white); font-size: 14px; margin-bottom: 14px; }
+        .table-card h3 { font-size: 14px; color: var(--text-primary); margin-bottom: 12px; font-weight: 600; }
 
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th {
-            background: rgba(200, 169, 74, 0.08);
-            color: var(--gold);
-            padding: 11px 14px;
+            background: rgba(245,158,11,0.06);
+            color: var(--text-secondary);
+            padding: 10px 12px;
             text-align: left;
             font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
-            border-bottom: 1px solid rgba(200, 169, 74, 0.2);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
-        th:first-child { border-radius: 8px 0 0 0; }
-        th:last-child { border-radius: 0 8px 0 0; }
         td {
-            padding: 10px 14px;
-            border-bottom: 1px solid var(--border-subtle);
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
             font-size: 12px;
-            color: var(--text-light);
+            color: var(--text-secondary);
         }
-        tr:hover td { background: rgba(255, 255, 255, 0.02); cursor: pointer; }
+        tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+        tr:hover td { background: rgba(245,158,11,0.03); cursor: pointer; }
 
         /* BADGES */
         .badge {
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
+            font-size: 9px;
+            font-weight: 700;
             white-space: nowrap;
             letter-spacing: 0.3px;
+            display: inline-block;
         }
-        .badge-blue { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
-        .badge-green { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
-        .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fcd34d; }
-        .badge-red { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
-        .badge-purple { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; }
-        .badge-gold { background: rgba(200, 169, 74, 0.15); color: var(--gold); }
+        .badge-blue { background: rgba(59,130,246,0.12); color: #93c5fd; }
+        .badge-green { background: rgba(16,185,129,0.12); color: #6ee7b7; }
+        .badge-amber { background: rgba(245,158,11,0.12); color: #fcd34d; }
+        .badge-red { background: rgba(239,68,68,0.12); color: #fca5a5; }
+        .badge-purple { background: rgba(139,92,246,0.12); color: #c4b5fd; }
+        .badge-gold { background: rgba(245,158,11,0.15); color: var(--gold); }
 
         /* BUTTONS */
         .btn {
-            padding: 9px 18px;
+            padding: 8px 15px;
             border: none;
-            border-radius: 8px;
-            font-size: 12px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s;
-            letter-spacing: 0.3px;
+            transition: all var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            letter-spacing: 0.2px;
         }
         .btn-primary {
-            background: var(--gradient-btn);
-            color: var(--gold);
-            border: 1px solid rgba(200, 169, 74, 0.4);
+            background: var(--gold);
+            color: #0F172A;
+            font-weight: 700;
         }
-        .btn-primary:hover { background: linear-gradient(135deg, #124a8a, #0a305e); border-color: var(--gold); box-shadow: 0 0 20px rgba(200, 169, 74, 0.15); }
+        .btn-primary:hover { background: #fbbf24; box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
         .btn-outline {
             background: transparent;
-            border: 1px solid var(--border-input);
-            color: var(--text-light);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
         }
-        .btn-outline:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.25); }
-        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
-        .btn-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .btn-outline:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.2); }
+        .btn-danger { background: rgba(239,68,68,0.15); color: #fca5a5; }
+        .btn-danger:hover { background: rgba(239,68,68,0.25); }
         .btn-sm { padding: 5px 10px; font-size: 10px; border-radius: 6px; }
 
         /* FILTROS */
-        .filtros-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
+        .filtros-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
         .filtros-bar select,
         .filtros-bar input {
-            padding: 9px 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border-input);
-            border-radius: 8px;
+            padding: 8px 12px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
             font-size: 12px;
-            color: var(--text-light);
-            transition: all 0.25s;
+            color: var(--text-secondary);
+            transition: all var(--transition);
             outline: none;
+            font-family: inherit;
         }
         .filtros-bar select:focus,
-        .filtros-bar input:focus {
-            border-color: var(--gold);
-            background: var(--input-focus);
-            box-shadow: 0 0 0 3px rgba(200, 169, 74, 0.08);
-        }
-        .filtros-bar input { flex: 1; min-width: 180px; }
+        .filtros-bar input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,0.06); }
+        .filtros-bar input { flex: 1; min-width: 160px; }
         .filtros-bar input::placeholder { color: var(--text-muted); }
 
-        /* EQUIPMENT GRID */
+        /* EQUIP GRID */
         .equip-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 12px;
         }
         .equip-card {
             background: var(--bg-card);
-            padding: 20px 16px;
+            padding: 16px;
             border-radius: var(--radius);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border);
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
+            transition: all var(--transition);
         }
-        .equip-card:hover {
-            border-color: rgba(200, 169, 74, 0.4);
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-gold);
-        }
-        .equip-card.selected {
-            border-color: var(--gold);
-            background: rgba(200, 169, 74, 0.06);
-        }
-        .equip-card .equip-emoji { font-size: 36px; margin-bottom: 10px; }
-        .equip-card h4 { font-size: 13px; color: var(--text-white); margin-bottom: 4px; }
-        .equip-card small { font-size: 11px; color: var(--text-muted); }
-        .equip-card .equip-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+        .equip-card:hover { border-color: var(--gold-border); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .equip-card .equip-emoji { font-size: 32px; margin-bottom: 8px; }
+        .equip-card h4 { font-size: 12px; color: var(--text-primary); margin-bottom: 3px; font-weight: 600; }
+        .equip-card small { font-size: 10px; color: var(--text-muted); display: block; }
+        .equip-card .qtd { font-size: 10px; color: var(--gold); margin-top: 2px; font-weight: 600; }
+        .equip-card .equip-actions { margin-top: 8px; display: flex; gap: 5px; justify-content: center; opacity: 0; transition: opacity var(--transition); }
         .equip-card:hover .equip-actions { opacity: 1; }
 
         /* EQUIP SELECTOR */
         .equip-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-            margin-bottom: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
         }
         .equip-option {
-            padding: 14px 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
+            padding: 12px 8px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             text-align: center;
             cursor: pointer;
             font-size: 11px;
-            color: var(--text-light);
-            transition: all 0.25s;
+            color: var(--text-muted);
+            transition: all var(--transition);
         }
-        .equip-option:hover { border-color: rgba(200, 169, 74, 0.5); background: rgba(200, 169, 74, 0.05); }
-        .equip-option.selected { border-color: var(--gold); background: rgba(200, 169, 74, 0.1); color: var(--gold); }
+        .equip-option:hover { border-color: var(--gold-border); color: var(--text-primary); }
+        .equip-option.selected { border-color: var(--gold); background: var(--gold-light); color: var(--gold); font-weight: 600; }
 
         /* MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(6, 34, 74, 0.85);
-            backdrop-filter: blur(4px);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(3px);
             z-index: 200;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.2s;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-overlay.ativa { display: flex; }
         .modal-box {
             background: var(--bg-card);
-            border: 1px solid rgba(200, 169, 74, 0.2);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius);
-            padding: 28px 32px;
+            padding: 24px 28px;
             width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
+            max-width: 580px;
+            max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            animation: modalSlide 0.25s ease;
         }
-        .modal-box h3 { color: var(--text-white); margin-bottom: 16px; font-size: 18px; }
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .modal-close:hover { color: var(--danger); }
+        @keyframes modalSlide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-box h3 { color: var(--text-primary); margin-bottom: 16px; font-size: 16px; font-weight: 700; }
 
         /* FORMS */
-        .form-group { margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-light);
-            letter-spacing: 0.5px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px 14px;
-            background: var(--input-bg);
-            border: 1px solid var(--border-input);
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--text-light);
-            transition: all 0.25s;
+            padding: 9px 12px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-primary);
+            transition: all var(--transition);
             outline: none;
             font-family: inherit;
         }
         .form-group input:focus,
         .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--gold);
-            background: var(--input-focus);
-            box-shadow: 0 0 0 3px rgba(200, 169, 74, 0.08);
-        }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,158,11,0.06); }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         /* TABS */
-        .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+        .tabs { display: flex; gap: 2px; margin-bottom: 14px; }
         .tab-btn {
-            padding: 9px 18px;
-            border: 1px solid var(--border-subtle);
+            padding: 8px 16px;
             background: transparent;
-            border-radius: 8px 8px 0 0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
-            transition: all 0.25s;
+            transition: all var(--transition);
         }
-        .tab-btn.active {
-            background: rgba(200, 169, 74, 0.1);
-            color: var(--gold);
-            border-color: rgba(200, 169, 74, 0.3);
-            border-bottom-color: transparent;
-        }
-        .tab-btn:hover:not(.active) { color: var(--text-light); }
+        .tab-btn.active { background: var(--bg-deep); color: var(--gold); border-color: var(--border-light); border-bottom-color: transparent; }
 
         /* ALERT */
         .alert-card {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.2);
             border-left: 3px solid var(--warning);
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 14px;
             font-size: 12px;
             display: none;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             color: #fcd34d;
         }
 
         /* COMMENTS */
-        .comentarios-section { margin-top: 8px; }
         .comentario-item {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border-left: 3px solid var(--gold);
-        }
-        .comentario-item .com-header {
-            display: flex;
-            justify-content: space-between;
+            background: var(--bg-deep);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
             margin-bottom: 6px;
-            font-size: 11px;
+            border-left: 2px solid var(--gold);
         }
+        .comentario-item .com-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; }
         .comentario-item .com-header strong { color: var(--gold); }
         .comentario-item .com-header small { color: var(--text-muted); }
-        .comentario-item .com-text { font-size: 12px; color: var(--text-light); line-height: 1.5; }
-        .comentario-form { display: flex; gap: 8px; margin-top: 12px; }
+        .comentario-item .com-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+        .comentario-form { display: flex; gap: 6px; margin-top: 10px; }
         .comentario-form textarea {
-            flex: 1;
-            padding: 10px;
-            background: var(--input-bg);
-            border: 1px solid var(--border-input);
-            border-radius: 8px;
-            font-size: 12px;
-            color: var(--text-light);
-            resize: none;
-            height: 42px;
-            font-family: inherit;
-            outline: none;
+            flex: 1; padding: 8px 10px;
+            background: var(--bg-deep); border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm); font-size: 11px; color: var(--text-primary);
+            resize: none; height: 38px; font-family: inherit; outline: none;
         }
         .comentario-form textarea:focus { border-color: var(--gold); }
 
-        /* LINK */
-        .link-wpp { color: #25d366; text-decoration: none; font-weight: 600; }
+        /* LINKS */
+        .link-wpp { color: #25d366; text-decoration: none; font-weight: 600; font-size: 11px; }
         .link-wpp:hover { text-decoration: underline; }
 
         /* TOAST */
         .toast {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            background: var(--bg-card);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 14px 22px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            z-index: 9999;
-            animation: toastIn 0.3s, toastOut 0.3s 2.8s forwards;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--bg-card); border: 1px solid var(--gold-border);
+            color: var(--gold); padding: 12px 20px; border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 12px; z-index: 9999;
+            animation: toastIn 0.3s, toastOut 0.3s 2.6s forwards;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
-        @keyframes toastIn { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(80px); opacity: 0; } }
+        @keyframes toastIn { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
 
         /* NOTIFICATION POPUP */
         .notificacao-popup {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: var(--bg-card);
-            border: 1px solid var(--gold);
-            padding: 18px 22px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            z-index: 9999;
-            max-width: 360px;
-            cursor: pointer;
-            animation: slideIn 0.4s ease;
-            color: var(--text-light);
+            position: fixed; top: 20px; right: 20px;
+            background: var(--bg-card); border: 1px solid var(--gold-border);
+            padding: 16px 20px; border-radius: var(--radius);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.4); z-index: 9999;
+            max-width: 340px; cursor: pointer; animation: slideIn 0.35s ease;
+            color: var(--text-secondary);
         }
         @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* LOADING SKELETON */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* INDICADORES */
+        .indicador-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .indicador-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 18px;
+            border: 1px solid var(--border);
+        }
+        .indicador-card h4 { font-size: 13px; color: var(--text-primary); margin-bottom: 8px; }
+        .indicador-valor { font-size: 28px; font-weight: 700; color: var(--gold); }
+        .indicador-variacao { font-size: 11px; margin-top: 2px; }
+        .indicador-variacao.up { color: var(--success); }
+        .indicador-variacao.down { color: var(--danger); }
 
         /* RESPONSIVE */
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .charts-grid { grid-template-columns: 1fr; }
-            .sidebar { width: 72px; min-width: 72px; padding: 16px 10px; }
+            .sidebar { width: 60px; min-width: 60px; padding: 12px 6px; }
             .sidebar .nav-item span,
             .sidebar .user-details,
-            .sidebar-header p,
+            .sidebar-header .subtitle,
             .sidebar-header h2,
-            .nav-section-title { display: none; }
-            .sidebar-header { padding: 8px 0; }
-            .sidebar-logo { width: 40px; height: 40px; font-size: 20px; }
-            .main-content { margin-left: 72px; padding: 20px; }
-            .nav-item { justify-content: center; padding: 12px; }
-            .nav-item i { font-size: 16px; }
-            .badge-notificacao { right: 2px; top: 2px; transform: none; width: 16px; height: 16px; line-height: 16px; font-size: 8px; }
-            @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+            .nav-section-title,
+            .sidebar-footer span { display: none; }
+            .sidebar-header { padding: 4px 0 10px; }
+            .logo-container { width: 40px; height: 40px; border-radius: 10px; }
+            .logo-container i { font-size: 18px; }
+            .main-content { margin-left: 60px; padding: 16px; }
+            .nav-item { justify-content: center; padding: 10px; }
+            .badge-notificacao { right: 0; top: 0; transform: none; min-width: 14px; height: 14px; line-height: 14px; font-size: 7px; }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 12px; gap: 8px; }
+            .stat-info strong { font-size: 20px; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .filtros-bar { flex-direction: column; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -730,308 +701,228 @@
 <!-- SIDEBAR -->
 <div class="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo">
-            <i class="fas fa-laptop-medical" style="position:relative;z-index:1;"></i>
+        <div class="logo-container">
+            <i class="fas fa-heartbeat"></i>
             <div class="ecg-line"></div>
         </div>
         <h2><span class="help">Help</span><span class="hosp">Hosp</span></h2>
-        <p>Painel Técnico</p>
+        <div class="subtitle">Painel Técnico</div>
     </div>
+
     <div class="user-info">
         <div class="user-avatar" id="ui">T</div>
         <div class="user-details">
-            <h4 id="un">Técnico</h4>
-            <small id="uc">Carregando...</small>
+            <h4 id="un">Carregando...</h4>
+            <small id="uc">—</small>
         </div>
     </div>
+
     <nav class="sidebar-nav">
         <div class="nav-section">
             <div class="nav-section-title">Principal</div>
-            <div class="nav-item active" onclick="muda('dashboard', this)">
+            <div class="nav-item active" onclick="navegar('dashboard', this)">
                 <i class="fas fa-chart-pie"></i><span>Dashboard</span>
             </div>
-            <div class="nav-item" onclick="muda('chamados', this)">
+            <div class="nav-item" onclick="navegar('chamados', this)">
                 <i class="fas fa-ticket-alt"></i><span>Chamados TI</span>
-                <span class="badge-notificacao" id="badgeNotificacoes">0</span>
+                <span class="badge-notificacao" id="badgeTI">0</span>
             </div>
-            <div class="nav-item" onclick="muda('gesthosp', this)">
+            <div class="nav-item" onclick="navegar('gesthosp', this)">
                 <i class="fas fa-hospital-user"></i><span>GestHosp</span>
-                <span class="badge-notificacao" id="badgeGestHosp">0</span>
+                <span class="badge-notificacao" id="badgeGH">0</span>
+            </div>
+            <div class="nav-item" onclick="navegar('indicadores', this)">
+                <i class="fas fa-chart-line"></i><span>Indicadores</span>
             </div>
         </div>
         <div class="nav-section">
             <div class="nav-section-title">Gestão</div>
-            <div class="nav-item" onclick="muda('toners', this)">
+            <div class="nav-item" onclick="navegar('toners', this)">
                 <i class="fas fa-print"></i><span>Toners</span>
             </div>
-            <div class="nav-item" onclick="muda('equipamentos', this)">
+            <div class="nav-item" onclick="navegar('equipamentos', this)">
                 <i class="fas fa-desktop"></i><span>Equipamentos</span>
             </div>
-            <div class="nav-item" onclick="muda('equipe', this)" id="navEquipe" style="display:none;">
+            <div class="nav-item" onclick="navegar('ips', this)">
+                <i class="fas fa-network-wired"></i><span>IPs & Rede</span>
+            </div>
+            <div class="nav-item" onclick="navegar('equipe', this)" id="navEquipe" style="display:none;">
                 <i class="fas fa-users-cog"></i><span>Técnicos</span>
             </div>
-            <div class="nav-item" onclick="muda('config', this)">
+            <div class="nav-item" onclick="navegar('config', this)">
                 <i class="fas fa-cog"></i><span>Configurações</span>
             </div>
         </div>
     </nav>
+
     <div class="sidebar-footer">
         <button class="btn-logout" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i><span>Sair</span>
+            <i class="fas fa-sign-out-alt"></i> Sair
         </button>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN -->
 <main class="main-content">
 
     <!-- DASHBOARD -->
     <section id="secao-dashboard" class="secao ativa">
         <div class="top-bar">
-            <h1>📊 <span>Dashboard</span> — <span id="deptoNome"></span></h1>
-            <div style="display:flex;gap:8px;">
-                <select id="periodo" onchange="atualizarDash()" style="padding:9px 14px;background:var(--input-bg);border:1px solid var(--border-input);border-radius:8px;font-size:12px;color:var(--text-light);outline:none;">
+            <div>
+                <div class="breadcrumb">Home / <span>Dashboard</span></div>
+                <h1>📊 Dashboard — <span id="deptoNome"></span></h1>
+            </div>
+            <div style="display:flex;gap:6px;">
+                <select id="periodo" onchange="atualizarDash()" style="padding:7px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);font-size:11px;font-family:inherit;">
                     <option value="7">7 dias</option>
                     <option value="30" selected>30 dias</option>
                     <option value="90">90 dias</option>
                 </select>
-                <button class="btn btn-primary" onclick="relatorio()"><i class="fas fa-file-pdf"></i> Relatório</button>
+                <button class="btn btn-primary" onclick="gerarRelatorio()"><i class="fas fa-file-pdf"></i> Relatório</button>
             </div>
         </div>
 
-        <div class="alert-card" id="alertaCriticos">
-            <i class="fas fa-exclamation-triangle"></i> <span id="msgCriticos"></span>
-        </div>
+        <div class="alert-card" id="alertaCriticos"><i class="fas fa-exclamation-triangle"></i> <span id="msgCriticos"></span></div>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
-                <div class="stat-info"><small>Total</small><strong id="stT">0</strong></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon amber"><i class="fas fa-clock"></i></div>
-                <div class="stat-info"><small>Abertos</small><strong id="stA">0</strong></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-info"><small>Concluídos</small><strong id="stC">0</strong></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="stat-info"><small>Críticos</small><strong id="stX">0</strong></div>
-            </div>
+            <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong id="stT">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Abertos</small><strong id="stA">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong id="stC">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong id="stX">0</strong></div></div>
         </div>
 
         <div class="charts-grid">
             <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="gSetor"></canvas></div>
-            <div class="chart-card"><h3>🎯 Prioridades</h3><canvas id="gPrio"></canvas></div>
+            <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="gPrio"></canvas></div>
         </div>
         <div class="charts-grid">
             <div class="chart-card"><h3>🖨️ Toners por Setor</h3><canvas id="gToner"></canvas></div>
-            <div class="chart-card"><h3>🖥️ Equipamentos por Tipo</h3><canvas id="gEquip"></canvas></div>
+            <div class="chart-card"><h3>🖥️ Equipamentos</h3><canvas id="gEquip"></canvas></div>
         </div>
 
         <div class="table-card">
             <h3>🚨 Últimos Chamados</h3>
-            <table>
-                <thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Solicitante</th><th>Status</th><th>Data/Hora</th></tr></thead>
-                <tbody id="ultimosChamados"></tbody>
-            </table>
+            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th><th>Tipo</th></tr></thead>
+            <tbody id="ultimosChamados"></tbody></table>
         </div>
     </section>
 
     <!-- CHAMADOS TI -->
     <section id="secao-chamados" class="secao">
-        <div class="page-header">
-            <h1>📋 Chamados — <span>Suporte TI</span></h1>
-            <p>Gerenciamento de solicitações técnicas</p>
-        </div>
+        <div class="page-header"><h1>📋 Chamados — Suporte TI</h1><p>Gerenciamento de solicitações técnicas</p></div>
         <div class="table-card">
             <div class="filtros-bar">
                 <select id="fS" onchange="carregarChamados()">
-                    <option value="">Todos Status</option>
-                    <option>A Fazer</option>
-                    <option>Em Andamento</option>
-                    <option>Pendente</option>
-                    <option>Concluído</option>
+                    <option value="">Todos Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option>
                 </select>
-                <input type="text" id="fB" placeholder="Buscar por título, protocolo ou solicitante..." onkeyup="carregarChamados()">
+                <input type="text" id="fB" placeholder="🔍 Buscar por título, protocolo ou solicitante..." onkeyup="carregarChamados()">
             </div>
-            <table>
-                <thead><tr><th>Protocolo</th><th>Data/Hora</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Técnico</th><th>Status</th><th>Ações</th></tr></thead>
-                <tbody id="tabelaChamados"></tbody>
-            </table>
+            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Técnico</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaChamados"></tbody></table>
         </div>
     </section>
 
     <!-- GESTHOSP -->
     <section id="secao-gesthosp" class="secao">
-        <div class="page-header">
-            <h1>🏥 Chamados — <span>GestHosp</span></h1>
-            <p>Solicitações de cadastro e suporte ao sistema GestHosp</p>
-        </div>
-        
-        <!-- FORMULÁRIO DE SOLICITAÇÃO GESTHOSP -->
-        <div class="table-card" id="formGestHospCard" style="margin-bottom:20px;">
-            <h3>📝 Nova Solicitação de Cadastro</h3>
-            <form id="formGestHosp" onsubmit="enviarSolicitacaoGestHosp(event)" style="display:grid;gap:14px;">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Nome do Profissional *</label>
-                        <input type="text" id="ghNome" required placeholder="Nome completo">
-                    </div>
-                    <div class="form-group">
-                        <label>CRM / COREN / Registro</label>
-                        <input type="text" id="ghRegistro" placeholder="Nº do conselho">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Especialidade</label>
-                        <input type="text" id="ghEspecialidade" placeholder="Ex: Cardiologia, Enfermagem...">
-                    </div>
-                    <div class="form-group">
-                        <label>Setor *</label>
-                        <select id="ghSetor" required>
-                            <option value="">Selecione...</option>
-                            <option>UTI I</option><option>UTI II</option><option>Oncologia</option>
-                            <option>Centro Cirúrgico</option><option>Farmácia</option>
-                            <option>Administração</option><option>Recepção Geral</option>
-                            <option>Recepção CR</option><option>NIR</option><option>Faturamento</option>
-                            <option>Emergência</option><option>Pediatria</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Telefone / WhatsApp *</label>
-                        <input type="text" id="ghContato" required placeholder="82999999999">
-                    </div>
-                    <div class="form-group">
-                        <label>E-mail</label>
-                        <input type="email" id="ghEmail" placeholder="email@hospital.com">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Solicitação *</label>
-                    <select id="ghTipoSolicitacao" required>
-                        <option value="">Selecione...</option>
-                        <option>Cadastro de Novo Usuário</option>
-                        <option>Atualização de Cadastro</option>
-                        <option>Liberação de Acesso</option>
-                        <option>Troca de Senha</option>
-                        <option>Alteração de Perfil</option>
-                        <option>Desativação de Usuário</option>
-                        <option>Outro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição / Observações</label>
-                    <textarea id="ghDescricao" rows="3" placeholder="Descreva detalhes adicionais sobre a solicitação..."></textarea>
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Solicitação</button>
-                    <button type="button" class="btn btn-outline" onclick="limparFormGestHosp()">Limpar</button>
-                </div>
-            </form>
-        </div>
-
+        <div class="page-header"><h1>🏥 Solicitações — GestHosp</h1><p>Visualização de solicitações de cadastro (preenchidas pelo usuário)</p></div>
         <div class="table-card">
             <div class="filtros-bar">
                 <select id="fSG" onchange="carregarGestHosp()">
-                    <option value="">Todos Status</option>
-                    <option>A Fazer</option>
-                    <option>Em Andamento</option>
-                    <option>Pendente</option>
-                    <option>Concluído</option>
+                    <option value="">Todos Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option>
                 </select>
-                <input type="text" id="fBG" placeholder="Buscar..." onkeyup="carregarGestHosp()">
+                <input type="text" id="fBG" placeholder="🔍 Buscar..." onkeyup="carregarGestHosp()">
             </div>
-            <table>
-                <thead><tr><th>Protocolo</th><th>Data/Hora</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Técnico</th><th>Status</th><th>Ações</th></tr></thead>
-                <tbody id="tabelaGestHosp"></tbody>
-            </table>
+            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>Setor</th><th>Tipo Solicitação</th><th>Registro</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaGestHosp"></tbody></table>
+        </div>
+    </section>
+
+    <!-- INDICADORES -->
+    <section id="secao-indicadores" class="secao">
+        <div class="page-header"><h1>📊 Indicadores & Comparativos</h1><p>Acompanhamento mensal e comparativo de desempenho</p></div>
+
+        <div class="filtros-bar" style="margin-bottom:16px;">
+            <label style="font-size:11px;color:var(--text-muted);">Mês 1:</label>
+            <select id="indMes1" onchange="atualizarIndicadores()" style="padding:7px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);font-size:11px;font-family:inherit;"></select>
+            <label style="font-size:11px;color:var(--text-muted);margin-left:8px;">Mês 2:</label>
+            <select id="indMes2" onchange="atualizarIndicadores()" style="padding:7px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);font-size:11px;font-family:inherit;"></select>
+        </div>
+
+        <div class="indicador-grid" id="indicadorGrid"></div>
+
+        <div class="charts-grid" style="margin-top:16px;">
+            <div class="chart-card"><h3>📈 Comparativo Mensal</h3><canvas id="gComparativo"></canvas></div>
+            <div class="chart-card"><h3>🎯 Taxa de Resolução</h3><canvas id="gResolucao"></canvas></div>
         </div>
     </section>
 
     <!-- TONERS -->
     <section id="secao-toners" class="secao">
         <div class="top-bar">
-            <h1>🖨️ <span>Toners</span></h1>
+            <div><div class="breadcrumb">Gestão / <span>Toners</span></div><h1>🖨️ Toners</h1></div>
             <button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button>
         </div>
         <div class="table-card">
-            <table>
-                <thead><tr><th>Setor</th><th>Realizado por</th><th>Data/Hora</th><th>Dias desde troca</th></tr></thead>
-                <tbody id="tabelaToners"></tbody>
-            </table>
+            <table><thead><tr><th>Setor</th><th>Tipo Troca</th><th>Realizado por</th><th>Data/Hora</th><th>Dias</th><th>Observação</th></tr></thead>
+            <tbody id="tabelaToners"></tbody></table>
         </div>
     </section>
 
     <!-- EQUIPAMENTOS -->
     <section id="secao-equipamentos" class="secao">
         <div class="top-bar">
-            <h1>🖥️ <span>Equipamentos</span></h1>
-            <button class="btn btn-primary" onclick="mostrarFormEquip()"><i class="fas fa-plus"></i> Novo Equipamento</button>
+            <div><div class="breadcrumb">Gestão / <span>Equipamentos</span></div><h1>🖥️ Equipamentos</h1></div>
+            <button class="btn btn-primary" onclick="mostrarFormEquip()"><i class="fas fa-plus"></i> Novo</button>
         </div>
 
         <div id="formEquip" style="display:none;">
             <div class="table-card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                     <h3>Adicionar Equipamento</h3>
-                    <button onclick="document.getElementById('formEquip').style.display='none'" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">&times;</button>
+                    <button onclick="fecharFormEquip()" style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;">&times;</button>
                 </div>
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchEquipTab('existente', this)">📋 Selecionar Modelo</button>
+                    <button class="tab-btn active" onclick="switchEquipTab('existente', this)">📋 Modelos</button>
                     <button class="tab-btn" onclick="switchEquipTab('personalizado', this)">✏️ Personalizado</button>
                 </div>
                 <div id="tabExistente">
-                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Escolha um equipamento pré-definido:</p>
+                    <p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Selecione um equipamento padrão:</p>
                     <div class="equip-selector" id="equipSelector">
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('💻 Computador Desktop', 'Computador', this)">💻<br>Desktop</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('💻 Notebook', 'Notebook', this)">💻<br>Notebook</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🖥️ Monitor', 'Monitor', this)">🖥️<br>Monitor</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🖨️ Impressora', 'Impressora', this)">🖨️<br>Impressora</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('⌨️ Teclado', 'Periférico', this)">⌨️<br>Teclado</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🖱️ Mouse', 'Periférico', this)">🖱️<br>Mouse</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('📞 Telefone IP', 'Telefone', this)">📞<br>Telefone</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🔌 Switch', 'Rede', this)">🔌<br>Switch</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('📡 Roteador', 'Rede', this)">📡<br>Roteador</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🔋 Nobreak', 'Nobreak', this)">🔋<br>Nobreak</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🖥️ All-in-One', 'All-in-One', this)">🖥️<br>All-in-One</div>
-                        <div class="equip-option" onclick="selecionarEquipPredefinido('🗄️ Servidor', 'Servidor', this)">🗄️<br>Servidor</div>
+                        <div class="equip-option" onclick="selEquipPre('💻 Computador Desktop','Computador',this)">💻<br>Desktop</div>
+                        <div class="equip-option" onclick="selEquipPre('💻 Notebook','Notebook',this)">💻<br>Notebook</div>
+                        <div class="equip-option" onclick="selEquipPre('🖥️ Monitor','Monitor',this)">🖥️<br>Monitor</div>
+                        <div class="equip-option" onclick="selEquipPre('🖨️ Impressora','Impressora',this)">🖨️<br>Impressora</div>
+                        <div class="equip-option" onclick="selEquipPre('⌨️ Teclado','Periférico',this)">⌨️<br>Teclado</div>
+                        <div class="equip-option" onclick="selEquipPre('🖱️ Mouse','Periférico',this)">🖱️<br>Mouse</div>
+                        <div class="equip-option" onclick="selEquipPre('📞 Telefone IP','Telefone',this)">📞<br>Telefone</div>
+                        <div class="equip-option" onclick="selEquipPre('🔌 Switch','Rede',this)">🔌<br>Switch</div>
+                        <div class="equip-option" onclick="selEquipPre('📡 Roteador','Rede',this)">📡<br>Roteador</div>
+                        <div class="equip-option" onclick="selEquipPre('🔋 Nobreak','Nobreak',this)">🔋<br>Nobreak</div>
+                        <div class="equip-option" onclick="selEquipPre('🗄️ Servidor','Servidor',this)">🗄️<br>Servidor</div>
+                        <div class="equip-option" onclick="selEquipPre('📹 Câmera IP','Câmera',this)">📹<br>Câmera</div>
                     </div>
-                    <div id="equipPreview" style="display:none;padding:12px;background:rgba(200,169,74,0.06);border:1px solid rgba(200,169,74,0.2);border-radius:8px;margin-top:8px;">
-                        <span id="equipPreviewText" style="color:var(--gold);"></span>
-                        <button class="btn btn-success btn-sm" onclick="salvarEquipSelecionado()" style="margin-left:12px;">✅ Confirmar</button>
+                    <div class="form-row">
+                        <div class="form-group"><label>Quantidade</label><input type="number" id="eqQtdPre" value="1" min="1" style="width:80px;"></div>
+                    </div>
+                    <div id="equipPreview" style="display:none;padding:10px;background:rgba(245,158,11,0.05);border:1px solid var(--gold-border);border-radius:var(--radius-sm);margin-top:8px;">
+                        <span id="equipPreviewText" style="color:var(--gold);font-size:12px;"></span>
+                        <button class="btn btn-primary btn-sm" onclick="salvarEquipSelecionado()" style="margin-left:10px;">✅ Confirmar</button>
                     </div>
                 </div>
                 <div id="tabPersonalizado" style="display:none;">
-                    <form onsubmit="salvarEquipPersonalizado(event)" style="display:grid;gap:12px;">
-                        <div class="form-group">
-                            <label>Nome do Equipamento *</label>
-                            <input type="text" id="eNomeP" required placeholder="Ex: Servidor Dell R740">
+                    <form onsubmit="salvarEquipPersonalizado(event)" style="display:grid;gap:10px;">
+                        <div class="form-group"><label>Nome *</label><input type="text" id="eNomeP" required placeholder="Ex: Servidor Dell R740"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Tipo *</label><select id="eTipoP" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Monitor</option><option>Impressora</option><option>Periférico</option><option>Telefone</option><option>Rede</option><option>Nobreak</option><option>Servidor</option><option>Câmera</option><option>Outro</option></select></div>
+                            <div class="form-group"><label>Emoji</label><input type="text" id="eEmojiP" placeholder="🖥️" maxlength="2"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Tipo *</label>
-                                <select id="eTipoP" required>
-                                    <option value="">Selecione...</option>
-                                    <option>Computador</option><option>Notebook</option>
-                                    <option>Monitor</option><option>Impressora</option>
-                                    <option>Periférico</option><option>Telefone</option>
-                                    <option>Rede</option><option>Nobreak</option>
-                                    <option>Servidor</option><option>Outro</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Emoji / Ícone</label>
-                                <input type="text" id="eEmojiP" placeholder="🖥️" maxlength="2">
-                            </div>
+                            <div class="form-group"><label>Quantidade</label><input type="number" id="eQtdP" value="1" min="1"></div>
+                            <div class="form-group"><label>Localização</label><input type="text" id="eLocalP" placeholder="Sala/Andar"></div>
                         </div>
                         <div style="display:flex;gap:8px;">
                             <button type="submit" class="btn btn-primary">💾 Salvar</button>
-                            <button type="button" class="btn btn-outline" onclick="document.getElementById('formEquip').style.display='none'">Cancelar</button>
+                            <button type="button" class="btn btn-outline" onclick="fecharFormEquip()">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -1041,132 +932,132 @@
         <div id="listaEquip" class="equip-grid"></div>
     </section>
 
-    <!-- EQUIPE -->
-    <section id="secao-equipe" class="secao">
+    <!-- IPs & REDE -->
+    <section id="secao-ips" class="secao">
         <div class="top-bar">
-            <h1>👥 <span>Técnicos</span></h1>
-            <button class="btn btn-primary" id="btnAddTecnico" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo Técnico</button>
+            <div><div class="breadcrumb">Gestão / <span>IPs & Rede</span></div><h1>🌐 IPs & Localização</h1></div>
+            <button class="btn btn-primary" onclick="abrirModalIP()"><i class="fas fa-plus"></i> Novo Registro</button>
         </div>
         <div class="table-card">
-            <table>
-                <thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Status</th><th>Ações</th></tr></thead>
-                <tbody id="tabelaEquipe"></tbody>
-            </table>
+            <table><thead><tr><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>Localização</th><th>Setor</th><th>Observação</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaIPs"></tbody></table>
         </div>
     </section>
 
-    <!-- CONFIGURAÇÕES -->
-    <section id="secao-config" class="secao">
-        <div class="table-card" style="max-width:420px;">
-            <h3>🔐 Alterar Senha</h3>
-            <form onsubmit="alterarSenha(event)" style="display:grid;gap:14px;">
-                <div class="form-group">
-                    <label>Senha Atual</label>
-                    <input type="password" id="sAtual" required placeholder="••••••••">
-                </div>
-                <div class="form-group">
-                    <label>Nova Senha</label>
-                    <input type="password" id="sNova" required minlength="8" placeholder="Mínimo 8 caracteres">
-                </div>
-                <button type="submit" class="btn btn-primary">Alterar Senha</button>
-            </form>
-            <button class="btn btn-danger" onclick="logout()" style="margin-top:14px;width:100%;">
-                <i class="fas fa-sign-out-alt"></i> Sair do Sistema
-            </button>
+    <!-- EQUIPE -->
+    <section id="secao-equipe" class="secao">
+        <div class="top-bar">
+            <div><div class="breadcrumb">Gestão / <span>Técnicos</span></div><h1>👥 Técnicos</h1></div>
+            <button class="btn btn-primary" id="btnAddTecnico" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo</button>
+        </div>
+        <div class="table-card">
+            <table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="tabelaEquipe"></tbody></table>
         </div>
     </section>
+
+    <!-- CONFIG -->
+    <section id="secao-config" class="secao">
+        <div class="page-header"><h1>⚙️ Configurações</h1></div>
+        <div class="table-card" style="max-width:400px;">
+            <h3>🔐 Alterar Senha</h3>
+            <form onsubmit="alterarSenha(event)" style="display:grid;gap:12px;">
+                <div class="form-group"><label>Senha Atual</label><input type="password" id="sAtual" required></div>
+                <div class="form-group"><label>Nova Senha</label><input type="password" id="sNova" required minlength="8"></div>
+                <button type="submit" class="btn btn-primary">Alterar</button>
+            </form>
+            <button class="btn btn-danger" onclick="logout()" style="margin-top:12px;width:100%;">Sair</button>
+        </div>
+    </section>
+
 </main>
 
 <!-- MODAIS -->
 <div class="modal-overlay" id="modalDetalhes">
-    <div class="modal-box" style="position:relative;">
-        <button class="modal-close" onclick="document.getElementById('modalDetalhes').classList.remove('ativa')">&times;</button>
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>Detalhes</h3>
+            <button onclick="fecharModal('modalDetalhes')" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">&times;</button>
+        </div>
         <div id="detalhesConteudo"></div>
     </div>
 </div>
 
+<div class="modal-overlay" id="modalComentario">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>💬 Comentários</h3>
+            <button onclick="fecharModal('modalComentario')" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">&times;</button>
+        </div>
+        <div id="comentarioConteudo"></div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="modalTecnico">
-    <div class="modal-box" style="position:relative;">
-        <button class="modal-close" onclick="document.getElementById('modalTecnico').classList.remove('ativa')">&times;</button>
-        <h3>👤 Novo Técnico</h3>
-        <form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:14px;">
-            <div class="form-group">
-                <label>Nome *</label>
-                <input type="text" id="tn" required placeholder="Nome completo">
-            </div>
-            <div class="form-group">
-                <label>Usuário *</label>
-                <input type="text" id="tu" required placeholder="usuario">
-            </div>
-            <div class="form-group">
-                <label>Cargo *</label>
-                <select id="tc">
-                    <option>Técnico de Suporte</option>
-                    <option>Analista de Sistemas</option>
-                    <option>Coordenador</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>WhatsApp *</label>
-                <input type="text" id="tw" placeholder="82999999999" required>
-            </div>
-            <p style="font-size:11px;color:var(--gold);">🔑 Senha inicial: <strong>12345</strong></p>
+    <div class="modal-box">
+        <h3>👤 Técnico</h3>
+        <form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:12px;">
+            <div class="form-group"><label>Nome *</label><input type="text" id="tn" required></div>
+            <div class="form-group"><label>Usuário *</label><input type="text" id="tu" required></div>
+            <div class="form-group"><label>Cargo *</label><select id="tc"><option>Técnico de Suporte</option><option>Analista de Sistemas</option></select></div>
+            <div class="form-group"><label>WhatsApp *</label><input type="text" id="tw" required></div>
+            <p style="font-size:10px;color:var(--text-muted);">🔑 Senha inicial: <strong>12345</strong></p>
             <div style="display:flex;gap:8px;">
                 <button type="submit" class="btn btn-primary">Salvar</button>
-                <button type="button" class="btn btn-outline" onclick="document.getElementById('modalTecnico').classList.remove('ativa')">Cancelar</button>
+                <button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button>
             </div>
         </form>
     </div>
 </div>
 
 <div class="modal-overlay" id="modalToner">
-    <div class="modal-box" style="position:relative;">
-        <button class="modal-close" onclick="document.getElementById('modalToner').classList.remove('ativa')">&times;</button>
-        <h3>🖨️ Registrar Troca de Toner</h3>
-        <form onsubmit="addToner(event)" style="display:grid;gap:14px;">
-            <div class="form-group">
-                <label>Setor *</label>
-                <select id="ts" required>
-                    <option value="">Selecione o setor...</option>
-                    <option>UTI I</option><option>UTI II</option>
-                    <option>Oncologia</option><option>Centro Cirúrgico</option>
-                    <option>Farmácia</option><option>Administração</option>
-                    <option>Recepção Geral</option><option>Recepção CR</option>
-                    <option>NIR</option><option>Faturamento</option>
-                </select>
+    <div class="modal-box">
+        <h3>🖨️ Troca de Toner</h3>
+        <form onsubmit="addToner(event)" style="display:grid;gap:12px;">
+            <div class="form-group"><label>Setor *</label><select id="ts" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>Emergência</option></select></div>
+            <div class="form-group"><label>Tipo de Troca *</label><select id="ttipo" required><option value="preventiva">🟢 Troca Preventiva</option><option value="necessaria">🔴 Troca Necessária (acabou)</option></select></div>
+            <div class="form-group"><label>Observação</label><textarea id="tobs" rows="2" placeholder="Detalhes adicionais..."></textarea></div>
+            <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalIP">
+    <div class="modal-box">
+        <h3>🌐 Registrar IP</h3>
+        <form onsubmit="addIP(event)" style="display:grid;gap:12px;">
+            <div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDispositivo" required placeholder="Ex: Impressora HP LaserJet"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Tipo *</label><select id="ipTipo" required><option value="">Selecione...</option><option>Impressora</option><option>Roteador</option><option>Switch</option><option>Câmera IP</option><option>Servidor</option><option>Computador</option><option>Telefone IP</option><option>Outro</option></select></div>
+                <div class="form-group"><label>Endereço IP *</label><input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div>
             </div>
-            <div style="display:flex;gap:8px;">
-                <button type="submit" class="btn btn-primary">Registrar Troca</button>
-                <button type="button" class="btn btn-outline" onclick="document.getElementById('modalToner').classList.remove('ativa')">Cancelar</button>
+            <div class="form-row">
+                <div class="form-group"><label>Localização</label><input type="text" id="ipLocal" placeholder="Sala/Andar/Prédio"></div>
+                <div class="form-group"><label>Setor</label><select id="ipSetor"><option value="">Nenhum</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>TI</option><option>Recepção</option><option>NIR</option><option>Faturamento</option></select></div>
             </div>
+            <div class="form-group"><label>Observação</label><input type="text" id="ipObs" placeholder="MAC, modelo, etc."></div>
+            <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button></div>
         </form>
     </div>
 </div>
 
 <script>
-// ========== FIREBASE ==========
-const fc = {
-    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
-    authDomain: "helphosp.firebaseapp.com",
-    projectId: "helphosp",
-    storageBucket: "helphosp.firebasestorage.app",
-    messagingSenderId: "1075623193163",
-    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
-};
+// FIREBASE
+const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
 firebase.initializeApp(fc);
 const db = firebase.firestore();
 
-// ========== USUÁRIO LOGADO ==========
+// USUÁRIO
 var uLogado = JSON.parse(localStorage.getItem('usuario_logado'));
 if (!uLogado) { window.location.href = 'admin.html'; }
-
 var deptoUsuario = uLogado.departamento || 'TI';
 var nomeDepto = deptoUsuario === 'TI' ? 'TI' : 'Manutenção';
-var chamados = [], equipamentos = [], charts = {};
+var chamados = [], equipamentos = [], ipsRede = [], charts = {};
 var idsVistos = JSON.parse(localStorage.getItem('ids_vistos') || '[]');
 var equipPredefinidoSelecionado = null;
+var comentarioFid = null;
 
-// ========== INICIALIZAÇÃO ==========
+// INICIALIZAÇÃO
 window.onload = function() {
     document.getElementById('un').textContent = uLogado.nome;
     document.getElementById('uc').textContent = uLogado.cargo + ' · ' + nomeDepto;
@@ -1178,863 +1069,302 @@ window.onload = function() {
         document.getElementById('btnAddTecnico').style.display = 'inline-flex';
     }
 
-    // Listener em tempo real
     var query = db.collection('chamados').orderBy('data_abertura', 'desc');
-    if (uLogado.tipo !== 'admin') {
-        query = query.where('departamento', '==', deptoUsuario);
-    }
+    if (uLogado.tipo !== 'admin') query = query.where('departamento', '==', deptoUsuario);
 
-    query.onSnapshot(function(snapshot) {
-        var antigos = chamados.length;
+    query.onSnapshot(function(snap) {
         chamados = [];
-        snapshot.forEach(function(doc) {
-            var data = doc.data();
-            data.fid = doc.id;
-            chamados.push(data);
-        });
-
-        // Notificar novos chamados
-        if (antigos > 0 && chamados.length > antigos) {
-            var novosCount = chamados.length - antigos;
-            var novos = chamados.slice(0, novosCount);
-            novos.forEach(function(c) {
-                if (idsVistos.indexOf(c.fid) === -1) {
-                    mostrarNotificacao(c);
-                }
-            });
-        }
-
-        // Atualizar badges
+        snap.forEach(function(d) { var x = d.data(); x.fid = d.id; chamados.push(x); });
         atualizarBadges();
         atualizarDash();
-
         if (document.getElementById('secao-chamados').classList.contains('ativa')) carregarChamados();
         if (document.getElementById('secao-gesthosp').classList.contains('ativa')) carregarGestHosp();
         if (document.getElementById('secao-toners').classList.contains('ativa')) carregarToners();
     });
 
     carregarEquip();
+    carregarIPs();
     carregarEquipe();
+    popularMesesIndicadores();
     if (Notification.permission === 'default') Notification.requestPermission();
 };
 
+// NOTIFICAÇÕES
 function atualizarBadges() {
-    var naoVistosTI = chamados.filter(function(c) {
-        return idsVistos.indexOf(c.fid) === -1 && c.tipo !== 'gesthosp';
-    }).length;
-    var naoVistosGH = chamados.filter(function(c) {
-        return idsVistos.indexOf(c.fid) === -1 && c.tipo === 'gesthosp';
-    }).length;
-
-    var badgeTI = document.getElementById('badgeNotificacoes');
-    var badgeGH = document.getElementById('badgeGestHosp');
-
-    badgeTI.style.display = naoVistosTI > 0 ? 'inline-block' : 'none';
-    badgeTI.textContent = naoVistosTI > 99 ? '99+' : naoVistosTI;
-
-    badgeGH.style.display = naoVistosGH > 0 ? 'inline-block' : 'none';
-    badgeGH.textContent = naoVistosGH > 99 ? '99+' : naoVistosGH;
+    var ti = chamados.filter(c => idsVistos.indexOf(c.fid) === -1 && c.tipo !== 'gesthosp').length;
+    var gh = chamados.filter(c => idsVistos.indexOf(c.fid) === -1 && c.tipo === 'gesthosp').length;
+    var bTI = document.getElementById('badgeTI'), bGH = document.getElementById('badgeGH');
+    bTI.style.display = ti > 0 ? 'inline-block' : 'none'; bTI.textContent = ti > 99 ? '99+' : ti;
+    bGH.style.display = gh > 0 ? 'inline-block' : 'none'; bGH.textContent = gh > 99 ? '99+' : gh;
 }
 
-// ========== NOTIFICAÇÃO ==========
-function mostrarNotificacao(c) {
-    var tipoNome = c.tipo === 'gesthosp' ? 'GestHosp' : 'TI';
-    if (Notification.permission === 'granted') {
-        new Notification('🔔 Novo Chamado ' + tipoNome, {
-            body: (c.titulo || 'Sem título') + ' - ' + (c.setor || ''),
-            icon: 'https://cdn-icons-png.flaticon.com/512/684/684831.png',
-            tag: c.fid
-        });
-    }
-    var popup = document.createElement('div');
-    popup.className = 'notificacao-popup';
-    popup.onclick = function() {
-        var secao = c.tipo === 'gesthosp' ? 'gesthosp' : 'chamados';
-        var navItem = document.querySelector('.nav-item[onclick*="' + secao + '"]');
-        if (navItem) muda(secao, navItem);
-        popup.remove();
-    };
-    popup.innerHTML = '<button style="position:absolute;top:10px;right:14px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button>' +
-        '<div style="font-weight:700;font-size:14px;margin-bottom:6px;color:var(--gold);">🔔 Novo Chamado ' + tipoNome + '</div>' +
-        '<div style="font-size:12px;color:var(--text-light);"><strong>' + (c.titulo || 'Sem título') + '</strong></div>' +
-        '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">📍 ' + (c.setor || 'N/I') + ' · 👤 ' + (c.solicitante || 'Anônimo') + '</div>';
-    document.body.appendChild(popup);
-    setTimeout(function() { if (popup.parentElement) popup.remove(); }, 6000);
+function notificar(c) {
+    var tipo = c.tipo === 'gesthosp' ? 'GestHosp' : 'TI';
+    if (Notification.permission === 'granted') new Notification('🔔 ' + tipo, { body: (c.titulo||'') + ' - ' + (c.setor||''), tag: c.fid });
+    var p = document.createElement('div');
+    p.className = 'notificacao-popup';
+    p.onclick = function() { navegar(c.tipo==='gesthosp'?'gesthosp':'chamados', document.querySelector('.nav-item[onclick*="'+(c.tipo==='gesthosp'?'gesthosp':'chamados')+'"]')); p.remove(); };
+    p.innerHTML = '<button style="position:absolute;top:8px;right:12px;background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button><div style="font-weight:700;font-size:13px;color:var(--gold);">🔔 ' + tipo + '</div><div style="font-size:11px;margin-top:4px;"><strong>'+(c.titulo||'')+'</strong></div><div style="font-size:10px;color:var(--text-muted);">📍 '+(c.setor||'')+' · 👤 '+(c.solicitante||'')+'</div>';
+    document.body.appendChild(p);
+    setTimeout(() => { if(p.parentElement) p.remove(); }, 6000);
 }
 
-// ========== NAVEGAÇÃO ==========
-function muda(s, el) {
-    document.querySelectorAll('.nav-item').forEach(function(a) { a.classList.remove('active'); });
-    document.querySelectorAll('.secao').forEach(function(x) { x.classList.remove('ativa'); });
+// NAVEGAÇÃO
+function navegar(s, el) {
+    document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.secao').forEach(x => x.classList.remove('ativa'));
     el.classList.add('active');
-    document.getElementById('secao-' + s).classList.add('ativa');
-
-    if (s === 'chamados') {
-        carregarChamados();
-        marcarVistos('ti');
-    }
-    if (s === 'gesthosp') {
-        carregarGestHosp();
-        marcarVistos('gesthosp');
-    }
+    document.getElementById('secao-'+s).classList.add('ativa');
+    if (s === 'chamados') { carregarChamados(); marcarVistos('ti'); }
+    if (s === 'gesthosp') { carregarGestHosp(); marcarVistos('gesthosp'); }
+    if (s === 'indicadores') atualizarIndicadores();
     if (s === 'dashboard') atualizarDash();
     if (s === 'toners') carregarToners();
     if (s === 'equipamentos') carregarEquip();
+    if (s === 'ips') carregarIPs();
     if (s === 'equipe') carregarEquipe();
 }
-
 function marcarVistos(tipo) {
-    var filtro = tipo === 'gesthosp' ?
-        function(c) { return c.tipo === 'gesthosp'; } :
-        function(c) { return c.tipo !== 'gesthosp'; };
-
-    chamados.filter(filtro).forEach(function(c) {
-        if (idsVistos.indexOf(c.fid) === -1) idsVistos.push(c.fid);
-    });
-    localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-300)));
+    var f = tipo==='gesthosp' ? c => c.tipo==='gesthosp' : c => c.tipo!=='gesthosp';
+    chamados.filter(f).forEach(c => { if(idsVistos.indexOf(c.fid)===-1) idsVistos.push(c.fid); });
+    localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-400)));
     atualizarBadges();
 }
 
-// ========== FORMATAR DATA ==========
-function formatarData(d) {
-    if (!d) return '-';
-    try {
-        var dt = (d && typeof d.toDate === 'function') ? d.toDate() : new Date(d);
-        if (isNaN(dt.getTime())) return '-';
-        return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } catch (e) { return '-'; }
+// FORMATAÇÃO
+function fd(d) {
+    if(!d) return '—';
+    try { var dt = (d&&typeof d.toDate==='function')?d.toDate():new Date(d); if(isNaN(dt.getTime())) return '—'; return dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+    catch(e) { return '—'; }
+}
+function fdShort(d) {
+    if(!d) return '—';
+    try { var dt = (d&&typeof d.toDate==='function')?d.toDate():new Date(d); if(isNaN(dt.getTime())) return '—';
+        var now = new Date(); var diff = Math.floor((now-dt)/1000);
+        if(diff<60) return 'agora'; if(diff<3600) return Math.floor(diff/60)+'min'; if(diff<86400) return Math.floor(diff/3600)+'h';
+        return Math.floor(diff/86400)+'d';
+    } catch(e) { return '—'; }
 }
 
-// ========== DASHBOARD ==========
+// DASHBOARD
 function atualizarDash() {
-    var p = parseInt(document.getElementById('periodo').value || 30);
-    var dl = new Date();
-    dl.setDate(dl.getDate() - p);
-
-    var f = chamados.filter(function(c) {
-        var d = c.data_abertura;
-        if (!d) return false;
-        var dt = typeof d.toDate === 'function' ? d.toDate() : new Date(d);
-        return !isNaN(dt.getTime()) && dt >= dl;
-    });
+    var p = parseInt(document.getElementById('periodo').value||30);
+    var dl = new Date(); dl.setDate(dl.getDate()-p);
+    var f = chamados.filter(c => { var d=c.data_abertura; if(!d) return false; var dt=typeof d.toDate==='function'?d.toDate():new Date(d); return !isNaN(dt.getTime())&&dt>=dl; });
 
     document.getElementById('stT').textContent = f.length;
-    document.getElementById('stA').textContent = f.filter(function(c) { return c.status !== 'Concluído'; }).length;
-    document.getElementById('stC').textContent = f.filter(function(c) { return c.status === 'Concluído'; }).length;
-    document.getElementById('stX').textContent = f.filter(function(c) { return c.prioridade === 'Crítica'; }).length;
+    document.getElementById('stA').textContent = f.filter(c=>c.status!=='Concluído').length;
+    document.getElementById('stC').textContent = f.filter(c=>c.status==='Concluído').length;
+    document.getElementById('stX').textContent = f.filter(c=>c.prioridade==='Crítica').length;
 
-    var criticos = f.filter(function(c) { return c.prioridade === 'Crítica' && c.status !== 'Concluído'; });
-    document.getElementById('alertaCriticos').style.display = criticos.length > 0 ? 'flex' : 'none';
-    if (criticos.length > 0) {
-        document.getElementById('msgCriticos').textContent = criticos.length + ' chamado(s) crítico(s) em aberto!';
-    }
+    var crit = f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído');
+    document.getElementById('alertaCriticos').style.display = crit.length>0?'flex':'none';
+    if(crit.length>0) document.getElementById('msgCriticos').textContent = crit.length+' chamado(s) crítico(s) em aberto!';
 
-    var setor = {}, prio = {}, tonerSetor = {};
-    f.forEach(function(c) {
-        var s = c.setor || 'Não informado';
-        setor[s] = (setor[s] || 0) + 1;
-        prio[c.prioridade || 'Média'] = (prio[c.prioridade || 'Média'] || 0) + 1;
-        if (c.tipo === 'toner' || c.isToner) tonerSetor[c.setor] = (tonerSetor[c.setor] || 0) + 1;
-    });
+    var setor={}, prio={}, tonerSetor={};
+    f.forEach(c=>{ var s=c.setor||'N/I'; setor[s]=(setor[s]||0)+1; prio[c.prioridade||'Média']=(prio[c.prioridade||'Média']||0)+1; if(c.tipo==='toner'||c.isToner) tonerSetor[c.setor]=(tonerSetor[c.setor]||0)+1; });
+    var equipTipo={}; equipamentos.forEach(e=>{ equipTipo[e.tipo]=(equipTipo[e.tipo]||0)+(e.quantidade||1); });
 
-    var equipTipo = {};
-    equipamentos.forEach(function(eq) {
-        equipTipo[eq.tipo] = (equipTipo[eq.tipo] || 0) + 1;
-    });
+    Object.values(charts).forEach(c=>{if(c)c.destroy();}); charts={};
+    var cores=['#F59E0B','#3B82F6','#10B981','#8B5CF6','#EC4899','#6366F1','#14B8A6','#EF4444','#f97316'];
 
-    Object.values(charts).forEach(function(c) { if (c) c.destroy(); });
-    charts = {};
+    var ctx1=document.getElementById('gSetor');
+    if(ctx1&&Object.keys(setor).length>0) charts.s=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(setor),datasets:[{data:Object.values(setor),backgroundColor:cores.slice(0,Object.keys(setor).length),borderWidth:3,borderColor:'#1E293B'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyleWidth:8,font:{size:10},color:'#94A3B8'}}}}});
 
-    var cores = ['#c8a94a', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#6366F1', '#14B8A6', '#EF4444', '#f97316'];
+    var ctx2=document.getElementById('gPrio');
+    if(ctx2&&Object.keys(prio).length>0) charts.p=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(prio),datasets:[{data:Object.values(prio),backgroundColor:['#10B981','#F59E0B','#EF4444','#dc2626'],borderWidth:3,borderColor:'#1E293B'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyleWidth:8,font:{size:10},color:'#94A3B8'}}}}});
 
-    // Gráfico Setor
-    var ctx1 = document.getElementById('gSetor');
-    if (ctx1 && Object.keys(setor).length > 0) {
-        charts.s = new Chart(ctx1, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(setor),
-                datasets: [{
-                    data: Object.values(setor),
-                    backgroundColor: cores.slice(0, Object.keys(setor).length),
-                    borderWidth: 3,
-                    borderColor: '#06224a'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { padding: 14, usePointStyle: true, pointStyleWidth: 8, font: { size: 10 }, color: '#8899b4' }
-                    }
-                }
-            }
-        });
-    }
+    var ctx3=document.getElementById('gToner');
+    if(ctx3&&Object.keys(tonerSetor).length>0) charts.t=new Chart(ctx3,{type:'bar',data:{labels:Object.keys(tonerSetor),datasets:[{data:Object.values(tonerSetor),backgroundColor:'#F59E0B',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{font:{size:9},color:'#94A3B8'},grid:{display:false}}}}});
 
-    // Gráfico Prioridade
-    var ctx2 = document.getElementById('gPrio');
-    if (ctx2 && Object.keys(prio).length > 0) {
-        charts.p = new Chart(ctx2, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(prio),
-                datasets: [{
-                    data: Object.values(prio),
-                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#dc2626'],
-                    borderWidth: 3,
-                    borderColor: '#06224a'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { padding: 14, usePointStyle: true, pointStyleWidth: 8, font: { size: 10 }, color: '#8899b4' }
-                    }
-                }
-            }
-        });
-    }
+    var ctx4=document.getElementById('gEquip');
+    if(ctx4&&Object.keys(equipTipo).length>0) charts.e=new Chart(ctx4,{type:'bar',data:{labels:Object.keys(equipTipo),datasets:[{data:Object.values(equipTipo),backgroundColor:['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EC4899','#6366F1'],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10},color:'#94A3B8'},grid:{color:'rgba(255,255,255,0.04)'}},x:{ticks:{font:{size:9},color:'#94A3B8'},grid:{display:false}}}}});
 
-    // Gráfico Toners
-    var ctx3 = document.getElementById('gToner');
-    if (ctx3 && Object.keys(tonerSetor).length > 0) {
-        charts.t = new Chart(ctx3, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(tonerSetor),
-                datasets: [{
-                    data: Object.values(tonerSetor),
-                    backgroundColor: '#c8a94a',
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, font: { size: 10 }, color: '#8899b4' },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
-                    },
-                    x: {
-                        ticks: { font: { size: 9 }, color: '#8899b4' },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-    }
-
-    // Gráfico Equipamentos
-    var ctx4 = document.getElementById('gEquip');
-    if (ctx4 && Object.keys(equipTipo).length > 0) {
-        charts.e = new Chart(ctx4, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(equipTipo),
-                datasets: [{
-                    data: Object.values(equipTipo),
-                    backgroundColor: ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#c8a94a', '#EC4899', '#6366F1'],
-                    borderRadius: 6,
-                    borderSkipped: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1, font: { size: 10 }, color: '#8899b4' },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
-                    },
-                    x: {
-                        ticks: { font: { size: 9 }, color: '#8899b4' },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-    }
-
-    // Últimos chamados
-    document.getElementById('ultimosChamados').innerHTML = f.slice(0, 8).map(function(c) {
-        var sc = c.status === 'Concluído' ? 'badge-green' :
-            c.status === 'Em Andamento' ? 'badge-amber' :
-            c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
-        var tipoBadge = c.tipo === 'gesthosp' ? ' <span class="badge badge-purple">GH</span>' : '';
-        var comentarioIcon = (c.comentarios && c.comentarios.length) ? ' 💬' : '';
-        return '<tr><td><strong>' + (c.protocolo || '-') + '</strong>' + tipoBadge + '</td>' +
-            '<td>' + (c.titulo || '-') + comentarioIcon + '</td>' +
-            '<td>' + (c.setor || '-') + '</td>' +
-            '<td>' + (c.solicitante || '-') + '</td>' +
-            '<td><span class="badge ' + sc + '">' + (c.status || '-') + '</span></td>' +
-            '<td>' + formatarData(c.data_abertura) + '</td></tr>';
-    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);">Nenhum chamado no período</td></tr>';
+    document.getElementById('ultimosChamados').innerHTML = f.slice(0,8).map(c=>{
+        var sc=c.status==='Concluído'?'badge-green':c.status==='Em Andamento'?'badge-amber':c.status==='Pendente'?'badge-red':'badge-blue';
+        var tb=c.tipo==='gesthosp'?' <span class="badge badge-purple">GH</span>':'';
+        var ci=(c.comentarios&&c.comentarios.length)?' 💬':'';
+        return '<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong>'+tb+'</td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(c.titulo||'—')+ci+'</td><td>'+(c.setor||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td><td><span class="badge '+(c.tipo==='gesthosp'?'badge-purple':'badge-blue')+'">'+(c.tipo==='gesthosp'?'GH':'TI')+'</span></td></tr>';
+    }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhum chamado</td></tr>';
 }
 
-// ========== CHAMADOS TI ==========
+// CHAMADOS TI
 function carregarChamados() {
-    var fs = document.getElementById('fS').value;
-    var fb = document.getElementById('fB').value.toLowerCase();
-
-    var f = chamados.filter(function(c) {
-        if (c.tipo === 'gesthosp') return false;
-        if (fs && c.status !== fs) return false;
-        if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0 &&
-            (c.protocolo || '').toLowerCase().indexOf(fb) < 0 &&
-            (c.solicitante || '').toLowerCase().indexOf(fb) < 0) return false;
-        return true;
-    });
-
-    renderTabelaChamados(f, 'tabelaChamados');
+    var fs=document.getElementById('fS').value, fb=document.getElementById('fB').value.toLowerCase();
+    var f=chamados.filter(c=>{if(c.tipo==='gesthosp')return false;if(fs&&c.status!==fs)return false;if(fb&&(c.titulo||'').toLowerCase().indexOf(fb)<0&&(c.protocolo||'').toLowerCase().indexOf(fb)<0&&(c.solicitante||'').toLowerCase().indexOf(fb)<0)return false;return true;});
+    renderTabela(f,'tabelaChamados');
 }
 
-// ========== GESTHOSP ==========
+// GESTHOSP (somente visualização)
 function carregarGestHosp() {
-    var fs = document.getElementById('fSG').value;
-    var fb = document.getElementById('fBG').value.toLowerCase();
-
-    var f = chamados.filter(function(c) {
-        if (c.tipo !== 'gesthosp') return false;
-        if (fs && c.status !== fs) return false;
-        if (fb && (c.titulo || '').toLowerCase().indexOf(fb) < 0 &&
-            (c.protocolo || '').toLowerCase().indexOf(fb) < 0 &&
-            (c.solicitante || '').toLowerCase().indexOf(fb) < 0) return false;
-        return true;
-    });
-
-    renderTabelaChamados(f, 'tabelaGestHosp');
+    var fs=document.getElementById('fSG').value, fb=document.getElementById('fBG').value.toLowerCase();
+    var f=chamados.filter(c=>{if(c.tipo!=='gesthosp')return false;if(fs&&c.status!==fs)return false;if(fb&&(c.titulo||'').toLowerCase().indexOf(fb)<0&&(c.protocolo||'').toLowerCase().indexOf(fb)<0&&(c.solicitante||'').toLowerCase().indexOf(fb)<0)return false;return true;});
+    var tb=document.getElementById('tabelaGestHosp');
+    if(f.length===0){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhuma solicitação encontrada</td></tr>';return;}
+    tb.innerHTML=f.map(c=>{
+        var sc=c.status==='Concluído'?'badge-green':c.status==='Em Andamento'?'badge-amber':c.status==='Pendente'?'badge-red':'badge-blue';
+        // Extrair dados do GestHosp
+        var nome='', registro='', tipoSolic='';
+        if(c.titulo){ var parts=c.titulo.split(' - '); tipoSolic=parts[0]||''; nome=parts[1]||''; }
+        if(c.descricao){ var m=c.descricao.match(/Registro:\s*(.+)/); if(m) registro=m[1]; }
+        return '<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong></td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(nome||c.solicitante||'—')+'</td><td>'+(c.setor||'—')+'</td><td>'+(tipoSolic||'—')+'</td><td>'+(registro||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancar(\''+c.fid+'\')">▶</button> <button class="btn btn-sm btn-outline" onclick="abrirComentario(\''+c.fid+'\')">💬</button></td></tr>';
+    }).join('');
 }
 
-function enviarSolicitacaoGestHosp(e) {
-    e.preventDefault();
-
-    var solicitacao = {
-        protocolo: 'GH-' + Date.now().toString(36).toUpperCase(),
-        tipo: 'gesthosp',
-        titulo: document.getElementById('ghTipoSolicitacao').value + ' - ' + document.getElementById('ghNome').value,
-        descricao: '👤 Profissional: ' + document.getElementById('ghNome').value + '\n' +
-            '📋 Registro: ' + (document.getElementById('ghRegistro').value || 'N/I') + '\n' +
-            '🏥 Especialidade: ' + (document.getElementById('ghEspecialidade').value || 'N/I') + '\n' +
-            '📧 E-mail: ' + (document.getElementById('ghEmail').value || 'N/I') + '\n' +
-            '📝 Observações: ' + (document.getElementById('ghDescricao').value || 'Nenhuma'),
-        solicitante: uLogado.nome,
-        setor: document.getElementById('ghSetor').value,
-        contato: document.getElementById('ghContato').value,
-        prioridade: 'Média',
-        status: 'A Fazer',
-        departamento: deptoUsuario,
-        data_abertura: firebase.firestore.Timestamp.now(),
-        historico: [{
-            data: new Date().toISOString(),
-            acao: 'Solicitação criada por ' + uLogado.nome
-        }],
-        comentarios: []
-    };
-
-    db.collection('chamados').add(solicitacao).then(function() {
-        limparFormGestHosp();
-        mostrarToast('✅ Solicitação enviada com sucesso!');
-        carregarGestHosp();
-    }).catch(function(err) {
-        mostrarToast('❌ Erro ao enviar: ' + err.message);
-    });
-}
-
-function limparFormGestHosp() {
-    document.getElementById('ghNome').value = '';
-    document.getElementById('ghRegistro').value = '';
-    document.getElementById('ghEspecialidade').value = '';
-    document.getElementById('ghSetor').value = '';
-    document.getElementById('ghContato').value = '';
-    document.getElementById('ghEmail').value = '';
-    document.getElementById('ghTipoSolicitacao').value = '';
-    document.getElementById('ghDescricao').value = '';
-}
-
-function renderTabelaChamados(f, tabelaId) {
-    var tbody = document.getElementById(tabelaId);
-    if (f.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted);">Nenhum chamado encontrado</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = f.map(function(c) {
-        var sc = c.status === 'Concluído' ? 'badge-green' :
-            c.status === 'Em Andamento' ? 'badge-amber' :
-            c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
-        var pc = c.prioridade === 'Crítica' ? 'style="color:#f87171;font-weight:700;"' :
-            c.prioridade === 'Alta' ? 'style="color:#fb923c;font-weight:600;"' : '';
-        var contato = c.contato ? ' <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g, '') +
-            '" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>' : '';
-        var comentarioCount = (c.comentarios && c.comentarios.length) ? ' 💬' + c.comentarios.length : '';
-        return '<tr onclick="verDetalhes(\'' + c.fid + '\')">' +
-            '<td><strong>' + (c.protocolo || '-') + '</strong></td>' +
-            '<td style="font-size:11px;">' + formatarData(c.data_abertura) + '</td>' +
-            '<td>' + (c.titulo || '-') + comentarioCount + '</td>' +
-            '<td>' + (c.solicitante || '-') + contato + '</td>' +
-            '<td>' + (c.setor || '-') + '</td>' +
-            '<td><span ' + pc + '>' + (c.prioridade || '-') + '</span></td>' +
-            '<td>' + (c.tecnico || '—') + '</td>' +
-            '<td><span class="badge ' + sc + '">' + (c.status || '-') + '</span></td>' +
-            '<td onclick="event.stopPropagation();" style="display:flex;gap:4px;">' +
-            '<button class="btn btn-sm btn-primary" onclick="avancar(\'' + c.fid + '\')" title="Avançar status">▶</button>' +
-            '<button class="btn btn-sm btn-outline" onclick="abrirComentario(\'' + c.fid + '\')" title="Comentar">💬</button>' +
-            (uLogado.tipo === 'admin' ? '<button class="btn btn-sm btn-danger" onclick="excluir(\'' + c.fid + '\')" title="Excluir"><i class="fas fa-trash"></i></button>' : '') +
-            '</td></tr>';
+function renderTabela(f, tid) {
+    var tb=document.getElementById(tid);
+    if(f.length===0){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhum chamado</td></tr>';return;}
+    tb.innerHTML=f.map(c=>{
+        var sc=c.status==='Concluído'?'badge-green':c.status==='Em Andamento'?'badge-amber':c.status==='Pendente'?'badge-red':'badge-blue';
+        var pc=c.prioridade==='Crítica'?'style="color:#f87171;font-weight:700;"':c.prioridade==='Alta'?'style="color:#fb923c;font-weight:600;"':'';
+        var ct=c.contato?' <a class="link-wpp" href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>':'';
+        var ci=(c.comentarios&&c.comentarios.length)?' 💬'+c.comentarios.length:'';
+        return '<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong></td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(c.titulo||'—')+ci+'</td><td>'+(c.solicitante||'—')+ct+'</td><td>'+(c.setor||'—')+'</td><td><span '+pc+'>'+(c.prioridade||'—')+'</span></td><td>'+(c.tecnico||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancar(\''+c.fid+'\')">▶</button> <button class="btn btn-sm btn-outline" onclick="abrirComentario(\''+c.fid+'\')">💬</button> '+(uLogado.tipo==='admin'?'<button class="btn btn-sm btn-danger" onclick="excluir(\''+c.fid+'\')"><i class="fas fa-trash"></i></button>':'')+'</td></tr>';
     }).join('');
 }
 
 function avancar(id) {
-    var fluxo = { 'A Fazer': 'Em Andamento', 'Em Andamento': 'Pendente', 'Pendente': 'Concluído', 'Concluído': 'A Fazer' };
-    db.collection('chamados').doc(id).get().then(function(doc) {
-        if (!doc.exists) return;
-        var dados = doc.data();
-        var ns = fluxo[dados.status || 'A Fazer'] || 'A Fazer';
-        var upd = { status: ns };
-        if (ns === 'Em Andamento' || ns === 'Concluído') upd.tecnico = uLogado.nome;
-        var hist = dados.historico || [];
-        hist.push({ data: new Date().toISOString(), acao: 'Status alterado para: ' + ns + ' por ' + uLogado.nome });
-        upd.historico = hist;
-        doc.ref.update(upd).then(function() { mostrarToast('✅ Status: ' + ns); });
+    var fluxo={'A Fazer':'Em Andamento','Em Andamento':'Pendente','Pendente':'Concluído','Concluído':'A Fazer'};
+    db.collection('chamados').doc(id).get().then(d=>{
+        if(!d.exists)return; var dados=d.data(); var ns=fluxo[dados.status||'A Fazer']||'A Fazer';
+        var upd={status:ns}; if(ns==='Em Andamento'||ns==='Concluído') upd.tecnico=uLogado.nome;
+        var hist=dados.historico||[]; hist.push({data:new Date().toISOString(),acao:'Status: '+ns+' por '+uLogado.nome}); upd.historico=hist;
+        d.ref.update(upd).then(()=>toast('✅ '+ns));
     });
 }
-
-function abrirComentario(fid) {
-    var c = chamados.find(function(x) { return x.fid === fid; });
-    if (!c) return;
-
-    var comentarios = c.comentarios || [];
-    var comentariosHtml = comentarios.map(function(com) {
-        return '<div class="comentario-item">' +
-            '<div class="com-header"><strong>' + (com.autor || 'Anônimo') + '</strong><small>' + formatarData(com.data) + '</small></div>' +
-            '<div class="com-text">' + (com.texto || '') + '</div></div>';
-    }).join('');
-
-    var html = '<div><h3 style="color:var(--gold);">💬 Comentários</h3>' +
-        '<p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">' + (c.protocolo || '') + ' — ' + (c.titulo || '') + '</p>' +
-        '<div class="comentarios-section" style="max-height:280px;overflow-y:auto;">' +
-        (comentariosHtml || '<p style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px;">Nenhum comentário ainda</p>') +
-        '</div>' +
-        '<div class="comentario-form">' +
-        '<textarea id="txtComentario" placeholder="Descreva o motivo ou observação..."></textarea>' +
-        '<button class="btn btn-primary btn-sm" onclick="salvarComentario(\'' + fid + '\')">Enviar</button></div>' +
-        '<div style="text-align:center;margin-top:14px;"><button class="btn btn-outline btn-sm" onclick="document.getElementById(\'modalDetalhes\').classList.remove(\'ativa\')">Fechar</button></div></div>';
-
-    document.getElementById('detalhesConteudo').innerHTML = html;
+function abrirComentario(fid) { comentarioFid=fid; var c=chamados.find(x=>x.fid===fid); if(!c)return; var coms=c.comentarios||[]; var h=coms.map(com=>'<div class="comentario-item"><div class="com-header"><strong>'+(com.autor||'')+'</strong><small>'+fd(com.data)+'</small></div><div class="com-text">'+(com.texto||'')+'</div></div>').join(''); document.getElementById('comentarioConteudo').innerHTML='<p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">'+(c.protocolo||'')+' — '+(c.titulo||'')+'</p><div style="max-height:250px;overflow-y:auto;margin-bottom:10px;">'+(h||'<p style="font-size:11px;color:var(--text-muted);text-align:center;">Nenhum comentário</p>')+'</div><div class="comentario-form"><textarea id="txtComentario" placeholder="Descreva..."></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>'; document.getElementById('modalComentario').classList.add('ativa'); }
+function salvarComentario() { var t=document.getElementById('txtComentario').value.trim(); if(!t){toast('⚠️ Digite algo!');return;} db.collection('chamados').doc(comentarioFid).get().then(d=>{if(!d.exists)return;var coms=d.data().comentarios||[];coms.push({autor:uLogado.nome,data:new Date().toISOString(),texto:t});d.ref.update({comentarios:coms}).then(()=>{fecharModal('modalComentario');toast('✅ Comentário salvo!');});}); }
+function excluir(id){if(!confirm('Excluir?'))return;db.collection('chamados').doc(id).delete().then(()=>toast('🗑️ Excluído!'));}
+function verDetalhes(fid){
+    var c=chamados.find(x=>x.fid===fid); if(!c)return;
+    var hist=(c.historico||[]).map(h=>'<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:10px;"><strong>'+new Date(h.data).toLocaleString('pt-BR')+'</strong><br><span style="color:var(--text-muted);">'+h.acao+'</span></div>').join('');
+    var ct=c.contato?'<p><strong>📞 Contato:</strong> <a class="link-wpp" href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank">'+c.contato+' <i class="fab fa-whatsapp"></i></a></p>':'';
+    var desc=c.descricao?'<div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;margin:8px 0;border:1px solid var(--border);"><strong style="color:var(--gold);">📝 Descrição:</strong><br><span style="font-size:11px;">'+(c.descricao||'').replace(/\n/g,'<br>')+'</span></div>':'';
+    var coms=(c.comentarios||[]).map(com=>'<div class="comentario-item"><div class="com-header"><strong>'+(com.autor||'')+'</strong><small>'+fd(com.data)+'</small></div><div class="com-text">'+(com.texto||'')+'</div></div>').join('');
+    document.getElementById('detalhesConteudo').innerHTML='<div><h3 style="color:var(--text-primary);">'+(c.titulo||'—')+'</h3><span class="badge badge-gold">'+(c.protocolo||'')+'</span><div style="margin-top:12px;display:grid;gap:4px;font-size:11px;"><p><strong>👤 Solicitante:</strong> '+(c.solicitante||'—')+'</p>'+ct+'<p><strong>📍 Setor:</strong> '+(c.setor||'—')+'</p><p><strong>⚡ Prioridade:</strong> '+(c.prioridade||'—')+'</p><p><strong>📊 Status:</strong> '+(c.status||'—')+'</p><p><strong>👨‍🔧 Técnico:</strong> '+(c.tecnico||'Não atribuído')+'</p><p><strong>🕐 Abertura:</strong> '+fd(c.data_abertura)+'</p></div>'+desc+'<hr style="border-color:var(--border);margin:12px 0;"><h4 style="color:var(--gold);">💬 Comentários ('+(c.comentarios||[]).length+')</h4>'+(coms||'<p style="font-size:10px;color:var(--text-muted);">Nenhum</p>')+'<hr style="border-color:var(--border);margin:12px 0;"><h4 style="color:var(--gold);">📜 Histórico</h4>'+(hist||'<p style="font-size:10px;color:var(--text-muted);">Nenhum</p>')+'</div>';
     document.getElementById('modalDetalhes').classList.add('ativa');
 }
 
-function salvarComentario(fid) {
-    var texto = document.getElementById('txtComentario').value.trim();
-    if (!texto) { mostrarToast('⚠️ Digite um comentário!'); return; }
+// INDICADORES
+function popularMesesIndicadores() {
+    var meses=[]; var agora=new Date();
+    for(var i=11;i>=0;i--){var d=new Date(agora.getFullYear(),agora.getMonth()-i,1); meses.push({value:d.toISOString().slice(0,7),label:d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})});}
+    var s1=document.getElementById('indMes1'), s2=document.getElementById('indMes2');
+    s1.innerHTML=s2.innerHTML=meses.map(m=>'<option value="'+m.value+'">'+m.label+'</option>').join('');
+    s1.value=meses[10]?.value||''; s2.value=meses[11]?.value||'';
+    atualizarIndicadores();
+}
+function atualizarIndicadores() {
+    var m1=document.getElementById('indMes1').value, m2=document.getElementById('indMes2').value;
+    if(!m1||!m2)return;
+    var f1=chamados.filter(c=>{var d=c.data_abertura;if(!d)return false;var dt=typeof d.toDate==='function'?d.toDate():new Date(d);return dt.toISOString().slice(0,7)===m1;});
+    var f2=chamados.filter(c=>{var d=c.data_abertura;if(!d)return false;var dt=typeof d.toDate==='function'?d.toDate():new Date(d);return dt.toISOString().slice(0,7)===m2;});
+    var t1=f1.length, t2=f2.length, c1=f1.filter(c=>c.status==='Concluído').length, c2=f2.filter(c=>c.status==='Concluído').length;
+    var taxa1=t1>0?Math.round(c1/t1*100):0, taxa2=t2>0?Math.round(c2/t2*100):0;
+    var crit1=f1.filter(c=>c.prioridade==='Crítica').length, crit2=f2.filter(c=>c.prioridade==='Crítica').length;
+    var ti1=f1.filter(c=>c.tipo!=='gesthosp').length, ti2=f2.filter(c=>c.tipo!=='gesthosp').length;
+    var gh1=f1.filter(c=>c.tipo==='gesthosp').length, gh2=f2.filter(c=>c.tipo==='gesthosp').length;
+    var varTotal=t1>0?Math.round((t2-t1)/t1*100):0, varTaxa=taxa1>0?taxa2-taxa1:0;
 
-    db.collection('chamados').doc(fid).get().then(function(doc) {
-        if (!doc.exists) return;
-        var comentarios = doc.data().comentarios || [];
-        comentarios.push({
-            autor: uLogado.nome,
-            data: new Date().toISOString(),
-            texto: texto
-        });
-        doc.ref.update({ comentarios: comentarios }).then(function() {
-            mostrarToast('✅ Comentário salvo!');
-            document.getElementById('modalDetalhes').classList.remove('ativa');
-        });
-    });
+    document.getElementById('indicadorGrid').innerHTML=
+        '<div class="indicador-card"><h4>📋 Total Chamados</h4><div class="indicador-valor">'+t2+'</div><div class="indicador-variacao '+(varTotal>=0?'up':'down')+'">'+(varTotal>=0?'↑':'↓')+' '+Math.abs(varTotal)+'% vs mês anterior</div><small style="color:var(--text-muted);">Mês anterior: '+t1+'</small></div>'+
+        '<div class="indicador-card"><h4>✅ Taxa Resolução</h4><div class="indicador-valor">'+taxa2+'%</div><div class="indicador-variacao '+(varTaxa>=0?'up':'down')+'">'+(varTaxa>=0?'↑':'↓')+' '+Math.abs(varTaxa)+'pp</div><small style="color:var(--text-muted);">'+c2+'/'+t2+' concluídos</small></div>'+
+        '<div class="indicador-card"><h4>🔴 Críticos</h4><div class="indicador-valor">'+crit2+'</div><small style="color:var(--text-muted);">Mês anterior: '+crit1+'</small></div>'+
+        '<div class="indicador-card"><h4>🏥 GestHosp</h4><div class="indicador-valor">'+gh2+'</div><small style="color:var(--text-muted);">Mês anterior: '+gh1+'</small></div>';
+
+    Object.values(charts).forEach(c=>{if(c)c.destroy();}); charts={};
+    var ctx5=document.getElementById('gComparativo');
+    if(ctx5) charts.cmp=new Chart(ctx5,{type:'bar',data:{labels:['Total','Concluídos','Críticos','TI','GestHosp'],datasets:[{label:'Mês 1',data:[t1,c1,crit1,ti1,gh1],backgroundColor:'rgba(245,158,11,0.3)',borderColor:'#F59E0B',borderWidth:1,borderRadius:4},{label:'Mês 2',data:[t2,c2,crit2,ti2,gh2],backgroundColor:'rgba(59,130,246,0.3)',borderColor:'#3B82F6',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#94A3B8',font:{size:10}}}}});
+    var ctx6=document.getElementById('gResolucao');
+    if(ctx6) charts.res=new Chart(ctx6,{type:'doughnut',data:{labels:['Resolvidos','Pendentes'],datasets:[{data:[c2,Math.max(0,t2-c2)],backgroundColor:['#10B981','rgba(239,68,68,0.3)'],borderWidth:2,borderColor:'#1E293B'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#94A3B8',font:{size:10}}}}}});
 }
 
-function excluir(id) {
-    if (!confirm('Tem certeza que deseja excluir este chamado?')) return;
-    db.collection('chamados').doc(id).delete().then(function() { mostrarToast('🗑️ Chamado excluído!'); });
-}
-
-function verDetalhes(fid) {
-    var c = chamados.find(function(x) { return x.fid === fid; });
-    if (!c) return;
-
-    var hist = c.historico || [];
-    var histHtml = hist.map(function(h) {
-        return '<div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:11px;">' +
-            '<strong style="color:var(--text-light);">' + new Date(h.data).toLocaleString('pt-BR') + '</strong><br>' +
-            '<span style="color:var(--text-muted);">' + h.acao + '</span></div>';
-    }).join('');
-
-    var contatoHtml = c.contato ?
-        '<p><strong>📞 Contato:</strong> <a class="link-wpp" href="https://wa.me/55' + c.contato.replace(/\D/g, '') +
-        '" target="_blank">' + c.contato + ' <i class="fab fa-whatsapp"></i></a></p>' : '';
-
-    var descHtml = c.descricao ?
-        '<div style="background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin:10px 0;border:1px solid var(--border-subtle);">' +
-        '<strong style="color:var(--gold);">📝 Descrição:</strong><br><span style="color:var(--text-light);font-size:12px;">' +
-        (c.descricao || '').replace(/\n/g, '<br>') + '</span></div>' : '';
-
-    var comentarios = c.comentarios || [];
-    var comentariosHtml = comentarios.map(function(com) {
-        return '<div class="comentario-item">' +
-            '<div class="com-header"><strong>' + (com.autor || 'Anônimo') + '</strong><small>' + formatarData(com.data) + '</small></div>' +
-            '<div class="com-text">' + (com.texto || '') + '</div></div>';
-    }).join('');
-
-    document.getElementById('detalhesConteudo').innerHTML =
-        '<div>' +
-        '<h3 style="color:var(--text-white);margin-bottom:6px;">' + (c.titulo || 'Sem título') + '</h3>' +
-        '<span class="badge badge-gold" style="margin-bottom:12px;">' + (c.protocolo || '') + '</span>' +
-        '<div style="margin-top:14px;display:grid;gap:6px;font-size:12px;">' +
-        '<p><strong>👤 Solicitante:</strong> ' + (c.solicitante || '—') + '</p>' +
-        contatoHtml +
-        '<p><strong>📍 Setor:</strong> ' + (c.setor || '—') + '</p>' +
-        '<p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || '—') + '</p>' +
-        '<p><strong>📊 Status:</strong> ' + (c.status || '—') + '</p>' +
-        '<p><strong>👨‍🔧 Técnico:</strong> ' + (c.tecnico || 'Não atribuído') + '</p>' +
-        '<p><strong>🕐 Abertura:</strong> ' + formatarData(c.data_abertura) + '</p>' +
-        '</div>' +
-        descHtml +
-        '<hr style="border-color:var(--border-subtle);margin:14px 0;">' +
-        '<h4 style="color:var(--gold);margin-bottom:8px;">💬 Comentários (' + comentarios.length + ')</h4>' +
-        (comentariosHtml || '<p style="font-size:11px;color:var(--text-muted);">Nenhum comentário</p>') +
-        '<hr style="border-color:var(--border-subtle);margin:14px 0;">' +
-        '<h4 style="color:var(--gold);margin-bottom:8px;">📜 Histórico</h4>' +
-        (histHtml || '<p style="font-size:11px;color:var(--text-muted);">Nenhuma atualização</p>') +
-        '<div style="text-align:center;margin-top:16px;">' +
-        '<button class="btn btn-outline" onclick="document.getElementById(\'modalDetalhes\').classList.remove(\'ativa\')">Fechar</button>' +
-        '</div></div>';
-
-    document.getElementById('modalDetalhes').classList.add('ativa');
-}
-
-// ========== TONERS ==========
+// TONERS
 function carregarToners() {
-    var t = chamados.filter(function(c) { return c.tipo === 'toner' || c.isToner; });
-    document.getElementById('tabelaToners').innerHTML = t.length === 0 ?
-        '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhum registro de toner</td></tr>' :
-        t.map(function(x) {
-            var d = x.data_troca_toner || x.data_abertura;
-            var dias = Math.floor((new Date() - new Date(typeof d === 'object' && d.toDate ? d.toDate() : d)) / 86400000);
-            return '<tr><td><strong>' + x.setor + '</strong></td><td>' + (x.solicitante || 'TI') + '</td><td>' +
-                formatarData(d) + '</td><td>' + dias + 'd</td></tr>';
-        }).join('');
+    var t=chamados.filter(c=>c.tipo==='toner'||c.isToner);
+    document.getElementById('tabelaToners').innerHTML=t.length===0?'<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhum registro</td></tr>':t.map(x=>{
+        var d=x.data_troca_toner||x.data_abertura; var dias=Math.floor((new Date()-new Date(typeof d==='object'&&d.toDate?d.toDate():d))/86400000);
+        var tipoTroca=x.tipo_troca||'necessaria'; var tipoLabel=tipoTroca==='preventiva'?'🟢 Preventiva':'🔴 Necessária';
+        return '<tr><td><strong>'+x.setor+'</strong></td><td>'+tipoLabel+'</td><td>'+(x.solicitante||'TI')+'</td><td>'+fd(d)+'</td><td>'+dias+'d</td><td style="font-size:10px;">'+(x.observacao||'—')+'</td></tr>';
+    }).join('');
+}
+function abrirModalToner(){document.getElementById('modalToner').classList.add('ativa');}
+function addToner(e){
+    e.preventDefault(); var s=document.getElementById('ts').value, tipo=document.getElementById('ttipo').value, obs=document.getElementById('tobs').value;
+    if(!s){toast('⚠️ Selecione o setor!');return;}
+    db.collection('chamados').add({protocolo:'TN-'+Date.now().toString(36).toUpperCase(),setor:s,tipo:'toner',isToner:true,status:'Concluído',solicitante:uLogado.nome,departamento:deptoUsuario,titulo:'Troca de toner — '+s,tipo_troca:tipo,observacao:obs,data_abertura:firebase.firestore.Timestamp.now(),data_troca_toner:firebase.firestore.Timestamp.now()}).then(()=>{fecharModal('modalToner');carregarToners();toast('✅ Troca registrada!');});
 }
 
-function abrirModalToner() { document.getElementById('modalToner').classList.add('ativa'); }
-
-function addToner(e) {
-    e.preventDefault();
-    var s = document.getElementById('ts').value;
-    if (!s) { mostrarToast('⚠️ Selecione um setor!'); return; }
-    db.collection('chamados').add({
-        protocolo: 'TN-' + Date.now().toString(36).toUpperCase(),
-        setor: s,
-        tipo: 'toner',
-        isToner: true,
-        status: 'Concluído',
-        solicitante: uLogado.nome,
-        departamento: deptoUsuario,
-        titulo: 'Troca de toner — ' + s,
-        data_abertura: firebase.firestore.Timestamp.now(),
-        data_troca_toner: firebase.firestore.Timestamp.now()
-    }).then(function() {
-        document.getElementById('modalToner').classList.remove('ativa');
-        carregarToners();
-        mostrarToast('✅ Troca de toner registrada!');
-    });
+// EQUIPAMENTOS
+function carregarEquip(){db.collection('equipamentos').get().then(s=>{equipamentos=[];s.forEach(d=>{var x=d.data();x.fid=d.id;equipamentos.push(x);});renderEquipList();atualizarDash();});}
+function renderEquipList(){
+    var emojiMap={'Computador':'💻','Notebook':'💻','Monitor':'🖥️','Impressora':'🖨️','Periférico':'🖱️','Telefone':'📞','Rede':'🔌','Nobreak':'🔋','Servidor':'🗄️','Câmera':'📹','Outro':'📦'};
+    document.getElementById('listaEquip').innerHTML=equipamentos.length===0?'<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:40px;">Nenhum equipamento</p>':equipamentos.map((eq,i)=>'<div class="equip-card"><div class="equip-emoji">'+(eq.emoji||emojiMap[eq.tipo]||'📦')+'</div><h4>'+eq.nome+'</h4><small>'+eq.tipo+'</small><div class="qtd">Qtd: '+(eq.quantidade||1)+'</div>'+(eq.localizacao?'<small style="font-size:9px;">📍 '+eq.localizacao+'</small>':'')+'<div class="equip-actions"><button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editarEquip('+i+')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="event.stopPropagation();remEquip('+i+')"><i class="fas fa-trash"></i></button></div></div>').join('');
 }
+function mostrarFormEquip(){document.getElementById('formEquip').style.display='block';equipPredefinidoSelecionado=null;document.getElementById('equipPreview').style.display='none';document.querySelectorAll('.equip-option').forEach(o=>o.classList.remove('selected'));switchEquipTab('existente',document.querySelector('.tab-btn'));document.getElementById('eNomeP').value='';document.getElementById('eTipoP').value='';document.getElementById('eEmojiP').value='';document.getElementById('eQtdP').value='1';document.getElementById('eLocalP').value='';document.getElementById('eqQtdPre').value='1';}
+function fecharFormEquip(){document.getElementById('formEquip').style.display='none';}
+function switchEquipTab(tab,el){document.querySelectorAll('#formEquip .tab-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('tabExistente').style.display=tab==='existente'?'block':'none';document.getElementById('tabPersonalizado').style.display=tab==='personalizado'?'block':'none';document.getElementById('equipPreview').style.display='none';}
+function selEquipPre(nome,tipo,el){document.querySelectorAll('.equip-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');equipPredefinidoSelecionado={nome:nome,tipo:tipo,emoji:nome.split(' ')[0]};document.getElementById('equipPreview').style.display='block';document.getElementById('equipPreviewText').textContent=nome+' ('+tipo+')';}
+function salvarEquipSelecionado(){if(!equipPredefinidoSelecionado)return;var qtd=parseInt(document.getElementById('eqQtdPre').value)||1;db.collection('equipamentos').add({nome:equipPredefinidoSelecionado.nome,tipo:equipPredefinidoSelecionado.tipo,emoji:equipPredefinidoSelecionado.emoji,quantidade:qtd,localizacao:''}).then(()=>{fecharFormEquip();carregarEquip();toast('✅ Adicionado!');});}
+function salvarEquipPersonalizado(e){e.preventDefault();var nome=document.getElementById('eNomeP').value.trim(),tipo=document.getElementById('eTipoP').value,emoji=document.getElementById('eEmojiP').value.trim()||'📦',qtd=parseInt(document.getElementById('eQtdP').value)||1,local=document.getElementById('eLocalP').value.trim();if(!nome||!tipo){toast('⚠️ Preencha!');return;}db.collection('equipamentos').add({nome:emoji+' '+nome,tipo:tipo,emoji:emoji,quantidade:qtd,localizacao:local}).then(()=>{fecharFormEquip();carregarEquip();toast('✅ Salvo!');});}
+function editarEquip(i){var eq=equipamentos[i];document.getElementById('formEquip').style.display='block';document.getElementById('eNomeP').value=eq.nome.replace(/^[^\s]+\s/,'');document.getElementById('eTipoP').value=eq.tipo;document.getElementById('eEmojiP').value=eq.emoji||'';document.getElementById('eQtdP').value=eq.quantidade||1;document.getElementById('eLocalP').value=eq.localizacao||'';switchEquipTab('personalizado',document.querySelectorAll('#formEquip .tab-btn')[1]);equipEditando=i;}
+function remEquip(i){if(!confirm('Remover?'))return;db.collection('equipamentos').doc(equipamentos[i].fid).delete().then(()=>{carregarEquip();toast('🗑️ Removido!');});}
 
-// ========== EQUIPAMENTOS ==========
-function carregarEquip() {
-    db.collection('equipamentos').get().then(function(s) {
-        equipamentos = [];
-        s.forEach(function(d) { var x = d.data();
-            x.fid = d.id;
-            equipamentos.push(x); });
-        renderEquipList();
-        atualizarDash();
-    });
-}
+// IPs & REDE
+function carregarIPs(){db.collection('ips_rede').get().then(s=>{ipsRede=[];s.forEach(d=>{var x=d.data();x.fid=d.id;ipsRede.push(x);});var tb=document.getElementById('tabelaIPs');tb.innerHTML=ipsRede.length===0?'<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted);">Nenhum registro</td></tr>':ipsRede.map(ip=>'<tr><td><strong>'+(ip.dispositivo||'—')+'</strong></td><td>'+(ip.tipo||'—')+'</td><td><code style="background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:4px;font-size:11px;">'+(ip.ip||'—')+'</code></td><td>'+(ip.localizacao||'—')+'</td><td>'+(ip.setor||'—')+'</td><td style="font-size:10px;">'+(ip.observacao||'—')+'</td><td><button class="btn btn-sm btn-danger" onclick="remIP(\''+ip.fid+'\')"><i class="fas fa-trash"></i></button></td></tr>').join('');});}
+function abrirModalIP(){document.getElementById('modalIP').classList.add('ativa');document.getElementById('ipDispositivo').value='';document.getElementById('ipEndereco').value='';document.getElementById('ipLocal').value='';document.getElementById('ipObs').value='';}
+function addIP(e){e.preventDefault();var data={dispositivo:document.getElementById('ipDispositivo').value,tipo:document.getElementById('ipTipo').value,ip:document.getElementById('ipEndereco').value,localizacao:document.getElementById('ipLocal').value,setor:document.getElementById('ipSetor').value,observacao:document.getElementById('ipObs').value};db.collection('ips_rede').add(data).then(()=>{fecharModal('modalIP');carregarIPs();toast('✅ IP registrado!');});}
+function remIP(id){if(!confirm('Remover?'))return;db.collection('ips_rede').doc(id).delete().then(()=>{carregarIPs();toast('🗑️ Removido!');});}
 
-function renderEquipList() {
-    var emojisPorTipo = {
-        'Computador': '💻', 'Notebook': '💻', 'Monitor': '🖥️', 'Impressora': '🖨️',
-        'Periférico': '🖱️', 'Telefone': '📞', 'Rede': '🔌', 'Nobreak': '🔋',
-        'Servidor': '🗄️', 'All-in-One': '🖥️', 'Câmera': '📹', 'Outro': '📦'
-    };
+// EQUIPE
+function carregarEquipe(){db.collection('usuarios').get().then(s=>{var h='';s.forEach(d=>{var u=d.data();var acoes='';if(uLogado.tipo==='admin'&&u.usuario!==uLogado.usuario){acoes='<button class="btn btn-sm btn-outline" onclick="editarTecnico(\''+d.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="remTec(\''+d.id+'\')"><i class="fas fa-trash"></i></button>';}else if(u.usuario===uLogado.usuario){acoes='<span class="badge badge-gold">Você</span>';}h+='<tr><td><strong>'+(u.nome||'')+'</strong></td><td>@'+(u.usuario||'')+'</td><td>'+(u.cargo||'')+'</td><td>'+(u.whatsapp?'<a class="link-wpp" href="https://wa.me/55'+u.whatsapp.replace(/\D/g,'')+'" target="_blank"><i class="fab fa-whatsapp"></i> '+u.whatsapp+'</a>':'—')+'</td><td><span class="badge '+(u.status==='ativo'?'badge-green':'badge-amber')+'">'+(u.status||'')+'</span></td><td>'+acoes+'</td></tr>';});document.getElementById('tabelaEquipe').innerHTML=h||'<tr><td colspan="6" style="text-align:center;padding:30px;">Nenhum</td></tr>';});}
+function abrirModalTecnico(){document.getElementById('modalTecnico').classList.add('ativa');document.getElementById('formTecnico').reset();document.getElementById('tu').disabled=false;document.getElementById('formTecnico').onsubmit=addTecnico;}
+function addTecnico(e){e.preventDefault();var u=document.getElementById('tu').value.toLowerCase().trim(),w=document.getElementById('tw').value.trim();if(!w){toast('⚠️ Informe WhatsApp!');return;}db.collection('usuarios').where('usuario','==',u).get().then(s=>{if(!s.empty){toast('⚠️ Usuário já existe!');return;}db.collection('usuarios').add({nome:document.getElementById('tn').value,usuario:u,senha:'12345',cargo:document.getElementById('tc').value,tipo:'tecnico',whatsapp:w,status:'ativo',primeiro_acesso:true}).then(()=>{fecharModal('modalTecnico');carregarEquipe();toast('✅ Cadastrado! Senha: 12345');});});}
+function editarTecnico(id){db.collection('usuarios').doc(id).get().then(d=>{if(!d.exists)return;var u=d.data();document.getElementById('tn').value=u.nome;document.getElementById('tu').value=u.usuario;document.getElementById('tu').disabled=true;document.getElementById('tc').value=u.cargo;document.getElementById('tw').value=u.whatsapp||'';document.getElementById('modalTecnico').classList.add('ativa');var form=document.getElementById('formTecnico');form.onsubmit=function(ev){ev.preventDefault();d.ref.update({nome:document.getElementById('tn').value,cargo:document.getElementById('tc').value,whatsapp:document.getElementById('tw').value}).then(()=>{fecharModal('modalTecnico');document.getElementById('tu').disabled=false;form.onsubmit=addTecnico;carregarEquipe();toast('✅ Atualizado!');});};});}
+function remTec(id){if(!confirm('Remover?'))return;db.collection('usuarios').doc(id).delete().then(()=>{carregarEquipe();toast('🗑️ Removido!');});}
 
-    document.getElementById('listaEquip').innerHTML = equipamentos.length === 0 ?
-        '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:40px;">Nenhum equipamento cadastrado</p>' :
-        equipamentos.map(function(eq, i) {
-            var emoji = eq.emoji || emojisPorTipo[eq.tipo] || '📦';
-            return '<div class="equip-card">' +
-                '<div class="equip-emoji">' + emoji + '</div>' +
-                '<h4>' + eq.nome + '</h4>' +
-                '<small>' + eq.tipo + '</small>' +
-                '<div class="equip-actions">' +
-                '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editarEquip(' + i + ')"><i class="fas fa-edit"></i></button>' +
-                '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();remEquip(' + i + ')"><i class="fas fa-trash"></i></button>' +
-                '</div></div>';
-        }).join('');
-}
+// CONFIG
+function alterarSenha(e){e.preventDefault();db.collection('usuarios').where('usuario','==',uLogado.usuario).get().then(s=>{if(s.empty)return;var d=s.docs[0];if(d.data().senha!==document.getElementById('sAtual').value){toast('❌ Senha atual incorreta!');return;}d.ref.update({senha:document.getElementById('sNova').value,primeiro_acesso:false}).then(()=>{toast('✅ Alterada!');e.target.reset();});});}
 
-function mostrarFormEquip() {
-    document.getElementById('formEquip').style.display = 'block';
-    equipPredefinidoSelecionado = null;
-    document.getElementById('equipPreview').style.display = 'none';
-    document.querySelectorAll('.equip-option').forEach(function(o) { o.classList.remove('selected'); });
-    switchEquipTab('existente', document.querySelector('.tab-btn'));
-    document.getElementById('eNomeP').value = '';
-    document.getElementById('eTipoP').value = '';
-    document.getElementById('eEmojiP').value = '';
-}
+// RELATÓRIO
+function gerarRelatorio(){
+    var el=document.createElement('div');
+    el.style.cssText='padding:32px;background:#0F172A;color:#CBD5E1;font-family:Inter,Segoe UI,Arial;width:1000px;position:absolute;left:-9999px;';
+    el.innerHTML='<div style="text-align:center;border-bottom:2px solid #F59E0B;padding-bottom:16px;margin-bottom:20px;"><h1 style="color:#F8FAFC;">Help<span style="color:#CBD5E1;">Hosp</span></h1><p style="color:#F59E0B;">Relatório Técnico</p><small style="color:#94A3B8;">'+new Date().toLocaleString('pt-BR')+' | '+chamados.length+' chamados | '+equipamentos.length+' equipamentos</small></div>';
 
-function switchEquipTab(tab, el) {
-    document.querySelectorAll('#formEquip .tab-btn').forEach(function(b) { b.classList.remove('active'); });
-    el.classList.add('active');
-    document.getElementById('tabExistente').style.display = tab === 'existente' ? 'block' : 'none';
-    document.getElementById('tabPersonalizado').style.display = tab === 'personalizado' ? 'block' : 'none';
-    document.getElementById('equipPreview').style.display = 'none';
-}
+    // Resumo
+    var abertos=chamados.filter(c=>c.status!=='Concluído').length, concluidos=chamados.filter(c=>c.status==='Concluído').length;
+    el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'+
+        '<div style="background:#1E293B;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#94A3B8;font-size:10px;">TOTAL</h3><p style="color:#F8FAFC;font-size:24px;font-weight:700;">'+chamados.length+'</p></div>'+
+        '<div style="background:#1E293B;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#94A3B8;font-size:10px;">ABERTOS</h3><p style="color:#F59E0B;font-size:24px;font-weight:700;">'+abertos+'</p></div>'+
+        '<div style="background:#1E293B;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#94A3B8;font-size:10px;">CONCLUÍDOS</h3><p style="color:#10B981;font-size:24px;font-weight:700;">'+concluidos+'</p></div>'+
+        '<div style="background:#1E293B;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#94A3B8;font-size:10px;">EQUIPAMENTOS</h3><p style="color:#3B82F6;font-size:24px;font-weight:700;">'+equipamentos.length+'</p></div></div>';
 
-function selecionarEquipPredefinido(nome, tipo, el) {
-    document.querySelectorAll('.equip-option').forEach(function(o) { o.classList.remove('selected'); });
-    el.classList.add('selected');
-    equipPredefinidoSelecionado = { nome: nome, tipo: tipo, emoji: nome.split(' ')[0] };
-    document.getElementById('equipPreview').style.display = 'block';
-    document.getElementById('equipPreviewText').textContent = nome + ' (' + tipo + ')';
-}
+    // Tabela de chamados
+    el.innerHTML+='<h3 style="color:#F59E0B;margin-bottom:8px;">📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:16px;"><tr style="background:rgba(245,158,11,0.08);"><th style="padding:6px;text-align:left;color:#F59E0B;">Protocolo</th><th style="padding:6px;text-align:left;color:#F59E0B;">Data</th><th style="padding:6px;text-align:left;color:#F59E0B;">Título</th><th style="padding:6px;text-align:left;color:#F59E0B;">Setor</th><th style="padding:6px;text-align:left;color:#F59E0B;">Status</th></tr>';
+    chamados.slice(0,30).forEach(c=>{el.innerHTML+='<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 6px;">'+(c.protocolo||'')+'</td><td style="padding:4px 6px;">'+fd(c.data_abertura)+'</td><td style="padding:4px 6px;">'+(c.titulo||'')+'</td><td style="padding:4px 6px;">'+(c.setor||'')+'</td><td style="padding:4px 6px;">'+(c.status||'')+'</td></tr>';});
+    el.innerHTML+='</table>';
 
-function salvarEquipSelecionado() {
-    if (!equipPredefinidoSelecionado) return;
-    db.collection('equipamentos').add({
-        nome: equipPredefinidoSelecionado.nome,
-        tipo: equipPredefinidoSelecionado.tipo,
-        emoji: equipPredefinidoSelecionado.emoji
-    }).then(function() {
-        document.getElementById('formEquip').style.display = 'none';
-        equipPredefinidoSelecionado = null;
-        carregarEquip();
-        mostrarToast('✅ Equipamento adicionado!');
-    });
-}
-
-function salvarEquipPersonalizado(e) {
-    e.preventDefault();
-    var nome = document.getElementById('eNomeP').value.trim();
-    var tipo = document.getElementById('eTipoP').value;
-    var emoji = document.getElementById('eEmojiP').value.trim() || '📦';
-
-    if (!nome || !tipo) { mostrarToast('⚠️ Preencha nome e tipo!'); return; }
-
-    db.collection('equipamentos').add({
-        nome: emoji + ' ' + nome,
-        tipo: tipo,
-        emoji: emoji
-    }).then(function() {
-        document.getElementById('formEquip').style.display = 'none';
-        carregarEquip();
-        mostrarToast('✅ Equipamento personalizado adicionado!');
-    });
-}
-
-function editarEquip(i) {
-    var eq = equipamentos[i];
-    document.getElementById('formEquip').style.display = 'block';
-    document.getElementById('eNomeP').value = eq.nome.replace(/^[^\s]+\s/, '');
-    document.getElementById('eTipoP').value = eq.tipo;
-    document.getElementById('eEmojiP').value = eq.emoji || '';
-    switchEquipTab('personalizado', document.querySelectorAll('#formEquip .tab-btn')[1]);
-    equipEditando = i;
-}
-
-function remEquip(i) {
-    if (!confirm('Remover este equipamento?')) return;
-    db.collection('equipamentos').doc(equipamentos[i].fid).delete().then(function() {
-        carregarEquip();
-        mostrarToast('🗑️ Equipamento removido!');
-    });
-}
-
-// ========== EQUIPE ==========
-function carregarEquipe() {
-    db.collection('usuarios').get().then(function(s) {
-        var h = '';
-        s.forEach(function(d) {
-            var u = d.data();
-            var acoes = '';
-            if (uLogado.tipo === 'admin' && u.usuario !== uLogado.usuario) {
-                acoes = '<button class="btn btn-sm btn-outline" onclick="editarTecnico(\'' + d.id + '\')"><i class="fas fa-edit"></i></button> ' +
-                    '<button class="btn btn-sm btn-danger" onclick="remTec(\'' + d.id + '\')"><i class="fas fa-trash"></i></button>';
-            } else if (u.usuario === uLogado.usuario) {
-                acoes = '<span class="badge badge-gold">Você</span>';
-            }
-            h += '<tr><td><strong>' + (u.nome || '') + '</strong></td>' +
-                '<td>@' + (u.usuario || '') + '</td>' +
-                '<td>' + (u.cargo || '') + '</td>' +
-                '<td>' + (u.whatsapp ? '<a class="link-wpp" href="https://wa.me/55' + u.whatsapp.replace(/\D/g, '') +
-                    '" target="_blank"><i class="fab fa-whatsapp"></i> ' + u.whatsapp + '</a>' : '—') + '</td>' +
-                '<td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + (u.status || '') + '</span></td>' +
-                '<td>' + acoes + '</td></tr>';
-        });
-        document.getElementById('tabelaEquipe').innerHTML = h || '<tr><td colspan="6" style="text-align:center;padding:30px;">Nenhum técnico</td></tr>';
-    });
-}
-
-function abrirModalTecnico() {
-    document.getElementById('modalTecnico').classList.add('ativa');
-    document.getElementById('formTecnico').reset();
-    document.getElementById('tu').disabled = false;
-    document.getElementById('formTecnico').onsubmit = addTecnico;
-}
-
-function addTecnico(e) {
-    e.preventDefault();
-    var u = document.getElementById('tu').value.toLowerCase().trim();
-    var w = document.getElementById('tw').value.trim();
-    if (!w) { mostrarToast('⚠️ Informe o WhatsApp!'); return; }
-    db.collection('usuarios').where('usuario', '==', u).get().then(function(s) {
-        if (!s.empty) { mostrarToast('⚠️ Usuário já existe!'); return; }
-        db.collection('usuarios').add({
-            nome: document.getElementById('tn').value,
-            usuario: u,
-            senha: '12345',
-            cargo: document.getElementById('tc').value,
-            tipo: 'tecnico',
-            whatsapp: w,
-            status: 'ativo',
-            primeiro_acesso: true
-        }).then(function() {
-            document.getElementById('modalTecnico').classList.remove('ativa');
-            carregarEquipe();
-            mostrarToast('✅ Técnico cadastrado! Senha: 12345');
-        });
-    });
-}
-
-function editarTecnico(id) {
-    db.collection('usuarios').doc(id).get().then(function(d) {
-        if (!d.exists) return;
-        var u = d.data();
-        document.getElementById('tn').value = u.nome;
-        document.getElementById('tu').value = u.usuario;
-        document.getElementById('tu').disabled = true;
-        document.getElementById('tc').value = u.cargo;
-        document.getElementById('tw').value = u.whatsapp || '';
-        document.getElementById('modalTecnico').classList.add('ativa');
-
-        var form = document.getElementById('formTecnico');
-        form.onsubmit = function(ev) {
-            ev.preventDefault();
-            d.ref.update({
-                nome: document.getElementById('tn').value,
-                cargo: document.getElementById('tc').value,
-                whatsapp: document.getElementById('tw').value
-            }).then(function() {
-                document.getElementById('modalTecnico').classList.remove('ativa');
-                document.getElementById('tu').disabled = false;
-                form.onsubmit = addTecnico;
-                carregarEquipe();
-                mostrarToast('✅ Técnico atualizado!');
-            });
-        };
-    });
-}
-
-function remTec(id) {
-    if (!confirm('Remover este técnico?')) return;
-    db.collection('usuarios').doc(id).delete().then(function() {
-        carregarEquipe();
-        mostrarToast('🗑️ Técnico removido!');
-    });
-}
-
-// ========== CONFIG ==========
-function alterarSenha(e) {
-    e.preventDefault();
-    db.collection('usuarios').where('usuario', '==', uLogado.usuario).get().then(function(s) {
-        if (s.empty) return;
-        var d = s.docs[0];
-        if (d.data().senha !== document.getElementById('sAtual').value) {
-            mostrarToast('❌ Senha atual incorreta!');
-            return;
-        }
-        d.ref.update({
-            senha: document.getElementById('sNova').value,
-            primeiro_acesso: false
-        }).then(function() {
-            mostrarToast('✅ Senha alterada com sucesso!');
-            e.target.reset();
-        });
-    });
-}
-
-// ========== RELATÓRIO ==========
-function relatorio() {
-    var el = document.createElement('div');
-    el.style.cssText = 'padding:32px;background:#06224a;color:#c9d2df;font-family:Segoe UI,Arial;width:950px;position:absolute;left:-9999px;';
-    el.innerHTML = '<div style="text-align:center;border-bottom:2px solid #c8a94a;padding-bottom:16px;margin-bottom:20px;">' +
-        '<h1 style="color:#ffffff;margin:0;">Help<span style="color:#c9d2df;">Hosp</span></h1>' +
-        '<p style="color:#c8a94a;margin:4px 0;">Relatório Técnico</p>' +
-        '<small style="color:#8899b4;">' + new Date().toLocaleString('pt-BR') + ' | Total: ' + chamados.length + ' chamados | ' + equipamentos.length + ' equipamentos</small></div>';
-
-    el.innerHTML += '<h3 style="color:#c8a94a;margin-bottom:8px;">📋 Chamados Recentes</h3>';
-    el.innerHTML += '<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:20px;"><tr style="background:rgba(200,169,74,0.1);">' +
-        '<th style="padding:8px;text-align:left;color:#c8a94a;">Protocolo</th><th style="padding:8px;text-align:left;color:#c8a94a;">Data</th>' +
-        '<th style="padding:8px;text-align:left;color:#c8a94a;">Título</th><th style="padding:8px;text-align:left;color:#c8a94a;">Setor</th>' +
-        '<th style="padding:8px;text-align:left;color:#c8a94a;">Status</th><th style="padding:8px;text-align:left;color:#c8a94a;">Tipo</th></tr>';
-
-    chamados.slice(0, 40).forEach(function(c) {
-        el.innerHTML += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
-            '<td style="padding:6px 8px;">' + (c.protocolo || '') + '</td>' +
-            '<td style="padding:6px 8px;">' + formatarData(c.data_abertura) + '</td>' +
-            '<td style="padding:6px 8px;">' + (c.titulo || '') + '</td>' +
-            '<td style="padding:6px 8px;">' + (c.setor || '') + '</td>' +
-            '<td style="padding:6px 8px;">' + (c.status || '') + '</td>' +
-            '<td style="padding:6px 8px;">' + (c.tipo === 'gesthosp' ? 'GestHosp' : 'TI') + '</td></tr>';
-    });
-    el.innerHTML += '</table>';
-
-    el.innerHTML += '<h3 style="color:#c8a94a;margin-bottom:8px;">🖥️ Equipamentos</h3>';
-    el.innerHTML += '<table style="width:100%;border-collapse:collapse;font-size:9px;">' +
-        '<tr style="background:rgba(200,169,74,0.1);"><th style="padding:8px;text-align:left;color:#c8a94a;">Nome</th><th style="padding:8px;text-align:left;color:#c8a94a;">Tipo</th></tr>';
-    equipamentos.forEach(function(eq) {
-        el.innerHTML += '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
-            '<td style="padding:6px 8px;">' + eq.nome + '</td><td style="padding:6px 8px;">' + eq.tipo + '</td></tr>';
-    });
-    el.innerHTML += '</table>';
+    // Equipamentos
+    el.innerHTML+='<h3 style="color:#F59E0B;margin-bottom:8px;">🖥️ Equipamentos</h3><table style="width:100%;border-collapse:collapse;font-size:9px;">'+
+        '<tr style="background:rgba(245,158,11,0.08);"><th style="padding:6px;text-align:left;color:#F59E0B;">Nome</th><th style="padding:6px;text-align:left;color:#F59E0B;">Tipo</th><th style="padding:6px;text-align:left;color:#F59E0B;">Qtd</th><th style="padding:6px;text-align:left;color:#F59E0B;">Localização</th></tr>';
+    equipamentos.forEach(eq=>{el.innerHTML+='<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:4px 6px;">'+eq.nome+'</td><td style="padding:4px 6px;">'+eq.tipo+'</td><td style="padding:4px 6px;">'+(eq.quantidade||1)+'</td><td style="padding:4px 6px;">'+(eq.localizacao||'—')+'</td></tr>';});
+    el.innerHTML+='</table>';
 
     document.body.appendChild(el);
-    html2canvas(el, { scale: 2, backgroundColor: '#06224a' }).then(function(c) {
+    html2canvas(el,{scale:2,backgroundColor:'#0F172A'}).then(c=>{
         document.body.removeChild(el);
-        var pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-        pdf.addImage(c.toDataURL('image/png'), 'PNG', 8, 8, 194, (c.height * 194) / c.width);
-        pdf.save('relatorio-helphosp-' + new Date().toISOString().slice(0, 10) + '.pdf');
-        mostrarToast('📄 Relatório PDF gerado!');
+        var pdf=new jspdf.jsPDF('p','mm','a4');
+        pdf.addImage(c.toDataURL('image/png'),'PNG',8,8,194,(c.height*194)/c.width);
+        pdf.save('relatorio-helphosp-'+new Date().toISOString().slice(0,10)+'.pdf');
+        toast('📄 PDF gerado!');
     });
 }
 
-// ========== UTILITÁRIOS ==========
-function mostrarToast(m) {
-    var t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = m;
-    document.body.appendChild(t);
-    setTimeout(function() { t.remove(); }, 3000);
-}
-
-function logout() {
-    localStorage.removeItem('usuario_logado');
-    window.location.href = 'admin.html';
-}
+// UTILITÁRIOS
+function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
+function fecharModal(id){document.getElementById(id).classList.remove('ativa');}
+function logout(){localStorage.removeItem('usuario_logado');window.location.href='admin.html';}
 </script>
 </body>
 </html>

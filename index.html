@@ -828,28 +828,28 @@
         <div class="suporte-container">
             <div class="suporte-header" onclick="toggleSuporte()">
                 <i class="fab fa-whatsapp"></i>
-                <h3>📞 Suporte Técnico</h3>
+                <h3>📞 Suporte</h3>
                 <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
             </div>
             <div class="suporte-contatos" id="contatosSuporte">
                 <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
                     <i class="fab fa-whatsapp"></i>
-                    <div><strong>Jeconias Rocha</strong><small>Analista de Sistema</small></div>
+                    <div><strong>Jeconias</strong><small>Analista de Sistema</small></div>
                     <span class="depto-tag depto-ti">TI</span>
                 </a>
                 <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
                     <i class="fab fa-whatsapp"></i>
-                    <div><strong>Allan Michel</strong><small>Suporte Técnico</small></div>
+                    <div><strong>Allan</strong><small>Suporte Técnico</small></div>
                     <span class="depto-tag depto-ti">TI</span>
                 </a>
                 <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
                     <i class="fab fa-whatsapp"></i>
-                    <div><strong>Bruno</strong><small>Elétrica/Hidráulica</small></div>
+                    <div><strong>Bruno</strong><small>Estrutura/Elétrica</small></div>
                     <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
                 </a>
                 <a href="https://wa.me/5582999334549" target="_blank" class="contato-card">
                     <i class="fab fa-whatsapp"></i>
-                    <div><strong>Benicio</strong><small>Elétrica/Hidráulica</small></div>
+                    <div><strong>Benicio</strong><small>Estrutura/Elétrica</small></div>
                     <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
                 </a>
             </div>
@@ -860,7 +860,7 @@
             <div class="action-card" onclick="mostrarFormularioChamado('TI')">
                 <div class="card-icon"><i class="fas fa-desktop"></i></div>
                 <h3>Tecnologia da Informação</h3>
-                <p>Computadores, sistemas, rede, internet, e-mail</p>
+                <p>Computadores, sistemas, rede, internet, wifi</p>
             </div>
             <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')">
                 <div class="card-icon"><i class="fas fa-tools"></i></div>
@@ -874,7 +874,7 @@
             </div>
             <div class="action-card" onclick="mostrarChamados()">
                 <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
-                <h3>Meus Chamados</h3>
+                <h3>Chamados</h3>
                 <p>Acompanhar status dos chamados de hoje</p>
             </div>
         </div>
@@ -896,10 +896,46 @@
                         <label>Setor *</label>
                         <select id="setor" required>
                             <option value="">Selecione o setor...</option>
-                            <option>UTI I</option><option>UTI II</option><option>Emergência</option>
-                            <option>Centro Cirúrgico</option><option>Oncologia</option><option>Farmácia</option>
-                            <option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option>
-                            <option>NIR</option><option>Faturamento</option><option>Pediatria</option><option>Outros</option>
+                            <option>Administração</option>
+                            <option>Almoxarifado</option>
+                            <option>Centro Cirúrgico</option>
+                            <option>Clínica Cirurgica</option>
+                            <option>Clínica Médica I</option>
+                            <option>Clínica Médica II</option>
+                            <option>Comunicação</option>
+                            <option>Direção Administrativa</option>
+                            <option>Direção Enfermagem</option>
+                            <option>Direção geral</option>
+                            <option>Direção Medica</option>
+                            <option>Emergência/Vermelha</option>
+                            <option>Engenharia Clinica</option>
+                            <option>Farmácia</option>
+                            <option>Faturamento</option>
+                            <option>Fisioterapia</option>
+                            <option>Hotelaria</option>
+                            <option>Juridico</option>
+                            <option>Laboratório</option>
+                            <option>NIR</option>
+                            <option>Nutrição</option>
+                            <option>Oncologia I</option>
+                            <option>Oncologia II</option>
+                            <option>Ouvidoria</option>
+                            <option>Patrimonio</option>
+                            <option>Pediatria</option>
+                            <option>Psicologia</option>
+                            <option>RH</option>
+                            <option>Raio-X</option>
+                            <option>Recepção CR</option>
+                            <option>Recepção Geral</option>
+                            <option>Recepção Nefrologia</option>
+                            <option>Same</option>
+                            <option>Serviço Social</option>
+                            <option>Sesmt</option>
+                            <option>Telemedicina</option>
+                            <option>Tomografia</option>
+                            <option>UTI I</option>
+                            <option>UTI II</option>
+                            <option>Outros</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -991,15 +1027,20 @@
                             <label>Acesso GestHosp</label>
                             <select id="ghAcessoGestHosp">
                                 <option value="Sim" selected>Sim - Precisa de acesso</option>
-                                <option value="Não">Não - Apenas cadastro</option>
+                                <option value="Não">Não - Apenas Vincular unidade</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Perfil de Acesso</label>
                             <select id="ghPerfil">
-                                <option>Médico</option><option>Enfermeiro</option><option>Fisioterapeuta</option>
-                                <option>Assistente Social</option><option>Nutricionista</option><option>Psicólogo</option>
-                                <option>Farmacêutico</option><option>Outros</option>
+                                <option>Médico</option>
+                                <option>Enfermeiro</option>
+                                <option>Fisioterapeuta</option>
+                                <option>Assistente Social</option>
+                                <option>Nutricionista</option>
+                                <option>Psicólogo</option>
+                                <option>Farmacêutico/Farmacia</option>
+                                <option>Outros</option>
                             </select>
                         </div>
                     </div>
@@ -1043,7 +1084,7 @@
         const db = firebase.firestore();
 
         const deptConfig = {
-            'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Notebook','Impressora','Sistema','Internet/Rede','Telefone','E-mail','Software','Hardware','Outros'] },
+            'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Software','Hardware','Outros'] },
             'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Telhado','Piso','Outros'] }
         };
 

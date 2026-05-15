@@ -781,6 +781,31 @@
             .logo h1 { font-size: 20px; }
             .logo h1 .help, .logo h1 .hosp { font-size: 22px; }
         }
+
+        .suporte-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #1a3a5c, #2c5282);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #fff;
+}
+
+.contato-avatar {
+    width: 38px;
+    height: 38px;
+    background: #F0F4F8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+        
     </style>
 </head>
 <body>
@@ -826,34 +851,48 @@
 
         <!-- SUPORTE TÉCNICO -->
         <div class="suporte-container">
-            <div class="suporte-header" onclick="toggleSuporte()">
-                <i class="fab fa-whatsapp"></i>
-                <h3>📞 Suporte</h3>
-                <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
-            </div>
-            <div class="suporte-contatos" id="contatosSuporte">
-                <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
-                    <i class="fab fa-whatsapp"></i>
-                    <div><strong>Jeconias</strong><small>Analista de Sistema</small></div>
-                    <span class="depto-tag depto-ti">TI</span>
-                </a>
-                <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
-                    <i class="fab fa-whatsapp"></i>
-                    <div><strong>Allan</strong><small>Suporte Técnico</small></div>
-                    <span class="depto-tag depto-ti">TI</span>
-                </a>
-                <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
-                    <i class="fab fa-whatsapp"></i>
-                    <div><strong>Bruno</strong><small>Estrutura/Elétrica</small></div>
-                    <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
-                </a>
-                <a href="https://wa.me/5582999334549" target="_blank" class="contato-card">
-                    <i class="fab fa-whatsapp"></i>
-                    <div><strong>Benicio</strong><small>Estrutura/Elétrica</small></div>
-                    <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
-                </a>
-            </div>
+    <div class="suporte-header" onclick="toggleSuporte()">
+        <div class="suporte-icon-wrapper">
+            <i class="fas fa-headset"></i>
         </div>
+        <h3>Suporte Técnico</h3>
+        <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+    </div>
+    <div class="suporte-contatos" id="contatosSuporte">
+        <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
+            <div class="contato-avatar">🎧</div>
+            <div>
+                <strong>Jeconias</strong>
+                <small>Analista de Sistema</small>
+            </div>
+            <span class="depto-tag depto-ti">TI</span>
+        </a>
+        <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
+            <div class="contato-avatar">🎧</div>
+            <div>
+                <strong>Allan</strong>
+                <small>Suporte Técnico</small>
+            </div>
+            <span class="depto-tag depto-ti">TI</span>
+        </a>
+        <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
+            <div class="contato-avatar">🔧</div>
+            <div>
+                <strong>Bruno</strong>
+                <small>Estrutural/Elétrica/Hidráulica</small>
+            </div>
+            <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
+        </a>
+        <a href="https://wa.me/5582999334549" target="_blank" class="contato-card">
+            <div class="contato-avatar">🔧</div>
+            <div>
+                <strong>Benicio</strong>
+                <small>Estrutural/Elétrica/Hidráulica</small>
+            </div>
+            <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
+        </a>
+    </div>
+</div>
 
         <!-- GRID DE AÇÕES -->
         <div class="action-grid">
@@ -896,7 +935,6 @@
                         <label>Setor *</label>
                         <select id="setor" required>
                             <option value="">Selecione o setor...</option>
-                            <option>Administração</option>
                             <option>Almoxarifado</option>
                             <option>Centro Cirúrgico</option>
                             <option>Clínica Cirurgica</option>

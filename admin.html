@@ -11,24 +11,16 @@
         :root {
             --azul-escuro: #06224a;
             --azul-medio: #0d3d75;
-            --azul-claro: #1a5a9a;
+            --dourado: #c8a94a;
+            --dourado-claro: #d4bc6e;
             --branco: #ffffff;
             --cinza-claro: #c9d2df;
             --cinza-medio: #94a3b8;
-            --dourado: #c8a94a;
-            --dourado-claro: #d4bc6e;
-            --dourado-escuro: #a88a3a;
-            --dourado-brilho: rgba(200, 169, 74, 0.15);
             --erro: #e74c3c;
             --sucesso: #2ecc71;
-            --sombra: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -41,979 +33,386 @@
             overflow: hidden;
         }
 
-        /* GRADE DE FUNDO */
         .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
+            pointer-events: none; z-index: 0;
         }
 
-        /* PARTÍCULAS FLUTUANTES */
-        .particulas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .particula {
-            position: absolute;
-            background: var(--dourado);
-            border-radius: 50%;
-            opacity: 0;
-            animation: floatUp 8s infinite;
-        }
-
-        .particula:nth-child(1) { left: 10%; width: 3px; height: 3px; animation-delay: 0s; animation-duration: 7s; }
-        .particula:nth-child(2) { left: 25%; width: 2px; height: 2px; animation-delay: 2s; animation-duration: 9s; }
-        .particula:nth-child(3) { left: 40%; width: 4px; height: 4px; animation-delay: 4s; animation-duration: 6s; }
-        .particula:nth-child(4) { left: 55%; width: 2px; height: 2px; animation-delay: 1s; animation-duration: 8s; }
-        .particula:nth-child(5) { left: 70%; width: 3px; height: 3px; animation-delay: 3s; animation-duration: 10s; }
-        .particula:nth-child(6) { left: 85%; width: 2px; height: 2px; animation-delay: 5s; animation-duration: 7s; }
-        .particula:nth-child(7) { left: 15%; width: 4px; height: 4px; animation-delay: 6s; animation-duration: 9s; }
-        .particula:nth-child(8) { left: 60%; width: 3px; height: 3px; animation-delay: 3.5s; animation-duration: 11s; }
-
-        @keyframes floatUp {
-            0% {
-                bottom: -10%;
-                opacity: 0;
-                transform: translateX(0) scale(0.5);
-            }
-            10% {
-                opacity: 0.8;
-            }
-            50% {
-                opacity: 0.4;
-                transform: translateX(30px) scale(1);
-            }
-            90% {
-                opacity: 0.1;
-            }
-            100% {
-                bottom: 110%;
-                opacity: 0;
-                transform: translateX(-20px) scale(0.3);
-            }
-        }
-
-        /* EFEITO DE BRILHO CENTRAL */
         .glow-central {
-            position: fixed;
-            top: 50%;
-            left: 50%;
+            position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(200, 169, 74, 0.08) 0%, rgba(200, 169, 74, 0.03) 40%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(200,169,74,0.08) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none; z-index: 0;
             animation: glowBreath 4s ease-in-out infinite;
         }
-
         @keyframes glowBreath {
-            0%, 100% {
-                opacity: 0.5;
-                transform: translate(-50%, -50%) scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.15);
-            }
+            0%,100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
         }
 
-        /* ECG DOURADO ANIMADO - VERSÃO MELHORADA */
         .ecg-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 120px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.5;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
+            pointer-events: none; z-index: 0; opacity: 0.5;
         }
-
-        .ecg-container svg {
-            width: 100%;
-            height: 100%;
-        }
-
+        .ecg-container svg { width: 100%; height: 100%; }
         .ecg-path {
-            fill: none;
-            stroke: var(--dourado);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 1400;
-            animation: ecgAnimate 3.5s linear infinite;
+            fill: none; stroke: var(--dourado); stroke-width: 2;
+            stroke-dasharray: 1400; animation: ecgAnim 3.5s linear infinite;
         }
+        .ecg-path:nth-child(2) { animation-delay: 0.7s; stroke-width: 1.5; opacity: 0.6; }
+        .ecg-path:nth-child(3) { animation-delay: 1.4s; stroke-width: 1; opacity: 0.4; }
+        .ecg-path:nth-child(4) { animation-delay: 2.1s; stroke-width: 2.5; opacity: 0.25; }
+        @keyframes ecgAnim { 0% { stroke-dashoffset: 1400; } 100% { stroke-dashoffset: -1400; } }
 
-        .ecg-path:nth-child(2) {
-            animation-delay: 0.7s;
-            stroke-width: 1.5;
-            opacity: 0.6;
-            stroke-dasharray: 1600;
-        }
-
-        .ecg-path:nth-child(3) {
-            animation-delay: 1.4s;
-            stroke-width: 1;
-            opacity: 0.4;
-            stroke-dasharray: 1500;
-        }
-
-        .ecg-path:nth-child(4) {
-            animation-delay: 2.1s;
-            stroke-width: 2.5;
-            opacity: 0.25;
-            stroke-dasharray: 1700;
-        }
-
-        .ecg-path:nth-child(5) {
-            animation-delay: 2.8s;
-            stroke-width: 1.2;
-            opacity: 0.3;
-            stroke-dasharray: 1300;
-        }
-
-        @keyframes ecgAnimate {
-            0% {
-                stroke-dashoffset: 1400;
-            }
-            100% {
-                stroke-dashoffset: -1400;
-            }
-        }
-
-        /* PULSO DO ECG */
-        .ecg-pulse-point {
-            position: fixed;
-            bottom: 55px;
-            width: 8px;
-            height: 8px;
-            background: var(--dourado);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            animation: pulseGlow 3.5s ease-in-out infinite;
-            box-shadow: 0 0 15px rgba(200, 169, 74, 0.8), 0 0 30px rgba(200, 169, 74, 0.4);
-        }
-
-        .ecg-pulse-point:nth-child(1) { left: 20%; }
-        .ecg-pulse-point:nth-child(2) { left: 45%; animation-delay: 0.7s; }
-        .ecg-pulse-point:nth-child(3) { left: 70%; animation-delay: 1.4s; }
-
-        @keyframes pulseGlow {
-            0%, 100% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            15% {
-                opacity: 1;
-                transform: scale(2.5);
-            }
-            30% {
-                opacity: 0.3;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-        }
-
-        /* CONTAINER PRINCIPAL */
         .login-wrapper {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            width: 100%;
-            max-width: 460px;
-            padding: 0 20px;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative; z-index: 1; text-align: center;
+            width: 100%; max-width: 460px; padding: 0 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo-container {
+            position: relative; width: 84px; height: 84px; margin: 0 auto 14px;
+            border: 2px solid rgba(200,169,74,0.5); border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(200,169,74,0.06); overflow: hidden;
+        }
+        .logo-container i { font-size: 38px; color: var(--dourado); position: relative; z-index: 1; }
+        .logo-container .cross-h, .logo-container .cross-v {
+            position: absolute; background: rgba(200,169,74,0.2);
+        }
+        .logo-container .cross-h { width: 22px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-container .cross-v { width: 2px; height: 22px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-mini-ecg {
+            position: absolute; bottom: 12px; left: 14px; right: 14px; height: 2px;
+            background: var(--dourado); border-radius: 1px;
+            animation: miniEcg 1.6s ease-in-out infinite;
+        }
+        @keyframes miniEcg {
+            0%,100% { clip-path: inset(0 65% 0 0); opacity: 0.3; }
+            40% { clip-path: inset(0 20% 0 0); opacity: 0.8; }
+            60% { clip-path: inset(0 0 0 0); opacity: 1; }
+            80% { clip-path: inset(0 30% 0 0); opacity: 0.6; }
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* BRASÃO HOSPITALAR */
-        .brasao-container {
-            margin-bottom: 24px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .brasao-outer {
-            width: 100px;
-            height: 100px;
-            border: 2px solid var(--dourado);
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(200, 169, 74, 0.08), rgba(200, 169, 74, 0.03));
-            position: relative;
-            animation: brasaoFloat 3s ease-in-out infinite;
-            box-shadow: 0 0 40px rgba(200, 169, 74, 0.1), inset 0 0 40px rgba(200, 169, 74, 0.05);
-        }
-
-        .brasao-inner {
-            width: 70px;
-            height: 70px;
-            border: 1px solid rgba(200, 169, 74, 0.4);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(200, 169, 74, 0.06);
-            position: relative;
-        }
-
-        .brasao-icon {
-            font-size: 32px;
-            color: var(--dourado);
-            position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 0 8px rgba(200, 169, 74, 0.3));
-        }
-
-        /* CRUZ HOSPITALAR SUTIL */
-        .brasao-cross-h {
-            position: absolute;
-            width: 20px;
-            height: 2px;
-            background: rgba(200, 169, 74, 0.3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-        }
-
-        .brasao-cross-v {
-            position: absolute;
-            width: 2px;
-            height: 20px;
-            background: rgba(200, 169, 74, 0.3);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-        }
-
-        /* LINHA ECG NO BRASÃO */
-        .brasao-ecg {
-            position: absolute;
-            bottom: 10px;
-            left: 12px;
-            right: 12px;
-            height: 2px;
-            background: var(--dourado);
-            opacity: 0.5;
-            border-radius: 1px;
-            animation: miniEcgPulse 1.8s ease-in-out infinite;
-        }
-
-        @keyframes miniEcgPulse {
-            0%, 100% {
-                clip-path: inset(0 65% 0 0);
-                opacity: 0.3;
-            }
-            25% {
-                clip-path: inset(0 30% 0 0);
-                opacity: 0.7;
-            }
-            50% {
-                clip-path: inset(0 0 0 0);
-                opacity: 1;
-            }
-            75% {
-                clip-path: inset(0 20% 0 0);
-                opacity: 0.6;
-            }
-        }
-
-        @keyframes brasaoFloat {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        /* NOME DO SISTEMA */
-        .system-name {
-            font-size: 52px;
-            font-weight: 300;
-            letter-spacing: 3px;
-            margin-bottom: 6px;
-            line-height: 1;
-        }
-
-        .system-name .help {
-            color: var(--cinza-claro);
-            font-weight: 200;
-        }
-
-        .system-name .hosp {
-            color: var(--branco);
-            font-weight: 700;
-        }
-
+        .system-name { font-size: 48px; letter-spacing: 2px; margin-bottom: 4px; }
+        .system-name .help { color: var(--cinza-claro); font-weight: 300; }
+        .system-name .hosp { color: var(--branco); font-weight: 700; }
         .system-subtitle {
-            color: var(--dourado);
-            font-size: 10px;
-            letter-spacing: 6px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            font-weight: 600;
+            color: var(--dourado); font-size: 10px; letter-spacing: 5px;
+            text-transform: uppercase; margin-bottom: 18px; font-weight: 600;
         }
-
-        /* LINHA DOURADA DECORATIVA */
         .golden-line {
-            width: 80px;
-            height: 2px;
+            width: 80px; height: 2px;
             background: linear-gradient(90deg, transparent, var(--dourado), var(--dourado-claro), var(--dourado), transparent);
-            margin: 0 auto 22px;
-            border-radius: 2px;
-            animation: lineShimmer 2s ease-in-out infinite;
+            margin: 0 auto 20px; border-radius: 2px;
         }
+        .slogan { color: var(--cinza-medio); font-size: 14px; font-style: italic; margin-bottom: 30px; }
 
-        @keyframes lineShimmer {
-            0%, 100% {
-                opacity: 0.6;
-                width: 80px;
-            }
-            50% {
-                opacity: 1;
-                width: 100px;
-            }
-        }
-
-        /* SLOGAN */
-        .slogan {
-            color: var(--cinza-medio);
-            font-size: 14px;
-            font-style: italic;
-            letter-spacing: 1px;
-            margin-bottom: 32px;
-            font-weight: 300;
-        }
-
-        /* CARD DO FORMULÁRIO */
         .login-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 20px;
-            padding: 32px 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--sombra);
-            transition: all 0.3s;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px; padding: 32px 30px; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        .login-card:hover {
-            border-color: rgba(200, 169, 74, 0.15);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(200, 169, 74, 0.05);
-        }
-
-        .login-card h3 {
-            color: var(--cinza-claro);
-            font-size: 15px;
-            margin-bottom: 24px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-        }
-
-        /* ÍCONE DE USUÁRIO NO TOPO DO CARD */
+        .login-card h3 { color: var(--cinza-claro); font-size: 15px; margin-bottom: 20px; font-weight: 400; }
         .card-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(200, 169, 74, 0.2), rgba(200, 169, 74, 0.05));
-            border: 2px solid rgba(200, 169, 74, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(200,169,74,0.2), rgba(200,169,74,0.05));
+            border: 2px solid rgba(200,169,74,0.3);
+            display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px;
         }
+        .card-avatar i { font-size: 22px; color: var(--dourado); }
 
-        .card-avatar i {
-            font-size: 22px;
-            color: var(--dourado);
-        }
-
-        /* MENSAGEM DE ERRO */
         .erro {
-            background: rgba(231, 76, 60, 0.1);
-            color: #fca5a5;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 18px;
-            font-size: 12px;
-            display: none;
-            text-align: center;
-            border: 1px solid rgba(231, 76, 60, 0.2);
-            animation: shake 0.5s ease;
+            background: rgba(231,76,60,0.1); color: #fca5a5;
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
+            font-size: 12px; display: none; text-align: center;
+            border: 1px solid rgba(231,76,60,0.2);
         }
-
-        .erro.show {
-            display: block;
-            animation: shake 0.5s ease, fadeIn 0.3s ease;
-        }
-
+        .erro.show { display: block; animation: shake 0.5s ease; }
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
+            0%,100% { transform: translateX(0); }
             20% { transform: translateX(-8px); }
             40% { transform: translateX(8px); }
             60% { transform: translateX(-5px); }
             80% { transform: translateX(5px); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* MENSAGEM DE SUCESSO */
-        .sucesso {
-            background: rgba(46, 204, 113, 0.1);
-            color: #6ee7b7;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 18px;
-            font-size: 12px;
-            display: none;
-            text-align: center;
-            border: 1px solid rgba(46, 204, 113, 0.2);
-        }
-
-        .sucesso.show {
-            display: block;
-        }
-
-        /* CAMPOS */
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
+        .form-group { margin-bottom: 16px; text-align: left; }
         .form-group label {
-            display: block;
-            font-size: 11px;
-            color: var(--cinza-medio);
-            margin-bottom: 6px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: color 0.3s;
+            display: block; font-size: 11px; color: var(--cinza-medio);
+            margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
         }
-
-        .input-wrapper {
-            position: relative;
-        }
-
+        .input-wrapper { position: relative; }
         .input-wrapper .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dourado);
-            font-size: 14px;
-            opacity: 0.5;
-            transition: all 0.3s;
-            z-index: 1;
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: var(--dourado); font-size: 14px; opacity: 0.5; transition: all 0.3s; z-index: 1;
         }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 14px 14px 14px 44px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--branco);
-            font-size: 14px;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            transition: all 0.3s;
-            outline: none;
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px 14px 14px 44px;
+            background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: var(--branco); font-size: 14px;
+            font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s; outline: none;
         }
-
         .form-group select {
-            padding-left: 14px;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
+            padding-left: 14px; cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8a94a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
+            background-repeat: no-repeat; background-position: right 14px center;
             padding-right: 35px;
         }
-
-        .form-group select option {
-            background: #0a2d4d;
-            color: var(--branco);
-            padding: 10px;
+        .form-group select option { background: #0a2d4d; color: var(--branco); }
+        .form-group input::placeholder { color: rgba(201,210,223,0.3); }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--dourado); background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 20px rgba(200,169,74,0.08);
         }
+        .form-group input:focus ~ .input-icon { opacity: 1; }
 
-        .form-group input::placeholder {
-            color: rgba(201, 210, 223, 0.3);
-            font-size: 13px;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--dourado);
-            background: rgba(255, 255, 255, 0.06);
-            box-shadow: 0 0 0 4px rgba(200, 169, 74, 0.06), 0 0 20px rgba(200, 169, 74, 0.08);
-        }
-
-        .form-group input:focus+.input-icon,
-        .form-group input:focus~.input-icon {
-            opacity: 1;
-            color: var(--dourado-claro);
-        }
-
-        .form-group input:focus+label,
-        .form-group input:focus~label {
-            color: var(--dourado);
-        }
-
-        /* BOTÃO */
         .btn-login {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #0d3d75 0%, #06224a 100%);
-            color: var(--branco);
-            border: 1px solid rgba(200, 169, 74, 0.3);
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-            margin-top: 8px;
-            position: relative;
-            overflow: hidden;
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #0d3d75, #06224a);
+            color: var(--branco); border: 1px solid rgba(200,169,74,0.3);
+            border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s;
+            letter-spacing: 1px; margin-top: 8px;
         }
-
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 169, 74, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-login:hover::before {
-            left: 100%;
-        }
-
         .btn-login:hover {
             background: linear-gradient(135deg, #0f4d8a, #0a3055);
-            border-color: var(--dourado);
-            box-shadow: 0 8px 30px rgba(200, 169, 74, 0.2);
+            border-color: var(--dourado); box-shadow: 0 8px 30px rgba(200,169,74,0.2);
             transform: translateY(-2px);
         }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-login:active {
-            transform: scale(0.97);
-            transition: transform 0.1s;
-        }
-
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* LOADING SPINNER NO BOTÃO */
         .btn-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
+            display: inline-block; width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* RODAPÉ */
-        .login-footer {
-            text-align: center;
-            margin-top: 24px;
-        }
-
+        .login-footer { text-align: center; margin-top: 24px; }
         .login-footer a {
-            color: var(--cinza-medio);
-            text-decoration: none;
-            font-size: 12px;
-            opacity: 0.7;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            color: var(--cinza-medio); text-decoration: none; font-size: 12px;
+            opacity: 0.7; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;
         }
+        .login-footer a:hover { opacity: 1; color: var(--dourado); }
 
-        .login-footer a:hover {
-            opacity: 1;
-            color: var(--dourado);
-            transform: translateX(-3px);
-        }
-
-        .login-footer .divider {
-            color: rgba(255, 255, 255, 0.2);
-            margin: 0 8px;
-        }
-
-        /* RESPONSIVO */
         @media (max-width: 480px) {
-            .system-name {
-                font-size: 38px;
-                letter-spacing: 2px;
-            }
-            .system-subtitle {
-                font-size: 8px;
-                letter-spacing: 4px;
-            }
-            .login-card {
-                padding: 24px 18px;
-                border-radius: 16px;
-            }
-            .brasao-outer {
-                width: 80px;
-                height: 80px;
-                border-radius: 22px;
-            }
-            .brasao-inner {
-                width: 56px;
-                height: 56px;
-                border-radius: 16px;
-            }
-            .brasao-icon {
-                font-size: 26px;
-            }
+            .system-name { font-size: 38px; }
+            .system-subtitle { font-size: 8px; letter-spacing: 4px; }
+            .login-card { padding: 24px 18px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- GRADE DE FUNDO -->
-    <div class="bg-grid"></div>
+<div class="bg-grid"></div>
+<div class="glow-central"></div>
 
-    <!-- PARTÍCULAS -->
-    <div class="particulas">
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
-        <div class="particula"></div>
+<div class="ecg-container">
+    <svg viewBox="0 0 1400 100" preserveAspectRatio="none">
+        <path class="ecg-path" d="M0,50 L80,50 L100,50 L108,12 L116,88 L124,50 L132,8 L140,92 L148,50 L300,50"/>
+        <path class="ecg-path" d="M300,50 L380,50 L400,50 L408,12 L416,88 L424,50 L432,8 L440,92 L448,50 L600,50"/>
+        <path class="ecg-path" d="M600,50 L680,50 L700,50 L708,12 L716,88 L724,50 L732,8 L740,92 L748,50 L900,50"/>
+        <path class="ecg-path" d="M900,50 L980,50 L1000,50 L1008,12 L1016,88 L1024,50 L1032,8 L1040,92 L1048,50 L1200,50"/>
+    </svg>
+</div>
+
+<div class="login-wrapper">
+    <div class="logo-container">
+        <i class="fas fa-hospital"></i>
+        <div class="cross-h"></div><div class="cross-v"></div>
+        <div class="logo-mini-ecg"></div>
     </div>
+    <div class="system-name"><span class="help">Help</span><span class="hosp">Hosp</span></div>
+    <div class="system-subtitle">Sistema de Chamados Hospitalar</div>
+    <div class="golden-line"></div>
+    <div class="slogan">Área Técnica</div>
 
-    <!-- BRILHO CENTRAL -->
-    <div class="glow-central"></div>
-
-    <!-- ECG DOURADO ANIMADO -->
-    <div class="ecg-container">
-        <svg viewBox="0 0 1400 120" preserveAspectRatio="none">
-            <!-- Linha 1 - Principal -->
-            <path class="ecg-path" d="M0,60 L80,60 L100,60 L108,15 L116,105 L124,60 L132,10 L140,110 L148,60 L160,15 L168,105 L176,60 L300,60" />
-            <!-- Linha 2 -->
-            <path class="ecg-path" d="M300,60 L380,60 L400,60 L408,15 L416,105 L424,60 L432,10 L440,110 L448,60 L460,15 L468,105 L476,60 L600,60" />
-            <!-- Linha 3 -->
-            <path class="ecg-path" d="M600,60 L680,60 L700,60 L708,15 L716,105 L724,60 L732,10 L740,110 L748,60 L760,15 L768,105 L776,60 L900,60" />
-            <!-- Linha 4 -->
-            <path class="ecg-path" d="M900,60 L980,60 L1000,60 L1008,15 L1016,105 L1024,60 L1032,10 L1040,110 L1048,60 L1060,15 L1068,105 L1076,60 L1200,60" />
-            <!-- Linha 5 - Mais suave -->
-            <path class="ecg-path" d="M200,60 L250,60 L270,60 L278,30 L286,90 L294,60 L500,60 L550,60 L570,60 L578,30 L586,90 L594,60 L800,60 L850,60 L870,60 L878,30 L886,90 L894,60 L1100,60" />
-        </svg>
-    </div>
-
-    <!-- PONTOS DE PULSO -->
-    <div class="ecg-pulse-point" style="left: 18%;"></div>
-    <div class="ecg-pulse-point" style="left: 44%;"></div>
-    <div class="ecg-pulse-point" style="left: 68%;"></div>
-
-    <!-- CONTAINER PRINCIPAL -->
-    <div class="login-wrapper">
-
-        <!-- BRASÃO HOSPITALAR -->
-        <div class="brasao-container">
-            <div class="brasao-outer">
-                <div class="brasao-inner">
-                    <div class="brasao-cross-h"></div>
-                    <div class="brasao-cross-v"></div>
-                    <i class="fas fa-heartbeat brasao-icon"></i>
-                    <div class="brasao-ecg"></div>
+    <div class="login-card">
+        <div class="card-avatar"><i class="fas fa-user-shield"></i></div>
+        <h3>Acesso Restrito — Informe suas credenciais</h3>
+        <div class="erro" id="erroLogin"></div>
+        <form onsubmit="login(event)" id="loginForm">
+            <div class="form-group">
+                <label>Departamento</label>
+                <select id="departamento">
+                    <option value="">Selecione o departamento...</option>
+                    <option value="TI">🖥️ Tecnologia da Informação</option>
+                    <option value="MANUTENCAO">🔧 Manutenção</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Usuário</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
                 </div>
             </div>
-        </div>
-
-        <!-- NOME DO SISTEMA -->
-        <div class="system-name">
-            <span class="help">Help</span><span class="hosp">Hosp</span>
-        </div>
-        <div class="system-subtitle">Sistema de Chamados Hospitalar</div>
-
-        <!-- LINHA DOURADA -->
-        <div class="golden-line"></div>
-
-        <!-- SLOGAN -->
-        <div class="slogan">Área Técnica</div>
-
-        <!-- CARD DO FORMULÁRIO -->
-        <div class="login-card">
-            <div class="card-avatar">
-                <i class="fas fa-user-shield"></i>
+            <div class="form-group">
+                <label>Senha</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                </div>
             </div>
-            <h3>Acesso Restrito — Informe suas credenciais</h3>
-
-            <!-- MENSAGEM DE ERRO -->
-            <div class="erro" id="erroLogin"></div>
-
-            <!-- MENSAGEM DE SUCESSO -->
-            <div class="sucesso" id="sucessoLogin"></div>
-
-            <form onsubmit="login(event)" id="loginForm">
-                <!-- DEPARTAMENTO -->
-                <div class="form-group">
-                    <label>Departamento</label>
-                    <select id="departamento">
-                        <option value="">Selecione o departamento...</option>
-                        <option value="TI">🖥️  Tecnologia da Informação</option>
-                        <option value="MANUTENCAO">🔧  Manutenção</option>
-                    </select>
-                </div>
-
-                <!-- USUÁRIO -->
-                <div class="form-group">
-                    <label>Usuário</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
-                    </div>
-                </div>
-
-                <!-- SENHA -->
-                <div class="form-group">
-                    <label>Senha</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
-                    </div>
-                </div>
-
-                <!-- BOTÃO -->
-                <button type="submit" class="btn-login" id="btnLogin">
-                    <i class="fas fa-sign-in-alt"></i> &nbsp;Entrar
-                </button>
-            </form>
-        </div>
-
-        <!-- RODAPÉ -->
-        <div class="login-footer">
-            <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar para Central de Chamados</a>
-            <span class="divider">|</span>
-            <a href="#"><i class="fas fa-question-circle"></i> Esqueci a senha</a>
-        </div>
+            <button type="submit" class="btn-login" id="btnLogin"><i class="fas fa-sign-in-alt"></i> &nbsp;Entrar</button>
+        </form>
     </div>
+    <div class="login-footer">
+        <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar para Central de Chamados</a>
+    </div>
+</div>
 
-    <script>
-        const fc = {
-            apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
-            authDomain: "helphosp.firebaseapp.com",
-            projectId: "helphosp",
-            storageBucket: "helphosp.firebasestorage.app",
-            messagingSenderId: "1075623193163",
-            appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
-        };
-        firebase.initializeApp(fc);
-        const db = firebase.firestore();
+<script>
+const fc = {
+    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+    authDomain: "helphosp.firebaseapp.com",
+    projectId: "helphosp",
+    storageBucket: "helphosp.firebasestorage.app",
+    messagingSenderId: "1075623193163",
+    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+};
+firebase.initializeApp(fc);
+const db = firebase.firestore();
 
-        var tentativas = 0;
-        var loginBloqueado = false;
+var tentativas = 0;
+var loginBloqueado = false;
 
-        function login(e) {
-            e.preventDefault();
-
-            if (loginBloqueado) {
-                mostrarErro('Muitas tentativas. Aguarde 30 segundos.');
-                return;
+function login(e) {
+    e.preventDefault();
+    
+    if (loginBloqueado) {
+        mostrarErro('Muitas tentativas. Aguarde 30 segundos.');
+        return;
+    }
+    
+    var departamento = document.getElementById('departamento').value;
+    var usuario = document.getElementById('usuario').value.toLowerCase().trim();
+    var senha = document.getElementById('senha').value;
+    var btn = document.getElementById('btnLogin');
+    
+    if (!departamento) {
+        mostrarErro('Selecione o departamento!');
+        return;
+    }
+    if (!usuario || !senha) {
+        mostrarErro('Preencha todos os campos!');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Autenticando...';
+    
+    db.collection('usuarios').where('usuario', '==', usuario).get()
+    .then(function(snapshot) {
+        if (snapshot.empty) {
+            tentativas++;
+            mostrarErro('Usuário ou senha inválidos!');
+            verificarTentativas();
+            resetBtn();
+            return;
+        }
+        
+        var doc = snapshot.docs[0];
+        var user = doc.data();
+        
+        // Verificar senha
+        if (user.senha !== senha) {
+            tentativas++;
+            mostrarErro('Usuário ou senha inválidos!');
+            verificarTentativas();
+            resetBtn();
+            return;
+        }
+        
+        // Verificar status
+        if (user.status !== 'ativo') {
+            mostrarErro('Usuário inativo! Contate o administrador.');
+            resetBtn();
+            return;
+        }
+        
+        // Verificar departamento (admin pode acessar qualquer)
+        var deptoFinal = user.departamento || departamento;
+        
+        if (user.tipo !== 'admin' && user.departamento && user.departamento !== departamento) {
+            mostrarErro('Departamento incorreto para este usuário! Selecione: ' + 
+                (user.departamento === 'TI' ? 'Tecnologia da Informação' : 'Manutenção'));
+            resetBtn();
+            return;
+        }
+        
+        // Login bem-sucedido
+        tentativas = 0;
+        
+        localStorage.setItem('usuario_logado', JSON.stringify({
+            id: doc.id,
+            nome: user.nome,
+            usuario: user.usuario,
+            cargo: user.cargo,
+            departamento: deptoFinal,
+            tipo: user.tipo || 'tecnico',
+            expira: Date.now() + (8 * 60 * 60 * 1000)
+        }));
+        
+        // Redirecionar
+        setTimeout(function() {
+            if (user.primeiro_acesso) {
+                window.location.href = 'trocar-senha.html?id=' + doc.id;
+            } else {
+                window.location.href = 'dashboard.html';
             }
+        }, 500);
+    })
+    .catch(function(error) {
+        console.error('Erro:', error);
+        mostrarErro('Erro de conexão! Verifique sua internet.');
+        resetBtn();
+    });
+}
 
-            var departamento = document.getElementById('departamento').value;
-            var usuario = document.getElementById('usuario').value.toLowerCase().trim();
-            var senha = document.getElementById('senha').value;
-            var btn = document.getElementById('btnLogin');
+function mostrarErro(msg) {
+    var erroDiv = document.getElementById('erroLogin');
+    erroDiv.textContent = msg;
+    erroDiv.classList.add('show');
+    erroDiv.style.animation = 'none';
+    erroDiv.offsetHeight;
+    erroDiv.style.animation = 'shake 0.5s ease';
+}
 
-            if (!departamento) {
-                mostrarErro('Selecione o departamento!');
-                return;
-            }
-            if (!usuario || !senha) {
-                mostrarErro('Preencha todos os campos!');
-                return;
-            }
+function resetBtn() {
+    var btn = document.getElementById('btnLogin');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> &nbsp;Entrar';
+}
 
-            // Loading state
-            btn.disabled = true;
-            btn.innerHTML = '<span class="btn-spinner"></span> Autenticando...';
-
-            db.collection('usuarios').where('usuario', '==', usuario).get()
-                .then(function(snapshot) {
-                    if (snapshot.empty) {
-                        tentativas++;
-                        mostrarErro('Usuário ou senha inválidos!');
-                        verificarTentativas();
-                        resetBtn();
-                        return;
-                    }
-
-                    var doc = snapshot.docs[0];
-                    var user = doc.data();
-
-                    // Verificar departamento
-                    if (user.tipo !== 'admin' && user.departamento && user.departamento !== departamento) {
-                        tentativas++;
-                        mostrarErro('Departamento incorreto para este usuário!');
-                        verificarTentativas();
-                        resetBtn();
-                        return;
-                    }
-
-                    // Verificar senha
-                    if (user.senha !== senha) {
-                        tentativas++;
-                        mostrarErro('Usuário ou senha inválidos!');
-                        verificarTentativas();
-                        resetBtn();
-                        return;
-                    }
-
-                    // Verificar status
-                    if (user.status !== 'ativo') {
-                        mostrarErro('Usuário inativo! Contate o administrador.');
-                        resetBtn();
-                        return;
-                    }
-
-                    // Login bem-sucedido
-                    tentativas = 0;
-                    mostrarSucesso('✅ Login realizado! Redirecionando...');
-
-                    localStorage.setItem('usuario_logado', JSON.stringify({
-                        id: doc.id,
-                        nome: user.nome,
-                        usuario: user.usuario,
-                        cargo: user.cargo,
-                        departamento: user.departamento || departamento,
-                        tipo: user.tipo || 'tecnico',
-                        expira: Date.now() + (8 * 60 * 60 * 1000)
-                    }));
-
-                    // Redirecionar após breve delay
-                    setTimeout(function() {
-                        if (user.primeiro_acesso) {
-                            window.location.href = 'trocar-senha.html?id=' + doc.id;
-                        } else {
-                            window.location.href = 'dashboard.html';
-                        }
-                    }, 800);
-
-                })
-                .catch(function(error) {
-                    console.error('Erro Firebase:', error);
-                    mostrarErro('Erro de conexão! Verifique sua internet.');
-                    resetBtn();
-                });
-        }
-
-        function mostrarErro(msg) {
-            var erroDiv = document.getElementById('erroLogin');
-            var sucessoDiv = document.getElementById('sucessoLogin');
-            sucessoDiv.classList.remove('show');
-            erroDiv.textContent = msg;
-            erroDiv.classList.add('show');
-            // Re-animar
-            erroDiv.style.animation = 'none';
-            erroDiv.offsetHeight;
-            erroDiv.style.animation = 'shake 0.5s ease, fadeIn 0.3s ease';
-        }
-
-        function mostrarSucesso(msg) {
-            var sucessoDiv = document.getElementById('sucessoLogin');
-            var erroDiv = document.getElementById('erroLogin');
-            erroDiv.classList.remove('show');
-            sucessoDiv.textContent = msg;
-            sucessoDiv.classList.add('show');
-        }
-
-        function resetBtn() {
-            var btn = document.getElementById('btnLogin');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> &nbsp;Entrar';
-        }
-
-        function verificarTentativas() {
-            if (tentativas >= 5) {
-                loginBloqueado = true;
-                mostrarErro('Conta bloqueada por 30 segundos devido a múltiplas tentativas.');
-                setTimeout(function() {
-                    loginBloqueado = false;
-                    tentativas = 0;
-                    document.getElementById('erroLogin').classList.remove('show');
-                }, 30000);
-            }
-        }
-
-        // Limpar erro ao digitar
-        document.getElementById('usuario').addEventListener('input', function() {
+function verificarTentativas() {
+    if (tentativas >= 5) {
+        loginBloqueado = true;
+        mostrarErro('Conta bloqueada por 30 segundos.');
+        setTimeout(function() {
+            loginBloqueado = false;
+            tentativas = 0;
             document.getElementById('erroLogin').classList.remove('show');
-        });
-        document.getElementById('senha').addEventListener('input', function() {
-            document.getElementById('erroLogin').classList.remove('show');
-        });
-        document.getElementById('departamento').addEventListener('change', function() {
-            document.getElementById('erroLogin').classList.remove('show');
-        });
+        }, 30000);
+    }
+}
 
-        console.log('🏥 HelpHosp - Tela de Login Técnico');
-        console.log('💓 ECG animado em execução');
-        console.log('✨ Partículas flutuantes ativas');
-    </script>
+document.getElementById('usuario').addEventListener('input', function() {
+    document.getElementById('erroLogin').classList.remove('show');
+});
+document.getElementById('senha').addEventListener('input', function() {
+    document.getElementById('erroLogin').classList.remove('show');
+});
+document.getElementById('departamento').addEventListener('change', function() {
+    document.getElementById('erroLogin').classList.remove('show');
+});
+</script>
 </body>
 </html>

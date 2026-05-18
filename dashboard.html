@@ -576,20 +576,77 @@ var cargosPorDepartamento={'TI':['Técnico de Suporte TI','Analista de Sistemas'
 function atualizarCargosPorDepartamento(){var dep=document.getElementById('tdep').value;var s=document.getElementById('tc');s.innerHTML=cargosPorDepartamento[dep].map(function(c){return'<option>'+c+'</option>';}).join('');}
 
 // ========== INICIALIZAÇÃO ==========
-window.onload=function(){
-    document.getElementById('un').textContent=uLogado.nome;
-    document.getElementById('uc').textContent=uLogado.cargo+' · '+nomeDepto;
-    document.getElementById('ui').textContent=uLogado.nome.charAt(0).toUpperCase();
-    document.getElementById('deptoNome').textContent=nomeDepto;
-    document.getElementById('deptoNome').style.color=deptoCor;
-    document.getElementById('tituloChamados').textContent=nomeDepto;
-    var badge=document.getElementById('deptoBadge');badge.innerHTML='<span class="depto-badge '+(deptoUsuario==='TI'?'ti':'manutencao')+'">'+deptoIcone+' '+nomeDepto+'</span>';
-    if(uLogado.tipo==='admin'||uLogado.usuario==='edson'){document.getElementById('navEquipe').style.display='flex';}
-    var query=db.collection('chamados').orderBy('data_abertura','desc');
-    if(uLogado.tipo!=='admin'&&uLogado.usuario!=='edson'){query=query.where('departamento','==',deptoUsuario);}
-    query.onSnapshot(function(snap){chamados=[];snap.forEach(function(d){var x=d.data();x.fid=d.id;chamados.push(x);if(idsVistos.indexOf(d.id)===-1)notificar(x);});atualizarBadges();atualizarDash();if(document.getElementById('secao-chamados').classList.contains('ativa'))carregarChamados();if(document.getElementById('secao-gesthosp').classList.contains('ativa'))carregarGestHosp();if(document.getElementById('secao-toners').classList.contains('ativa'))carregarToners();});
-    carregarEquip();carregarIPs();carregarEquipe();popularMesesIndicadores();atualizarCargosPorDepartamento();
-    if(Notification.permission==='default')Notification.requestPermission();
+// ========== CORREÇÃO DO LISTENER (substitua esta parte) ==========
+window.onload = function() {
+    document.getElementById('un').textContent = uLogado.nome;
+    document.getElementById('uc').textContent = uLogado.cargo + ' · ' + nomeDepto;
+    document.getElementById('ui').textContent = uLogado.nome.charAt(0).toUpperCase();
+    document.getElementById('deptoNome').textContent = nomeDepto;
+    document.getElementById('deptoNome').style.color = deptoCor;
+    document.getElementById('tituloChamados').textContent = nomeDepto;
+    
+    var badge = document.getElementById('deptoBadge');
+    badge.innerHTML = '<span class="depto-badge ' + (deptoUsuario === 'TI' ? 'ti' : 'manutencao') + '">' + deptoIcone + ' ' + nomeDepto + '</span>';
+    
+    // Mostrar equipe para admin OU edson (coordenador)
+    if (uLogado.tipo === 'admin' || uLogado.usuario === 'edson') {
+        document.getElementById('navEquipe').style.display = 'flex';
+        if (document.getElementById('btnAddTecnico')) {
+            document.getElementById('btnAddTecnico').style.display = 'inline-flex';
+        }
+    }
+
+    // ========== LISTENER CORRIGIDO ==========
+    var query = db.collection('chamados').orderBy('data_abertura', 'desc');
+    
+    // CORREÇÃO: Apenas admin e edson veem tudo. Outros veem só seu departamento
+    if (uLogado.tipo === 'admin' || uLogado.usuario === 'edson') {
+        console.log('👑 Admin/Coordenador - vê todos os chamados');
+        // Sem filtro de departamento
+    } else {
+        console.log('🔒 Técnico - filtrando por departamento:', deptoUsuario);
+        query = query.where('departamento', '==', deptoUsuario);
+    }
+    
+    query.onSnapshot(function(snap) {
+        console.log('📡 Snapshot recebido:', snap.size, 'documentos');
+        chamados = [];
+        snap.forEach(function(d) {
+            var x = d.data();
+            x.fid = d.id;
+            chamados.push(x);
+            if (idsVistos.indexOf(d.id) === -1) {
+                notificar(x);
+            }
+        });
+        
+        // CORREÇÃO: Ordenar por data (mais novos primeiro)
+        chamados.sort(function(a, b) {
+            var da = a.data_abertura;
+            var db = b.data_abertura;
+            if (!da || !db) return 0;
+            var dta = typeof da.toDate === 'function' ? da.toDate() : new Date(da);
+            var dtb = typeof db.toDate === 'function' ? db.toDate() : new Date(db);
+            return dtb - dta; // Decrescente = mais novos primeiro
+        });
+        
+        console.log('✅ Chamados ordenados:', chamados.length);
+        atualizarBadges();
+        atualizarDash();
+        if (document.getElementById('secao-chamados').classList.contains('ativa')) carregarChamados();
+        if (document.getElementById('secao-gesthosp').classList.contains('ativa')) carregarGestHosp();
+        if (document.getElementById('secao-toners').classList.contains('ativa')) carregarToners();
+    }, function(err) {
+        console.error('❌ Erro no listener:', err);
+        toast('⚠️ Erro ao carregar dados.');
+    });
+    
+    carregarEquip();
+    carregarIPs();
+    carregarEquipe();
+    popularMesesIndicadores();
+    atualizarCargosPorDepartamento();
+    if (Notification.permission === 'default') Notification.requestPermission();
 };
 
 function atualizarBadges(){var ti=chamados.filter(function(c){return idsVistos.indexOf(c.fid)===-1&&c.tipo!=='gesthosp';}).length;var gh=chamados.filter(function(c){return idsVistos.indexOf(c.fid)===-1&&c.tipo==='gesthosp';}).length;document.getElementById('badgeTI').style.display=ti>0?'inline-block':'none';document.getElementById('badgeTI').textContent=ti>99?'99+':ti;document.getElementById('badgeGH').style.display=gh>0?'inline-block':'none';document.getElementById('badgeGH').textContent=gh>99?'99+':gh;}
@@ -701,12 +758,127 @@ function remTec(id){if(!confirm('Remover?'))return;db.collection('usuarios').doc
 function alterarSenha(e){e.preventDefault();db.collection('usuarios').where('usuario','==',uLogado.usuario).get().then(function(s){if(s.empty)return;var d=s.docs[0];if(d.data().senha!==document.getElementById('sAtual').value){toast('❌ Senha atual incorreta!');return;}d.ref.update({senha:document.getElementById('sNova').value,primeiro_acesso:false}).then(function(){toast('✅ Alterada!');e.target.reset();});});}
 
 // ========== RELATÓRIOS ==========
-function gerarRelatorio(){var el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;color:#4A5568;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';el.innerHTML='<div style="text-align:center;border-bottom:2px solid #3182CE;padding-bottom:16px;"><h1 style="color:#1A202C;">Help<span>Hosp</span></h1><p style="color:#3182CE;">Relatório - '+nomeDepto+'</p><small>'+new Date().toLocaleString('pt-BR')+' | '+chamados.length+' chamados</small></div>';el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;">'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>TOTAL</h3><p style="font-size:24px;">'+chamados.length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>ABERTOS</h3><p style="font-size:24px;color:#DD6B20;">'+chamados.filter(function(c){return c.status!=='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>CONCLUÍDOS</h3><p style="font-size:24px;color:#38A169;">'+chamados.filter(function(c){return c.status==='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>CRÍTICOS</h3><p style="font-size:24px;color:#E53E3E;">'+chamados.filter(function(c){return c.prioridade==='Crítica';}).length+'</p></div></div>';el.innerHTML+='<h3>📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr>';chamados.slice(0,30).forEach(function(c){el.innerHTML+='<tr><td>'+(c.protocolo||'')+'</td><td>'+fd(c.data_abertura)+'</td><td>'+(c.titulo||'')+'</td><td>'+(c.setor||'')+'</td><td>'+(c.status||'')+'</td></tr>';});el.innerHTML+='</table>';document.body.appendChild(el);html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(function(c){document.body.removeChild(el);var pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(c.toDataURL('image/png'),'PNG',8,8,194,(c.height*194)/c.width);pdf.save('relatorio-'+new Date().toISOString().slice(0,10)+'.pdf');toast('📄 PDF gerado!');});}
-function gerarRelatorioPersonalizado(){var el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;color:#4A5568;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';el.innerHTML='<div style="text-align:center;border-bottom:2px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><small>'+new Date().toLocaleString('pt-BR')+'</small></div>';if(document.getElementById('relStats').checked){el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;">'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>TOTAL</h3><p style="font-size:24px;">'+chamados.length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>ABERTOS</h3><p style="font-size:24px;color:#DD6B20;">'+chamados.filter(function(c){return c.status!=='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>CONCLUÍDOS</h3><p style="font-size:24px;color:#38A169;">'+chamados.filter(function(c){return c.status==='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3>CRÍTICOS</h3><p style="font-size:24px;color:#E53E3E;">'+chamados.filter(function(c){return c.prioridade==='Crítica';}).length+'</p></div></div>';}if(document.getElementById('relTabela').checked){el.innerHTML+='<h3>📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr>';chamados.slice(0,30).forEach(function(c){el.innerHTML+='<tr><td>'+(c.protocolo||'')+'</td><td>'+fd(c.data_abertura)+'</td><td>'+(c.titulo||'')+'</td><td>'+(c.setor||'')+'</td><td>'+(c.status||'')+'</td></tr>';});el.innerHTML+='</table>';}if(document.getElementById('relEquipTabela').checked){el.innerHTML+='<h3>🖥️ Equipamentos</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr><th>Nome</th><th>Tipo</th><th>Qtd</th><th>Status</th></tr>';equipamentos.forEach(function(eq){el.innerHTML+='<tr><td>'+eq.nome+'</td><td>'+eq.tipo+'</td><td>'+(eq.quantidade||1)+'</td><td>'+(eq.status||'Em uso')+'</td></tr>';});el.innerHTML+='</table>';}document.body.appendChild(el);html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(function(c){document.body.removeChild(el);var pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(c.toDataURL('image/png'),'PNG',8,8,194,(c.height*194)/c.width);pdf.save('relatorio-personalizado-'+new Date().toISOString().slice(0,10)+'.pdf');toast('📄 Relatório gerado!');});}
-
-function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
-function fecharModal(id){document.getElementById(id).classList.remove('ativa');}
-function logout(){localStorage.removeItem('usuario_logado');window.location.href='admin.html';}
+function gerarRelatorio() {
+    var el = document.createElement('div');
+    el.style.cssText = 'padding:40px;background:#fff;color:#1A202C;font-family:Inter,Arial;width:1100px;position:absolute;left:-9999px;';
+    
+    // ========== CABEÇALHO ==========
+    el.innerHTML = '<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:20px;margin-bottom:24px;">' +
+        '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;">' +
+        '<div style="width:50px;height:50px;background:#1a3a5c;border-radius:14px;display:flex;align-items:center;justify-content:center;">' +
+        '<span style="font-size:24px;">🏥</span></div>' +
+        '<h1 style="color:#1a3a5c;font-size:28px;margin:0;">Help<span style="color:#4A5568;">Hosp</span></h1></div>' +
+        '<h2 style="color:#3182CE;font-size:16px;margin:4px 0;">Relatório Técnico - ' + nomeDepto + '</h2>' +
+        '<p style="color:#A0AEC0;font-size:11px;margin:0;">Gerado em ' + new Date().toLocaleString('pt-BR') + 
+        ' | Total: ' + chamados.length + ' chamados | ' + equipamentos.length + ' equipamentos</p></div>';
+    
+    // ========== RESUMO ESTATÍSTICO ==========
+    var abertos = chamados.filter(function(c) { return c.status !== 'Concluído'; }).length;
+    var concluidos = chamados.filter(function(c) { return c.status === 'Concluído'; }).length;
+    var criticos = chamados.filter(function(c) { return c.prioridade === 'Crítica' && c.status !== 'Concluído'; }).length;
+    var emAndamento = chamados.filter(function(c) { return c.status === 'Em Andamento'; }).length;
+    
+    el.innerHTML += '<h3 style="color:#1a3a5c;font-size:14px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #E2E8F0;">📊 Resumo Geral</h3>';
+    el.innerHTML += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">' +
+        '<div style="background:#F7FAFC;padding:16px;border-radius:10px;text-align:center;border:1px solid #E2E8F0;">' +
+        '<p style="color:#A0AEC0;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin:0;">Total</p>' +
+        '<p style="color:#1A202C;font-size:32px;font-weight:700;margin:6px 0;">' + chamados.length + '</p></div>' +
+        '<div style="background:#FFF5F5;padding:16px;border-radius:10px;text-align:center;border:1px solid #FED7D7;">' +
+        '<p style="color:#E53E3E;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin:0;">Abertos</p>' +
+        '<p style="color:#E53E3E;font-size:32px;font-weight:700;margin:6px 0;">' + abertos + '</p></div>' +
+        '<div style="background:#F0FFF4;padding:16px;border-radius:10px;text-align:center;border:1px solid #C6F6D5;">' +
+        '<p style="color:#38A169;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin:0;">Concluídos</p>' +
+        '<p style="color:#38A169;font-size:32px;font-weight:700;margin:6px 0;">' + concluidos + '</p></div>' +
+        '<div style="background:#FFFBEB;padding:16px;border-radius:10px;text-align:center;border:1px solid #FEEBC8;">' +
+        '<p style="color:#DD6B20;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin:0;">Em Andamento</p>' +
+        '<p style="color:#DD6B20;font-size:32px;font-weight:700;margin:6px 0;">' + emAndamento + '</p></div></div>';
+    
+    // ========== INDICADORES ==========
+    var taxaResolucao = chamados.length > 0 ? Math.round(concluidos / chamados.length * 100) : 0;
+    el.innerHTML += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;">' +
+        '<div style="background:#fff;padding:14px;border-radius:10px;text-align:center;border:2px solid #3182CE;">' +
+        '<p style="color:#3182CE;font-size:10px;text-transform:uppercase;">Taxa de Resolução</p>' +
+        '<p style="color:#3182CE;font-size:28px;font-weight:700;">' + taxaResolucao + '%</p></div>' +
+        '<div style="background:#fff;padding:14px;border-radius:10px;text-align:center;border:2px solid #E53E3E;">' +
+        '<p style="color:#E53E3E;font-size:10px;text-transform:uppercase;">Críticos em Aberto</p>' +
+        '<p style="color:#E53E3E;font-size:28px;font-weight:700;">' + criticos + '</p></div>' +
+        '<div style="background:#fff;padding:14px;border-radius:10px;text-align:center;border:2px solid #38A169;">' +
+        '<p style="color:#38A169;font-size:10px;text-transform:uppercase;">Equipamentos</p>' +
+        '<p style="color:#38A169;font-size:28px;font-weight:700;">' + equipamentos.length + '</p></div></div>';
+    
+    // ========== TABELA DE CHAMADOS ==========
+    el.innerHTML += '<h3 style="color:#1a3a5c;font-size:14px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #E2E8F0;">📋 Chamados Recentes</h3>';
+    el.innerHTML += '<table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:28px;">' +
+        '<thead><tr style="background:#1a3a5c;color:#fff;">' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Protocolo</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Data</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Título</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Solicitante</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Setor</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Prioridade</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Status</th>' +
+        '<th style="padding:10px 12px;text-align:left;font-size:9px;text-transform:uppercase;">Depto</th>' +
+        '</tr></thead><tbody>';
+    
+    // CORREÇÃO: Ordenar por data (mais novos primeiro) antes de exibir
+    var chamadosOrdenados = chamados.slice().sort(function(a, b) {
+        var da = a.data_abertura, db = b.data_abertura;
+        if (!da || !db) return 0;
+        return (typeof db.toDate === 'function' ? db.toDate() : new Date(db)) - 
+               (typeof da.toDate === 'function' ? da.toDate() : new Date(da));
+    });
+    
+    chamadosOrdenados.slice(0, 40).forEach(function(c) {
+        var statusCor = c.status === 'Concluído' ? '#38A169' : c.status === 'Em Andamento' ? '#DD6B20' : '#E53E3E';
+        var prioridadeCor = c.prioridade === 'Crítica' ? '#E53E3E' : c.prioridade === 'Alta' ? '#DD6B20' : '#4A5568';
+        el.innerHTML += '<tr style="border-bottom:1px solid #EDF2F7;">' +
+            '<td style="padding:8px 12px;"><strong>' + (c.protocolo || '—') + '</strong></td>' +
+            '<td style="padding:8px 12px;font-size:9px;">' + fd(c.data_abertura) + '</td>' +
+            '<td style="padding:8px 12px;">' + (c.titulo || '—') + '</td>' +
+            '<td style="padding:8px 12px;">' + (c.solicitante || '—') + '</td>' +
+            '<td style="padding:8px 12px;">' + (c.setor || '—') + '</td>' +
+            '<td style="padding:8px 12px;color:' + prioridadeCor + ';font-weight:600;">' + (c.prioridade || '—') + '</td>' +
+            '<td style="padding:8px 12px;"><span style="background:' + statusCor + ';color:#fff;padding:3px 8px;border-radius:12px;font-size:8px;font-weight:600;">' + (c.status || '—') + '</span></td>' +
+            '<td style="padding:8px 12px;font-size:9px;">' + (c.departamento === 'MANUTENCAO' ? '🔧 Manut.' : '🖥️ TI') + '</td>' +
+            '</tr>';
+    });
+    el.innerHTML += '</tbody></table>';
+    
+    // ========== EQUIPAMENTOS ==========
+    if (equipamentos.length > 0) {
+        el.innerHTML += '<h3 style="color:#1a3a5c;font-size:14px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #E2E8F0;">🖥️ Equipamentos</h3>';
+        el.innerHTML += '<table style="width:100%;border-collapse:collapse;font-size:10px;">' +
+            '<thead><tr style="background:#1a3a5c;color:#fff;">' +
+            '<th style="padding:10px 12px;text-align:left;">Nome</th>' +
+            '<th style="padding:10px 12px;text-align:left;">Tipo</th>' +
+            '<th style="padding:10px 12px;text-align:center;">Qtd</th>' +
+            '<th style="padding:10px 12px;text-align:left;">Status</th>' +
+            '<th style="padding:10px 12px;text-align:left;">Localização</th></tr></thead><tbody>';
+        equipamentos.forEach(function(eq) {
+            var stCor = eq.status === 'Com defeito' ? '#E53E3E' : eq.status === 'Em estoque' ? '#DD6B20' : '#38A169';
+            el.innerHTML += '<tr style="border-bottom:1px solid #EDF2F7;">' +
+                '<td style="padding:8px 12px;"><strong>' + eq.nome + '</strong></td>' +
+                '<td style="padding:8px 12px;">' + eq.tipo + '</td>' +
+                '<td style="padding:8px 12px;text-align:center;">' + (eq.quantidade || 1) + '</td>' +
+                '<td style="padding:8px 12px;color:' + stCor + ';font-weight:600;">' + (eq.status || 'Em uso') + '</td>' +
+                '<td style="padding:8px 12px;">' + (eq.localizacao || '—') + '</td></tr>';
+        });
+        el.innerHTML += '</tbody></table>';
+    }
+    
+    // ========== RODAPÉ ==========
+    el.innerHTML += '<div style="text-align:center;margin-top:30px;padding-top:16px;border-top:2px solid #E2E8F0;color:#A0AEC0;font-size:9px;">' +
+        'HelpHosp © ' + new Date().getFullYear() + ' - Sistema de Chamados Hospitalar - Relatório gerado automaticamente</div>';
+    
+    document.body.appendChild(el);
+    html2canvas(el, { scale: 2, backgroundColor: '#fff' }).then(function(c) {
+        document.body.removeChild(el);
+        var pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        pdf.addImage(c.toDataURL('image/png'), 'PNG', 5, 5, 200, (c.height * 200) / c.width);
+        pdf.save('relatorio-helphosp-' + new Date().toISOString().slice(0, 10) + '.pdf');
+        toast('📄 PDF gerado com sucesso!');
+    });
+}
 </script>
 </body>
 </html>

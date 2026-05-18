@@ -522,6 +522,44 @@
 <div class="modal-overlay" id="modalIP"><div class="modal-box"><h3>🌐 Registrar IP</h3><form onsubmit="addIP(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDispositivo" required></div><div class="form-row"><div class="form-group"><label>Tipo *</label><select id="ipTipo" required><option value="">Selecione...</option><option>Impressora</option><option>Roteador</option><option>Switch</option><option>Câmera IP</option><option>Servidor</option><option>Computador</option><option>Telefone IP</option><option>Outro</option></select></div><div class="form-group"><label>IP *</label><input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div></div><div class="form-row"><div class="form-group"><label>Localização</label><input type="text" id="ipLocal"></div><div class="form-group"><label>Setor</label><select id="ipSetor"><option value="">Nenhum</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>TI</option><option>Recepção</option></select></div></div><div class="form-group"><label>Observação</label><input type="text" id="ipObs"></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button></div></form></div></div>
 
 <script>
+
+// ========== VERIFICAÇÃO DE LOGIN ==========
+var uLogado = JSON.parse(localStorage.getItem('usuario_logado'));
+
+// Verificar se está logado
+if (!uLogado) {
+    window.location.href = 'admin.html';
+}
+
+// Verificar expiração da sessão
+if (uLogado.expira && Date.now() > uLogado.expira) {
+    localStorage.removeItem('usuario_logado');
+    alert('Sessão expirada! Faça login novamente.');
+    window.location.href = 'admin.html';
+}
+
+// Configurações do usuário
+var deptoUsuario = uLogado.departamento || 'TI';
+var nomeDepto = deptoUsuario === 'TI' ? 'Tecnologia da Informação' : 'Manutenção';
+var deptoCor = deptoUsuario === 'TI' ? '#3182CE' : '#DD6B20';
+var deptoIcone = deptoUsuario === 'TI' ? '🖥️' : '🔧';
+var isAdmin = (uLogado.tipo === 'admin' || uLogado.usuario === 'edson');
+
+// Função para renovar sessão
+function renovarSessao() {
+    if (uLogado) {
+        uLogado.expira = Date.now() + (8 * 60 * 60 * 1000);
+        localStorage.setItem('usuario_logado', JSON.stringify(uLogado));
+    }
+}
+
+// Renovar sessão a cada 5 minutos
+setInterval(renovarSessao, 5 * 60 * 1000);
+
+// Renovar sessão em cada interação do usuário
+document.addEventListener('click', renovarSessao);
+document.addEventListener('keypress', renovarSessao);
+    
 const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
 firebase.initializeApp(fc);const db=firebase.firestore();
 

@@ -54,20 +54,6 @@
             50% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
         }
 
-        .ecg-container {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
-            pointer-events: none; z-index: 0; opacity: 0.5;
-        }
-        .ecg-container svg { width: 100%; height: 100%; }
-        .ecg-path {
-            fill: none; stroke: var(--dourado); stroke-width: 2;
-            stroke-dasharray: 1400; animation: ecgAnim 3.5s linear infinite;
-        }
-        .ecg-path:nth-child(2) { animation-delay: 0.7s; stroke-width: 1.5; opacity: 0.6; }
-        .ecg-path:nth-child(3) { animation-delay: 1.4s; stroke-width: 1; opacity: 0.4; }
-        .ecg-path:nth-child(4) { animation-delay: 2.1s; stroke-width: 2.5; opacity: 0.25; }
-        @keyframes ecgAnim { 0% { stroke-dashoffset: 1400; } 100% { stroke-dashoffset: -1400; } }
-
         .login-wrapper {
             position: relative; z-index: 1; text-align: center;
             width: 100%; max-width: 460px; padding: 0 20px;
@@ -214,15 +200,6 @@
 <div class="bg-grid"></div>
 <div class="glow-central"></div>
 
-<div class="ecg-container">
-    <svg viewBox="0 0 1400 100" preserveAspectRatio="none">
-        <path class="ecg-path" d="M0,50 L80,50 L100,50 L108,12 L116,88 L124,50 L132,8 L140,92 L148,50 L300,50"/>
-        <path class="ecg-path" d="M300,50 L380,50 L400,50 L408,12 L416,88 L424,50 L432,8 L440,92 L448,50 L600,50"/>
-        <path class="ecg-path" d="M600,50 L680,50 L700,50 L708,12 L716,88 L724,50 L732,8 L740,92 L748,50 L900,50"/>
-        <path class="ecg-path" d="M900,50 L980,50 L1000,50 L1008,12 L1016,88 L1024,50 L1032,8 L1040,92 L1048,50 L1200,50"/>
-    </svg>
-</div>
-
 <div class="login-wrapper">
     <div class="logo-container">
         <i class="fas fa-hospital"></i>
@@ -309,72 +286,77 @@ function login(e) {
     btn.disabled = true;
     btn.innerHTML = '<span class="btn-spinner"></span> Autenticando...';
     
-    db.collection('usuarios').where('usuario', '==', usuario).get()
-    .then(function(snapshot) {
-        if (snapshot.empty) {
-            tentativas++;
-            mostrarErro('Usuário ou senha inválidos!');
-            verificarTentativas();
-            resetBtn();
-            return;
-        }
-        
-        var doc = snapshot.docs[0];
-        var user = doc.data();
-        
-        // Verificar senha
-        if (user.senha !== senha) {
-            tentativas++;
-            mostrarErro('Usuário ou senha inválidos!');
-            verificarTentativas();
-            resetBtn();
-            return;
-        }
-        
-        // Verificar status
-        if (user.status !== 'ativo') {
-            mostrarErro('Usuário inativo! Contate o administrador.');
-            resetBtn();
-            return;
-        }
-        
-        // Verificar departamento (admin pode acessar qualquer)
-        var deptoFinal = user.departamento || departamento;
-        
-        if (user.tipo !== 'admin' && user.departamento && user.departamento !== departamento) {
-            mostrarErro('Departamento incorreto para este usuário! Selecione: ' + 
-                (user.departamento === 'TI' ? 'Tecnologia da Informação' : 'Manutenção'));
-            resetBtn();
-            return;
-        }
-        
-        // Login bem-sucedido
-        tentativas = 0;
-        
-        localStorage.setItem('usuario_logado', JSON.stringify({
-            id: doc.id,
-            nome: user.nome,
-            usuario: user.usuario,
-            cargo: user.cargo,
-            departamento: deptoFinal,
-            tipo: user.tipo || 'tecnico',
-            expira: Date.now() + (8 * 60 * 60 * 1000)
-        }));
-        
-        // Redirecionar
-        setTimeout(function() {
-            if (user.primeiro_acesso) {
-                window.location.href = 'trocar-senha.html?id=' + doc.id;
-            } else {
-                window.location.href = 'dashboard.html';
+    db.collection('usuarios')
+        .where('usuario', '==', usuario)
+        .get()
+        .then(function(snapshot) {
+            if (snapshot.empty) {
+                tentativas++;
+                mostrarErro('Usuário não encontrado!');
+                verificarTentativas();
+                resetBtn();
+                return;
             }
-        }, 500);
-    })
-    .catch(function(error) {
-        console.error('Erro:', error);
-        mostrarErro('Erro de conexão! Verifique sua internet.');
-        resetBtn();
-    });
+            
+            var doc = snapshot.docs[0];
+            var user = doc.data();
+            
+            // Verificar senha
+            if (user.senha !== senha) {
+                tentativas++;
+                mostrarErro('Senha incorreta!');
+                verificarTentativas();
+                resetBtn();
+                return;
+            }
+            
+            // Verificar status
+            if (user.status && user.status !== 'ativo') {
+                mostrarErro('Usuário inativo! Contate o administrador.');
+                resetBtn();
+                return;
+            }
+            
+            // Verificar departamento (admin pode acessar qualquer)
+            if (user.tipo !== 'admin' && user.departamento !== departamento) {
+                mostrarErro('Este usuário pertence ao departamento: ' + 
+                    (user.departamento === 'TI' ? 'TI' : 'Manutenção'));
+                resetBtn();
+                return;
+            }
+            
+            // Login bem-sucedido
+            tentativas = 0;
+            
+            var dadosLogin = {
+                id: doc.id,
+                nome: user.nome,
+                usuario: user.usuario,
+                cargo: user.cargo || 'Técnico',
+                departamento: user.departamento || departamento,
+                tipo: user.tipo || 'tecnico',
+                primeiro_acesso: user.primeiro_acesso || false,
+                expira: Date.now() + (8 * 60 * 60 * 1000) // 8 horas
+            };
+            
+            localStorage.setItem('usuario_logado', JSON.stringify(dadosLogin));
+            
+            // REDIRECIONAMENTO CORRETO
+            setTimeout(function() {
+                if (user.primeiro_acesso) {
+                    // Redirecionar para troca de senha
+                    window.location.href = 'trocar-senha.html?id=' + doc.id;
+                } else {
+                    // Redirecionar para o dashboard técnico
+                    window.location.href = 'dashboard.html';
+                }
+            }, 500);
+        })
+        .catch(function(error) {
+            console.error('Erro:', error);
+            mostrarErro('Erro de conexão! Tente novamente.');
+            resetBtn();
+        });
 }
 
 function mostrarErro(msg) {
@@ -404,6 +386,7 @@ function verificarTentativas() {
     }
 }
 
+// Limpar erros ao digitar
 document.getElementById('usuario').addEventListener('input', function() {
     document.getElementById('erroLogin').classList.remove('show');
 });

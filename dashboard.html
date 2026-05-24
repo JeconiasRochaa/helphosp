@@ -24,8 +24,11 @@
             --success: #38A169;
             --success-light: #C6F6D5;
             --warning: #DD6B20;
+            --warning-light: #FEEBC8;
             --danger: #E53E3E;
+            --danger-light: #FED7D7;
             --info: #3182CE;
+            --info-light: #BEE3F8;
             --purple: #805AD5;
             --text-primary: #1A202C;
             --text-secondary: #4A5568;
@@ -45,7 +48,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             background: var(--bg-body);
             color: var(--text-primary);
             display: flex;
@@ -67,19 +70,17 @@
         .sidebar-header { text-align: center; padding: 6px 0 18px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 18px; }
 
         .logo-container {
-            position: relative; width: 76px; height: 76px; margin: 0 auto 14px;
-            border: 2px solid rgba(214,158,46,0.4); border-radius: 20px;
+            position: relative; width: 70px; height: 70px; margin: 0 auto 12px;
+            border: 2px solid rgba(214,158,46,0.4); border-radius: 18px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(214,158,46,0.06); overflow: hidden;
         }
-        .logo-container i { font-size: 34px; color: var(--gold); position: relative; z-index: 1; }
-        .logo-container .cross-h, .logo-container .cross-v {
-            position: absolute; background: rgba(214,158,46,0.2);
-        }
-        .logo-container .cross-h { width: 20px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-        .logo-container .cross-v { width: 2px; height: 20px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-container i { font-size: 30px; color: var(--gold); position: relative; z-index: 1; }
+        .logo-container .cross-h, .logo-container .cross-v { position: absolute; background: rgba(214,158,46,0.2); }
+        .logo-container .cross-h { width: 18px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-container .cross-v { width: 2px; height: 18px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
         .logo-mini-ecg {
-            position: absolute; bottom: 11px; left: 12px; right: 12px; height: 2px;
+            position: absolute; bottom: 10px; left: 10px; right: 10px; height: 2px;
             background: var(--gold); border-radius: 1px;
             animation: miniEcg 1.6s ease-in-out infinite;
         }
@@ -89,11 +90,11 @@
             60% { clip-path: inset(0 0 0 0); opacity: 1; }
             80% { clip-path: inset(0 30% 0 0); opacity: 0.6; }
         }
-        .sidebar-header h2 { font-size: 21px; letter-spacing: -0.3px; }
+        .sidebar-header h2 { font-size: 20px; letter-spacing: -0.3px; }
         .sidebar-header h2 .help { color: #A0AEC0; font-weight: 400; }
         .sidebar-header h2 .hosp { color: #FFFFFF; font-weight: 700; }
         .sidebar-header .subtitle {
-            font-size: 9px; color: var(--gold); letter-spacing: 2.5px;
+            font-size: 8px; color: var(--gold); letter-spacing: 2.5px;
             text-transform: uppercase; margin-top: 3px; font-weight: 600;
         }
 
@@ -109,8 +110,14 @@
         }
         .user-details h4 { font-size: 12px; color: #FFFFFF; font-weight: 600; }
         .user-details small { font-size: 9px; color: rgba(255,255,255,0.5); }
+        .depto-badge {
+            display: inline-block; font-size: 8px; padding: 2px 8px; border-radius: 10px;
+            margin-top: 3px; font-weight: 600;
+        }
+        .depto-badge.ti { background: rgba(49,130,206,0.2); color: #63B3ED; }
+        .depto-badge.manutencao { background: rgba(221,107,32,0.2); color: #FBD38D; }
 
-        .nav-section { margin-bottom: 12px; }
+        .nav-section { margin-bottom: 10px; }
         .nav-section-title {
             font-size: 8px; text-transform: uppercase; letter-spacing: 2.5px;
             color: rgba(255,255,255,0.3); margin-bottom: 5px; padding-left: 10px; font-weight: 700;
@@ -152,7 +159,7 @@
         .breadcrumb span { color: var(--primary); font-weight: 600; }
         .page-header { margin-bottom: 24px; }
         .page-header h1 { font-size: 22px; color: var(--text-primary); font-weight: 700; }
-        .page-header p { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+        .page-header p { color: var(--text-muted); font-size: 13px; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card {
@@ -170,7 +177,7 @@
         .stat-icon.green { background: var(--success-light); color: var(--success); }
         .stat-icon.red { background: var(--danger-light); color: var(--danger); }
         .stat-info small { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-        .stat-info strong { font-size: 28px; display: block; color: var(--text-primary); font-weight: 700; line-height: 1.1; }
+        .stat-info strong { font-size: 28px; display: block; color: var(--text-primary); font-weight: 700; }
 
         .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
         .chart-card {
@@ -192,10 +199,7 @@
             text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
             text-transform: uppercase; border-bottom: 2px solid var(--border); white-space: nowrap;
         }
-        td {
-            padding: 10px 14px; border-bottom: 1px solid var(--border-light);
-            font-size: 12px; color: var(--text-secondary);
-        }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border-light); font-size: 12px; color: var(--text-secondary); }
         tr:nth-child(even) td { background: #FAFBFC; }
         tr:hover td { background: #F0F4F8; cursor: pointer; }
 
@@ -207,7 +211,7 @@
         .badge-green { background: var(--success-light); color: var(--success); }
         .badge-amber { background: var(--warning-light); color: var(--warning); }
         .badge-red { background: var(--danger-light); color: var(--danger); }
-        .badge-purple { background: var(--purple-light); color: var(--purple); }
+        .badge-purple { background: #E9D8FD; color: #805AD5; }
         .badge-gold { background: #FEFCBF; color: #975A16; }
 
         .btn {
@@ -215,44 +219,33 @@
             font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--transition);
             display: inline-flex; align-items: center; gap: 6px;
         }
-        .btn-primary {
-            background: var(--primary); color: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .btn-primary:hover { background: var(--primary-light); box-shadow: 0 4px 12px rgba(26,58,92,0.2); }
-        .btn-outline {
-            background: transparent; border: 1.5px solid var(--border); color: var(--text-secondary);
-        }
-        .btn-outline:hover { background: #F7FAFC; border-color: #CBD5E0; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-secondary); }
+        .btn-outline:hover { background: #F7FAFC; }
         .btn-danger { background: #FFF5F5; color: var(--danger); border: 1px solid #FED7D7; }
-        .btn-danger:hover { background: #FED7D7; }
         .btn-sm { padding: 5px 11px; font-size: 10px; border-radius: 6px; }
 
         .filtros-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
         .filtros-bar select, .filtros-bar input {
             padding: 9px 14px; background: #fff; border: 1.5px solid var(--border);
             border-radius: var(--radius-sm); font-size: 12px; color: var(--text-primary);
-            outline: none; font-family: inherit; transition: all var(--transition);
+            outline: none; font-family: inherit;
         }
-        .filtros-bar select:focus, .filtros-bar input:focus {
-            border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49,130,206,0.08);
-        }
+        .filtros-bar select:focus, .filtros-bar input:focus { border-color: var(--accent); }
         .filtros-bar input { flex: 1; min-width: 160px; }
-        .filtros-bar input::placeholder { color: #A0AEC0; }
 
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4); backdrop-filter: blur(3px); z-index: 200;
             align-items: center; justify-content: center;
         }
-        .modal-overlay.ativa { display: flex; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay.ativa { display: flex; }
         .modal-box {
             background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
             padding: 28px 32px; width: 90%; max-width: 600px; max-height: 80vh;
-            overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalUp 0.25s ease;
+            overflow-y: auto; box-shadow: var(--shadow-lg);
         }
-        @keyframes modalUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-box h3 { color: var(--text-primary); margin-bottom: 16px; font-size: 17px; font-weight: 700; }
 
         .form-group { margin-bottom: 14px; }
@@ -263,12 +256,11 @@
         .form-group input, .form-group select, .form-group textarea {
             width: 100%; padding: 10px 14px; background: #fff;
             border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-            font-size: 13px; color: var(--text-primary); outline: none; font-family: inherit; transition: all var(--transition);
+            font-size: 13px; color: var(--text-primary); outline: none; font-family: inherit;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49,130,206,0.06);
+            border-color: var(--accent);
         }
-        .form-group textarea { resize: vertical; min-height: 70px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         .toast {
@@ -285,7 +277,7 @@
             position: fixed; top: 24px; right: 24px; background: #fff;
             border: 1px solid var(--border); padding: 18px 22px; border-radius: var(--radius);
             box-shadow: var(--shadow-lg); z-index: 9999; max-width: 360px;
-            cursor: pointer; animation: slideInRight 0.35s ease; color: var(--text-secondary);
+            cursor: pointer; animation: slideInRight 0.35s ease;
         }
         @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
@@ -295,34 +287,6 @@
             border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 12px;
             display: none; align-items: center; gap: 10px; color: #7B341E;
         }
-
-        .equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
-        .equip-card {
-            background: var(--bg-card); padding: 18px; border-radius: var(--radius);
-            border: 1px solid var(--border); text-align: center; cursor: pointer;
-            transition: all var(--transition); box-shadow: var(--shadow);
-        }
-        .equip-card:hover { border-color: #CBD5E0; transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-        .equip-card .equip-emoji { font-size: 36px; margin-bottom: 10px; }
-        .equip-card h4 { font-size: 13px; color: var(--text-primary); margin-bottom: 4px; font-weight: 600; }
-        .equip-card small { font-size: 11px; color: var(--text-muted); display: block; }
-        .status-dot {
-            display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px;
-        }
-        .status-dot.uso { background: var(--success); }
-        .status-dot.defeito { background: var(--danger); }
-        .status-dot.estoque { background: var(--warning); }
-
-        .checkbox-list { display: grid; gap: 8px; }
-        .checkbox-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px 12px;
-            background: #F7FAFC; border-radius: 8px; cursor: pointer; font-size: 12px;
-            transition: background var(--transition);
-        }
-        .checkbox-item:hover { background: #EDF2F7; }
-        .checkbox-item input { accent-color: var(--primary); width: 16px; height: 16px; }
-
-        .indicador-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 20px; }
 
         @media (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -352,26 +316,15 @@
 
     <div class="user-info">
         <div class="user-avatar" id="ui">T</div>
-        <div class="user-details"><h4 id="un">Carregando...</h4><small id="uc">—</small></div>
+        <div class="user-details">
+            <h4 id="un">Carregando...</h4>
+            <small id="uc">—</small>
+            <div id="deptoBadge"></div>
+        </div>
     </div>
 
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Principal</div>
-            <div class="nav-item active" data-secao="dashboard" onclick="navegar('dashboard', this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>
-            <div class="nav-item" data-secao="chamados" onclick="navegar('chamados', this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span><span class="badge-notificacao" id="badgeTI">0</span></div>
-            <div class="nav-item" data-secao="gesthosp" onclick="navegar('gesthosp', this)"><i class="fas fa-hospital-user"></i><span>GestHosp</span><span class="badge-notificacao" id="badgeGH">0</span></div>
-            <div class="nav-item" data-secao="indicadores" onclick="navegar('indicadores', this)"><i class="fas fa-chart-line"></i><span>Indicadores</span></div>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Gestão</div>
-            <div class="nav-item" data-secao="toners" onclick="navegar('toners', this)"><i class="fas fa-print"></i><span>Toners</span></div>
-            <div class="nav-item" data-secao="equipamentos" onclick="navegar('equipamentos', this)"><i class="fas fa-desktop"></i><span>Equipamentos</span></div>
-            <div class="nav-item" data-secao="ips" onclick="navegar('ips', this)"><i class="fas fa-network-wired"></i><span>IPs & Rede</span></div>
-            <div class="nav-item" data-secao="relatorios" onclick="navegar('relatorios', this)"><i class="fas fa-file-pdf"></i><span>Relatórios</span></div>
-            <div class="nav-item" data-secao="equipe" id="navEquipe" style="display:none;" onclick="navegar('equipe', this)"><i class="fas fa-users-cog"></i><span>Técnicos</span></div>
-            <div class="nav-item" data-secao="config" onclick="navegar('config', this)"><i class="fas fa-cog"></i><span>Configurações</span></div>
-        </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+        <!-- Preenchido dinamicamente conforme departamento -->
     </nav>
 
     <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button></div>
@@ -401,22 +354,22 @@
             <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="gSetor"></canvas></div>
             <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="gPrio"></canvas></div>
         </div>
-        <div class="table-card"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th><th>Tipo</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
+        <div class="table-card"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
     </section>
 
     <!-- CHAMADOS -->
     <section id="secao-chamados" class="secao">
-        <div class="page-header"><h1>📋 Chamados — <span id="tituloChamados"></span></h1><p>Gerenciamento de solicitações</p></div>
+        <div class="page-header"><h1>📋 Chamados — <span id="tituloChamados"></span></h1><p>Gerenciamento de solicitações do seu departamento</p></div>
         <div class="table-card">
             <div class="filtros-bar">
                 <select id="fS" onchange="carregarChamados()"><option value="">Todos Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
-                <input type="text" id="fB" placeholder="🔍 Buscar por título, protocolo ou solicitante..." onkeyup="carregarChamados()">
+                <input type="text" id="fB" placeholder="🔍 Buscar..." onkeyup="carregarChamados()">
             </div>
             <table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Técnico</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaChamados"></tbody></table>
         </div>
     </section>
 
-    <!-- GESTHOSP -->
+    <!-- GESTHOSP (apenas TI) -->
     <section id="secao-gesthosp" class="secao">
         <div class="page-header"><h1>🏥 Solicitações — GestHosp</h1><p>Visualização de solicitações de cadastro</p></div>
         <div class="table-card">
@@ -430,14 +383,14 @@
 
     <!-- INDICADORES -->
     <section id="secao-indicadores" class="secao">
-        <div class="page-header"><h1>📊 Indicadores & Comparativos</h1><p>Acompanhamento mensal de desempenho</p></div>
+        <div class="page-header"><h1>📊 Indicadores & Comparativos</h1><p>Acompanhamento mensal</p></div>
         <div class="filtros-bar" style="margin-bottom:16px;">
             <label style="font-size:12px;color:var(--text-secondary);font-weight:600;">Mês 1:</label>
             <select id="indMes1" onchange="atualizarIndicadores()" style="padding:8px 12px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;"></select>
             <label style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-left:8px;">Mês 2:</label>
             <select id="indMes2" onchange="atualizarIndicadores()" style="padding:8px 12px;background:#fff;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;"></select>
         </div>
-        <div class="indicador-grid" id="indicadorGrid"></div>
+        <div class="stats-grid" id="indicadorGrid"></div>
         <div class="charts-grid" style="margin-top:16px;">
             <div class="chart-card"><h3>📈 Comparativo Mensal</h3><canvas id="gComparativo"></canvas></div>
             <div class="chart-card"><h3>🎯 Taxa de Resolução</h3><canvas id="gResolucao"></canvas></div>
@@ -457,9 +410,9 @@
             <div class="table-card">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3>Adicionar Equipamento</h3><button onclick="fecharFormEquip()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">&times;</button></div>
                 <form onsubmit="salvarEquip(event)" style="display:grid;gap:12px;">
-                    <div class="form-group"><label>Nome *</label><input type="text" id="eNome" required placeholder="Ex: Computador Recepção"></div>
+                    <div class="form-group"><label>Nome *</label><input type="text" id="eNome" required></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Tipo *</label><select id="eTipo" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Monitor</option><option>Impressora</option><option>Periférico</option><option>Telefone</option><option>Rede</option><option>Nobreak</option><option>Servidor</option><option>Câmera</option><option>Outro</option></select></div>
+                        <div class="form-group"><label>Tipo *</label><select id="eTipo" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Monitor</option><option>Impressora</option><option>Periférico</option><option>Telefone</option><option>Rede</option><option>Nobreak</option><option>Servidor</option><option>Câmera</option><option>Ferramenta</option><option>Outro</option></select></div>
                         <div class="form-group"><label>Emoji</label><input type="text" id="eEmoji" placeholder="🖥️" maxlength="2"></div>
                     </div>
                     <div class="form-row">
@@ -474,35 +427,16 @@
         <div id="listaEquip" class="equip-grid"></div>
     </section>
 
-    <!-- IPs -->
+    <!-- IPs (apenas TI) -->
     <section id="secao-ips" class="secao">
         <div class="top-bar"><div><div class="breadcrumb">Gestão / <span>IPs & Rede</span></div><h1>🌐 IPs & Localização</h1></div><button class="btn btn-primary" onclick="abrirModalIP()"><i class="fas fa-plus"></i> Novo Registro</button></div>
         <div class="table-card"><table><thead><tr><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>Localização</th><th>Setor</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="tabelaIPs"></tbody></table></div>
     </section>
 
-    <!-- RELATÓRIOS -->
-    <section id="secao-relatorios" class="secao">
-        <div class="page-header"><h1>📄 Relatórios Personalizados</h1><p>Selecione os elementos para gerar o PDF</p></div>
-        <div class="table-card">
-            <h3>📊 Selecione os gráficos e dados:</h3>
-            <div class="checkbox-list" style="margin-bottom:16px;">
-                <label class="checkbox-item"><input type="checkbox" id="relStats" checked> Resumo Estatístico</label>
-                <label class="checkbox-item"><input type="checkbox" id="relSetor" checked> Gráfico por Setor</label>
-                <label class="checkbox-item"><input type="checkbox" id="relPrio" checked> Gráfico por Prioridade</label>
-                <label class="checkbox-item"><input type="checkbox" id="relToner"> Gráfico de Toners</label>
-                <label class="checkbox-item"><input type="checkbox" id="relEquip"> Gráfico de Equipamentos</label>
-                <label class="checkbox-item"><input type="checkbox" id="relTabela" checked> Tabela de Chamados</label>
-                <label class="checkbox-item"><input type="checkbox" id="relEquipTabela"> Tabela de Equipamentos</label>
-                <label class="checkbox-item"><input type="checkbox" id="relIndicadores"> Indicadores Comparativos</label>
-            </div>
-            <button class="btn btn-primary" onclick="gerarRelatorioPersonalizado()"><i class="fas fa-file-pdf"></i> Gerar Relatório</button>
-        </div>
-    </section>
-
-    <!-- EQUIPE -->
+    <!-- EQUIPE (apenas admin) -->
     <section id="secao-equipe" class="secao">
         <div class="top-bar"><div><div class="breadcrumb">Gestão / <span>Técnicos</span></div><h1>👥 Técnicos</h1></div><button class="btn btn-primary" id="btnAddTecnico" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo</button></div>
-        <div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaEquipe"></tbody></table></div>
+        <div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Departamento</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaEquipe"></tbody></table></div>
     </section>
 
     <!-- CONFIG -->
@@ -523,7 +457,7 @@
 <!-- MODAIS -->
 <div class="modal-overlay" id="modalDetalhes"><div class="modal-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3>Detalhes</h3><button onclick="fecharModal('modalDetalhes')" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;">&times;</button></div><div id="detalhesConteudo"></div></div></div>
 <div class="modal-overlay" id="modalComentario"><div class="modal-box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3>💬 Comentários</h3><button onclick="fecharModal('modalComentario')" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;">&times;</button></div><div id="comentarioConteudo"></div></div></div>
-<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>👤 Técnico</h3><form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Nome *</label><input type="text" id="tn" required></div><div class="form-group"><label>Usuário *</label><input type="text" id="tu" required></div><div class="form-group"><label>Cargo *</label><select id="tc"><option>Técnico de Suporte</option><option>Analista de Sistemas</option></select></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tw" required></div><p style="font-size:11px;color:var(--text-muted);">🔑 Senha inicial: <strong>12345</strong></p><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button></div></form></div></div>
+<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>👤 Técnico</h3><form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Nome *</label><input type="text" id="tn" required></div><div class="form-group"><label>Usuário *</label><input type="text" id="tu" required></div><div class="form-row"><div class="form-group"><label>Departamento *</label><select id="tdep" onchange="atualizarCargosPorDepartamento()"><option value="TI">🖥️ TI</option><option value="MANUTENCAO">🔧 Manutenção</option></select></div><div class="form-group"><label>Cargo *</label><select id="tc"></select></div></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tw" required></div><p style="font-size:11px;color:var(--text-muted);">🔑 Senha inicial: <strong>12345</strong></p><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button></div></form></div></div>
 <div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>🖨️ Troca de Toner</h3><form onsubmit="addToner(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Setor *</label><select id="ts" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>Emergência</option></select></div><div class="form-group"><label>Tipo de Troca *</label><select id="ttipo" required><option value="preventiva">🟢 Troca Preventiva</option><option value="necessaria">🔴 Troca Necessária</option></select></div><div class="form-group"><label>Observação</label><textarea id="tobs" rows="2"></textarea></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button></div></form></div></div>
 <div class="modal-overlay" id="modalIP"><div class="modal-box"><h3>🌐 Registrar IP</h3><form onsubmit="addIP(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDispositivo" required></div><div class="form-row"><div class="form-group"><label>Tipo *</label><select id="ipTipo" required><option value="">Selecione...</option><option>Impressora</option><option>Roteador</option><option>Switch</option><option>Câmera IP</option><option>Servidor</option><option>Computador</option><option>Telefone IP</option><option>Outro</option></select></div><div class="form-group"><label>IP *</label><input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div></div><div class="form-row"><div class="form-group"><label>Localização</label><input type="text" id="ipLocal"></div><div class="form-group"><label>Setor</label><select id="ipSetor"><option value="">Nenhum</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>TI</option><option>Recepção</option></select></div></div><div class="form-group"><label>Observação</label><input type="text" id="ipObs"></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button></div></form></div></div>
 
@@ -535,40 +469,120 @@ function tocarBip(){try{var a=new(window.AudioContext||window.webkitAudioContext
 
 var uLogado=JSON.parse(localStorage.getItem('usuario_logado'));
 if(!uLogado){window.location.href='admin.html';}
+
 var deptoUsuario=uLogado.departamento||'TI';
 var nomeDepto=deptoUsuario==='TI'?'Tecnologia da Informação':'Manutenção';
+var deptoCor=deptoUsuario==='TI'?'#3182CE':'#DD6B20';
+var deptoIcone=deptoUsuario==='TI'?'🖥️':'🔧';
+
+// ========== CARGOS POR DEPARTAMENTO ==========
+var cargosPorDepartamento = {
+    'TI': ['Técnico de Suporte TI', 'Analista de Sistemas', 'Analista de Redes', 'Técnico de Informática'],
+    'MANUTENCAO': ['Técnico de Manutenção', 'Eletricista', 'Encanador', 'Técnico de Refrigeração', 'Pedreiro', 'Pintor', 'Marceneiro']
+};
+
+function atualizarCargosPorDepartamento() {
+    var dep = document.getElementById('tdep').value;
+    var selectCargo = document.getElementById('tc');
+    var cargos = cargosPorDepartamento[dep] || cargosPorDepartamento['TI'];
+    selectCargo.innerHTML = cargos.map(function(c) { return '<option>' + c + '</option>'; }).join('');
+}
+
+// ========== SIDEBAR DINÂMICO POR DEPARTAMENTO ==========
+function construirSidebar() {
+    var nav = document.getElementById('sidebarNav');
+    var isTI = deptoUsuario === 'TI';
+    var isAdmin = uLogado.tipo === 'admin';
+    
+    var html = '';
+    
+    // Seção Principal (comum a todos)
+    html += '<div class="nav-section"><div class="nav-section-title">Principal</div>';
+    html += '<div class="nav-item active" data-secao="dashboard" onclick="navegar(\'dashboard\', this)"><i class="fas fa-chart-pie"></i><span>Dashboard</span></div>';
+    html += '<div class="nav-item" data-secao="chamados" onclick="navegar(\'chamados\', this)"><i class="fas fa-ticket-alt"></i><span>Chamados</span><span class="badge-notificacao" id="badgeTI">0</span></div>';
+    
+    // GestHosp apenas para TI
+    if (isTI || isAdmin) {
+        html += '<div class="nav-item" data-secao="gesthosp" onclick="navegar(\'gesthosp\', this)"><i class="fas fa-hospital-user"></i><span>GestHosp</span><span class="badge-notificacao" id="badgeGH">0</span></div>';
+    }
+    
+    html += '<div class="nav-item" data-secao="indicadores" onclick="navegar(\'indicadores\', this)"><i class="fas fa-chart-line"></i><span>Indicadores</span></div>';
+    html += '</div>';
+    
+    // Seção Gestão
+    html += '<div class="nav-section"><div class="nav-section-title">Gestão</div>';
+    html += '<div class="nav-item" data-secao="toners" onclick="navegar(\'toners\', this)"><i class="fas fa-print"></i><span>Toners</span></div>';
+    html += '<div class="nav-item" data-secao="equipamentos" onclick="navegar(\'equipamentos\', this)"><i class="fas fa-desktop"></i><span>Equipamentos</span></div>';
+    
+    // IPs apenas para TI
+    if (isTI || isAdmin) {
+        html += '<div class="nav-item" data-secao="ips" onclick="navegar(\'ips\', this)"><i class="fas fa-network-wired"></i><span>IPs & Rede</span></div>';
+    }
+    
+    html += '<div class="nav-item" data-secao="relatorios" onclick="navegar(\'relatorios\', this)"><i class="fas fa-file-pdf"></i><span>Relatórios</span></div>';
+    
+    // Equipe apenas para admin
+    if (isAdmin) {
+        html += '<div class="nav-item" data-secao="equipe" onclick="navegar(\'equipe\', this)"><i class="fas fa-users-cog"></i><span>Técnicos</span></div>';
+    }
+    
+    html += '<div class="nav-item" data-secao="config" onclick="navegar(\'config\', this)"><i class="fas fa-cog"></i><span>Configurações</span></div>';
+    html += '</div>';
+    
+    nav.innerHTML = html;
+}
+
 var chamados=[],equipamentos=[],ipsRede=[],charts={},idsVistos=JSON.parse(localStorage.getItem('ids_vistos')||'[]'),comentarioFid=null,equipEditando=null;
 
 function podeEditarExcluir(){return uLogado.tipo==='admin'||uLogado.usuario==='jeconias';}
 
 window.onload=function(){
+    console.log('🚀 Dashboard -',nomeDepto);
+    
     document.getElementById('un').textContent=uLogado.nome;
     document.getElementById('uc').textContent=uLogado.cargo+' · '+nomeDepto;
     document.getElementById('ui').textContent=uLogado.nome.charAt(0).toUpperCase();
     document.getElementById('deptoNome').textContent=nomeDepto;
+    document.getElementById('deptoNome').style.color=deptoCor;
     document.getElementById('tituloChamados').textContent=nomeDepto;
-    if(uLogado.tipo==='admin'){document.getElementById('navEquipe').style.display='flex';}
-    var q=db.collection('chamados').orderBy('data_abertura','desc');
-    if(uLogado.tipo!=='admin'){q=q.where('departamento','==',deptoUsuario);}
-    q.onSnapshot(function(s){
+    
+    var badge=document.getElementById('deptoBadge');
+    badge.innerHTML='<span class="depto-badge '+(deptoUsuario==='TI'?'ti':'manutencao')+'">'+deptoIcone+' '+nomeDepto+'</span>';
+    
+    // Construir sidebar dinâmica
+    construirSidebar();
+    
+    // Listener
+    var query=db.collection('chamados').orderBy('data_abertura','desc');
+    if(uLogado.tipo!=='admin'){
+        console.log('🔒 Filtro:',deptoUsuario);
+        query=query.where('departamento','==',deptoUsuario);
+    }
+    
+    query.onSnapshot(function(snap){
         chamados=[];
-        s.forEach(function(d){var x=d.data();x.fid=d.id;chamados.push(x);if(idsVistos.indexOf(d.id)===-1){notificar(x);}});
+        snap.forEach(function(d){var x=d.data();x.fid=d.id;chamados.push(x);if(idsVistos.indexOf(d.id)===-1)notificar(x);});
         atualizarBadges();atualizarDash();
         if(document.getElementById('secao-chamados').classList.contains('ativa'))carregarChamados();
-        if(document.getElementById('secao-gesthosp').classList.contains('ativa'))carregarGestHosp();
+        if(document.getElementById('secao-gesthosp')&&document.getElementById('secao-gesthosp').classList.contains('ativa'))carregarGestHosp();
         if(document.getElementById('secao-toners').classList.contains('ativa'))carregarToners();
     });
-    carregarEquip();carregarIPs();carregarEquipe();popularMesesIndicadores();
+    
+    carregarEquip();
+    if(deptoUsuario==='TI'||uLogado.tipo==='admin')carregarIPs();
+    if(uLogado.tipo==='admin')carregarEquipe();
+    popularMesesIndicadores();
     if(Notification.permission==='default')Notification.requestPermission();
+    
+    // Inicializar cargos
+    atualizarCargosPorDepartamento();
 };
 
 function atualizarBadges(){
     var ti=chamados.filter(function(c){return idsVistos.indexOf(c.fid)===-1&&c.tipo!=='gesthosp';}).length;
     var gh=chamados.filter(function(c){return idsVistos.indexOf(c.fid)===-1&&c.tipo==='gesthosp';}).length;
-    document.getElementById('badgeTI').style.display=ti>0?'inline-block':'none';
-    document.getElementById('badgeTI').textContent=ti>99?'99+':ti;
-    document.getElementById('badgeGH').style.display=gh>0?'inline-block':'none';
-    document.getElementById('badgeGH').textContent=gh>99?'99+':gh;
+    var bTI=document.getElementById('badgeTI');if(bTI){bTI.style.display=ti>0?'inline-block':'none';bTI.textContent=ti>99?'99+':ti;}
+    var bGH=document.getElementById('badgeGH');if(bGH){bGH.style.display=gh>0?'inline-block':'none';bGH.textContent=gh>99?'99+':gh;}
 }
 
 function notificar(c){
@@ -576,7 +590,7 @@ function notificar(c){
     if(Notification.permission==='granted'){new Notification('🔔 '+(c.tipo==='gesthosp'?'GestHosp':nomeDepto),{body:(c.titulo||'')+' - '+(c.setor||''),tag:c.fid});}
     var p=document.createElement('div');p.className='notificacao-popup';
     p.onclick=function(){navegar(c.tipo==='gesthosp'?'gesthosp':'chamados',document.querySelector('.nav-item[data-secao="'+(c.tipo==='gesthosp'?'gesthosp':'chamados')+'"]'));p.remove();};
-    p.innerHTML='<button style="position:absolute;top:8px;right:12px;background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button><div style="font-weight:700;font-size:13px;color:var(--primary);">🔔 Novo Chamado '+(c.tipo==='gesthosp'?'GestHosp':nomeDepto)+'</div><div style="font-size:11px;margin-top:4px;"><strong>'+(c.titulo||'')+'</strong></div><div style="font-size:10px;color:var(--text-muted);">📍 '+(c.setor||'')+' · 👤 '+(c.solicitante||'')+'</div>';
+    p.innerHTML='<button style="position:absolute;top:8px;right:12px;background:none;border:none;color:var(--text-muted);cursor:pointer;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button><div style="font-weight:700;font-size:13px;color:var(--primary);">🔔 Novo Chamado</div><div style="font-size:11px;"><strong>'+(c.titulo||'')+'</strong></div>';
     document.body.appendChild(p);setTimeout(function(){if(p.parentElement)p.remove();},6000);
 }
 
@@ -601,15 +615,8 @@ function marcarVistos(tipo){
     localStorage.setItem('ids_vistos',JSON.stringify(idsVistos.slice(-400)));atualizarBadges();
 }
 
-function fd(d){
-    if(!d)return'—';
-    try{var dt=(d&&typeof d.toDate==='function')?d.toDate():new Date(d);if(isNaN(dt.getTime()))return'—';return dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}
-}
-
-function fdShort(d){
-    if(!d)return'—';
-    try{var dt=(d&&typeof d.toDate==='function')?d.toDate():new Date(d);if(isNaN(dt.getTime()))return'—';var now=new Date(),diff=Math.floor((now-dt)/1000);if(diff<60)return'agora';if(diff<3600)return Math.floor(diff/60)+'min';if(diff<86400)return Math.floor(diff/3600)+'h';return Math.floor(diff/86400)+'d';}catch(e){return'—';}
-}
+function fd(d){if(!d)return'—';try{var dt=(d&&typeof d.toDate==='function')?d.toDate():new Date(d);if(isNaN(dt.getTime()))return'—';return dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}}
+function fdShort(d){if(!d)return'—';try{var dt=(d&&typeof d.toDate==='function')?d.toDate():new Date(d);if(isNaN(dt.getTime()))return'—';var now=new Date(),diff=Math.floor((now-dt)/1000);if(diff<60)return'agora';if(diff<3600)return Math.floor(diff/60)+'min';if(diff<86400)return Math.floor(diff/3600)+'h';return Math.floor(diff/86400)+'d';}catch(e){return'—';}}
 
 function atualizarDash(){
     var p=parseInt(document.getElementById('periodo').value||30),dl=new Date();dl.setDate(dl.getDate()-p);
@@ -631,8 +638,8 @@ function atualizarDash(){
     if(ctx2&&Object.keys(prio).length>0)charts.p=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(prio),datasets:[{data:Object.values(prio),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyleWidth:8,font:{size:10},color:'#4A5568'}}}}});
     document.getElementById('ultimosChamados').innerHTML=f.slice(0,8).map(function(c){
         var sc=c.status==='Concluído'?'badge-green':c.status==='Em Andamento'?'badge-amber':c.status==='Pendente'?'badge-red':'badge-blue';
-        return'<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong></td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(c.titulo||'—')+'</td><td>'+(c.setor||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td><td><span class="badge '+(c.tipo==='gesthosp'?'badge-purple':'badge-blue')+'">'+(c.tipo==='gesthosp'?'GH':'TI')+'</span></td></tr>';
-    }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhum chamado</td></tr>';
+        return'<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong></td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(c.titulo||'—')+'</td><td>'+(c.setor||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td></tr>';
+    }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhum chamado</td></tr>';
 }
 
 function carregarChamados(){
@@ -661,7 +668,7 @@ function renderTabela(f,tid){
     tb.innerHTML=f.map(function(c){
         var sc=c.status==='Concluído'?'badge-green':c.status==='Em Andamento'?'badge-amber':c.status==='Pendente'?'badge-red':'badge-blue';
         var pc=c.prioridade==='Crítica'?'style="color:#E53E3E;font-weight:700;"':c.prioridade==='Alta'?'style="color:#DD6B20;font-weight:600;"':'';
-        var ct=c.contato?' <a class="link-wpp" href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank" onclick="event.stopPropagation();"><i class="fab fa-whatsapp"></i></a>':'';
+        var ct=c.contato?' <a href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank" onclick="event.stopPropagation();" style="color:#25d366;"><i class="fab fa-whatsapp"></i></a>':'';
         var ci=(c.comentarios&&c.comentarios.length)?' 💬'+c.comentarios.length:'';
         return'<tr onclick="verDetalhes(\''+c.fid+'\')"><td><strong>'+(c.protocolo||'—')+'</strong></td><td style="font-size:10px;">'+fdShort(c.data_abertura)+'</td><td>'+(c.titulo||'—')+ci+'</td><td>'+(c.solicitante||'—')+ct+'</td><td>'+(c.setor||'—')+'</td><td><span '+pc+'>'+(c.prioridade||'—')+'</span></td><td>'+(c.tecnico||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancar(\''+c.fid+'\')">▶</button> <button class="btn btn-sm btn-outline" onclick="abrirComentario(\''+c.fid+'\')">💬</button>'+(podeEditarExcluir()?' <button class="btn btn-sm btn-danger" onclick="excluir(\''+c.fid+'\')"><i class="fas fa-trash"></i></button>':'')+'</td></tr>';
     }).join('');
@@ -679,8 +686,8 @@ function avancar(id){
 
 function abrirComentario(fid){
     comentarioFid=fid;var c=chamados.find(function(x){return x.fid===fid;});if(!c)return;
-    var coms=c.comentarios||[],h=coms.map(function(com){return'<div style="background:#F7FAFC;padding:10px 14px;border-radius:8px;margin-bottom:6px;border-left:3px solid var(--primary);"><div style="display:flex;justify-content:space-between;font-size:10px;"><strong>'+(com.autor||'')+'</strong><small>'+fd(com.data)+'</small></div><div style="font-size:11px;margin-top:4px;">'+(com.texto||'')+'</div></div>';}).join('');
-    document.getElementById('comentarioConteudo').innerHTML='<p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">'+(c.protocolo||'')+' — '+(c.titulo||'')+'</p><div style="max-height:250px;overflow-y:auto;margin-bottom:10px;">'+(h||'<p style="text-align:center;color:var(--text-muted);">Nenhum comentário</p>')+'</div><div style="display:flex;gap:6px;"><textarea id="txtComentario" placeholder="Descreva..." style="flex:1;padding:8px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;resize:none;height:38px;font-family:inherit;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>';
+    var coms=c.comentarios||[],h=coms.map(function(com){return'<div style="background:#F7FAFC;padding:10px 14px;border-radius:8px;margin-bottom:6px;border-left:3px solid var(--primary);"><div style="display:flex;justify-content:space-between;font-size:10px;"><strong>'+(com.autor||'')+'</strong><small>'+fd(com.data)+'</small></div><div style="font-size:11px;">'+(com.texto||'')+'</div></div>';}).join('');
+    document.getElementById('comentarioConteudo').innerHTML='<p style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">'+(c.protocolo||'')+' — '+(c.titulo||'')+'</p><div style="max-height:250px;overflow-y:auto;margin-bottom:10px;">'+(h||'<p style="text-align:center;color:var(--text-muted);">Nenhum comentário</p>')+'</div><div style="display:flex;gap:6px;"><textarea id="txtComentario" placeholder="Descreva..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;resize:none;height:38px;font-family:inherit;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>';
     document.getElementById('modalComentario').classList.add('ativa');
 }
 
@@ -689,15 +696,15 @@ function salvarComentario(){
     db.collection('chamados').doc(comentarioFid).get().then(function(d){if(!d.exists)return;var coms=d.data().comentarios||[];coms.push({autor:uLogado.nome,data:new Date().toISOString(),texto:t});d.ref.update({comentarios:coms}).then(function(){fecharModal('modalComentario');toast('✅ Comentário salvo!');});});
 }
 
-function excluir(id){if(!podeEditarExcluir()){toast('⛔ Apenas o administrador pode excluir!');return;}if(!confirm('Excluir?'))return;db.collection('chamados').doc(id).delete().then(function(){toast('🗑️ Excluído!');});}
+function excluir(id){if(!podeEditarExcluir()){toast('⛔ Apenas administrador!');return;}if(!confirm('Excluir?'))return;db.collection('chamados').doc(id).delete().then(function(){toast('🗑️ Excluído!');});}
 
 function verDetalhes(fid){
     var c=chamados.find(function(x){return x.fid===fid;});if(!c)return;
     var hist=(c.historico||[]).map(function(h){return'<div style="padding:6px 0;border-bottom:1px solid #EDF2F7;font-size:10px;"><strong>'+new Date(h.data).toLocaleString('pt-BR')+'</strong><br><span style="color:var(--text-muted);">'+h.acao+'</span></div>';}).join('');
     var ct=c.contato?'<p><strong>📞 Contato:</strong> <a href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank" style="color:#25d366;">'+c.contato+' <i class="fab fa-whatsapp"></i></a></p>':'';
     var desc=c.descricao?'<div style="background:#F7FAFC;padding:10px;border-radius:8px;margin:8px 0;"><strong style="color:var(--primary);">📝 Descrição:</strong><br><span style="font-size:11px;">'+(c.descricao||'').replace(/\n/g,'<br>')+'</span></div>':'';
-    var coms=(c.comentarios||[]).map(function(com){return'<div style="background:#F0FFF4;padding:8px 12px;border-radius:8px;margin-bottom:4px;border-left:3px solid #38A169;"><strong style="font-size:10px;">'+(com.autor||'')+'</strong><small style="color:var(--text-muted);margin-left:6px;">'+fd(com.data)+'</small><p style="font-size:11px;margin-top:3px;">'+(com.texto||'')+'</p></div>';}).join('');
-    document.getElementById('detalhesConteudo').innerHTML='<div><h3 style="color:var(--text-primary);">'+(c.titulo||'—')+'</h3><span class="badge badge-gold">'+(c.protocolo||'')+'</span><div style="margin-top:12px;display:grid;gap:4px;font-size:11px;"><p><strong>👤 Solicitante:</strong> '+(c.solicitante||'—')+'</p>'+ct+'<p><strong>📍 Setor:</strong> '+(c.setor||'—')+'</p><p><strong>⚡ Prioridade:</strong> '+(c.prioridade||'—')+'</p><p><strong>📊 Status:</strong> '+(c.status||'—')+'</p><p><strong>👨‍🔧 Técnico:</strong> '+(c.tecnico||'Não atribuído')+'</p><p><strong>🕐 Abertura:</strong> '+fd(c.data_abertura)+'</p></div>'+desc+'<hr style="border-color:#EDF2F7;"><h4 style="color:var(--primary);">💬 Comentários ('+(c.comentarios||[]).length+')</h4>'+(coms||'<p style="font-size:10px;color:var(--text-muted);">Nenhum</p>')+'<hr style="border-color:#EDF2F7;"><h4 style="color:var(--primary);">📜 Histórico</h4>'+(hist||'<p style="font-size:10px;color:var(--text-muted);">Nenhum</p>')+'</div>';
+    var coms=(c.comentarios||[]).map(function(com){return'<div style="background:#F0FFF4;padding:8px 12px;border-radius:8px;margin-bottom:4px;border-left:3px solid #38A169;"><strong style="font-size:10px;">'+(com.autor||'')+'</strong><small style="color:var(--text-muted);margin-left:6px;">'+fd(com.data)+'</small><p style="font-size:11px;">'+(com.texto||'')+'</p></div>';}).join('');
+    document.getElementById('detalhesConteudo').innerHTML='<div><h3>'+(c.titulo||'—')+'</h3><span class="badge badge-gold">'+(c.protocolo||'')+'</span><div style="margin-top:12px;display:grid;gap:4px;font-size:11px;"><p><strong>👤 Solicitante:</strong> '+(c.solicitante||'—')+'</p>'+ct+'<p><strong>📍 Setor:</strong> '+(c.setor||'—')+'</p><p><strong>⚡ Prioridade:</strong> '+(c.prioridade||'—')+'</p><p><strong>📊 Status:</strong> '+(c.status||'—')+'</p><p><strong>👨‍🔧 Técnico:</strong> '+(c.tecnico||'Não atribuído')+'</p><p><strong>🕐 Abertura:</strong> '+fd(c.data_abertura)+'</p></div>'+desc+'<hr style="border-color:#EDF2F7;"><h4 style="color:var(--primary);">💬 Comentários ('+(c.comentarios||[]).length+')</h4>'+(coms||'<p style="font-size:10px;">Nenhum</p>')+'<hr style="border-color:#EDF2F7;"><h4 style="color:var(--primary);">📜 Histórico</h4>'+(hist||'<p style="font-size:10px;">Nenhum</p>')+'</div>';
     document.getElementById('modalDetalhes').classList.add('ativa');
 }
 
@@ -705,8 +712,7 @@ function popularMesesIndicadores(){
     var meses=[],agora=new Date();
     for(var i=11;i>=0;i--){var d=new Date(agora.getFullYear(),agora.getMonth()-i,1);meses.push({value:d.toISOString().slice(0,7),label:d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})});}
     var s1=document.getElementById('indMes1'),s2=document.getElementById('indMes2');
-    s1.innerHTML=s2.innerHTML=meses.map(function(m){return'<option value="'+m.value+'">'+m.label+'</option>';}).join('');
-    s1.value=meses[10]?meses[10].value:'';s2.value=meses[11]?meses[11].value:'';atualizarIndicadores();
+    if(s1&&s2){s1.innerHTML=s2.innerHTML=meses.map(function(m){return'<option value="'+m.value+'">'+m.label+'</option>';}).join('');s1.value=meses[10]?meses[10].value:'';s2.value=meses[11]?meses[11].value:'';atualizarIndicadores();}
 }
 
 function atualizarIndicadores(){
@@ -719,12 +725,12 @@ function atualizarIndicadores(){
     var varTotal=t1>0?Math.round((t2-t1)/t1*100):0,varTaxa=taxa1>0?taxa2-taxa1:0;
     document.getElementById('indicadorGrid').innerHTML=
         '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total Mês 2</small><strong>'+t2+'</strong><span style="font-size:10px;color:'+(varTotal>=0?'var(--success)':'var(--danger)')+';">'+(varTotal>=0?'↑':'↓')+Math.abs(varTotal)+'%</span></div></div>'+
-        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Taxa Resolução</small><strong>'+taxa2+'%</strong><span style="font-size:10px;color:'+(varTaxa>=0?'var(--success)':'var(--danger)')+';">'+(varTaxa>=0?'↑':'↓')+Math.abs(varTaxa)+'pp</span></div></div>'+
+        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Taxa Resolução</small><strong>'+taxa2+'%</strong></div></div>'+
         '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>'+crit2+'</strong></div></div>'+
         '<div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Mês Anterior</small><strong>'+t1+'</strong></div></div>';
     Object.values(charts).forEach(function(c){if(c)c.destroy();});charts={};
     var ctx5=document.getElementById('gComparativo');
-    if(ctx5)charts.cmp=new Chart(ctx5,{type:'bar',data:{labels:['Total','Concluídos','Críticos'],datasets:[{label:'Mês 1',data:[t1,c1,crit1],backgroundColor:'rgba(49,130,206,0.2)',borderColor:'#3182CE',borderWidth:1,borderRadius:4},{label:'Mês 2',data:[t2,c2,crit2],backgroundColor:'rgba(56,161,105,0.2)',borderColor:'#38A169',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#4A5568',font:{size:10}}}},scales:{y:{ticks:{color:'#A0AEC0'},grid:{color:'#EDF2F7'}},x:{ticks:{color:'#A0AEC0'},grid:{display:false}}}}});
+    if(ctx5)charts.cmp=new Chart(ctx5,{type:'bar',data:{labels:['Total','Concluídos','Críticos'],datasets:[{label:'Mês 1',data:[t1,c1,crit1],backgroundColor:'rgba(49,130,206,0.2)',borderColor:'#3182CE',borderWidth:1,borderRadius:4},{label:'Mês 2',data:[t2,c2,crit2],backgroundColor:'rgba(56,161,105,0.2)',borderColor:'#38A169',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#4A5568',font:{size:10}}}}}});
     var ctx6=document.getElementById('gResolucao');
     if(ctx6)charts.res=new Chart(ctx6,{type:'doughnut',data:{labels:['Resolvidos','Pendentes'],datasets:[{data:[c2,Math.max(0,t2-c2)],backgroundColor:['#38A169','rgba(229,62,62,0.2)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#4A5568',font:{size:10}}}}}});
 }
@@ -738,7 +744,7 @@ function addToner(e){e.preventDefault();var s=document.getElementById('ts').valu
 
 function carregarEquip(){db.collection('equipamentos').get().then(function(s){equipamentos=[];s.forEach(function(d){var x=d.data();x.fid=d.id;equipamentos.push(x);});renderEquipList();});}
 function renderEquipList(){
-    var em={Computador:'💻',Notebook:'💻',Monitor:'🖥️',Impressora:'🖨️',Periférico:'🖱️',Telefone:'📞',Rede:'🔌',Nobreak:'🔋',Servidor:'🗄️',Câmera:'📹',Outro:'📦'};
+    var em={Computador:'💻',Notebook:'💻',Monitor:'🖥️',Impressora:'🖨️',Periférico:'🖱️',Telefone:'📞',Rede:'🔌',Nobreak:'🔋',Servidor:'🗄️',Câmera:'📹',Ferramenta:'🔧',Outro:'📦'};
     var sm={'Em uso':'<span class="status-dot uso"></span>Em uso','Com defeito':'<span class="status-dot defeito"></span>Com defeito','Em estoque':'<span class="status-dot estoque"></span>Em estoque'};
     document.getElementById('listaEquip').innerHTML=equipamentos.length===0?'<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;padding:40px;">Nenhum equipamento</p>':equipamentos.map(function(eq,i){return'<div class="equip-card"><div class="equip-emoji">'+(eq.emoji||em[eq.tipo]||'📦')+'</div><h4>'+eq.nome+'</h4><small>'+eq.tipo+'</small><div style="font-size:10px;margin-top:4px;">'+(sm[eq.status]||sm['Em uso'])+'</div><div style="font-size:9px;color:var(--text-muted);">Qtd: '+(eq.quantidade||1)+(eq.localizacao?' · 📍 '+eq.localizacao:'')+'</div><div style="margin-top:8px;display:flex;gap:4px;justify-content:center;"><button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editarEquip('+i+')"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="event.stopPropagation();remEquip('+i+')"><i class="fas fa-trash"></i></button></div></div>';}).join('');
 }
@@ -753,30 +759,21 @@ function abrirModalIP(){document.getElementById('modalIP').classList.add('ativa'
 function addIP(e){e.preventDefault();db.collection('ips_rede').add({dispositivo:document.getElementById('ipDispositivo').value,tipo:document.getElementById('ipTipo').value,ip:document.getElementById('ipEndereco').value,localizacao:document.getElementById('ipLocal').value,setor:document.getElementById('ipSetor').value,observacao:document.getElementById('ipObs').value}).then(function(){fecharModal('modalIP');carregarIPs();toast('✅ IP registrado!');});}
 function remIP(id){if(!confirm('Remover?'))return;db.collection('ips_rede').doc(id).delete().then(function(){carregarIPs();toast('🗑️ Removido!');});}
 
-function carregarEquipe(){db.collection('usuarios').get().then(function(s){var h='';s.forEach(function(d){var u=d.data(),acoes='';if(podeEditarExcluir()&&u.usuario!==uLogado.usuario){acoes='<button class="btn btn-sm btn-outline" onclick="editarTecnico(\''+d.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="remTec(\''+d.id+'\')"><i class="fas fa-trash"></i></button>';}else if(u.usuario===uLogado.usuario){acoes='<span class="badge badge-gold">Você</span>';}h+='<tr><td><strong>'+(u.nome||'')+'</strong></td><td>@'+(u.usuario||'')+'</td><td>'+(u.cargo||'')+'</td><td>'+(u.whatsapp?'<a href="https://wa.me/55'+u.whatsapp.replace(/\D/g,'')+'" target="_blank" style="color:#25d366;"><i class="fab fa-whatsapp"></i> '+u.whatsapp+'</a>':'—')+'</td><td><span class="badge '+(u.status==='ativo'?'badge-green':'badge-amber')+'">'+(u.status||'')+'</span></td><td>'+acoes+'</td></tr>';});document.getElementById('tabelaEquipe').innerHTML=h;});}
-function abrirModalTecnico(){document.getElementById('modalTecnico').classList.add('ativa');document.getElementById('formTecnico').reset();document.getElementById('tu').disabled=false;document.getElementById('formTecnico').onsubmit=addTecnico;}
-function addTecnico(e){e.preventDefault();var u=document.getElementById('tu').value.toLowerCase().trim(),w=document.getElementById('tw').value.trim();if(!w){toast('⚠️ Informe WhatsApp!');return;}db.collection('usuarios').where('usuario','==',u).get().then(function(s){if(!s.empty){toast('⚠️ Usuário já existe!');return;}db.collection('usuarios').add({nome:document.getElementById('tn').value,usuario:u,senha:'12345',cargo:document.getElementById('tc').value,tipo:'tecnico',whatsapp:w,status:'ativo',primeiro_acesso:true,departamento:deptoUsuario}).then(function(){fecharModal('modalTecnico');carregarEquipe();toast('✅ Cadastrado! Senha: 12345');});});}
-function editarTecnico(id){db.collection('usuarios').doc(id).get().then(function(d){if(!d.exists)return;var u=d.data();document.getElementById('tn').value=u.nome;document.getElementById('tu').value=u.usuario;document.getElementById('tu').disabled=true;document.getElementById('tc').value=u.cargo;document.getElementById('tw').value=u.whatsapp||'';document.getElementById('modalTecnico').classList.add('ativa');var form=document.getElementById('formTecnico');form.onsubmit=function(ev){ev.preventDefault();d.ref.update({nome:document.getElementById('tn').value,cargo:document.getElementById('tc').value,whatsapp:document.getElementById('tw').value}).then(function(){fecharModal('modalTecnico');document.getElementById('tu').disabled=false;form.onsubmit=addTecnico;carregarEquipe();toast('✅ Atualizado!');});};});}
+function carregarEquipe(){db.collection('usuarios').get().then(function(s){var h='';s.forEach(function(d){var u=d.data(),acoes='';if(podeEditarExcluir()&&u.usuario!==uLogado.usuario){acoes='<button class="btn btn-sm btn-outline" onclick="editarTecnico(\''+d.id+'\')"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-danger" onclick="remTec(\''+d.id+'\')"><i class="fas fa-trash"></i></button>';}else if(u.usuario===uLogado.usuario){acoes='<span class="badge badge-gold">Você</span>';}var dn=u.departamento==='MANUTENCAO'?'🔧 Manutenção':'🖥️ TI';var dbadge=u.departamento==='MANUTENCAO'?'badge-amber':'badge-blue';h+='<tr><td><strong>'+(u.nome||'')+'</strong></td><td>@'+(u.usuario||'')+'</td><td>'+(u.cargo||'')+'</td><td>'+(u.whatsapp?'<a href="https://wa.me/55'+u.whatsapp.replace(/\D/g,'')+'" target="_blank" style="color:#25d366;"><i class="fab fa-whatsapp"></i> '+u.whatsapp+'</a>':'—')+'</td><td><span class="badge '+dbadge+'">'+dn+'</span></td><td><span class="badge '+(u.status==='ativo'?'badge-green':'badge-amber')+'">'+(u.status||'')+'</span></td><td>'+acoes+'</td></tr>';});document.getElementById('tabelaEquipe').innerHTML=h;});}
+function abrirModalTecnico(){document.getElementById('modalTecnico').classList.add('ativa');document.getElementById('formTecnico').reset();document.getElementById('tu').disabled=false;atualizarCargosPorDepartamento();document.getElementById('formTecnico').onsubmit=addTecnico;}
+function addTecnico(e){e.preventDefault();var u=document.getElementById('tu').value.toLowerCase().trim(),w=document.getElementById('tw').value.trim(),dep=document.getElementById('tdep').value,cargo=document.getElementById('tc').value;if(!w){toast('⚠️ Informe WhatsApp!');return;}db.collection('usuarios').where('usuario','==',u).get().then(function(s){if(!s.empty){toast('⚠️ Usuário já existe!');return;}db.collection('usuarios').add({nome:document.getElementById('tn').value,usuario:u,senha:'12345',cargo:cargo,tipo:'tecnico',whatsapp:w,status:'ativo',primeiro_acesso:true,departamento:dep}).then(function(){fecharModal('modalTecnico');carregarEquipe();toast('✅ Cadastrado! Senha: 12345');});});}
+function editarTecnico(id){db.collection('usuarios').doc(id).get().then(function(d){if(!d.exists)return;var u=d.data();document.getElementById('tn').value=u.nome;document.getElementById('tu').value=u.usuario;document.getElementById('tu').disabled=true;document.getElementById('tdep').value=u.departamento||'TI';atualizarCargosPorDepartamento();setTimeout(function(){document.getElementById('tc').value=u.cargo||'';},100);document.getElementById('tw').value=u.whatsapp||'';document.getElementById('modalTecnico').classList.add('ativa');var form=document.getElementById('formTecnico');form.onsubmit=function(ev){ev.preventDefault();d.ref.update({nome:document.getElementById('tn').value,cargo:document.getElementById('tc').value,departamento:document.getElementById('tdep').value,whatsapp:document.getElementById('tw').value}).then(function(){fecharModal('modalTecnico');document.getElementById('tu').disabled=false;form.onsubmit=addTecnico;carregarEquipe();toast('✅ Atualizado!');});};});}
 function remTec(id){if(!confirm('Remover?'))return;db.collection('usuarios').doc(id).delete().then(function(){carregarEquipe();toast('🗑️ Removido!');});}
 
 function alterarSenha(e){e.preventDefault();db.collection('usuarios').where('usuario','==',uLogado.usuario).get().then(function(s){if(s.empty)return;var d=s.docs[0];if(d.data().senha!==document.getElementById('sAtual').value){toast('❌ Senha atual incorreta!');return;}d.ref.update({senha:document.getElementById('sNova').value,primeiro_acesso:false}).then(function(){toast('✅ Alterada!');e.target.reset();});});}
 
 function gerarRelatorio(){
     var el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;color:#4A5568;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML='<div style="text-align:center;border-bottom:2px solid #3182CE;padding-bottom:16px;margin-bottom:20px;"><h1 style="color:#1A202C;">Help<span style="color:#4A5568;">Hosp</span></h1><p style="color:#3182CE;font-weight:600;">Relatório Técnico</p><small style="color:#A0AEC0;">'+new Date().toLocaleString('pt-BR')+' | '+chamados.length+' chamados</small></div>';
-    el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">TOTAL</h3><p style="color:#1A202C;font-size:24px;">'+chamados.length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">ABERTOS</h3><p style="color:#DD6B20;font-size:24px;">'+chamados.filter(function(c){return c.status!=='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CONCLUÍDOS</h3><p style="color:#38A169;font-size:24px;">'+chamados.filter(function(c){return c.status==='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CRÍTICOS</h3><p style="color:#E53E3E;font-size:24px;">'+chamados.filter(function(c){return c.prioridade==='Crítica';}).length+'</p></div></div>';
-    el.innerHTML+='<h3 style="color:#3182CE;">📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr style="background:#F7FAFC;"><th style="padding:6px;color:#4A5568;">Protocolo</th><th style="padding:6px;color:#4A5568;">Data</th><th style="padding:6px;color:#4A5568;">Título</th><th style="padding:6px;color:#4A5568;">Setor</th><th style="padding:6px;color:#4A5568;">Status</th></tr>';
+    el.innerHTML='<div style="text-align:center;border-bottom:2px solid #3182CE;padding-bottom:16px;"><h1 style="color:#1A202C;">Help<span style="color:#4A5568;">Hosp</span></h1><p style="color:#3182CE;">Relatório - '+nomeDepto+'</p><small>'+new Date().toLocaleString('pt-BR')+' | '+chamados.length+' chamados</small></div>';
+    el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;">'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">TOTAL</h3><p style="color:#1A202C;font-size:24px;">'+chamados.length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">ABERTOS</h3><p style="color:#DD6B20;font-size:24px;">'+chamados.filter(function(c){return c.status!=='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CONCLUÍDOS</h3><p style="color:#38A169;font-size:24px;">'+chamados.filter(function(c){return c.status==='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CRÍTICOS</h3><p style="color:#E53E3E;font-size:24px;">'+chamados.filter(function(c){return c.prioridade==='Crítica';}).length+'</p></div></div>';
+    el.innerHTML+='<h3 style="color:#3182CE;">📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr style="background:#F7FAFC;"><th style="padding:6px;">Protocolo</th><th style="padding:6px;">Data</th><th style="padding:6px;">Título</th><th style="padding:6px;">Setor</th><th style="padding:6px;">Status</th></tr>';
     chamados.slice(0,30).forEach(function(c){el.innerHTML+='<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:4px 6px;">'+(c.protocolo||'')+'</td><td style="padding:4px 6px;">'+fd(c.data_abertura)+'</td><td style="padding:4px 6px;">'+(c.titulo||'')+'</td><td style="padding:4px 6px;">'+(c.setor||'')+'</td><td style="padding:4px 6px;">'+(c.status||'')+'</td></tr>';});el.innerHTML+='</table>';
     document.body.appendChild(el);html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(function(c){document.body.removeChild(el);var pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(c.toDataURL('image/png'),'PNG',8,8,194,(c.height*194)/c.width);pdf.save('relatorio-'+new Date().toISOString().slice(0,10)+'.pdf');toast('📄 PDF gerado!');});
-}
-
-function gerarRelatorioPersonalizado(){
-    var el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;color:#4A5568;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML='<div style="text-align:center;border-bottom:2px solid #3182CE;padding-bottom:16px;margin-bottom:20px;"><h1 style="color:#1A202C;">Help<span style="color:#4A5568;">Hosp</span></h1><p style="color:#3182CE;">Relatório Personalizado</p><small style="color:#A0AEC0;">'+new Date().toLocaleString('pt-BR')+'</small></div>';
-    if(document.getElementById('relStats').checked){el.innerHTML+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">TOTAL</h3><p style="color:#1A202C;font-size:24px;">'+chamados.length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">ABERTOS</h3><p style="color:#DD6B20;font-size:24px;">'+chamados.filter(function(c){return c.status!=='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CONCLUÍDOS</h3><p style="color:#38A169;font-size:24px;">'+chamados.filter(function(c){return c.status==='Concluído';}).length+'</p></div>'+'<div style="background:#F7FAFC;padding:14px;border-radius:8px;text-align:center;"><h3 style="color:#A0AEC0;font-size:10px;">CRÍTICOS</h3><p style="color:#E53E3E;font-size:24px;">'+chamados.filter(function(c){return c.prioridade==='Crítica';}).length+'</p></div></div>';}
-    if(document.getElementById('relTabela').checked){el.innerHTML+='<h3 style="color:#3182CE;">📋 Chamados</h3><table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:16px;"><tr style="background:#F7FAFC;"><th style="padding:6px;color:#4A5568;">Protocolo</th><th style="padding:6px;color:#4A5568;">Data</th><th style="padding:6px;color:#4A5568;">Título</th><th style="padding:6px;color:#4A5568;">Setor</th><th style="padding:6px;color:#4A5568;">Status</th></tr>';chamados.slice(0,30).forEach(function(c){el.innerHTML+='<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:4px 6px;">'+(c.protocolo||'')+'</td><td style="padding:4px 6px;">'+fd(c.data_abertura)+'</td><td style="padding:4px 6px;">'+(c.titulo||'')+'</td><td style="padding:4px 6px;">'+(c.setor||'')+'</td><td style="padding:4px 6px;">'+(c.status||'')+'</td></tr>';});el.innerHTML+='</table>';}
-    if(document.getElementById('relEquipTabela').checked){el.innerHTML+='<h3 style="color:#3182CE;">🖥️ Equipamentos</h3><table style="width:100%;border-collapse:collapse;font-size:9px;"><tr style="background:#F7FAFC;"><th style="padding:6px;color:#4A5568;">Nome</th><th style="padding:6px;color:#4A5568;">Tipo</th><th style="padding:6px;color:#4A5568;">Qtd</th><th style="padding:6px;color:#4A5568;">Status</th></tr>';equipamentos.forEach(function(eq){el.innerHTML+='<tr style="border-bottom:1px solid #EDF2F7;"><td style="padding:4px 6px;">'+eq.nome+'</td><td style="padding:4px 6px;">'+eq.tipo+'</td><td style="padding:4px 6px;">'+(eq.quantidade||1)+'</td><td style="padding:4px 6px;">'+(eq.status||'Em uso')+'</td></tr>';});el.innerHTML+='</table>';}
-    document.body.appendChild(el);html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(function(c){document.body.removeChild(el);var pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(c.toDataURL('image/png'),'PNG',8,8,194,(c.height*194)/c.width);pdf.save('relatorio-personalizado-'+new Date().toISOString().slice(0,10)+'.pdf');toast('📄 Relatório gerado!');});
 }
 
 function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}

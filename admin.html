@@ -247,7 +247,8 @@
 </div>
 
 <script>
-const fc = {
+// Inicializar Firebase
+var firebaseConfig = {
     apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
     authDomain: "helphosp.firebaseapp.com",
     projectId: "helphosp",
@@ -255,8 +256,8 @@ const fc = {
     messagingSenderId: "1075623193163",
     appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
 };
-firebase.initializeApp(fc);
-const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
 var tentativas = 0;
 var loginBloqueado = false;
@@ -317,12 +318,14 @@ function login(e) {
                 return;
             }
             
-            // Verificar departamento (admin pode acessar qualquer)
-            if (user.tipo !== 'admin' && user.departamento !== departamento) {
-                mostrarErro('Este usuário pertence ao departamento: ' + 
-                    (user.departamento === 'TI' ? 'TI' : 'Manutenção'));
-                resetBtn();
-                return;
+            // Verificar departamento - admin pode acessar qualquer departamento
+            if (user.tipo !== 'admin' && user.usuario !== 'edson') {
+                if (user.departamento !== departamento) {
+                    mostrarErro('Este usuário pertence ao departamento: ' + 
+                        (user.departamento === 'TI' ? 'TI' : 'Manutenção'));
+                    resetBtn();
+                    return;
+                }
             }
             
             // Login bem-sucedido
@@ -341,20 +344,22 @@ function login(e) {
             
             localStorage.setItem('usuario_logado', JSON.stringify(dadosLogin));
             
-            // REDIRECIONAMENTO CORRETO
+            console.log('✅ Login bem-sucedido:', dadosLogin.nome);
+            console.log('📌 Departamento:', dadosLogin.departamento);
+            console.log('🔄 Primeiro acesso:', dadosLogin.primeiro_acesso);
+            
+            // Redirecionamento
             setTimeout(function() {
                 if (user.primeiro_acesso) {
-                    // Redirecionar para troca de senha
                     window.location.href = 'trocar-senha.html?id=' + doc.id;
                 } else {
-                    // Redirecionar para o dashboard técnico
                     window.location.href = 'dashboard.html';
                 }
             }, 500);
         })
         .catch(function(error) {
-            console.error('Erro:', error);
-            mostrarErro('Erro de conexão! Tente novamente.');
+            console.error('❌ Erro no login:', error);
+            mostrarErro('Erro de conexão! Verifique sua internet.');
             resetBtn();
         });
 }
@@ -363,6 +368,7 @@ function mostrarErro(msg) {
     var erroDiv = document.getElementById('erroLogin');
     erroDiv.textContent = msg;
     erroDiv.classList.add('show');
+    // Reiniciar animação
     erroDiv.style.animation = 'none';
     erroDiv.offsetHeight;
     erroDiv.style.animation = 'shake 0.5s ease';
@@ -377,7 +383,7 @@ function resetBtn() {
 function verificarTentativas() {
     if (tentativas >= 5) {
         loginBloqueado = true;
-        mostrarErro('Conta bloqueada por 30 segundos.');
+        mostrarErro('Conta bloqueada por 30 segundos. Muitas tentativas!');
         setTimeout(function() {
             loginBloqueado = false;
             tentativas = 0;
@@ -396,6 +402,8 @@ document.getElementById('senha').addEventListener('input', function() {
 document.getElementById('departamento').addEventListener('change', function() {
     document.getElementById('erroLogin').classList.remove('show');
 });
+
+console.log('🔐 Página de login carregada!');
 </script>
 </body>
 </html>

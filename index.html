@@ -27,12 +27,7 @@
             --cinza-claro: #c9d2df;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
 
         body {
             background: var(--azul-escuro);
@@ -42,1355 +37,697 @@
         }
 
         .bg-grid {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: 60px 60px;
-            pointer-events: none;
-            z-index: 0;
+            pointer-events: none; z-index: 0;
         }
 
         .bg-glow {
-            position: fixed;
-            top: -50%;
-            right: -20%;
-            width: 700px;
-            height: 700px;
-            background: radial-gradient(circle, rgba(200, 169, 74, 0.06) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
+            position: fixed; top: -50%; right: -20%; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(200,169,74,0.06) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
             animation: glowPulse 8s ease-in-out infinite;
         }
+        @keyframes glowPulse { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
 
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-        }
-
-        /* ECG LINE DOURADA ANIMADA */
         .ecg-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.6;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 100px;
+            z-index: 0; pointer-events: none; opacity: 0.6;
         }
-
-        .ecg-container svg {
-            width: 100%;
-            height: 100%;
-        }
-
+        .ecg-container svg { width: 100%; height: 100%; }
         .ecg-path {
-            fill: none;
-            stroke: var(--dourado);
-            stroke-width: 2;
-            stroke-dasharray: 1200;
-            animation: ecgAnimate 3s linear infinite;
+            fill: none; stroke: var(--dourado); stroke-width: 2;
+            stroke-dasharray: 1200; animation: ecgAnimate 3s linear infinite;
         }
-
         .ecg-path:nth-child(2) { animation-delay: 0.75s; stroke-width: 1.5; opacity: 0.7; }
         .ecg-path:nth-child(3) { animation-delay: 1.5s; stroke-width: 1; opacity: 0.5; }
-        .ecg-path:nth-child(4) { animation-delay: 2.25s; stroke-width: 2.5; opacity: 0.3; }
-
-        @keyframes ecgAnimate {
-            0% { stroke-dashoffset: 1200; }
-            100% { stroke-dashoffset: 0; }
-        }
-
-        /* EFEITO DE PULSO NO ECG */
-        .ecg-pulse {
-            position: fixed;
-            bottom: 40px;
-            width: 10px;
-            height: 10px;
-            background: var(--dourado);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-            animation: pulseDot 3s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(200, 169, 74, 0.8), 0 0 40px rgba(200, 169, 74, 0.4);
-        }
-
-        .ecg-pulse:nth-child(2) { animation-delay: 0.75s; left: 30%; }
-        .ecg-pulse:nth-child(3) { animation-delay: 1.5s; left: 70%; }
-
-        @keyframes pulseDot {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(2); }
-            75% { opacity: 0.5; transform: scale(1); }
-        }
+        @keyframes ecgAnimate { 0% { stroke-dashoffset: 1200; } 100% { stroke-dashoffset: 0; } }
 
         .header {
             background: var(--gradient);
             padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 2px solid rgba(200, 169, 74, 0.2);
+            display: flex; justify-content: space-between; align-items: center;
+            color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky; top: 0; z-index: 100;
+            border-bottom: 2px solid rgba(200,169,74,0.2);
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        /* NOVO BRASÃO HOSPITALAR */
+        .logo { display: flex; align-items: center; gap: 14px; }
         .logo-icon {
-            position: relative;
-            width: 52px;
-            height: 52px;
-            border: 2px solid var(--dourado);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(200, 169, 74, 0.08);
+            position: relative; width: 52px; height: 52px;
+            border: 2px solid var(--dourado); border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(200,169,74,0.08);
         }
-
-        .logo-icon .hospital-symbol {
-            position: relative;
-            z-index: 1;
-            font-size: 26px;
-            color: var(--dourado);
+        .logo-icon i { font-size: 26px; color: var(--dourado); position: relative; z-index: 1; }
+        .logo-icon::before, .logo-icon::after {
+            content: ''; position: absolute; background: rgba(200,169,74,0.2);
         }
-
-        /* Cruz hospitalar sutil no fundo */
-        .logo-icon::before {
-            content: '';
-            position: absolute;
-            width: 18px;
-            height: 2px;
-            background: rgba(200, 169, 74, 0.2);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .logo-icon::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 18px;
-            background: rgba(200, 169, 74, 0.2);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
+        .logo-icon::before { width: 18px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-icon::after { width: 2px; height: 18px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
         .logo-mini-ecg {
-            position: absolute;
-            bottom: 9px;
-            left: 10px;
-            right: 10px;
-            height: 2px;
-            background: var(--dourado);
-            border-radius: 1px;
+            position: absolute; bottom: 9px; left: 10px; right: 10px; height: 2px;
+            background: var(--dourado); border-radius: 1px;
             animation: miniEcg 1.5s ease-in-out infinite;
         }
-
         @keyframes miniEcg {
-            0%, 100% { clip-path: inset(0 70% 0 0); opacity: 0.4; }
+            0%,100% { clip-path: inset(0 70% 0 0); opacity: 0.4; }
             40% { clip-path: inset(0 20% 0 0); opacity: 0.8; }
             60% { clip-path: inset(0 0 0 0); opacity: 1; }
             80% { clip-path: inset(0 30% 0 0); opacity: 0.6; }
         }
-
-        .logo h1 {
-            font-size: 24px;
-            letter-spacing: -0.3px;
-            line-height: 1.1;
-        }
-
-        .logo h1 .help {
-            color: var(--cinza-claro);
-            font-weight: 300;
-            font-size: 26px;
-        }
-
-        .logo h1 .hosp {
-            color: white;
-            font-weight: 700;
-            font-size: 26px;
-        }
-
+        .logo h1 { font-size: 24px; letter-spacing: -0.3px; line-height: 1.1; }
+        .logo h1 .help { color: var(--cinza-claro); font-weight: 300; font-size: 26px; }
+        .logo h1 .hosp { color: white; font-weight: 700; font-size: 26px; }
         .logo span {
-            display: block;
-            font-size: 10px;
-            color: var(--dourado);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            font-weight: 600;
+            display: block; font-size: 10px; color: var(--dourado);
+            letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
         }
 
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
+        .header-right { display: flex; align-items: center; gap: 15px; }
         .btn-area-tecnica {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            border: 1px solid rgba(200, 169, 74, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.08); color: white;
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-size: 13px; font-weight: 500;
+            border: 1px solid rgba(200,169,74,0.3);
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s;
         }
-
         .btn-area-tecnica:hover {
-            background: rgba(200, 169, 74, 0.15);
-            border-color: var(--dourado);
+            background: rgba(200,169,74,0.15); border-color: var(--dourado);
             transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(200, 169, 74, 0.2);
         }
 
         .main-container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
+            max-width: 1000px; margin: 30px auto; padding: 0 20px;
+            position: relative; z-index: 1;
         }
 
         .welcome-banner {
-            background: var(--gradient);
-            border-radius: 24px;
-            padding: 30px;
-            margin-bottom: 25px;
-            color: white;
-            border: 1px solid rgba(200, 169, 74, 0.2);
-            position: relative;
-            overflow: hidden;
+            background: var(--gradient); border-radius: 24px; padding: 30px;
+            margin-bottom: 25px; color: white;
+            border: 1px solid rgba(200,169,74,0.2);
+            position: relative; overflow: hidden;
         }
+        .welcome-banner h2 { font-size: 24px; position: relative; }
+        .welcome-banner p { font-size: 14px; opacity: 0.9; position: relative; }
 
-        .welcome-banner::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            right: -10%;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(200, 169, 74, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-
-        .welcome-banner h2 {
-            font-size: 24px;
-            position: relative;
-        }
-
-        .welcome-banner p {
-            font-size: 14px;
-            opacity: 0.9;
-            position: relative;
-        }
-
+        /* SUPORTE */
         .suporte-container {
-            background: white;
-            border-radius: 20px;
-            padding: 22px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            background: white; border-radius: 20px; padding: 22px;
+            margin-bottom: 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);
         }
-
         .suporte-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            user-select: none;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; user-select: none;
         }
-
-        .suporte-header i.fa-whatsapp {
-            color: #25d366;
-            font-size: 28px;
+        .suporte-icon-wrapper {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #1a3a5c, #2c5282);
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; color: #fff;
         }
-
-        .suporte-header h3 {
-            color: var(--dark);
-            font-size: 16px;
-        }
-
-        .suporte-header .seta {
-            margin-left: auto;
-            transition: 0.3s;
-            color: var(--gray);
-        }
-
-        .suporte-header .seta.open {
-            transform: rotate(180deg);
-        }
-
-        .suporte-contatos {
-            display: none;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .suporte-contatos.open {
-            display: flex;
-        }
-
+        .suporte-header h3 { color: var(--dark); font-size: 16px; }
+        .suporte-header .seta { margin-left: auto; transition: 0.3s; color: var(--gray); }
+        .suporte-header .seta.open { transform: rotate(180deg); }
+        .suporte-contatos { display: none; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+        .suporte-contatos.open { display: flex; }
         .contato-card {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f9fafb;
-            padding: 12px 16px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--dark);
-            border: 1px solid #e5e7eb;
-            transition: 0.3s;
-            flex: 1;
-            min-width: 200px;
+            display: flex; align-items: center; gap: 10px;
+            background: #f9fafb; padding: 12px 16px; border-radius: 12px;
+            text-decoration: none; color: var(--dark); border: 1px solid #e5e7eb;
+            transition: 0.3s; flex: 1; min-width: 200px;
         }
-
-        .contato-card:hover {
-            background: #f0fdf4;
-            border-color: #bbf7d0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        .contato-card:hover { background: #f0fdf4; border-color: #bbf7d0; transform: translateY(-2px); }
+        .contato-avatar {
+            width: 38px; height: 38px; background: #F0F4F8;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 18px; flex-shrink: 0;
         }
-
-        .contato-card i.fa-whatsapp {
-            color: #25d366;
-            font-size: 22px;
-        }
-
-        .contato-card strong {
-            font-size: 13px;
-            display: block;
-        }
-
-        .contato-card small {
-            font-size: 10px;
-            color: var(--gray);
-        }
-
+        .contato-card strong { font-size: 13px; display: block; }
+        .contato-card small { font-size: 10px; color: var(--gray); }
         .depto-tag {
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-left: auto;
-            white-space: nowrap;
+            font-size: 10px; padding: 3px 8px; border-radius: 6px;
+            font-weight: 600; margin-left: auto; white-space: nowrap;
         }
+        .depto-ti { background: #dbeafe; color: #1e40af; }
+        .depto-manutencao { background: #fef3c7; color: #92400e; }
 
-        .depto-ti {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .depto-manutencao {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
+        /* GRID AÇÕES */
         .action-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 18px; margin-bottom: 25px;
+        }
+        .action-card {
+            background: white; border-radius: 18px; padding: 28px;
+            text-align: center; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent; position: relative; overflow: hidden;
+        }
+        .action-card::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: var(--gradient); transform: scaleX(0); transition: transform 0.3s;
+        }
+        .action-card:hover { transform: translateY(-4px); border-color: var(--secondary); }
+        .action-card:hover::after { transform: scaleX(1); }
+        .card-icon {
+            width: 55px; height: 55px; background: var(--gradient);
+            border-radius: 16px; display: flex; align-items: center;
+            justify-content: center; margin: 0 auto 12px;
+            border: 1px solid rgba(200,169,74,0.3);
+        }
+        .card-icon i { font-size: 26px; color: white; }
+        .action-card h3 { font-size: 17px; color: var(--primary); margin-bottom: 6px; }
+        .action-card p { color: var(--gray); font-size: 12px; }
+
+        /* FORMULÁRIOS */
+        .form-container {
+            background: white; border-radius: 22px; padding: 30px;
+            display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
             margin-bottom: 25px;
         }
-
-        .action-card {
-            background: white;
-            border-radius: 18px;
-            padding: 28px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .action-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient);
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-
-        .action-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--secondary);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-card:hover::after {
-            transform: scaleX(1);
-        }
-
-        .card-icon {
-            width: 55px;
-            height: 55px;
-            background: var(--gradient);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            border: 1px solid rgba(200, 169, 74, 0.3);
-        }
-
-        .card-icon i {
-            font-size: 26px;
-            color: white;
-        }
-
-        .action-card h3 {
-            font-size: 17px;
-            color: var(--primary);
-            margin-bottom: 6px;
-        }
-
-        .action-card p {
-            color: var(--gray);
-            font-size: 12px;
-        }
-
-        /* TOAST */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            z-index: 9999;
-            max-width: 380px;
-            animation: toastSlideIn 0.4s ease, toastSlideOut 0.4s ease 3.5s forwards;
-            border-left: 4px solid var(--success);
-        }
-
-        @keyframes toastSlideIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes toastSlideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(120%); opacity: 0; }
-        }
-
-        .form-container {
-            background: white;
-            border-radius: 22px;
-            padding: 30px;
-            display: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-        }
-
-        .form-container.active {
-            display: block;
-            animation: slideDown 0.3s;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .form-container.active { display: block; animation: slideDown 0.3s; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
         .form-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #e5e7eb;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;
         }
-
-        .form-header h2 {
-            color: var(--primary);
-            font-size: 20px;
-        }
-
+        .form-header h2 { color: var(--primary); font-size: 20px; }
         .btn-close {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            border: none;
-            background: #f1f5f9;
-            color: var(--gray);
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.2s;
+            width: 34px; height: 34px; border-radius: 8px; border: none;
+            background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 16px;
         }
-
-        .btn-close:hover {
-            background: #fee2e2;
-            color: #ef4444;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .form-row.triple {
-            grid-template-columns: 2fr 1fr 1fr;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
+        .btn-close:hover { background: #fee2e2; color: #ef4444; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
-            display: block;
-            font-weight: 600;
-            font-size: 12px;
-            margin-bottom: 4px;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-weight: 600; font-size: 12px;
+            margin-bottom: 4px; color: var(--primary);
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-            background: #f8fafc;
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0;
+            border-radius: 10px; font-size: 14px; font-family: inherit;
+            background: #f8fafc; transition: all 0.2s;
         }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--secondary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(47, 155, 143, 0.08);
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--secondary); background: white;
         }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid rgba(200, 169, 74, 0.3);
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
         .form-section {
-            background: #f0fdf4;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border-left: 4px solid #10B981;
+            background: #f0fdf4; padding: 12px; border-radius: 10px;
+            margin-bottom: 12px; border-left: 4px solid #10B981;
         }
-
-        .form-section h4 {
-            color: #065f46;
-            margin-bottom: 8px;
-            font-size: 13px;
+        .form-section h4 { color: #065f46; margin-bottom: 8px; font-size: 13px; }
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: var(--gradient); color: white; border: none;
+            border-radius: 10px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+            border: 1px solid rgba(200,169,74,0.3);
         }
+        .btn-submit:hover { transform: translateY(-1px); }
 
+        /* CHAMADOS */
         .chamados-container {
-            background: white;
-            border-radius: 22px;
-            padding: 30px;
-            display: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+            background: white; border-radius: 22px; padding: 30px;
+            display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
         }
-
         .chamados-container.active { display: block; }
-
         .chamado-card {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            border-left: 4px solid var(--info);
-            cursor: pointer;
-            transition: all 0.2s;
+            background: #f8fafc; border-radius: 12px; padding: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; border-left: 4px solid var(--info);
+            cursor: pointer; transition: all 0.2s;
         }
-
-        .chamado-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transform: translateX(2px);
-        }
-
+        .chamado-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-            white-space: nowrap;
+            padding: 4px 10px; border-radius: 12px; font-size: 10px;
+            font-weight: 600; white-space: nowrap;
         }
-
         .status-afazer { background: #fef3c7; color: #92400e; }
         .status-emandamento { background: #dbeafe; color: #1e40af; }
         .status-concluido { background: #d1fae5; color: #065f46; }
         .status-pendente { background: #fee2e2; color: #991b1b; }
 
-        .tecnico-info {
-            font-size: 11px;
-            color: #3B82F6;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .observacao-tecnico {
-            background: #fff7ed;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 8px;
-            border-left: 3px solid #f97316;
-            font-size: 12px;
-            color: #9a3412;
+        .motivo-pendente {
+            background: #fff7ed; padding: 10px; border-radius: 8px;
+            margin-top: 8px; border-left: 3px solid #f97316;
+            font-size: 12px; color: #9a3412;
         }
 
         /* MODAL */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 999;
+            align-items: center; justify-content: center;
         }
-
-        .modal-overlay.ativo {
-            display: flex;
-            animation: fadeIn 0.2s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
+        .modal-overlay.ativo { display: flex; animation: fadeIn 0.2s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-box {
-            background: white;
-            border-radius: 18px;
-            padding: 28px;
-            width: 90%;
-            max-width: 550px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            animation: modalSlideUp 0.3s ease;
+            background: white; border-radius: 18px; padding: 28px;
+            width: 90%; max-width: 550px; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
-
-        @keyframes modalSlideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
         .modal-box h3 { color: var(--primary); margin-bottom: 12px; }
-        .modal-box p { margin: 6px 0; font-size: 13px; }
-        .modal-box .fecha {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: var(--gray);
-            transition: color 0.2s;
+        .modal-box .fecha { float: right; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--gray); }
+
+        .toast-notification {
+            position: fixed; top: 20px; right: 20px; background: white;
+            padding: 16px 20px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999;
+            max-width: 380px; animation: toastSlideIn 0.4s ease, toastSlideOut 0.4s ease 3.5s forwards;
+            border-left: 4px solid var(--success);
         }
-        .modal-box .fecha:hover { color: var(--danger); }
+        @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e2e8f0;
-            border-top-color: var(--secondary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 20px auto;
+            width: 40px; height: 40px; border: 4px solid #e2e8f0;
+            border-top-color: var(--secondary); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 20px auto;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 12px;
-            color: #d1d5db;
-        }
 
         @media (max-width: 600px) {
             .header { flex-direction: column; gap: 8px; }
             .action-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
-            .form-row.triple { grid-template-columns: 1fr; }
             .logo h1 { font-size: 20px; }
             .logo h1 .help, .logo h1 .hosp { font-size: 22px; }
         }
-
-        .suporte-icon-wrapper {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #1a3a5c, #2c5282);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #fff;
-}
-
-.contato-avatar {
-    width: 38px;
-    height: 38px;
-    background: #F0F4F8;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-        
     </style>
 </head>
 <body>
 
-    <div class="bg-grid"></div>
-    <div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
 
-    <!-- ECG DOURADO ANIMADO -->
-    <div class="ecg-container">
-        <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
-            <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50" />
-            <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50" />
-            <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50" />
-            <path class="ecg-path" d="M900,50 L980,50 L1000,50 L1010,10 L1020,90 L1030,50 L1040,10 L1050,90 L1060,50 L1200,50" />
-        </svg>
-    </div>
+<div class="ecg-container">
+    <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+        <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50"/>
+        <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50"/>
+        <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50"/>
+    </svg>
+</div>
 
-    <div class="ecg-pulse" style="left: 25%;"></div>
-    <div class="ecg-pulse" style="left: 50%;"></div>
-    <div class="ecg-pulse" style="left: 75%;"></div>
-
-    <div class="header">
-        <div class="logo">
-            <div class="logo-icon">
-                <i class="fas fa-hospital hospital-symbol"></i>
-                <div class="logo-mini-ecg"></div>
-            </div>
-            <div>
-                <h1><span class="help">Help</span><span class="hosp">Hosp</span></h1>
-                <span>CENTRAL DE CHAMADOS</span>
-            </div>
+<header class="header">
+    <div class="logo">
+        <div class="logo-icon">
+            <i class="fas fa-hospital"></i>
+            <div class="logo-mini-ecg"></div>
         </div>
-        <div class="header-right">
-            <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-haltered"></i> Área Técnica</a>
+        <div>
+            <h1><span class="help">Help</span><span class="hosp">Hosp</span></h1>
+            <span>CENTRAL DE CHAMADOS</span>
         </div>
     </div>
+    <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-alt"></i> Área Técnica</a>
+</header>
 
-    <div class="main-container">
-        <div class="welcome-banner">
-            <h2>🏥 Central de Chamados</h2>
-            <p>Selecione o tipo de solicitação abaixo ou entre em contato direto com nosso suporte técnico</p>
-        </div>
+<main class="main-container">
 
-        <!-- SUPORTE TÉCNICO -->
-        <div class="suporte-container">
-    <div class="suporte-header" onclick="toggleSuporte()">
-        <div class="suporte-icon-wrapper">
-            <i class="fas fa-headset"></i>
-        </div>
-        <h3>Suporte Técnico</h3>
-        <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+    <div class="welcome-banner">
+        <h2>🏥 Central de Chamados</h2>
+        <p>Abra chamados para TI ou Manutenção de forma rápida</p>
     </div>
-    <div class="suporte-contatos" id="contatosSuporte">
-        <a href="https://wa.me/5582981845421" target="_blank" class="contato-card">
-            <div class="contato-avatar">🎧</div>
-            <div>
-                <strong>Jeconias</strong>
-                <small>Analista de Sistema</small>
+
+    <!-- SUPORTE (CARREGADO AUTOMATICAMENTE DO FIREBASE) -->
+    <div class="suporte-container">
+        <div class="suporte-header" onclick="toggleSuporte()">
+            <div class="suporte-icon-wrapper"><i class="fas fa-headset"></i></div>
+            <h3>Suporte Técnico</h3>
+            <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+        </div>
+        <div class="suporte-contatos" id="contatosSuporte">
+            <span style="color:var(--gray);font-size:12px;">Carregando contatos...</span>
+        </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="action-grid">
+        <div class="action-card" onclick="abrirFormulario('TI')">
+            <div class="card-icon"><i class="fas fa-desktop"></i></div>
+            <h3>Tecnologia da Informação</h3>
+            <p>Computadores, sistemas, rede, internet</p>
+        </div>
+        <div class="action-card" onclick="abrirFormulario('MANUTENCAO')">
+            <div class="card-icon"><i class="fas fa-tools"></i></div>
+            <h3>Manutenção</h3>
+            <p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
+        </div>
+        <div class="action-card" onclick="abrirGestHosp()">
+            <div class="card-icon"><i class="fas fa-user-plus"></i></div>
+            <h3>Cadastro GestHosp</h3>
+            <p>Solicitar cadastro de profissional</p>
+        </div>
+        <div class="action-card" onclick="mostrarMeusChamados()">
+            <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+            <h3>Meus Chamados</h3>
+            <p>Chamados de hoje e pendentes</p>
+        </div>
+    </div>
+
+    <!-- FORMULÁRIO CHAMADO -->
+    <div class="form-container" id="formChamado">
+        <div class="form-header">
+            <h2 id="formTitle">Novo Chamado</h2>
+            <button class="btn-close" onclick="fecharTudo()">&times;</button>
+        </div>
+        <form onsubmit="criarChamado(event)">
+            <input type="hidden" id="departamento" value="">
+            <div class="form-row">
+                <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
+                <div class="form-group"><label>Contato</label><input type="text" id="contato" placeholder="WhatsApp/Ramal"></div>
             </div>
-            <span class="depto-tag depto-ti">TI</span>
-        </a>
-        <a href="https://wa.me/5582996076571" target="_blank" class="contato-card">
-            <div class="contato-avatar">🎧</div>
-            <div>
-                <strong>Allan</strong>
-                <small>Suporte Técnico</small>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Setor *</label>
+                    <select id="setor" required>
+                        <option value="">Selecione...</option>
+                        <option>UTI I</option><option>UTI II</option><option>Emergência</option>
+                        <option>Centro Cirúrgico</option><option>Oncologia</option><option>Farmácia</option>
+                        <option>Administração</option><option>Faturamento</option><option>NIR</option>
+                        <option>Recepção Geral</option><option>Recepção CR</option><option>Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo *</label>
+                    <select id="categoria" required><option value="">Selecione...</option></select>
+                </div>
             </div>
-            <span class="depto-tag depto-ti">TI</span>
-        </a>
-        <a href="https://wa.me/5582996271342" target="_blank" class="contato-card">
-            <div class="contato-avatar">🔧</div>
-            <div>
-                <strong>Bruno</strong>
-                <small>Estrutural/Elétrica/Hidráulica</small>
+            <div class="form-group">
+                <label>Prioridade</label>
+                <select id="prioridade">
+                    <option value="Baixa">🔵 Baixa</option>
+                    <option value="Média" selected>🟡 Média</option>
+                    <option value="Alta">🟠 Alta</option>
+                    <option value="Crítica">🔴 Crítica</option>
+                </select>
             </div>
-            <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
-        </a>
-        <a href="https://wa.me/5582999334549" target="_blank" class="contato-card">
-            <div class="contato-avatar">🔧</div>
-            <div>
-                <strong>Benicio</strong>
-                <small>Estrutural/Elétrica/Hidráulica</small>
+            <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
+            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3"></textarea></div>
+            <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
+        </form>
+    </div>
+
+    <!-- FORMULÁRIO GESTHOSP -->
+    <div class="form-container" id="formGestHosp">
+        <div class="form-header">
+            <h2>🆕 Cadastro GestHosp</h2>
+            <button class="btn-close" onclick="fecharTudo()">&times;</button>
+        </div>
+        <form onsubmit="criarGestHosp(event)">
+            <div class="form-section"><h4>👤 Dados Pessoais</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Nome *</label><input type="text" id="ghNome" required></div>
+                    <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Email</label><input type="email" id="ghEmail"></div>
+                    <div class="form-group"><label>Telefone</label><input type="text" id="ghTel"></div>
+                </div>
             </div>
-            <span class="depto-tag depto-manutencao">MANUTENÇÃO</span>
-        </a>
+            <div class="form-section"><h4>🏥 Dados Profissionais</h4>
+                <div class="form-row">
+                    <div class="form-group"><label>Registro</label><input type="text" id="ghRegistro" placeholder="CRM, COREN..."></div>
+                    <div class="form-group"><label>Perfil</label><select id="ghPerfil"><option>Médico</option><option>Enfermeiro</option><option>Fisioterapeuta</option><option>Nutricionista</option><option>Psicólogo</option><option>Farmacêutico</option><option>Outros</option></select></div>
+                </div>
+                <div class="form-group"><label>Observações</label><textarea id="ghObs" rows="2"></textarea></div>
+            </div>
+            <button type="submit" class="btn-submit" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
+        </form>
+    </div>
+
+    <!-- MEUS CHAMADOS (HOJE + PENDENTES) -->
+    <div class="chamados-container" id="chamadosContainer">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h2 style="color:var(--primary);">📋 Meus Chamados</h2>
+            <button class="btn-close" onclick="fecharTudo()">← Voltar</button>
+        </div>
+        <div id="listaChamados"></div>
+    </div>
+
+</main>
+
+<div class="modal-overlay" id="modalDetalhes">
+    <div class="modal-box">
+        <button class="fecha" onclick="document.getElementById('modalDetalhes').classList.remove('ativo')">&times;</button>
+        <div id="detalhesConteudo"></div>
     </div>
 </div>
 
-        <!-- GRID DE AÇÕES -->
-        <div class="action-grid">
-            <div class="action-card" onclick="mostrarFormularioChamado('TI')">
-                <div class="card-icon"><i class="fas fa-desktop"></i></div>
-                <h3>Tecnologia da Informação</h3>
-                <p>Computadores, sistemas, rede, internet, wifi</p>
-            </div>
-            <div class="action-card" onclick="mostrarFormularioChamado('MANUTENCAO')">
-                <div class="card-icon"><i class="fas fa-tools"></i></div>
-                <h3>Manutenção</h3>
-                <p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
-            </div>
-            <div class="action-card" onclick="mostrarFormularioGestHosp()">
-                <div class="card-icon"><i class="fas fa-user-plus"></i></div>
-                <h3>Cadastro GestHosp</h3>
-                <p>Solicitar cadastro de novo profissional no sistema</p>
-            </div>
-            <div class="action-card" onclick="mostrarChamados()">
-                <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
-                <h3>Chamados</h3>
-                <p>Acompanhar status dos chamados de hoje</p>
-            </div>
-        </div>
+<script>
+const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
+firebase.initializeApp(fc);const db=firebase.firestore();
 
-        <!-- FORMULÁRIO CHAMADO TI/MANUTENÇÃO -->
-        <div class="form-container" id="formChamado">
-            <div class="form-header">
-                <h2 id="formTitle">Novo Chamado</h2>
-                <button class="btn-close" onclick="fecharTudo()">&times;</button>
-            </div>
-            <form onsubmit="criarChamado(event)">
-                <input type="hidden" id="departamento" value="">
-                <div class="form-row">
-                    <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required placeholder="Nome completo"></div>
-                    <div class="form-group"><label>Contato (WhatsApp)</label><input type="text" id="contato" placeholder="82999999999"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Setor *</label>
-                        <select id="setor" required>
-                            <option value="">Selecione o setor...</option>
-                            <option>Almoxarifado</option>
-                            <option>Centro Cirúrgico</option>
-                            <option>Clínica Cirurgica</option>
-                            <option>Clínica Médica I</option>
-                            <option>Clínica Médica II</option>
-                            <option>Comunicação</option>
-                            <option>Direção Administrativa</option>
-                            <option>Direção Enfermagem</option>
-                            <option>Direção geral</option>
-                            <option>Direção Medica</option>
-                            <option>Emergência/Vermelha</option>
-                            <option>Engenharia Clinica</option>
-                            <option>Farmácia</option>
-                            <option>Faturamento</option>
-                            <option>Fisioterapia</option>
-                            <option>Hotelaria</option>
-                            <option>Juridico</option>
-                            <option>Laboratório</option>
-                            <option>NIR</option>
-                            <option>Nutrição</option>
-                            <option>Oncologia I</option>
-                            <option>Oncologia II</option>
-                            <option>Ouvidoria</option>
-                            <option>Patrimonio</option>
-                            <option>Pediatria</option>
-                            <option>Psicologia</option>
-                            <option>RH</option>
-                            <option>Raio-X</option>
-                            <option>Recepção CR</option>
-                            <option>Recepção Geral</option>
-                            <option>Recepção Nefrologia</option>
-                            <option>Same</option>
-                            <option>Serviço Social</option>
-                            <option>Sesmt</option>
-                            <option>Telemedicina</option>
-                            <option>Tomografia</option>
-                            <option>UTI I</option>
-                            <option>UTI II</option>
-                            <option>Outros</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo *</label>
-                        <select id="categoria" required><option value="">Selecione o tipo...</option></select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Prioridade</label>
-                    <select id="prioridade">
-                        <option value="Baixa">Baixa - Sem pressa</option>
-                        <option value="Média" selected>Média - Normal</option>
-                        <option value="Alta">Alta - Urgente</option>
-                        <option value="Crítica">Crítica - Emergência</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Título *</label><input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras"></div>
-                <div class="form-group"><label>Descrição Detalhada</label><textarea id="descricao" rows="3" placeholder="Descreva o problema com detalhes..."></textarea></div>
-                <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-            </form>
-        </div>
+const catsTI=['Computador','Notebook','Impressora','Sistema','Rede','Internet','E-mail','Software','Hardware','Telefone','Senha','Acesso','Outros'];
+const catsMAN=['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Telhado','Piso','Vazamento','Gases','Encanamento','Refrigeração','Outros'];
 
-        <!-- FORMULÁRIO GESTHOSP -->
-        <div class="form-container" id="formGestHosp">
-            <div class="form-header">
-                <h2>🆕 Cadastro GestHosp</h2>
-                <button class="btn-close" onclick="fecharTudo()">&times;</button>
-            </div>
-            <form onsubmit="criarChamadoGestHosp(event)">
-                <!-- DADOS PESSOAIS -->
-                <div class="form-section">
-                    <h4>👤 Dados Pessoais</h4>
-                    <div class="form-row">
-                        <div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNomeProfissional" required placeholder="Nome completo do profissional"></div>
-                        <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required placeholder="000.000.000-00"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>RG</label><input type="text" id="ghRg" placeholder="Nº do RG"></div>
-                        <div class="form-group"><label>Data Nascimento</label><input type="date" id="ghDataNascimento"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Email</label><input type="email" id="ghEmailProfissional" placeholder="email@exemplo.com"></div>
-                        <div class="form-group"><label>Telefone</label><input type="text" id="ghTelefone" placeholder="(82) 99999-9999"></div>
-                    </div>
-                </div>
-
-                <!-- ENDEREÇO -->
-                <div class="form-section">
-                    <h4>📍 Endereço</h4>
-                    <div class="form-row">
-                        <div class="form-group"><label>CEP</label><input type="text" id="ghCep" placeholder="00000-000" onblur="buscarCep(this.value)"></div>
-                        <div class="form-group"><label>Logradouro</label><input type="text" id="ghLogradouro" placeholder="Rua, Avenida..."></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Número</label><input type="text" id="ghNumero" placeholder="Nº"></div>
-                        <div class="form-group"><label>Complemento</label><input type="text" id="ghComplemento" placeholder="Apto, Bloco..."></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Bairro</label><input type="text" id="ghBairro" placeholder="Bairro"></div>
-                        <div class="form-group"><label>Cidade</label><input type="text" id="ghCidade" placeholder="Cidade"></div>
-                    </div>
-                    <div class="form-group"><label>Estado</label>
-                        <select id="ghEstado">
-                            <option value="">Selecione...</option>
-                            <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option>
-                            <option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option>
-                            <option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option>
-                            <option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
-                            <option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option>
-                            <option>SE</option><option>TO</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- DADOS PROFISSIONAIS -->
-                <div class="form-section">
-                    <h4>🏥 Dados Profissionais</h4>
-                    <div class="form-row">
-                        <div class="form-group"><label>Nº Registro Profissional</label><input type="text" id="ghRegistroProf" placeholder="CRM, COREN, etc."></div>
-                        <div class="form-group"><label>Conselho de Classe</label><input type="text" id="ghConselho" placeholder="CRM, COREN, CREFITO..."></div>
-                    </div>
-                </div>
-
-                <!-- ACESSOS -->
-                <div class="form-section">
-                    <h4>🔑 Acessos ao Sistema</h4>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Acesso GestHosp</label>
-                            <select id="ghAcessoGestHosp">
-                                <option value="Sim" selected>Sim - Precisa de acesso</option>
-                                <option value="Não">Não - Apenas Vincular unidade</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Perfil de Acesso</label>
-                            <select id="ghPerfil">
-                                <option>Médico</option>
-                                <option>Enfermeiro</option>
-                                <option>Fisioterapeuta</option>
-                                <option>Assistente Social</option>
-                                <option>Nutricionista</option>
-                                <option>Psicólogo</option>
-                                <option>Farmacêutico/Farmacia</option>
-                                <option>Outros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group"><label>Observações Adicionais</label><textarea id="ghObservacoes" rows="2" placeholder="Detalhes adicionais sobre o cadastro..."></textarea></div>
-                </div>
-
-                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669, #10B981);">
-                    <i class="fas fa-user-plus"></i> Solicitar Cadastro
-                </button>
-            </form>
-        </div>
-
-        <!-- LISTA DE CHAMADOS -->
-        <div class="chamados-container" id="chamadosContainer">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                <h2>📋 Chamados de Hoje</h2>
-                <button class="btn-close" onclick="fecharTudo()" style="width:auto;padding:8px 16px;font-size:13px;">← Voltar</button>
-            </div>
-            <div id="listaChamados"></div>
-        </div>
-    </div>
-
-    <!-- MODAL DETALHES -->
-    <div class="modal-overlay" id="modalDetalhes">
-        <div class="modal-box">
-            <button class="fecha" onclick="document.getElementById('modalDetalhes').classList.remove('ativo')">&times;</button>
-            <div id="detalhesConteudo"></div>
-        </div>
-    </div>
-
-    <script>
-        const fc = {
-            apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
-            authDomain: "helphosp.firebaseapp.com",
-            projectId: "helphosp",
-            storageBucket: "helphosp.firebasestorage.app",
-            messagingSenderId: "1075623193163",
-            appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
-        };
-        firebase.initializeApp(fc);
-        const db = firebase.firestore();
-
-        const deptConfig = {
-            'TI': { nome: 'Tecnologia da Informação', categorias: ['Computador','Impressora','Sistema','Internet/Rede','Software','Hardware','Outros'] },
-            'MANUTENCAO': { nome: 'Manutenção', categorias: ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Telhado','Piso','Outros'] }
-        };
-
-        function toggleSuporte() {
-            document.getElementById('contatosSuporte').classList.toggle('open');
-            document.getElementById('setaSuporte').classList.toggle('open');
-        }
-
-        function mostrarFormularioChamado(dep) {
-            document.getElementById('formChamado').classList.add('active');
-            document.getElementById('formGestHosp').classList.remove('active');
-            document.getElementById('chamadosContainer').classList.remove('active');
-            document.getElementById('departamento').value = dep;
-            document.getElementById('formTitle').textContent = 'Novo Chamado - ' + deptConfig[dep].nome;
-            document.getElementById('categoria').innerHTML = '<option value="">Selecione o tipo...</option>' + deptConfig[dep].categorias.map(c => '<option>'+c+'</option>').join('');
-            document.querySelector('#formChamado form').reset();
-            document.getElementById('departamento').value = dep;
-            document.getElementById('formChamado').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function mostrarFormularioGestHosp() {
-            document.getElementById('formGestHosp').classList.add('active');
-            document.getElementById('formChamado').classList.remove('active');
-            document.getElementById('chamadosContainer').classList.remove('active');
-            document.querySelector('#formGestHosp form').reset();
-            document.getElementById('formGestHosp').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function mostrarChamados() {
-            document.getElementById('chamadosContainer').classList.add('active');
-            document.getElementById('formChamado').classList.remove('active');
-            document.getElementById('formGestHosp').classList.remove('active');
-            carregarChamados();
-            document.getElementById('chamadosContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function fecharTudo() {
-            document.getElementById('formChamado').classList.remove('active');
-            document.getElementById('formGestHosp').classList.remove('active');
-            document.getElementById('chamadosContainer').classList.remove('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function criarChamado(e) {
-            e.preventDefault();
-            var dept = document.getElementById('departamento').value;
-            var titulo = document.getElementById('titulo').value.trim();
-            var descricao = document.getElementById('descricao').value.trim();
-            var solicitante = document.getElementById('solicitante').value.trim();
-            var contato = document.getElementById('contato').value.trim();
-            var setor = document.getElementById('setor').value;
-            var categoria = document.getElementById('categoria').value;
-            var prioridade = document.getElementById('prioridade').value;
-
-            if (!titulo || !solicitante || !setor || !categoria) {
-                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'warning');
-                return;
-            }
-
-            var btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-
-            db.collection('chamados').add({
-                protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8),
-                departamento: dept, tipo: 'chamado', titulo: titulo, descricao: descricao,
-                solicitante: solicitante, contato: contato, setor: setor, categoria: categoria,
-                prioridade: prioridade, status: 'A Fazer',
-                data_abertura: firebase.firestore.Timestamp.now(),
-                historico: [{ data: new Date().toISOString(), acao: 'Chamado criado por ' + solicitante }]
-            }).then(() => {
-                mostrarToast('✅ Chamado criado com sucesso!', 'success');
-                document.querySelector('#formChamado form').reset();
-                document.getElementById('departamento').value = dept;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
-                fecharTudo();
-                setTimeout(mostrarChamados, 500);
-            }).catch(err => {
-                mostrarToast('❌ Erro: ' + err.message, 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
-            });
-        }
-
-        function criarChamadoGestHosp(e) {
-            e.preventDefault();
-            var nome = document.getElementById('ghNomeProfissional').value.trim();
-            var cpf = document.getElementById('ghCpf').value.trim();
-
-            if (!nome || !cpf) {
-                mostrarToast('⚠️ Preencha Nome e CPF!', 'warning');
-                return;
-            }
-
-            var dados = {
-                nome: nome, cpf: cpf,
-                rg: document.getElementById('ghRg').value.trim(),
-                email: document.getElementById('ghEmailProfissional').value.trim(),
-                dataNascimento: document.getElementById('ghDataNascimento').value,
-                telefone: document.getElementById('ghTelefone').value.trim(),
-                endereco: {
-                    cep: document.getElementById('ghCep').value.trim(),
-                    logradouro: document.getElementById('ghLogradouro').value.trim(),
-                    numero: document.getElementById('ghNumero').value.trim(),
-                    complemento: document.getElementById('ghComplemento').value.trim(),
-                    bairro: document.getElementById('ghBairro').value.trim(),
-                    cidade: document.getElementById('ghCidade').value.trim(),
-                    estado: document.getElementById('ghEstado').value
-                },
-                registroProf: document.getElementById('ghRegistroProf').value.trim(),
-                conselho: document.getElementById('ghConselho').value.trim(),
-                acessoGestHosp: document.getElementById('ghAcessoGestHosp').value,
-                perfil: document.getElementById('ghPerfil').value,
-                observacoes: document.getElementById('ghObservacoes').value.trim()
-            };
-
-            var btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-
-            var enderecoStr = dados.endereco.logradouro ? 
-                '\n📍 Endereço: ' + dados.endereco.logradouro + ', ' + (dados.endereco.numero || 'S/N') + 
-                (dados.endereco.complemento ? ' - ' + dados.endereco.complemento : '') +
-                '\n🏘️ Bairro: ' + (dados.endereco.bairro || 'N/I') +
-                '\n🏙️ Cidade/UF: ' + (dados.endereco.cidade || 'N/I') + '/' + (dados.endereco.estado || 'N/I') +
-                '\n📮 CEP: ' + (dados.endereco.cep || 'N/I') : '';
-
-            db.collection('chamados').add({
-                protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-8),
-                departamento: 'TI', tipo: 'gesthosp',
-                titulo: 'Cadastro GestHosp - ' + dados.nome,
-                descricao: '👤 Profissional: ' + dados.nome + '\n' +
-                    '📋 CPF: ' + dados.cpf + '\n' +
-                    '📧 Email: ' + (dados.email || 'N/I') + '\n' +
-                    '📞 Telefone: ' + (dados.telefone || 'N/I') + '\n' +
-                    '🏥 Registro: ' + (dados.registroProf || 'N/I') + ' (' + (dados.conselho || 'N/I') + ')\n' +
-                    '🔑 Acesso: ' + dados.acessoGestHosp + '\n' +
-                    '👤 Perfil: ' + dados.perfil + enderecoStr + '\n' +
-                    '📝 Obs: ' + (dados.observacoes || 'Nenhuma'),
-                solicitante: 'Solicitante', setor: 'N/I', categoria: 'Cadastro de Profissional',
-                prioridade: 'Média', status: 'A Fazer', dadosProfissional: dados,
-                data_abertura: firebase.firestore.Timestamp.now(),
-                historico: [{ data: new Date().toISOString(), acao: 'Solicitação de cadastro criada' }]
-            }).then(() => {
-                mostrarToast('✅ Solicitação de cadastro enviada!', 'success');
-                document.querySelector('#formGestHosp form').reset();
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
-                fecharTudo();
-            }).catch(err => {
-                mostrarToast('❌ Erro: ' + err.message, 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
-            });
-        }
-
-        // Busca CEP (simulada)
-        function buscarCep(cep) {
-            cep = cep.replace(/\D/g, '');
-            if (cep.length !== 8) return;
-            
-            fetch('https://viacep.com.br/ws/' + cep + '/json/')
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.erro) {
-                        document.getElementById('ghLogradouro').value = data.logradouro || '';
-                        document.getElementById('ghBairro').value = data.bairro || '';
-                        document.getElementById('ghCidade').value = data.localidade || '';
-                        document.getElementById('ghEstado').value = data.uf || '';
-                        mostrarToast('📍 Endereço preenchido automaticamente!', 'success');
-                    }
-                })
-                .catch(() => {});
-        }
-
-        function carregarChamados() {
-            var lista = document.getElementById('listaChamados');
-            lista.innerHTML = '<div class="spinner"></div><p style="text-align:center;color:var(--gray);">Carregando...</p>';
-
-            var hoje = new Date(); hoje.setHours(0,0,0,0);
-            var amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
-
-            db.collection('chamados')
-                .where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje))
-                .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha))
-                .orderBy('data_abertura','desc').limit(50).get()
-                .then(s => {
-                    if (s.empty) {
-                        lista.innerHTML = '<div class="empty-state"><i class="far fa-clipboard"></i><p>📭 Nenhum chamado hoje</p></div>';
-                        return;
-                    }
-                    var h = '';
-                    s.forEach(d => {
-                        var c = d.data();
-                        var data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
-                        var sc = 'status-' + (c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-                        var icon = c.tipo === 'gesthosp' ? '🆕' : '🔧';
-                        var tecnico = c.tecnico ? '<div class="tecnico-info"><i class="fas fa-user-cog"></i> Técnico: '+c.tecnico+'</div>' : '';
-                        var obs = c.observacaoTecnico ? '<div class="observacao-tecnico"><strong>🔧 Obs:</strong> '+c.observacaoTecnico+'</div>' : '';
-                        var comentarios = c.comentarios?.length ? ' 💬'+c.comentarios.length : '';
-                        h += '<div class="chamado-card" onclick="verDetalhes(\''+d.id+'\')"><div style="flex:1;"><strong>'+icon+' '+(c.titulo||'Sem título')+comentarios+'</strong><br><small>📋 '+(c.protocolo||'—')+' | 📍 '+(c.setor||'—')+' | 🕐 '+data.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</small>'+tecnico+obs+'</div><span class="status-badge '+sc+'">'+(c.status||'A Fazer')+'</span></div>';
-                    });
-                    lista.innerHTML = h;
-                })
-                .catch(err => { lista.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro</p><small>'+err.message+'</small></div>'; });
-        }
-
-        function verDetalhes(id) {
-            db.collection('chamados').doc(id).get().then(doc => {
-                if (!doc.exists) { mostrarToast('Chamado não encontrado', 'error'); return; }
-                var c = doc.data();
-                var data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
-                var tecnico = c.tecnico || 'Não atribuído';
-                var obsTecnico = c.observacaoTecnico || 'Nenhuma';
-                var statusClass = 'status-' + (c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-                
-                var histHtml = '';
-                if (c.historico?.length) {
-                    histHtml = '<hr><h4 style="color:var(--primary);">📜 Histórico</h4>';
-                    c.historico.forEach(h => {
-                        histHtml += '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:11px;"><strong>'+new Date(h.data).toLocaleString('pt-BR')+'</strong><br><span style="color:var(--gray);">'+h.acao+'</span></div>';
-                    });
-                }
-
-                var comentariosHtml = '';
-                if (c.comentarios?.length) {
-                    comentariosHtml = '<hr><h4 style="color:var(--primary);">💬 Comentários</h4>';
-                    c.comentarios.forEach(com => {
-                        comentariosHtml += '<div style="background:#f0fdf4;padding:8px 12px;border-radius:8px;margin-bottom:6px;border-left:3px solid #10B981;"><strong style="font-size:11px;">'+(com.autor||'Técnico')+'</strong><span style="font-size:9px;color:var(--gray);margin-left:8px;">'+new Date(com.data).toLocaleString('pt-BR')+'</span><p style="font-size:12px;margin-top:4px;">'+(com.texto||'')+'</p></div>';
-                    });
-                }
-
-                document.getElementById('detalhesConteudo').innerHTML =
-                    '<h3 style="color:var(--primary);">📋 '+(c.titulo||'Sem título')+'</h3>'+
-                    '<span class="status-badge '+statusClass+'">'+(c.status||'A Fazer')+'</span>'+
-                    '<p><strong>📋 Protocolo:</strong> '+(c.protocolo||'—')+'</p>'+
-                    '<p><strong>👤 Solicitante:</strong> '+(c.solicitante||'—')+'</p>'+
-                    (c.contato?'<p><strong>📞 Contato:</strong> <a href="https://wa.me/55'+c.contato.replace(/\D/g,'')+'" target="_blank" style="color:#25d366;">'+c.contato+' <i class="fab fa-whatsapp"></i></a></p>':'')+
-                    '<p><strong>📍 Setor:</strong> '+(c.setor||'—')+'</p>'+
-                    '<p><strong>📂 Categoria:</strong> '+(c.categoria||'—')+'</p>'+
-                    '<p><strong>⚡ Prioridade:</strong> '+(c.prioridade||'—')+'</p>'+
-                    '<p><strong>📝 Descrição:</strong> '+(c.descricao||'—')+'</p>'+
-                    '<p><strong>🕐 Data/Hora:</strong> '+data.toLocaleString('pt-BR')+'</p>'+
-                    '<hr><p><strong>👨‍🔧 Técnico:</strong> '+tecnico+'</p>'+
-                    '<div class="observacao-tecnico"><strong>🔧 Observação:</strong><br>'+obsTecnico+'</div>'+
-                    comentariosHtml + histHtml;
-
-                document.getElementById('modalDetalhes').classList.add('ativo');
-            });
-        }
-
-        function mostrarToast(mensagem, tipo) {
-            var toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            var icon = tipo === 'success' ? '✅' : tipo === 'warning' ? '⚠️' : '❌';
-            var borderColor = tipo === 'success' ? 'var(--success)' : tipo === 'warning' ? 'var(--warning)' : 'var(--danger)';
-            toast.style.borderLeftColor = borderColor;
-            toast.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">'+icon+'</span><div><strong>'+(tipo==='success'?'Sucesso':tipo==='warning'?'Atenção':'Erro')+'</strong><br><span style="font-size:11px;color:var(--gray);">'+mensagem+'</span></div><button style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--gray);" onclick="this.parentElement.parentElement.remove();">&times;</button></div>';
-            document.body.appendChild(toast);
-            setTimeout(() => { if(toast.parentElement) toast.remove(); }, 4000);
-        }
-
-        document.getElementById('modalDetalhes').addEventListener('click', function(e) {
-            if (e.target === this) this.classList.remove('ativo');
+// ========== CARREGAR CONTATOS AUTOMATICAMENTE ==========
+function carregarContatos(){
+    db.collection('usuarios').where('status','==','ativo').get().then(snap=>{
+        var c=document.getElementById('contatosSuporte');
+        if(snap.empty){c.innerHTML='<span style="color:var(--gray);">Nenhum técnico disponível</span>';return;}
+        var h='';
+        snap.forEach(doc=>{
+            var u=doc.data();
+            if(!u.whatsapp)return;
+            var dc=u.departamento==='MANUTENCAO'?'depto-manutencao':'depto-ti';
+            var dn=u.departamento==='MANUTENCAO'?'MANUTENÇÃO':'TI';
+            var av=u.departamento==='MANUTENCAO'?'🔧':'🎧';
+            h+='<a href="https://wa.me/55'+u.whatsapp.replace(/\D/g,'')+'" target="_blank" class="contato-card">'+
+                '<div class="contato-avatar">'+av+'</div>'+
+                '<div><strong>'+(u.nome||'Técnico')+'</strong><small>'+(u.cargo||'')+'</small></div>'+
+                '<span class="depto-tag '+dc+'">'+dn+'</span></a>';
         });
+        c.innerHTML=h||'<span style="color:var(--gray);">Nenhum contato</span>';
+    });
+}
 
-        console.log('🏥 HelpHosp Central de Chamados - Pronto!');
-    </script>
+function toggleSuporte(){
+    document.getElementById('contatosSuporte').classList.toggle('open');
+    document.getElementById('setaSuporte').classList.toggle('open');
+}
+
+function abrirFormulario(dep){
+    document.getElementById('formChamado').classList.add('active');
+    document.getElementById('formGestHosp').classList.remove('active');
+    document.getElementById('chamadosContainer').classList.remove('active');
+    document.getElementById('departamento').value=dep;
+    document.getElementById('formTitle').textContent='Novo Chamado - '+(dep==='TI'?'TI':'Manutenção');
+    document.getElementById('categoria').innerHTML='<option value="">Selecione...</option>'+
+        (dep==='TI'?catsTI:catsMAN).map(c=>'<option>'+c+'</option>').join('');
+}
+
+function abrirGestHosp(){
+    document.getElementById('formGestHosp').classList.add('active');
+    document.getElementById('formChamado').classList.remove('active');
+    document.getElementById('chamadosContainer').classList.remove('active');
+}
+
+function fecharTudo(){
+    document.getElementById('formChamado').classList.remove('active');
+    document.getElementById('formGestHosp').classList.remove('active');
+    document.getElementById('chamadosContainer').classList.remove('active');
+}
+
+function determinarDepto(cat){
+    if(catsTI.includes(cat))return'TI';
+    if(catsMAN.includes(cat))return'MANUTENCAO';
+    return document.getElementById('departamento').value||'TI';
+}
+
+function criarChamado(e){
+    e.preventDefault();
+    var cat=document.getElementById('categoria').value;
+    var dep=determinarDepto(cat);
+    var btn=e.target.querySelector('button[type="submit"]');
+    btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    db.collection('chamados').add({
+        protocolo:'CH-'+Date.now().toString(36).toUpperCase().slice(-8),
+        departamento:dep,tipo:'chamado',
+        titulo:document.getElementById('titulo').value,
+        descricao:document.getElementById('descricao').value,
+        solicitante:document.getElementById('solicitante').value,
+        contato:document.getElementById('contato').value,
+        setor:document.getElementById('setor').value,
+        categoria:cat,prioridade:document.getElementById('prioridade').value,
+        status:'A Fazer',
+        data_abertura:firebase.firestore.Timestamp.now(),
+        timeline:[{data:new Date().toISOString(),status:'A Fazer',acao:'Chamado aberto'}]
+    }).then(()=>{
+        toast('✅ Chamado criado!','success');
+        document.getElementById('formChamado').querySelector('form').reset();
+        document.getElementById('departamento').value=dep;
+        btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Enviar Chamado';
+        fecharTudo();
+    }).catch(err=>{toast('❌ Erro','error');btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Enviar Chamado';});
+}
+
+function criarGestHosp(e){
+    e.preventDefault();
+    var dados={
+        nome:document.getElementById('ghNome').value,
+        cpf:document.getElementById('ghCpf').value,
+        email:document.getElementById('ghEmail').value,
+        telefone:document.getElementById('ghTel').value,
+        registro:document.getElementById('ghRegistro').value,
+        perfil:document.getElementById('ghPerfil').value,
+        obs:document.getElementById('ghObs').value
+    };
+    db.collection('chamados').add({
+        protocolo:'GH-'+Date.now().toString(36).toUpperCase().slice(-6),
+        departamento:'TI',tipo:'gesthosp',
+        titulo:'Cadastro GestHosp - '+dados.nome,
+        descricao:JSON.stringify(dados),
+        solicitante:'Portal',setor:'N/I',
+        categoria:'Cadastro',prioridade:'Média',status:'A Fazer',
+        data_abertura:firebase.firestore.Timestamp.now(),
+        timeline:[{data:new Date().toISOString(),status:'A Fazer',acao:'Solicitação'}]
+    }).then(()=>{
+        toast('✅ Solicitação enviada!','success');
+        document.getElementById('formGestHosp').querySelector('form').reset();
+        fecharTudo();
+    });
+}
+
+// ========== MOSTRAR CHAMADOS (HOJE + PENDENTES) - DADOS PROTEGIDOS ==========
+function mostrarMeusChamados(){
+    document.getElementById('chamadosContainer').classList.add('active');
+    document.getElementById('formChamado').classList.remove('active');
+    document.getElementById('formGestHosp').classList.remove('active');
+    
+    var lista=document.getElementById('listaChamados');
+    lista.innerHTML='<div class="spinner"></div>';
+    
+    var hoje=new Date();hoje.setHours(0,0,0,0);
+    
+    db.collection('chamados').orderBy('data_abertura','desc').limit(100).get().then(snap=>{
+        var chamados=[];
+        snap.forEach(d=>{var c=d.data();c.fid=d.id;chamados.push(c);});
+        
+        // Filtrar: hoje OU não concluído
+        chamados=chamados.filter(c=>{
+            var dc=c.data_abertura?.toDate?c.data_abertura.toDate():new Date();
+            return dc>=hoje||c.status!=='Concluído';
+        });
+        
+        chamados.sort((a,b)=>{
+            if(a.status==='Concluído'&&b.status!=='Concluído')return 1;
+            if(a.status!=='Concluído'&&b.status==='Concluído')return -1;
+            var da=a.data_abertura?.toDate?a.data_abertura.toDate():new Date();
+            var db=b.data_abertura?.toDate?b.data_abertura.toDate():new Date();
+            return db-da;
+        });
+        
+        if(chamados.length===0){
+            lista.innerHTML='<p style="text-align:center;padding:40px;color:var(--gray);">✅ Nenhum chamado</p>';
+            return;
+        }
+        
+        lista.innerHTML='<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">📋 '+chamados.length+' chamado(s)</p>'+
+            chamados.map(c=>{
+                var data=c.data_abertura?.toDate?c.data_abertura.toDate():new Date();
+                var sc='status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'');
+                var icon=c.tipo==='gesthosp'?'🏥':c.departamento==='MANUTENCAO'?'🔧':'💻';
+                var cls=c.status==='Concluído'?'concluido':c.status==='Pendente'?'pendente':'';
+                
+                // 🔒 DADOS PROTEGIDOS: GestHosp mostra apenas informações básicas
+                var tituloExibicao=c.titulo||'Sem título';
+                if(c.tipo==='gesthosp'){
+                    tituloExibicao='🏥 Solicitação de Cadastro';
+                }
+                
+                var motivo='';
+                if(c.status==='Pendente'&&c.comentarios?.length){
+                    var ult=c.comentarios[c.comentarios.length-1];
+                    motivo='<div class="motivo-pendente"><strong>⏸️ Pendente:</strong> '+(ult.texto||'Não informado')+'<br><small>Por: '+(ult.autor||'Técnico')+'</small></div>';
+                }else if(c.status==='Pendente'){
+                    motivo='<div class="motivo-pendente"><strong>⏸️ Pendente</strong> - Aguardando</div>';
+                }
+                
+                return'<div class="chamado-card '+cls+'" onclick="verDetalhes(\''+c.fid+'\')">'+
+                    '<div style="flex:1;">'+
+                    '<strong>'+icon+' '+tituloExibicao+'</strong>'+
+                    '<br><small style="color:var(--gray);">📋 '+(c.protocolo||'—')+' | 📍 '+(c.setor||'—')+' | 🕐 '+data.toLocaleString('pt-BR')+'</small>'+
+                    motivo+
+                    '</div>'+
+                    '<span class="status-badge '+sc+'">'+(c.status||'—')+'</span>'+
+                    '</div>';
+            }).join('');
+    });
+}
+
+// 🔒 VER DETALHES - DADOS PROTEGIDOS
+function verDetalhes(id){
+    db.collection('chamados').doc(id).get().then(doc=>{
+        if(!doc.exists)return;
+        var c=doc.data();
+        var data=c.data_abertura?.toDate?c.data_abertura.toDate():new Date();
+        
+        var tl=(c.timeline||[]).map(t=>
+            '<div style="padding:6px 0;border-bottom:1px solid #eee;font-size:10px;">'+
+            '<strong>'+new Date(t.data).toLocaleString('pt-BR')+'</strong><br>'+t.acao+'</div>'
+        ).join('');
+        
+        // 🔒 Se for GestHosp, NÃO mostra dados sensíveis
+        if(c.tipo==='gesthosp'){
+            document.getElementById('detalhesConteudo').innerHTML=
+                '<h3>🏥 Solicitação de Cadastro</h3>'+
+                '<span class="status-badge status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'')+'">'+(c.status||'—')+'</span>'+
+                '<p style="margin-top:12px;"><strong>Protocolo:</strong> '+(c.protocolo||'—')+'</p>'+
+                '<p><strong>Status:</strong> '+(c.status||'—')+'</p>'+
+                '<p><strong>Data:</strong> '+data.toLocaleString('pt-BR')+'</p>'+
+                '<div style="background:#FFF5F5;padding:12px;border-radius:8px;margin-top:12px;border:1px solid #FED7D7;">'+
+                '<p style="color:#E53E3E;font-size:12px;">🔒 <strong>Dados protegidos</strong></p>'+
+                '<p style="font-size:11px;color:#9a3412;">As informações detalhadas deste cadastro estão disponíveis apenas para a equipe técnica autorizada.</p></div>'+
+                '<hr><h4 style="color:var(--primary);">📜 Andamento</h4>'+(tl||'<p>Nenhum evento</p>');
+        } else {
+            // Chamados normais mostram informações básicas
+            var coms='';
+            if(c.comentarios?.length){
+                coms='<hr><h4 style="color:var(--primary);">💬 Comentários</h4>';
+                c.comentarios.forEach(com=>{
+                    coms+='<div style="background:#f0fdf4;padding:8px;border-radius:6px;margin-bottom:4px;font-size:11px;">'+
+                        '<strong>'+(com.autor||'Técnico')+'</strong>: '+(com.texto||'')+'</div>';
+                });
+            }
+            
+            document.getElementById('detalhesConteudo').innerHTML=
+                '<h3>'+(c.titulo||'—')+'</h3>'+
+                '<span class="status-badge status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'')+'">'+(c.status||'—')+'</span>'+
+                '<p><strong>Protocolo:</strong> '+(c.protocolo||'—')+'</p>'+
+                '<p><strong>Solicitante:</strong> '+(c.solicitante||'—')+'</p>'+
+                '<p><strong>Setor:</strong> '+(c.setor||'—')+'</p>'+
+                '<p><strong>Prioridade:</strong> '+(c.prioridade||'—')+'</p>'+
+                '<p><strong>Data:</strong> '+data.toLocaleString('pt-BR')+'</p>'+
+                coms+
+                '<hr><h4 style="color:var(--primary);">📜 Andamento</h4>'+(tl||'<p>Nenhum evento</p>');
+        }
+        
+        document.getElementById('modalDetalhes').classList.add('ativo');
+    });
+}
+
+function toast(msg,tipo){
+    var t=document.createElement('div');
+    t.className='toast-notification';
+    t.style.borderLeftColor=tipo==='success'?'var(--success)':tipo==='warning'?'var(--warning)':'var(--danger)';
+    t.innerHTML='<span>'+(tipo==='success'?'✅':tipo==='warning'?'⚠️':'❌')+'</span> '+
+        '<strong>'+(tipo==='success'?'Sucesso':tipo==='warning'?'Atenção':'Erro')+'</strong><br>'+
+        '<span style="font-size:11px;color:var(--gray);">'+msg+'</span>';
+    document.body.appendChild(t);
+    setTimeout(()=>{if(t.parentElement)t.remove();},4000);
+}
+
+document.getElementById('modalDetalhes').addEventListener('click',function(e){if(e.target===this)this.classList.remove('ativo');});
+
+// Inicialização
+window.onload=function(){
+    carregarContatos();
+    console.log('🏥 HelpHosp Portal - Dados protegidos 🔒');
+};
+</script>
 </body>
 </html>

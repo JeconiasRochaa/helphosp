@@ -405,10 +405,46 @@
                     <label>Setor *</label>
                     <select id="setor" required>
                         <option value="">Selecione...</option>
-                        <option>UTI I</option><option>UTI II</option><option>Emergência</option>
-                        <option>Centro Cirúrgico</option><option>Oncologia</option><option>Farmácia</option>
-                        <option>Administração</option><option>Faturamento</option><option>NIR</option>
-                        <option>Recepção Geral</option><option>Recepção CR</option><option>Outros</option>
+                        <option>Almoxarifado</option>
+                        <option>Centro Cirúrgico</option>
+                        <option>Clínica Cirurgica</option>
+                        <option>Clínica Médica I</option>
+                        <option>Clínica Médica II</option>
+                        <option>Comunicação</option>
+                        <option>Direção Administrativa</option>
+                        <option>Direção Enfermagem</option>
+                        <option>Direção geral</option>
+                        <option>Direção Medica</option>
+                        <option>Emergência/Vermelha</option>
+                        <option>Engenharia Clinica</option>
+                        <option>Farmácia</option>
+                        <option>Faturamento</option>
+                        <option>Fisioterapia</option>
+                        <option>Hotelaria</option>
+                        <option>Juridico</option>
+                        <option>Laboratório</option>
+                        <option>NIR</option>
+                        <option>Nutrição</option>
+                        <option>Oncologia I</option>
+                        <option>Oncologia II</option>
+                        <option>Ouvidoria</option>
+                        <option>Patrimonio</option>
+                        <option>Pediatria</option>
+                        <option>Psicologia</option>
+                        <option>RH</option>
+                        <option>Raio-X</option>
+                        <option>Recepção CR</option>
+                        <option>Recepção Geral</option>
+                        <option>Recepção Nefrologia</option>
+                        <option>RH</option>
+                        <option>Same</option>
+                        <option>Serviço Social</option>
+                        <option>Sesmt</option>
+                        <option>Telemedicina</option>
+                        <option>Tomografia</option>
+                        <option>UTI I</option>
+                        <option>UTI II</option>
+                        <option>Outros</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -422,7 +458,7 @@
                     <option value="Baixa">🔵 Baixa</option>
                     <option value="Média" selected>🟡 Média</option>
                     <option value="Alta">🟠 Alta</option>
-                    <option value="Crítica">🔴 Crítica</option>
+                    <option value="Crítica">🔴 Crítica Setor Parado</option>
                 </select>
             </div>
             <div class="form-group"><label>Título *</label><input type="text" id="titulo" required></div>
@@ -444,14 +480,34 @@
                     <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Email</label><input type="email" id="ghEmail"></div>
-                    <div class="form-group"><label>Telefone</label><input type="text" id="ghTel"></div>
+                    <div class="form-group"><label>RG*</label><input type="email" id="ghRG"></div>
+                    <div class="form-group"><label>Data Nasc*</label><input type="text" id="ghData Nasc"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Profissão*</label><input type="email" id="ghProfissão"></div>
+                    <div class="form-group"><label>Nº Conselho*</label><input type="text" id="ghNº Conselho"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Email*</label><input type="email" id="ghEmail"></div>
+                    <div class="form-group"><label>Telefone*</label><input type="text" id="ghTel"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>CEP*</label><input type="email" id="ghCEP"></div>
+                    <div class="form-group"><label>Cidade/Estado*</label><input type="text" id="ghCidade/Estado"></div>
                 </div>
             </div>
             <div class="form-section"><h4>🏥 Dados Profissionais</h4>
                 <div class="form-row">
                     <div class="form-group"><label>Registro</label><input type="text" id="ghRegistro" placeholder="CRM, COREN..."></div>
-                    <div class="form-group"><label>Perfil</label><select id="ghPerfil"><option>Médico</option><option>Enfermeiro</option><option>Fisioterapeuta</option><option>Nutricionista</option><option>Psicólogo</option><option>Farmacêutico</option><option>Outros</option></select></div>
+                    <div class="form-group"><label>Perfil</label><select id="ghPerfil">
+                        <option>Médico</option>
+                        <option>Enfermeiro</option>
+                        <option>Fisioterapeuta</option>
+                        <option>Nutricionista</option>
+                        <option>Psicólogo</option>
+                        <option>Farmacêutico</option>
+                        <option>Outros</option>
+                    </select></div>
                 </div>
                 <div class="form-group"><label>Observações</label><textarea id="ghObs" rows="2"></textarea></div>
             </div>
@@ -462,7 +518,7 @@
     <!-- MEUS CHAMADOS (HOJE + PENDENTES) -->
     <div class="chamados-container" id="chamadosContainer">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-            <h2 style="color:var(--primary);">📋 Meus Chamados</h2>
+            <h2 style="color:var(--primary);">📋 Chamados</h2>
             <button class="btn-close" onclick="fecharTudo()">← Voltar</button>
         </div>
         <div id="listaChamados"></div>

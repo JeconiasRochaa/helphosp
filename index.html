@@ -592,71 +592,103 @@ function criarGestHosp(e){
     });
 }
 
-// ========== MOSTRAR CHAMADOS (HOJE + PENDENTES) - DADOS PROTEGIDOS ==========
+// ========== MOSTRAR APENAS CHAMADOS DE HOJE ==========
 function mostrarMeusChamados(){
     document.getElementById('chamadosContainer').classList.add('active');
     document.getElementById('formChamado').classList.remove('active');
     document.getElementById('formGestHosp').classList.remove('active');
     
-    var lista=document.getElementById('listaChamados');
-    lista.innerHTML='<div class="spinner"></div>';
+    var lista = document.getElementById('listaChamados');
+    lista.innerHTML = '<div class="spinner"></div>';
     
-    var hoje=new Date();hoje.setHours(0,0,0,0);
+    // 🔥 CORREÇÃO: Definir data de HOJE (meia-noite)
+    var hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
     
-    db.collection('chamados').orderBy('data_abertura','desc').limit(100).get().then(snap=>{
-        var chamados=[];
-        snap.forEach(d=>{var c=d.data();c.fid=d.id;chamados.push(c);});
-        
-        // Filtrar: hoje OU não concluído
-        chamados=chamados.filter(c=>{
-            var dc=c.data_abertura?.toDate?c.data_abertura.toDate():new Date();
-            return dc>=hoje||c.status!=='Concluído';
+    // Amanhã (meia-noite)
+    var amanha = new Date(hoje);
+    amanha.setDate(amanha.getDate() + 1);
+    
+    console.log('📅 Buscando chamados de HOJE:', hoje.toLocaleDateString('pt-BR'));
+    
+    // 🔥 USAR O FILTRO DO FIRESTORE DIRETO (não carregar tudo)
+    db.collection('chamados')
+        .where('data_abertura', '>=', firebase.firestore.Timestamp.fromDate(hoje))
+        .where('data_abertura', '<', firebase.firestore.Timestamp.fromDate(amanha))
+        .orderBy('data_abertura', 'desc')
+        .limit(50)
+        .get()
+        .then(function(snap) {
+            console.log('📦 Chamados de hoje encontrados:', snap.size);
+            
+            if (snap.empty) {
+                lista.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">' +
+                    '<div style="font-size:48px;margin-bottom:12px;">📭</div>' +
+                    '<h3>Nenhum chamado hoje</h3>' +
+                    '<p style="font-size:13px;">Os chamados abertos hoje aparecerão aqui</p></div>';
+                return;
+            }
+            
+            var chamados = [];
+            snap.forEach(function(d) {
+                var c = d.data();
+                c.fid = d.id;
+                chamados.push(c);
+            });
+            
+            // Ordenar: NÃO concluídos primeiro
+            chamados.sort(function(a, b) {
+                if (a.status === 'Concluído' && b.status !== 'Concluído') return 1;
+                if (a.status !== 'Concluído' && b.status === 'Concluído') return -1;
+                return 0;
+            });
+            
+            lista.innerHTML = '<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">' +
+                '📋 ' + chamados.length + ' chamado(s) de hoje - ' + 
+                new Date().toLocaleDateString('pt-BR') + '</p>' +
+                chamados.map(function(c) {
+                    var data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
+                    var sc = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '');
+                    var icon = c.tipo === 'gesthosp' ? '🏥' : c.departamento === 'MANUTENCAO' ? '🔧' : '💻';
+                    var cls = c.status === 'Concluído' ? 'concluido' : '';
+                    
+                    // 🔒 GestHosp: título genérico
+                    var tituloExibicao = c.titulo || 'Sem título';
+                    if (c.tipo === 'gesthosp') {
+                        tituloExibicao = '🏥 Solicitação de Cadastro';
+                    }
+                    
+                    // Motivo de pendência
+                    var motivo = '';
+                    if (c.status === 'Pendente' && c.comentarios && c.comentarios.length > 0) {
+                        var ult = c.comentarios[c.comentarios.length - 1];
+                        motivo = '<div class="motivo-pendente"><strong>⏸️ Pendente:</strong> ' + 
+                            (ult.texto || 'Não informado') + 
+                            '<br><small>Por: ' + (ult.autor || 'Técnico') + '</small></div>';
+                    } else if (c.status === 'Pendente') {
+                        motivo = '<div class="motivo-pendente"><strong>⏸️ Pendente</strong> - Aguardando atualização</div>';
+                    }
+                    
+                    // Badge de concluído
+                    var concluidoBadge = c.status === 'Concluído' ? ' ✓' : '';
+                    
+                    return '<div class="chamado-card ' + cls + '" onclick="verDetalhes(\'' + c.fid + '\')">' +
+                        '<div style="flex:1;">' +
+                        '<strong>' + icon + ' ' + tituloExibicao + concluidoBadge + '</strong>' +
+                        '<br><small style="color:var(--gray);">📋 ' + (c.protocolo || '—') + 
+                        ' | 📍 ' + (c.setor || '—') + 
+                        ' | 🕐 ' + data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) + 
+                        '</small>' +
+                        motivo +
+                        '</div>' +
+                        '<span class="status-badge ' + sc + '">' + (c.status || '—') + '</span>' +
+                        '</div>';
+                }).join('');
+        })
+        .catch(function(err) {
+            console.error('❌ Erro:', err);
+            lista.innerHTML = '<p style="text-align:center;color:var(--gray);">Erro ao carregar chamados</p>';
         });
-        
-        chamados.sort((a,b)=>{
-            if(a.status==='Concluído'&&b.status!=='Concluído')return 1;
-            if(a.status!=='Concluído'&&b.status==='Concluído')return -1;
-            var da=a.data_abertura?.toDate?a.data_abertura.toDate():new Date();
-            var db=b.data_abertura?.toDate?b.data_abertura.toDate():new Date();
-            return db-da;
-        });
-        
-        if(chamados.length===0){
-            lista.innerHTML='<p style="text-align:center;padding:40px;color:var(--gray);">✅ Nenhum chamado</p>';
-            return;
-        }
-        
-        lista.innerHTML='<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">📋 '+chamados.length+' chamado(s)</p>'+
-            chamados.map(c=>{
-                var data=c.data_abertura?.toDate?c.data_abertura.toDate():new Date();
-                var sc='status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-                var icon=c.tipo==='gesthosp'?'🏥':c.departamento==='MANUTENCAO'?'🔧':'💻';
-                var cls=c.status==='Concluído'?'concluido':c.status==='Pendente'?'pendente':'';
-                
-                // 🔒 DADOS PROTEGIDOS: GestHosp mostra apenas informações básicas
-                var tituloExibicao=c.titulo||'Sem título';
-                if(c.tipo==='gesthosp'){
-                    tituloExibicao='🏥 Solicitação de Cadastro';
-                }
-                
-                var motivo='';
-                if(c.status==='Pendente'&&c.comentarios?.length){
-                    var ult=c.comentarios[c.comentarios.length-1];
-                    motivo='<div class="motivo-pendente"><strong>⏸️ Pendente:</strong> '+(ult.texto||'Não informado')+'<br><small>Por: '+(ult.autor||'Técnico')+'</small></div>';
-                }else if(c.status==='Pendente'){
-                    motivo='<div class="motivo-pendente"><strong>⏸️ Pendente</strong> - Aguardando</div>';
-                }
-                
-                return'<div class="chamado-card '+cls+'" onclick="verDetalhes(\''+c.fid+'\')">'+
-                    '<div style="flex:1;">'+
-                    '<strong>'+icon+' '+tituloExibicao+'</strong>'+
-                    '<br><small style="color:var(--gray);">📋 '+(c.protocolo||'—')+' | 📍 '+(c.setor||'—')+' | 🕐 '+data.toLocaleString('pt-BR')+'</small>'+
-                    motivo+
-                    '</div>'+
-                    '<span class="status-badge '+sc+'">'+(c.status||'—')+'</span>'+
-                    '</div>';
-            }).join('');
-    });
 }
 
 // 🔒 VER DETALHES - DADOS PROTEGIDOS

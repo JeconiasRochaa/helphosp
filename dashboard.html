@@ -223,7 +223,20 @@
             <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="gSetor"></canvas></div>
             <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="gPrio"></canvas></div>
         </div>
-        <div class="table-card"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
+        <div class="table-card"><h3>🚨 Últimos Chamados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Protocolo</th>
+                        <th>Data</th>
+                        <th>Título</th>
+                        <th>Setor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ultimosChamados"></tbody>
+            </table>
+        </div>
     </section>
 
     <section id="secao-chamados" class="secao">
@@ -233,7 +246,21 @@
                 <select id="fS" onchange="carregarChamados()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
                 <input type="text" id="fB" placeholder="🔍 Buscar..." onkeyup="carregarChamados()">
             </div>
-            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Técnico</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaChamados"></tbody></table>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Protocolo</th>
+                        <th>Data</th>
+                        <th>Título</th>
+                        <th>Solicitante</th>
+                        <th>Setor</th>
+                        <th>Prioridade</th>
+                        <th>Técnico</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaChamados"></tbody></table>
         </div>
     </section>
 
@@ -241,10 +268,32 @@
         <div style="margin-bottom:24px;"><h1>🏥 Solicitações — GestHosp</h1><p style="color:var(--text-muted);">🔒 Dados visíveis apenas para técnicos autorizados</p></div>
         <div class="table-card">
             <div class="filtros-bar">
-                <select id="fSG" onchange="carregarGestHosp()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
+                <select id="fSG" onchange="carregarGestHosp()">
+                    <option value="">Todos</option>
+                    <option>A Fazer</option>
+                    <option>Em Andamento</option>
+                    <option>Pendente</option>
+                    <option>Concluído</option>
+                </select>
                 <input type="text" id="fBG" placeholder="🔍 Buscar..." onkeyup="carregarGestHosp()">
             </div>
-            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Setor</th><th>Registro</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaGestHosp"></tbody></table>
+            <table><thead><tr>
+                <th>Protocolo</th>
+                <th>Data</th>
+                <th>Profissional</th>
+                <th>CPF</th>
+                 <th>RG</th>
+                 <th>Data Nasc</th>
+                 <th>Email</th>
+                 <th>Telefone</th>
+                <th>Setor</th>
+                <th>Registro</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+                <tbody id="tabelaGestHosp"></tbody>
+            </table>
         </div>
     </section>
 
@@ -278,15 +327,41 @@
                 <form onsubmit="salvarEquip(event)" style="display:grid;gap:12px;">
                     <div class="form-group"><label>Nome *</label><input type="text" id="eNome" required></div>
                     <div class="form-row">
-                        <div class="form-group"><label>Tipo *</label><select id="eTipo" required><option value="">Selecione...</option><option>Computador</option><option>Notebook</option><option>Monitor</option><option>Impressora</option><option>Periférico</option><option>Telefone</option><option>Rede</option><option>Nobreak</option><option>Servidor</option><option>Câmera</option><option>Ferramenta</option><option>Outro</option></select></div>
+                        <div class="form-group">
+                            <label>Tipo *</label>
+                            <select id="eTipo" required>
+                                <option value="">Selecione...</option>
+                                <option>Computador</option>
+                                <option>Notebook</option>
+                                <option>Monitor</option>
+                                <option>Impressora</option>
+                                <option>Periférico</option>
+                                <option>Telefone</option>
+                                <option>Rede</option>
+                                <option>Nobreak</option>
+                                <option>Servidor</option>
+                                <option>Câmera</option>
+                                <option>Ferramenta</option>
+                                <option>Outro</option>
+                            </select>
+                        </div>
                         <div class="form-group"><label>Emoji</label><input type="text" id="eEmoji" placeholder="🖥️" maxlength="2"></div>
                     </div>
                     <div class="form-row">
                         <div class="form-group"><label>Quantidade</label><input type="number" id="eQtd" value="1" min="1"></div>
                         <div class="form-group"><label>Localização</label><input type="text" id="eLocal"></div>
                     </div>
-                    <div class="form-group"><label>Status *</label><select id="eStatus" required><option value="Em uso">🟢 Em uso</option><option value="Com defeito">🔴 Com defeito</option><option value="Em estoque">🟡 Em estoque</option></select></div>
-                    <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharFormEquip()">Cancelar</button></div>
+                    <div class="form-group"><label>Status *</label>
+                        <select id="eStatus" required>
+                            <option value="Em uso">🟢 Em uso</option>
+                            <option value="Com defeito">🔴 Com defeito</option>
+                            <option value="Em estoque">🟡 Em estoque</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" class="btn btn-outline" onclick="fecharFormEquip()">Cancelar</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -295,7 +370,22 @@
 
     <section id="secao-ips" class="secao">
         <div class="top-bar"><h1>🌐 IPs & Rede</h1><button class="btn btn-primary" onclick="abrirModalIP()"><i class="fas fa-plus"></i> Novo</button></div>
-        <div class="table-card"><table><thead><tr><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>Local</th><th>Setor</th><th>Obs</th><th>Ações</th></tr></thead><tbody id="tabelaIPs"></tbody></table></div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dispositivo</th>
+                        <th>Tipo</th>
+                        <th>IP</th>
+                        <th>Local</th>
+                        <th>Setor</th>
+                        <th>Obs</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaIPs"></tbody>
+            </table>
+        </div>
     </section>
 
     <section id="secao-relatorios" class="secao">
@@ -313,7 +403,20 @@
 
     <section id="secao-equipe" class="secao">
         <div class="top-bar"><h1>👥 Técnicos</h1><button class="btn btn-primary" id="btnAddTecnico" onclick="abrirModalTecnico()"><i class="fas fa-user-plus"></i> Novo</button></div>
-        <div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Depto</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaEquipe"></tbody></table></div>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Usuário</th>
+                        <th>Cargo</th>
+                        <th>WhatsApp</th>
+                        <th>Departamento</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaEquipe"></tbody></table></div>
     </section>
 
     <section id="secao-config" class="secao">

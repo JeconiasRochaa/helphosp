@@ -243,7 +243,13 @@
         <div style="margin-bottom:24px;"><h1>📋 Chamados — <span id="tituloChamados"></span></h1></div>
         <div class="table-card">
             <div class="filtros-bar">
-                <select id="fS" onchange="carregarChamados()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
+                <select id="fS" onchange="carregarChamados()">
+                    <option value="">Todos</option>
+                    <option>A Fazer</option>
+                    <option>Em Andamento</option>
+                    <option>Pendente</option>
+                    <option>Concluído</option>
+                </select>
                 <input type="text" id="fB" placeholder="🔍 Buscar..." onkeyup="carregarChamados()">
             </div>
             <table>
@@ -315,7 +321,9 @@
     </section>
 
     <section id="secao-toners" class="secao">
-        <div class="top-bar"><h1>🖨️ Toners</h1><button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button></div>
+        <div class="top-bar">
+            <h1>🖨️ Toners</h1>
+            <button class="btn btn-primary" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button></div>
         <div class="table-card"><table><thead><tr><th>Setor</th><th>Tipo</th><th>Realizado por</th><th>Data</th><th>Dias</th><th>Obs</th></tr></thead><tbody id="tabelaToners"></tbody></table></div>
     </section>
 
@@ -332,11 +340,11 @@
                             <select id="eTipo" required>
                                 <option value="">Selecione...</option>
                                 <option>Computador</option>
-                                <option>Notebook</option>
                                 <option>Monitor</option>
+                                <option>Teclado</option>
+                                <option>Mouse</option>
                                 <option>Impressora</option>
-                                <option>Periférico</option>
-                                <option>Telefone</option>
+                                <option>Ramal</option>
                                 <option>Rede</option>
                                 <option>Nobreak</option>
                                 <option>Servidor</option>
@@ -436,9 +444,127 @@
 <!-- MODAIS -->
 <div class="modal-overlay" id="modalDetalhes"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:14px;"><h3>Detalhes</h3><button onclick="fecharModal('modalDetalhes')" style="background:none;border:none;font-size:20px;cursor:pointer;">&times;</button></div><div id="detalhesConteudo"></div></div></div>
 <div class="modal-overlay" id="modalComentario"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:14px;"><h3>💬 Comentários</h3><button onclick="fecharModal('modalComentario')" style="background:none;border:none;font-size:20px;cursor:pointer;">&times;</button></div><div id="comentarioConteudo"></div></div></div>
-<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>👤 Técnico</h3><form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Nome *</label><input type="text" id="tn" required></div><div class="form-group"><label>Usuário *</label><input type="text" id="tu" required></div><div class="form-row"><div class="form-group"><label>Cargo *</label><select id="tc"><option>Técnico de Suporte</option><option>Analista de Sistemas</option></select></div><div class="form-group"><label>Departamento *</label><select id="tdep" onchange="atualizarCargosPorDepartamento()"><option value="TI">🖥️ TI</option><option value="MANUTENCAO">🔧 Manutenção</option></select></div></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tw" required></div><p style="font-size:11px;">🔑 Senha: <strong>12345</strong></p><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button></div></form></div></div>
-<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>🖨️ Troca de Toner</h3><form onsubmit="addToner(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Setor *</label><select id="ts" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>Emergência</option></select></div><div class="form-group"><label>Tipo *</label><select id="ttipo" required><option value="preventiva">🟢 Preventiva</option><option value="necessaria">🔴 Necessária</option></select></div><div class="form-group"><label>Observação</label><textarea id="tobs" rows="2"></textarea></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button></div></form></div></div>
-<div class="modal-overlay" id="modalIP"><div class="modal-box"><h3>🌐 Registrar IP</h3><form onsubmit="addIP(event)" style="display:grid;gap:12px;"><div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDispositivo" required></div><div class="form-row"><div class="form-group"><label>Tipo *</label><select id="ipTipo" required><option value="">Selecione...</option><option>Impressora</option><option>Roteador</option><option>Switch</option><option>Câmera IP</option><option>Servidor</option><option>Computador</option><option>Telefone IP</option><option>Outro</option></select></div><div class="form-group"><label>IP *</label><input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div></div><div class="form-row"><div class="form-group"><label>Localização</label><input type="text" id="ipLocal"></div><div class="form-group"><label>Setor</label><select id="ipSetor"><option value="">Nenhum</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>TI</option><option>Recepção</option></select></div></div><div class="form-group"><label>Observação</label><input type="text" id="ipObs"></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button></div></form></div></div>
+<div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>👤 Técnico</h3>
+    <form id="formTecnico" onsubmit="addTecnico(event)" style="display:grid;gap:12px;">
+        <div class="form-group">
+            <label>Nome *</label>
+            <input type="text" id="tn" required></div>
+        <div class="form-group">
+            <label>Usuário *</label>
+            <input type="text" id="tu" required></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Cargo *</label>
+                <select id="tc">
+                    <option>Técnico de Suporte</option>
+                    <option>Analista de Sistemas</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Departamento *</label>
+                <select id="tdep" onchange="atualizarCargosPorDepartamento()">
+                    <option value="TI">🖥️ TI</option>
+                    <option value="MANUTENCAO">🔧 Manutenção</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>WhatsApp *</label>
+            <input type="text" id="tw" required></div>
+        <p style="font-size:11px;">🔑 Senha: <strong>12345</strong></p>
+        <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>🖨️ Troca de Toner</h3>
+    <form onsubmit="addToner(event)" style="display:grid;gap:12px;">
+        <div class="form-group">
+            <label>Setor *</label>
+            <select id="ts" required>
+                <option value="">Selecione...</option>
+                <option>UTI I</option>
+                <option>UTI II</option>
+                <option>Oncologia</option>
+                <option>Centro Cirúrgico</option>
+                <option>Farmácia</option>
+                <option>Administração</option>
+                <option>Recepção Geral</option>
+                <option>Recepção CR</option>
+                <option>NIR</option>
+                <option>Faturamento</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tipo *</label>
+            <select id="ttipo" required>
+                <option value="preventiva">🟢 Preventiva</option>
+                <option value="necessaria">🔴 Necessária</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Observação</label>
+            <textarea id="tobs" rows="2"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<div class="modal-overlay" id="modalIP"><div class="modal-box"><h3>🌐 Registrar IP</h3>
+    <form onsubmit="addIP(event)" style="display:grid;gap:12px;">
+        <div class="form-group">
+            <label>Dispositivo *</label>
+            <input type="text" id="ipDispositivo" required></div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tipo *</label>
+                <select id="ipTipo" required>
+                    <option value="">Selecione...</option>
+                    <option>Impressora</option>
+                    <option>Roteador</option>
+                    <option>Switch</option>
+                    <option>Câmera IP</option>
+                    <option>Servidor</option>
+                    <option>Computador</option>
+                    <option>Telefone IP</option>
+                    <option>Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>IP *</label>
+                <input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div>
+        </div><div class="form-row">
+            <div class="form-group">
+                <label>Localização</label>
+                <input type="text" id="ipLocal"></div>
+            <div class="form-group">
+                <label>Setor</label>
+                <select id="ipSetor">
+                    <option value="">Nenhum</option>
+                    <option>UTI I</option>
+                    <option>UTI II</option>
+                    <option>Oncologia</option>
+                    <option>Centro Cirúrgico</option>
+                    <option>Farmácia</option>
+                    <option>Administração</option>
+                    <option>TI</option>
+                    <option>Recepção</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label>Observação</label>
+            <input type="text" id="ipObs"></div>
+        <div style="display:flex;gap:8px;">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
 
 <script>
 // ========== FIREBASE ==========
@@ -565,7 +691,7 @@ function atualizarDash(){
     document.getElementById('stA').textContent=f.filter(function(c){return c.status!=='Concluído';}).length;
     document.getElementById('stC').textContent=f.filter(function(c){return c.status==='Concluído';}).length;
     document.getElementById('stX').textContent=f.filter(function(c){return c.prioridade==='Crítica';}).length;
-    var setor={},prio={};f.forEach(function(c){setor[c.setor||'N/I']=(setor[c.setor||'N/I']||0)+1;prio[c.prioridade||'Média']=(prio[c.prioridade||'Média']||0)+1;});
+    var setor={},prio={};f.forEach(function(c){setor[c.setor||'GestHosp']=(setor[c.setor||'GestHosp']||0)+1;prio[c.prioridade||'Média']=(prio[c.prioridade||'Média']||0)+1;});
     Object.values(charts).forEach(function(c){if(c)c.destroy();});charts={};
     var cores=['#3182CE','#38A169','#805AD5','#DD6B20','#E53E3E','#319795','#D69E2E'];
     var ctx1=document.getElementById('gSetor');if(ctx1&&Object.keys(setor).length>0)charts.s=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(setor),datasets:[{data:Object.values(setor),backgroundColor:cores.slice(0,Object.keys(setor).length),borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,font:{size:10},color:'#4A5568'}}}}});

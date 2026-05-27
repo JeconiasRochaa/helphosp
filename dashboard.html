@@ -46,11 +46,7 @@
             --transition: all 0.3s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -62,6 +58,7 @@
             line-height: 1.6;
         }
 
+        /* Sidebar */
         .sidebar {
             width: var(--sidebar-w);
             min-width: var(--sidebar-w);
@@ -101,12 +98,7 @@
             overflow: hidden;
         }
 
-        .logo-container i {
-            font-size: 30px;
-            color: var(--gold);
-            position: relative;
-            z-index: 1;
-        }
+        .logo-container i { font-size: 30px; color: var(--gold); position: relative; z-index: 1; }
 
         .logo-mini-ecg {
             position: absolute;
@@ -126,12 +118,7 @@
             80% { clip-path: inset(0 30% 0 0); opacity: 0.6; }
         }
 
-        .sidebar-header h2 {
-            font-size: 20px;
-            letter-spacing: -0.3px;
-            font-weight: 700;
-        }
-
+        .sidebar-header h2 { font-size: 20px; letter-spacing: -0.3px; font-weight: 700; }
         .help { color: #A0AEC0; font-weight: 400; }
         .hosp { color: #FFFFFF; font-weight: 700; }
 
@@ -169,16 +156,8 @@
             flex-shrink: 0;
         }
 
-        .user-details h4 {
-            font-size: 12px;
-            color: #FFFFFF;
-            font-weight: 600;
-        }
-
-        .user-details small {
-            font-size: 9px;
-            color: rgba(255,255,255,0.5);
-        }
+        .user-details h4 { font-size: 12px; color: #FFFFFF; font-weight: 600; }
+        .user-details small { font-size: 9px; color: rgba(255,255,255,0.5); }
 
         .depto-badge {
             display: inline-block;
@@ -219,17 +198,8 @@
             font-weight: 500;
         }
 
-        .nav-item:hover {
-            background: var(--bg-sidebar-hover);
-            color: #FFFFFF;
-        }
-
-        .nav-item.active {
-            background: rgba(214,158,46,0.12);
-            color: var(--gold-light);
-            font-weight: 600;
-        }
-
+        .nav-item:hover { background: var(--bg-sidebar-hover); color: #FFFFFF; }
+        .nav-item.active { background: rgba(214,158,46,0.12); color: var(--gold-light); font-weight: 600; }
         .nav-item i { width: 18px; text-align: center; font-size: 13px; }
 
         .badge-notificacao {
@@ -256,11 +226,7 @@
             50% { transform: translateY(-50%) scale(1.1); }
         }
 
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
+        .sidebar-footer { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); }
 
         .btn-logout {
             width: 100%;
@@ -278,10 +244,7 @@
             transition: var(--transition);
         }
 
-        .btn-logout:hover {
-            background: rgba(229,62,62,0.12);
-            color: #FEB2B2;
-        }
+        .btn-logout:hover { background: rgba(229,62,62,0.12); color: #FEB2B2; }
 
         .main-content {
             margin-left: var(--sidebar-w);
@@ -292,14 +255,8 @@
             z-index: 1;
         }
 
-        .secao {
-            display: none;
-        }
-
-        .secao.ativa {
-            display: block;
-            animation: fadeSlide 0.3s ease;
-        }
+        .secao { display: none; }
+        .secao.ativa { display: block; animation: fadeSlide 0.3s ease; }
 
         @keyframes fadeSlide {
             from { opacity: 0; transform: translateY(8px); }
@@ -315,18 +272,9 @@
             gap: 10px;
         }
 
-        .top-bar h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
+        .top-bar h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 
         .stat-card {
             background: var(--bg-card);
@@ -340,10 +288,7 @@
             transition: transform 0.2s;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
 
         .stat-icon {
             width: 42px;
@@ -361,27 +306,10 @@
         .stat-icon.green { background: var(--success-light); color: var(--success); }
         .stat-icon.red { background: var(--danger-light); color: var(--danger); }
 
-        .stat-info small {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
+        .stat-info small { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .stat-info strong { font-size: 24px; display: block; color: var(--text-primary); font-weight: 700; }
 
-        .stat-info strong {
-            font-size: 24px;
-            display: block;
-            color: var(--text-primary);
-            font-weight: 700;
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
 
         .chart-card {
             background: var(--bg-card);
@@ -391,18 +319,8 @@
             box-shadow: var(--shadow);
         }
 
-        .chart-card h3 {
-            font-size: 13px;
-            margin-bottom: 14px;
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .chart-card canvas {
-            width: 100% !important;
-            height: 240px !important;
-            max-height: 240px;
-        }
+        .chart-card h3 { font-size: 13px; margin-bottom: 14px; color: var(--text-primary); font-weight: 600; }
+        .chart-card canvas { width: 100% !important; height: 240px !important; max-height: 240px; }
 
         .table-card {
             background: var(--bg-card);
@@ -414,18 +332,9 @@
             margin-bottom: 14px;
         }
 
-        .table-card h3 {
-            font-size: 14px;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
+        .table-card h3 { font-size: 14px; color: var(--text-primary); margin-bottom: 12px; font-weight: 600; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
 
         th {
             background: #F7FAFC;
@@ -440,21 +349,9 @@
             white-space: nowrap;
         }
 
-        td {
-            padding: 9px 12px;
-            border-bottom: 1px solid #EDF2F7;
-            font-size: 11px;
-            color: var(--text-secondary);
-        }
-
-        tr:nth-child(even) td {
-            background: #FAFBFC;
-        }
-
-        tr:hover td {
-            background: #F0F4F8;
-            cursor: pointer;
-        }
+        td { padding: 9px 12px; border-bottom: 1px solid #EDF2F7; font-size: 11px; color: var(--text-secondary); }
+        tr:nth-child(even) td { background: #FAFBFC; }
+        tr:hover td { background: #F0F4F8; cursor: pointer; }
 
         .badge {
             padding: 3px 8px;
@@ -485,57 +382,18 @@
             transition: var(--transition);
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-secondary); }
+        .btn-outline:hover { background: #F7FAFC; }
+        .btn-danger { background: #FFF5F5; color: var(--danger); border: 1px solid #FED7D7; }
+        .btn-danger:hover { background: #FED7D7; }
+        .btn-sm { padding: 4px 9px; font-size: 9px; border-radius: 6px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
-        }
+        .filtros-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
 
-        .btn-outline {
-            background: transparent;
-            border: 1.5px solid var(--border);
-            color: var(--text-secondary);
-        }
-
-        .btn-outline:hover {
-            background: #F7FAFC;
-        }
-
-        .btn-danger {
-            background: #FFF5F5;
-            color: var(--danger);
-            border: 1px solid #FED7D7;
-        }
-
-        .btn-danger:hover {
-            background: #FED7D7;
-        }
-
-        .btn-sm {
-            padding: 4px 9px;
-            font-size: 9px;
-            border-radius: 6px;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .filtros-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .filtros-bar select,
-        .filtros-bar input {
+        .filtros-bar select, .filtros-bar input {
             padding: 8px 12px;
             background: #fff;
             border: 1.5px solid var(--border);
@@ -547,16 +405,12 @@
             transition: border-color 0.2s;
         }
 
-        .filtros-bar select:focus,
-        .filtros-bar input:focus {
+        .filtros-bar select:focus, .filtros-bar input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
         }
 
-        .filtros-bar input {
-            flex: 1;
-            min-width: 140px;
-        }
+        .filtros-bar input { flex: 1; min-width: 140px; }
 
         .modal-overlay {
             display: none;
@@ -572,9 +426,7 @@
             justify-content: center;
         }
 
-        .modal-overlay.ativa {
-            display: flex;
-        }
+        .modal-overlay.ativa { display: flex; }
 
         .modal-box {
             background: #fff;
@@ -595,19 +447,9 @@
         }
 
         .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 10px; font-weight: 700; margin-bottom: 4px; color: var(--text-secondary); text-transform: uppercase; }
 
-        .form-group label {
-            display: block;
-            font-size: 10px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 9px 12px;
             background: #fff;
@@ -620,18 +462,12 @@
             transition: border-color 0.2s;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .toast {
             position: fixed;
@@ -652,17 +488,9 @@
 
         .toast.error { border-left-color: var(--danger); }
         .toast.success { border-left-color: var(--success); }
-        .toast.warning { border-left-color: var(--warning); }
 
-        @keyframes toastIn {
-            from { transform: translateY(60px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes toastOut {
-            from { transform: translateY(0); opacity: 1; }
-            to { transform: translateY(60px); opacity: 0; }
-        }
+        @keyframes toastIn { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateY(0); opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
 
         .menu-toggle {
             display: none;
@@ -680,48 +508,12 @@
             cursor: pointer;
         }
 
-        .ficha-cadastral {
-            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 16px;
-        }
-
-        .ficha-header {
-            text-align: center;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 16px;
-            margin-bottom: 20px;
-        }
-
-        .ficha-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .ficha-field {
-            background: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #EDF2F7;
-        }
-
-        .ficha-field label {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 700;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .ficha-field span {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        .ficha-cadastral { background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%); border: 2px solid var(--border); border-radius: var(--radius); padding: 24px; }
+        .ficha-header { text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 16px; margin-bottom: 20px; }
+        .ficha-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .ficha-field { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #EDF2F7; }
+        .ficha-field label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
+        .ficha-field span { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
         .equip-card {
             background: var(--bg-card);
@@ -734,10 +526,7 @@
             position: relative;
         }
 
-        .equip-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
+        .equip-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
 
         .equip-actions {
             position: absolute;
@@ -749,9 +538,7 @@
             transition: opacity 0.2s;
         }
 
-        .equip-card:hover .equip-actions {
-            opacity: 1;
-        }
+        .equip-card:hover .equip-actions { opacity: 1; }
 
         .comentario-badge {
             position: absolute;
@@ -798,16 +585,6 @@
             .main-content { margin-left: 0; padding: 16px; padding-top: 60px; }
             .ficha-grid { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 640px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .stat-card { padding: 12px; gap: 8px; }
-            .stat-icon { width: 32px; height: 32px; font-size: 14px; }
-            .stat-info strong { font-size: 20px; }
-            table { font-size: 9px; }
-            th, td { padding: 5px 7px; }
-            .form-row { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -818,59 +595,28 @@
 
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="logo-container">
-            <i class="fas fa-hospital"></i>
-            <div class="logo-mini-ecg"></div>
-        </div>
+        <div class="logo-container"><i class="fas fa-hospital"></i><div class="logo-mini-ecg"></div></div>
         <h2><span class="help">Help</span><span class="hosp">Hosp</span></h2>
         <div class="subtitle">Painel Técnico</div>
     </div>
-    
     <div class="user-info">
         <div class="user-avatar" id="userAvatar">T</div>
-        <div class="user-details">
-            <h4 id="userName">—</h4>
-            <small id="userRole">—</small>
-            <div id="deptoBadge"></div>
-        </div>
+        <div class="user-details"><h4 id="userName">—</h4><small id="userRole">—</small><div id="deptoBadge"></div></div>
     </div>
-    
     <nav class="sidebar-nav" id="sidebarNav"></nav>
-    
-    <div class="sidebar-footer">
-        <button class="btn-logout" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
-        </button>
-    </div>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button></div>
 </aside>
 
 <main class="main-content">
-    
     <section id="secao-dashboard" class="secao ativa">
-        <div class="top-bar">
-            <div><h1>📊 Dashboard — <span id="deptoNome"></span></h1></div>
-            <div style="display:flex;gap:6px;">
-                <select id="periodo" onchange="atualizarDashboard()" style="padding:7px 10px;background:#fff;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;">
-                    <option value="7">7 dias</option>
-                    <option value="30" selected>30 dias</option>
-                    <option value="90">90 dias</option>
-                </select>
-                <button class="btn btn-primary" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button>
-            </div>
-        </div>
-        
+        <div class="top-bar"><div><h1>📊 Dashboard — <span id="deptoNome"></span></h1></div><div style="display:flex;gap:6px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:7px 10px;background:#fff;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option></select><button class="btn btn-primary" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div>
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong id="statTotal">0</strong></div></div>
             <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Abertos</small><strong id="statAbertos">0</strong></div></div>
             <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong id="statConcluidos">0</strong></div></div>
             <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong id="statCriticos">0</strong></div></div>
         </div>
-        
-        <div class="charts-grid">
-            <div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="graficoSetor"></canvas></div>
-            <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div>
-        </div>
-        
+        <div class="charts-grid"><div class="chart-card"><h3>📈 Chamados por Setor</h3><canvas id="graficoSetor"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div></div>
         <div class="table-card"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr></thead><tbody id="ultimosChamados"></tbody></table></div>
     </section>
 
@@ -893,15 +639,10 @@
         <div class="top-bar"><h1>📊 Indicadores</h1><button class="btn btn-primary" onclick="imprimirIndicadores()"><i class="fas fa-print"></i> Imprimir</button></div>
         <div class="filtros-bar">
             <select id="indTipo" onchange="atualizarPeriodosIndicadores()"><option value="mensal">Mensal</option><option value="semanal">Semanal</option></select>
-            <select id="indPeriodo1" onchange="atualizarIndicadores()"></select>
-            <span>vs</span>
-            <select id="indPeriodo2" onchange="atualizarIndicadores()"></select>
+            <select id="indPeriodo1" onchange="atualizarIndicadores()"></select><span>vs</span><select id="indPeriodo2" onchange="atualizarIndicadores()"></select>
         </div>
         <div class="stats-grid" id="indicadorGrid"></div>
-        <div class="charts-grid" style="margin-top:14px;">
-            <div class="chart-card"><h3>📈 Comparativo</h3><canvas id="graficoComparativo"></canvas></div>
-            <div class="chart-card"><h3>🎯 Taxa de Resolução</h3><canvas id="graficoResolucao"></canvas></div>
-        </div>
+        <div class="charts-grid" style="margin-top:14px;"><div class="chart-card"><h3>📈 Comparativo</h3><canvas id="graficoComparativo"></canvas></div><div class="chart-card"><h3>🎯 Taxa de Resolução</h3><canvas id="graficoResolucao"></canvas></div></div>
     </section>
 
     <section id="secao-toners" class="secao">
@@ -921,7 +662,7 @@
 
     <section id="secao-inventario" class="secao">
         <div class="top-bar"><h1>📊 Inventário por Setor</h1><button class="btn btn-primary" onclick="abrirModalInventario()"><i class="fas fa-plus"></i> Adicionar</button></div>
-        <div class="table-card"><table><thead><tr><th>Setor</th><th>Computadores</th><th>Impressoras</th><th>Monitores</th><th>Outros</th><th>Total</th><th>Ações</th></tr></thead><tbody id="tabelaInventario"></tbody></table></div>
+        <div class="table-card"><table><thead><tr><th>Setor</th><th>💻 Computadores</th><th>🖨️ Impressoras</th><th>📱 Outros Equipamentos</th><th>Total</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="tabelaInventario"></tbody></table></div>
     </section>
 
     <section id="secao-ips" class="secao">
@@ -940,15 +681,14 @@
     </section>
 </main>
 
-<!-- MODAIS EXISTENTES -->
+<!-- MODAIS -->
 <div class="modal-overlay" id="modalDetalhes"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>Detalhes</h3><button onclick="fecharModal('modalDetalhes')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div><div id="detalhesConteudo"></div></div></div>
 <div class="modal-overlay" id="modalComentario"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>💬 Comentários</h3><button onclick="fecharModal('modalComentario')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div><div id="comentarioConteudo"></div></div></div>
 <div class="modal-overlay" id="modalExecutante"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>👷 Executante</h3><button onclick="fecharModal('modalExecutante')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div><form onsubmit="definirExecutante(event)" style="display:grid;gap:10px;"><div class="form-group"><label>Profissional *</label><select id="executanteSelect" required></select></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalExecutante')">Cancelar</button></div></form></div></div>
 <div class="modal-overlay" id="modalTecnico"><div class="modal-box"><h3>👤 Técnico</h3><form id="formTecnico" onsubmit="salvarTecnico(event)" style="display:grid;gap:10px;"><div class="form-group"><label>Nome *</label><input type="text" id="tecnicoNome" required></div><div class="form-group"><label>Usuário *</label><input type="text" id="tecnicoUsuario" required></div><div class="form-row"><div class="form-group"><label>Cargo *</label><select id="tecnicoCargo"></select></div><div class="form-group"><label>Depto *</label><select id="tecnicoDepartamento" onchange="atualizarCargos()"><option value="TI">TI</option><option value="MANUTENCAO">Manutenção</option></select></div></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tecnicoWhatsApp" required></div><p style="font-size:10px;">🔑 Senha: 12345</p><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalTecnico')">Cancelar</button></div></form></div></div>
-<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>🖨️ Troca de Toner</h3><form onsubmit="registrarTrocaToner(event)" style="display:grid;gap:10px;"><div class="form-group"><label>Setor *</label><select id="tonerSetor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option></select></div><div class="form-group"><label>Tipo *</label><select id="tonerTipo" required><option value="preventiva">🟢 Preventiva</option><option value="necessaria">🔴 Necessária</option></select></div><div class="form-group"><label>Obs</label><textarea id="tonerObs" rows="2"></textarea></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button></div></form></div></div>
+<div class="modal-overlay" id="modalToner"><div class="modal-box"><h3>🖨️ Troca de Toner</h3><form onsubmit="registrarTrocaToner(event)" style="display:grid;gap:10px;"><div class="form-group"><label>Setor *</label><select id="tonerSetor" required><option value="">Selecione...</option></select></div><div class="form-group"><label>Tipo *</label><select id="tonerTipo" required><option value="preventiva">🟢 Preventiva</option><option value="necessaria">🔴 Necessária</option></select></div><div class="form-group"><label>Obs</label><textarea id="tonerObs" rows="2"></textarea></div><div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary">Registrar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button></div></form></div></div>
 <div class="modal-overlay" id="modalHistoricoToner"><div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📜 Histórico</h3><button onclick="fecharModal('modalHistoricoToner')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div><div id="historicoTonerConteudo"></div></div></div>
 
-<!-- NOVOS MODAIS -->
 <div class="modal-overlay" id="modalEquipamento">
     <div class="modal-box">
         <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3 id="tituloModalEquip">🖥️ Equipamento</h3><button onclick="fecharModal('modalEquipamento')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
@@ -956,84 +696,35 @@
             <input type="hidden" id="equipId">
             <div class="form-group"><label>Tipo *</label><select id="equipTipo" onchange="atualizarEmojiEquip()" required>
                 <option value="">Selecione...</option>
-                <optgroup label="Computadores">
-                    <option value="💻">💻 Computador</option>
-                    <option value="🖥️">🖥️ Monitor</option>
-                    <option value="⌨️">⌨️ Teclado</option>
-                    <option value="🖱️">🖱️ Mouse</option>
-                </optgroup>
-                <optgroup label="Impressão">
-                    <option value="🖨️">🖨️ Impressora</option>
-                    <option value="🖨️">🖨️ Multifuncional</option>
-                </optgroup>
-                <optgroup label="Rede">
-                    <option value="🖧">🖧 Switch 24 portas</option>
-                    <option value="🖧">🖧 Switch 48 portas</option>
-                    <option value="🔌">🔌 Switch PoE (Câmeras)</option>
-                    <option value="📡">📡 Roteador</option>
-                    <option value="🔌">🔌 Patch Panel</option>
-                </optgroup>
-                <optgroup label="Multimídia">
-                    <option value="📺">📺 TV</option>
-                    <option value="🖼️">🖼️ Projetor</option>
-                </optgroup>
-                <optgroup label="Conectividade">
-                    <option value="🔌">🔌 Cabo HDMI</option>
-                    <option value="🔌">🔌 Cabo de Rede</option>
-                    <option value="🔌">🔌 Filtro de Linha</option>
-                </optgroup>
-                <optgroup label="Outros">
-                    <option value="📱">📱 Tablet</option>
-                    <option value="💾">💾 HD/SSD</option>
-                    <option value="🔋">🔋 Nobreak</option>
-                    <option value="📞">📞 Telefone</option>
-                </optgroup>
+                <optgroup label="Computadores"><option value="💻">💻 Computador</option><option value="🖥️">🖥️ Monitor</option><option value="⌨️">⌨️ Teclado</option><option value="🖱️">🖱️ Mouse</option></optgroup>
+                <optgroup label="Impressão"><option value="🖨️">🖨️ Impressora</option><option value="🖨️">🖨️ Multifuncional</option></optgroup>
+                <optgroup label="Rede"><option value="🖧">🖧 Switch 24 portas</option><option value="🖧">🖧 Switch 48 portas</option><option value="🔌">🔌 Switch PoE (Câmeras)</option><option value="📡">📡 Roteador</option><option value="🔌">🔌 Patch Panel</option></optgroup>
+                <optgroup label="Multimídia"><option value="📺">📺 TV</option><option value="🖼️">🖼️ Projetor</option></optgroup>
+                <optgroup label="Conectividade"><option value="🔌">🔌 Cabo HDMI</option><option value="🔌">🔌 Cabo de Rede</option><option value="🔌">🔌 Filtro de Linha</option></optgroup>
+                <optgroup label="Outros"><option value="📱">📱 Tablet</option><option value="💾">💾 HD/SSD</option><option value="🔋">🔋 Nobreak</option><option value="📞">📞 Telefone</option></optgroup>
             </select></div>
             <div class="form-group"><label>Emoji</label><input type="text" id="equipEmoji" placeholder="Ou digite..." maxlength="2"></div>
             <div class="form-group"><label>Nome *</label><input type="text" id="equipNome" required></div>
-            <div class="form-row">
-                <div class="form-group"><label>Status *</label><select id="equipStatus" required><option value="Em uso">🟢 Em uso</option><option value="Com defeito">🔴 Com defeito</option><option value="Em estoque">🟡 Em estoque</option></select></div>
-                <div class="form-group"><label>Setor *</label><select id="equipSetor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>TI</option><option>Manutenção</option></select></div>
-            </div>
-            <div class="form-group"><label>Observação</label><textarea id="equipObs" rows="2" placeholder="Detalhes, comentários..."></textarea></div>
-            <div class="form-group"><label>Comentário Técnico</label><textarea id="equipComentario" rows="2" placeholder="Comentário técnico privado..."></textarea></div>
+            <div class="form-row"><div class="form-group"><label>Status *</label><select id="equipStatus" required><option value="Em uso">🟢 Em uso</option><option value="Com defeito">🔴 Com defeito</option><option value="Em estoque">🟡 Em estoque</option></select></div><div class="form-group"><label>Setor *</label><select id="equipSetor" required><option value="">Selecione...</option></select></div></div>
+            <div class="form-group"><label>Observação</label><textarea id="equipObs" rows="2"></textarea></div>
+            <div class="form-group"><label>Comentário Técnico</label><textarea id="equipComentario" rows="2"></textarea></div>
             <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalEquipamento')">Cancelar</button></div>
         </form>
     </div>
 </div>
 
 <div class="modal-overlay" id="modalDetalhesEquip">
-    <div class="modal-box">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Detalhes</h3><button onclick="fecharModal('modalDetalhesEquip')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
-        <div id="detalhesEquipConteudo"></div>
-    </div>
+    <div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📋 Detalhes</h3><button onclick="fecharModal('modalDetalhesEquip')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div><div id="detalhesEquipConteudo"></div></div>
 </div>
 
 <div class="modal-overlay" id="modalIP">
-    <div class="modal-box">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3 id="tituloModalIP">🌐 Cadastrar IP</h3><button onclick="fecharModal('modalIP')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
+    <div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3 id="tituloModalIP">🌐 Cadastrar IP</h3><button onclick="fecharModal('modalIP')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
         <form id="formIP" onsubmit="salvarIP(event)" style="display:grid;gap:10px;">
             <input type="hidden" id="ipId">
             <div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDispositivo" required></div>
-            <div class="form-group"><label>Tipo *</label><select id="ipTipo" required>
-                <option value="">Selecione...</option>
-                <option value="Computador">💻 Computador</option>
-                <option value="Servidor">🖥️ Servidor</option>
-                <option value="Impressora">🖨️ Impressora</option>
-                <option value="Switch">🖧 Switch</option>
-                <option value="Roteador">📡 Roteador</option>
-                <option value="Telefone">📞 Telefone</option>
-                <option value="Câmera">📷 Câmera</option>
-                <option value="TV">📺 TV</option>
-            </select></div>
-            <div class="form-row">
-                <div class="form-group"><label>IP *</label><input type="text" id="ipEndereco" required placeholder="192.168.1.100"></div>
-                <div class="form-group"><label>MAC</label><input type="text" id="ipMAC" placeholder="00:11:22:33:44:55"></div>
-            </div>
-            <div class="form-row">
-                <div class="form-group"><label>Local</label><input type="text" id="ipLocal" placeholder="Sala 101"></div>
-                <div class="form-group"><label>Setor *</label><select id="ipSetor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>TI</option></select></div>
-            </div>
+            <div class="form-group"><label>Tipo *</label><select id="ipTipo" required><option value="">Selecione...</option><option value="Computador">💻 Computador</option><option value="Servidor">🖥️ Servidor</option><option value="Impressora">🖨️ Impressora</option><option value="Switch">🖧 Switch</option><option value="Roteador">📡 Roteador</option><option value="Telefone">📞 Telefone</option><option value="Câmera">📷 Câmera</option><option value="TV">📺 TV</option></select></div>
+            <div class="form-row"><div class="form-group"><label>IP *</label><input type="text" id="ipEndereco" required></div><div class="form-group"><label>MAC</label><input type="text" id="ipMAC"></div></div>
+            <div class="form-row"><div class="form-group"><label>Local</label><input type="text" id="ipLocal"></div><div class="form-group"><label>Setor *</label><select id="ipSetor" required><option value="">Selecione...</option></select></div></div>
             <div class="form-group"><label>Observação</label><textarea id="ipObs" rows="2"></textarea></div>
             <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalIP')">Cancelar</button></div>
         </form>
@@ -1041,19 +732,15 @@
 </div>
 
 <div class="modal-overlay" id="modalInventario">
-    <div class="modal-box">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📊 Adicionar ao Inventário</h3><button onclick="fecharModal('modalInventario')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
+    <div class="modal-box"><div style="display:flex;justify-content:space-between;margin-bottom:12px;"><h3>📊 Adicionar ao Inventário</h3><button onclick="fecharModal('modalInventario')" style="background:none;border:none;font-size:24px;cursor:pointer;">&times;</button></div>
         <form id="formInventario" onsubmit="salvarInventario(event)" style="display:grid;gap:10px;">
             <input type="hidden" id="invId">
-            <div class="form-group"><label>Setor *</label><select id="invSetor" required><option value="">Selecione...</option><option>UTI I</option><option>UTI II</option><option>Oncologia</option><option>Centro Cirúrgico</option><option>Farmácia</option><option>Administração</option><option>Recepção Geral</option><option>Recepção CR</option><option>NIR</option><option>Faturamento</option><option>TI</option></select></div>
+            <div class="form-group"><label>Setor *</label><select id="invSetor" required><option value="">Selecione...</option></select></div>
             <div class="form-row">
                 <div class="form-group"><label>💻 Computadores</label><input type="number" id="invComputadores" value="0" min="0"></div>
                 <div class="form-group"><label>🖨️ Impressoras</label><input type="number" id="invImpressoras" value="0" min="0"></div>
             </div>
-            <div class="form-row">
-                <div class="form-group"><label>🖥️ Monitores</label><input type="number" id="invMonitores" value="0" min="0"></div>
-                <div class="form-group"><label>📱 Outros</label><input type="number" id="invOutros" value="0" min="0"></div>
-            </div>
+            <div class="form-group"><label>📱 Outros Equipamentos</label><input type="number" id="invOutros" value="0" min="0"></div>
             <div class="form-group"><label>Observação</label><textarea id="invObs" rows="2"></textarea></div>
             <div style="display:flex;gap:8px;"><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button><button type="button" class="btn btn-outline" onclick="fecharModal('modalInventario')">Cancelar</button></div>
         </form>
@@ -1061,9 +748,6 @@
 </div>
 
 <script>
-// ============================================
-// FIREBASE CONFIG
-// ============================================
 const firebaseConfig = {
     apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
     authDomain: "helphosp.firebaseapp.com",
@@ -1075,6 +759,27 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+// ============================================
+// LISTA COMPLETA DE SETORES
+// ============================================
+const TODOS_SETORES = [
+    'Almoxarifado','Centro Cirúrgico','Clínica Cirurgica','Clínica Médica I','Clínica Médica II',
+    'Comunicação','Direção Administrativa','Direção Enfermagem','Direção geral','Direção Medica',
+    'Emergência/Vermelha','Engenharia Clinica','Farmácia','Faturamento','Fisioterapia',
+    'Hotelaria','Juridico','Laboratório','NIR','Nutrição',
+    'Oncologia I','Oncologia II','Outros','Ouvidoria','Patrimonio',
+    'Pediatria','Psicologia','RH','Raio-X','Recepção CR',
+    'Recepção Geral','Recepção Nefrologia','Same','Serviço Social','Sesmt',
+    'Telemedicina','Tomografia','TI','UTI I','UTI II','Manutenção'
+];
+
+// Setores que têm impressora (para toner)
+const SETORES_COM_IMPRESSORA = [
+    'UTI I','UTI II','Oncologia I','Oncologia II','Centro Cirúrgico',
+    'Farmácia','Direção Administrativa','Direção geral','Recepção Geral',
+    'Recepção CR','NIR','Faturamento','Emergência/Vermelha'
+];
 
 // ============================================
 // VARIÁVEIS GLOBAIS
@@ -1091,10 +796,6 @@ let comentarioChamadoId = null;
 let executanteChamadoId = null;
 let equipEditando = null;
 
-const SETORES_TONER = ['UTI I','UTI II','Oncologia','Centro Cirúrgico','Farmácia','Administração','Recepção Geral','Recepção CR','NIR','Faturamento'];
-
-const SETORES = ['UTI I','UTI II','Oncologia','Centro Cirúrgico','Farmácia','Administração','Recepção Geral','Recepção CR','NIR','Faturamento','TI','Manutenção'];
-
 const cargosPorDepartamento = {
     'TI': ['Técnico de Suporte TI','Analista de Sistemas','Analista de Redes','Técnico de Informática'],
     'MANUTENCAO': ['Supervisor de Manutenção','Técnico de Manutenção','Eletricista','Encanador','Técnico de Refrigeração','Pedreiro','Pintor','Marceneiro','Assistente Administrativo','Auxiliar de Manutenção']
@@ -1105,23 +806,17 @@ const cargosPorDepartamento = {
 // ============================================
 function formatarData(data) {
     if(!data) return '—';
-    try {
-        const date = data?.toDate ? data.toDate() : new Date(data);
-        if(isNaN(date.getTime())) return '—';
-        return date.toLocaleDateString('pt-BR')+' '+date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    } catch(e) { return '—'; }
+    try { const d = data?.toDate ? data.toDate() : new Date(data); return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); } catch(e) { return '—'; }
 }
 
 function formatarDataCurta(data) {
     if(!data) return '—';
     try {
-        const date = data?.toDate ? data.toDate() : new Date(data);
-        if(isNaN(date.getTime())) return '—';
-        const agora = new Date(), diff = Math.floor((agora-date)/1000);
-        if(diff<60) return 'agora';
-        if(diff<3600) return Math.floor(diff/60)+'min';
-        if(diff<86400) return Math.floor(diff/3600)+'h';
-        if(diff<2592000) return Math.floor(diff/86400)+'d';
+        const d = data?.toDate ? data.toDate() : new Date(data);
+        if(isNaN(d.getTime())) return '—';
+        const agora = new Date(), diff = Math.floor((agora-d)/1000);
+        if(diff<60) return 'agora'; if(diff<3600) return Math.floor(diff/60)+'min';
+        if(diff<86400) return Math.floor(diff/3600)+'h'; if(diff<2592000) return Math.floor(diff/86400)+'d';
         return Math.floor(diff/2592000)+'m';
     } catch(e) { return '—'; }
 }
@@ -1145,17 +840,26 @@ function mostrarToast(m,t='info') {
 }
 
 function tocarBip() {
-    try {
-        const ac = new (window.AudioContext||window.webkitAudioContext)();
-        const osc = ac.createOscillator(), gain = ac.createGain();
-        osc.connect(gain);gain.connect(ac.destination);
-        osc.frequency.value=880;osc.type='sine';gain.gain.value=0.2;
-        osc.start();gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.4);osc.stop(ac.currentTime+0.4);
-    } catch(e) {}
+    try { const ac=new(window.AudioContext||window.webkitAudioContext)(),osc=ac.createOscillator(),gain=ac.createGain();osc.connect(gain);gain.connect(ac.destination);osc.frequency.value=880;osc.type='sine';gain.gain.value=0.2;osc.start();gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.4);osc.stop(ac.currentTime+0.4); } catch(e) {}
 }
 
 function abrirModal(id) { document.getElementById(id).classList.add('ativa'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('ativa'); }
+
+// Popular selects de setores
+function popularSelectSetores(selectId, incluirTodos = true) {
+    const sel = document.getElementById(selectId);
+    if(!sel) return;
+    let html = incluirTodos ? '<option value="">Selecione...</option>' : '';
+    html += TODOS_SETORES.map(s => `<option value="${s}">${s}</option>`).join('');
+    sel.innerHTML = html;
+}
+
+function popularSelectSetoresImpressora(selectId) {
+    const sel = document.getElementById(selectId);
+    if(!sel) return;
+    sel.innerHTML = '<option value="">Selecione...</option>'+SETORES_COM_IMPRESSORA.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
 
 // ============================================
 // AUTENTICAÇÃO
@@ -1190,13 +894,13 @@ function inicializarInterface() {
     const dbadge = document.getElementById('deptoBadge');
     dbadge.innerHTML = `<span class="depto-badge ${departamento==='TI'?'ti':'manutencao'}">${departamento==='TI'?'🖥️':'🔧'} ${nomeDepartamento}</span>`;
     construirMenuLateral();
-    popularFiltroSetores();
+    // Popular todos os selects de setores
+    popularSelectSetores('filtroSetorEquip');
+    popularSelectSetores('equipSetor');
+    popularSelectSetores('ipSetor');
+    popularSelectSetores('invSetor');
+    popularSelectSetoresImpressora('tonerSetor');
     atualizarCargos();
-}
-
-function popularFiltroSetores() {
-    const sel = document.getElementById('filtroSetorEquip');
-    if(sel) sel.innerHTML = '<option value="">Todos os setores</option>'+SETORES.map(s=>`<option>${s}</option>`).join('');
 }
 
 function construirMenuLateral() {
@@ -1253,7 +957,6 @@ function carregarChamados() {
             const todos=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;todos.push(x);});
             const p=verificarPermissoes();
             chamados = p.isAdmin ? todos : todos.filter(c=>(c.departamento||'TI')===departamento);
-            console.log('📦 '+chamados.length+' chamados para '+departamento);
             resolve(chamados);
         }).catch(e=>{console.error(e);reject(e);});
     });
@@ -1309,7 +1012,7 @@ function atualizarDashboard() {
     document.getElementById('statConcluidos').textContent=f.filter(c=>c.status==='Concluído').length;
     document.getElementById('statCriticos').textContent=f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
     Object.values(charts).forEach(c=>{if(c)c.destroy();});charts={};
-    const ds={};f.forEach(c=>{const s=c.setor||'Outros';if(c.tipo==='gesthosp')ds['🏥 Cadastro GestHosp']=(ds['🏥 Cadastro GestHosp']||0)+1;else if(c.tipo==='toner'||c.isToner)ds['🖨️ Troca de Toner']=(ds['🖨️ Troca de Toner']||0)+1;else ds[s]=(ds[s]||0)+1;});
+    const ds={};f.forEach(c=>{const s=c.setor||'Outros';if(c.tipo==='gesthosp')ds['🏥 GestHosp']=(ds['🏥 GestHosp']||0)+1;else if(c.tipo==='toner'||c.isToner)ds['🖨️ Toner']=(ds['🖨️ Toner']||0)+1;else ds[s]=(ds[s]||0)+1;});
     const dp={};f.filter(c=>c.tipo!=='gesthosp'&&c.tipo!=='toner'&&!c.isToner).forEach(c=>{dp[c.prioridade||'Média']=(dp[c.prioridade||'Média']||0)+1;});
     const cores=['#3182CE','#38A169','#805AD5','#DD6B20','#E53E3E','#6366F1','#D69E2E','#EC4899','#14B8A6','#F59E0B'];
     const ctx1=document.getElementById('graficoSetor');if(ctx1&&Object.keys(ds).length>0)charts.s=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(ds),datasets:[{data:Object.values(ds),backgroundColor:cores.slice(0,Object.keys(ds).length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:10,usePointStyle:true,pointStyleWidth:7,font:{size:9},color:'#4A5568'}}}}});
@@ -1346,44 +1049,31 @@ function renderizarTabelaChamados(lista) {
 function avancarStatus(id) {
     const fluxo={'A Fazer':'Em Andamento','Em Andamento':'Pendente','Pendente':'Concluído','Concluído':'A Fazer'};
     const ref=db.collection('chamados').doc(id);
-    ref.get().then(doc=>{
-        if(!doc.exists) return;
-        const dados=doc.data(),ns=fluxo[dados.status||'A Fazer']||'A Fazer',upd={status:ns};
-        if(ns==='Em Andamento'||ns==='Concluído') upd.tecnico=usuarioLogado.nome;
-        const hist=dados.historico||[];hist.push({data:new Date().toISOString(),acao:`Status: ${ns} por ${usuarioLogado.nome}`});upd.historico=hist;
-        return ref.update(upd);
-    }).then(()=>mostrarToast('✅ Status atualizado!','success')).catch(e=>mostrarToast('Erro','error'));
+    ref.get().then(doc=>{if(!doc.exists) return;const dados=doc.data(),ns=fluxo[dados.status||'A Fazer']||'A Fazer',upd={status:ns};if(ns==='Em Andamento'||ns==='Concluído') upd.tecnico=usuarioLogado.nome;const hist=dados.historico||[];hist.push({data:new Date().toISOString(),acao:`Status: ${ns} por ${usuarioLogado.nome}`});upd.historico=hist;return ref.update(upd);}).then(()=>mostrarToast('✅ Status atualizado!','success'));
 }
 
-function excluirChamado(id) {
-    if(!confirm('Excluir chamado?')) return;
-    db.collection('chamados').doc(id).delete().then(()=>mostrarToast('🗑️ Excluído!','success')).catch(e=>mostrarToast('Erro','error'));
-}
+function excluirChamado(id) { if(!confirm('Excluir?')) return;db.collection('chamados').doc(id).delete().then(()=>mostrarToast('🗑️ Excluído!','success')); }
 
 function verDetalhes(fid) {
     const c=chamados.find(x=>x.fid===fid);if(!c) return;
     const hist=(c.historico||[]).map(h=>`<div style="padding:8px 0;border-bottom:1px solid #EDF2F7;font-size:10px;"><strong>${new Date(h.data).toLocaleString('pt-BR')}</strong><br>${h.acao}</div>`).join('');
     const coms=(c.comentarios||[]).map(co=>`<div style="background:#F0FFF4;padding:10px;border-radius:8px;margin-bottom:6px;border-left:3px solid #38A169;"><strong>${co.autor}</strong><small> ${formatarData(co.data)}</small><p>${co.texto}</p></div>`).join('');
-    const wl=c.contato?`<p><strong>📞:</strong> <a href="https://wa.me/55${c.contato.replace(/\D/g,'')}" target="_blank" style="color:#25d366;">${c.contato} <i class="fab fa-whatsapp"></i></a></p>`:'';
-    document.getElementById('detalhesConteudo').innerHTML=`<div style="margin-bottom:12px;"><h3>${c.titulo||'Sem título'}</h3><span class="badge badge-gold">${c.protocolo||''}</span></div><div style="display:grid;gap:8px;font-size:11px;margin-bottom:16px;"><p><strong>👤:</strong> ${c.solicitante||'—'}</p>${wl}<p><strong>📍:</strong> ${c.setor||'—'}</p><p><strong>⚡:</strong> ${c.prioridade||'—'}</p><p><strong>👷:</strong> ${c.executante||'Não definido'}</p><p><strong>📊:</strong> ${c.status||'—'}</p>${c.descricao?`<p><strong>📝:</strong> ${c.descricao}</p>`:''}</div><hr><h4>💬</h4><div style="margin-bottom:16px;">${coms||'<p style="color:var(--text-muted);">Nenhum</p>'}</div><hr><h4>📜 Histórico</h4><div>${hist||'<p style="color:var(--text-muted);">Nenhum</p>'}</div>`;
+    document.getElementById('detalhesConteudo').innerHTML=`<div style="margin-bottom:12px;"><h3>${c.titulo||'Sem título'}</h3><span class="badge badge-gold">${c.protocolo||''}</span></div><div style="display:grid;gap:8px;font-size:11px;margin-bottom:16px;"><p><strong>👤:</strong> ${c.solicitante||'—'}</p>${c.contato?`<p><strong>📞:</strong> <a href="https://wa.me/55${c.contato.replace(/\D/g,'')}" target="_blank" style="color:#25d366;">${c.contato}</a></p>`:''}<p><strong>📍:</strong> ${c.setor||'—'}</p><p><strong>⚡:</strong> ${c.prioridade||'—'}</p><p><strong>👷:</strong> ${c.executante||'Não definido'}</p><p><strong>📊:</strong> ${c.status||'—'}</p></div><hr><h4>💬</h4><div style="margin-bottom:16px;">${coms||'<p style="color:var(--text-muted);">Nenhum</p>'}</div><hr><h4>📜 Histórico</h4><div>${hist||'<p style="color:var(--text-muted);">Nenhum</p>'}</div>`;
     abrirModal('modalDetalhes');
 }
 
-// Comentários
 function abrirComentarios(fid) {
     comentarioChamadoId=fid;const c=chamados.find(x=>x.fid===fid);if(!c) return;
     const coms=(c.comentarios||[]).map(co=>`<div style="background:#F7FAFC;padding:10px;border-radius:8px;margin-bottom:6px;border-left:3px solid var(--primary);"><strong>${co.autor}</strong><small> ${formatarData(co.data)}</small><p>${co.texto}</p></div>`).join('');
-    document.getElementById('comentarioConteudo').innerHTML=`<p style="font-size:11px;margin-bottom:12px;">${c.protocolo||''} — ${c.titulo||''}</p><div style="max-height:250px;overflow-y:auto;margin-bottom:12px;">${coms||'<p>Nenhum</p>'}</div><div style="display:flex;gap:8px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:11px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()"><i class="fas fa-paper-plane"></i></button></div>`;
+    document.getElementById('comentarioConteudo').innerHTML=`<p style="font-size:11px;">${c.protocolo||''} — ${c.titulo||''}</p><div style="max-height:250px;overflow-y:auto;margin-bottom:12px;">${coms||'<p>Nenhum</p>'}</div><div style="display:flex;gap:8px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:11px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()"><i class="fas fa-paper-plane"></i></button></div>`;
     abrirModal('modalComentario');
 }
 
 function salvarComentario() {
     const t=document.getElementById('textoComentario').value.trim();if(!t) return;
-    const ref=db.collection('chamados').doc(comentarioChamadoId);
-    ref.get().then(doc=>{if(!doc.exists) return;const coms=doc.data().comentarios||[];coms.push({autor:usuarioLogado.nome,data:new Date().toISOString(),texto:t});return ref.update({comentarios:coms});}).then(()=>{fecharModal('modalComentario');mostrarToast('✅ Adicionado!','success');});
+    db.collection('chamados').doc(comentarioChamadoId).get().then(doc=>{if(!doc.exists) return;const coms=doc.data().comentarios||[];coms.push({autor:usuarioLogado.nome,data:new Date().toISOString(),texto:t});return doc.ref.update({comentarios:coms});}).then(()=>{fecharModal('modalComentario');mostrarToast('✅ Adicionado!','success');});
 }
 
-// Executante
 function abrirModalExecutante(fid) {
     executanteChamadoId=fid;const sel=document.getElementById('executanteSelect');sel.innerHTML='<option value="">Selecione...</option>';
     db.collection('usuarios').where('departamento','==','MANUTENCAO').where('status','==','ativo').get().then(snap=>{snap.forEach(d=>{const u=d.data();sel.innerHTML+=`<option value="${u.nome}">👤 ${u.nome} - ${u.cargo}</option>`;});return db.collection('colaboradores').where('departamento','==','MANUTENCAO').get();}).then(snap=>{if(snap) snap.forEach(d=>{const c=d.data();sel.innerHTML+=`<option value="${c.nome}">👷 ${c.nome} - ${c.cargo}</option>`;});abrirModal('modalExecutante');});
@@ -1404,7 +1094,7 @@ function carregarGestHosp() {
 
 function verDetalhesGestHosp(fid) {
     const c=chamados.find(x=>x.fid===fid);if(!c) return;let d={};try{if(c.descricao)d=JSON.parse(c.descricao);}catch(e){}
-    document.getElementById('detalhesConteudo').innerHTML=`<div class="ficha-cadastral"><div class="ficha-header"><h2>🏥 Ficha Cadastral</h2><span class="badge badge-gold">${c.protocolo||''}</span><p style="font-size:10px;">Cadastro: ${formatarData(c.data_abertura)}</p></div><div class="ficha-grid"><div class="ficha-field"><label>👤 Nome</label><span>${d.nome||'—'}</span></div><div class="ficha-field"><label>📋 CPF</label><span>${d.cpf||'—'}</span></div><div class="ficha-field"><label>📧 Email</label><span>${d.email||'—'}</span></div><div class="ficha-field"><label>📞 Telefone</label><span>${d.telefone||'—'}</span></div><div class="ficha-field"><label>🏥 Registro</label><span>${d.registro||'—'}</span></div><div class="ficha-field"><label>🎂 Nascimento</label><span>${d.dataNascimento||'—'}</span></div><div class="ficha-field"><label>🏠 Endereço</label><span>${d.endereco||'—'}</span></div><div class="ficha-field"><label>📊 Status</label><span>${c.status||'—'}</span></div>${d.observacao?`<div class="ficha-field" style="grid-column:1/-1;"><label>📝 Obs</label><span>${d.observacao}</span></div>`:''}</div></div>`;
+    document.getElementById('detalhesConteudo').innerHTML=`<div class="ficha-cadastral"><div class="ficha-header"><h2>🏥 Ficha Cadastral</h2><span class="badge badge-gold">${c.protocolo||''}</span></div><div class="ficha-grid"><div class="ficha-field"><label>👤 Nome</label><span>${d.nome||'—'}</span></div><div class="ficha-field"><label>📋 CPF</label><span>${d.cpf||'—'}</span></div><div class="ficha-field"><label>📧 Email</label><span>${d.email||'—'}</span></div><div class="ficha-field"><label>📞 Telefone</label><span>${d.telefone||'—'}</span></div><div class="ficha-field"><label>🏥 Registro</label><span>${d.registro||'—'}</span></div><div class="ficha-field"><label>📊 Status</label><span>${c.status||'—'}</span></div></div></div>`;
     abrirModal('modalDetalhes');
 }
 
@@ -1413,7 +1103,7 @@ function verDetalhesGestHosp(fid) {
 // ============================================
 function carregarToners() {
     const ct=chamados.filter(c=>c.tipo==='toner'||c.isToner);
-    const td={};SETORES_TONER.forEach(s=>{td[s]={ultimaTroca:null,historico:[],diasDesdeTroca:0,status:'normal'};});
+    const td={};SETORES_COM_IMPRESSORA.forEach(s=>{td[s]={ultimaTroca:null,historico:[],diasDesdeTroca:0,status:'normal'};});
     ct.forEach(t=>{const s=t.setor;if(s&&td[s]){const dt=converterParaData(t.data_troca_toner||t.data_abertura);td[s].historico.push({data:dt,tecnico:t.solicitante||'TI',tipo:t.tipo_troca||'preventiva',obs:t.observacao||''});}});
     Object.keys(td).forEach(s=>{td[s].historico.sort((a,b)=>b.data-a.data);if(td[s].historico.length>0){td[s].ultimaTroca=td[s].historico[0];td[s].diasDesdeTroca=Math.floor((new Date()-td[s].ultimaTroca.data)/86400000);if(td[s].diasDesdeTroca>90)td[s].status='critico';else if(td[s].diasDesdeTroca>60)td[s].status='atencao';}});
     document.getElementById('tabelaToners').innerHTML=Object.entries(td).map(([s,d])=>{if(!d.ultimaTroca)return`<tr style="opacity:0.5;"><td><strong>${s}</strong></td><td colspan="7" style="text-align:center;">Nenhuma troca</td></tr>`;const si=d.status==='critico'?'🔴':d.status==='atencao'?'🟡':'🟢';const st=d.status==='critico'?'Crítico':d.status==='atencao'?'Atenção':'Normal';const cd=d.diasDesdeTroca>90?'color:#E53E3E;':d.diasDesdeTroca>60?'color:#DD6B20;':'color:#38A169;';const pp=new Date(d.ultimaTroca.data);pp.setDate(pp.getDate()+90);const dpp=Math.floor((pp-new Date())/86400000);return`<tr style="${d.status==='critico'?'background:#FFF5F5;':''}"><td><strong>${s}</strong></td><td>${formatarData(d.ultimaTroca.data)}</td><td>${dpp>0?formatarData(pp):'<span style="color:#E53E3E;">Vencida</span>'}</td><td>${d.ultimaTroca.tecnico}</td><td>${d.ultimaTroca.tipo==='preventiva'?'🟢 Prev':'🔴 Nec'}</td><td style="${cd}font-weight:600;">${d.diasDesdeTroca}d</td><td>${si} ${st}</td><td><button class="btn btn-sm btn-outline" onclick="verHistoricoToner('${s}')">📜 ${d.historico.length}</button></td></tr>`;}).join('');
@@ -1425,7 +1115,7 @@ function verHistoricoToner(setor) {
     abrirModal('modalHistoricoToner');
 }
 
-function abrirModalToner() { abrirModal('modalToner'); }
+function abrirModalToner() { popularSelectSetoresImpressora('tonerSetor');abrirModal('modalToner'); }
 
 function registrarTrocaToner(e) {
     e.preventDefault();const s=document.getElementById('tonerSetor').value,t=document.getElementById('tonerTipo').value,o=document.getElementById('tonerObs').value;
@@ -1434,7 +1124,7 @@ function registrarTrocaToner(e) {
 }
 
 // ============================================
-// EQUIPAMENTOS (COM EDIÇÃO/EXCLUSÃO/COMENTÁRIOS)
+// EQUIPAMENTOS
 // ============================================
 function carregarEquipamentos() {
     db.collection('equipamentos').get().then(snap=>{equipamentos=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;equipamentos.push(x);});filtrarEquipamentos();}).catch(e=>mostrarToast('Erro','error'));
@@ -1453,42 +1143,20 @@ function renderizarEquipamentos(lista) {
     const c=document.getElementById('listaEquipamentos');
     if(lista.length===0){c.innerHTML='<div style="text-align:center;padding:40px;grid-column:1/-1;">📦 Nenhum equipamento</div>';return;}
     const stConf={'Em uso':{icon:'🟢',color:'#38A169',bg:'#F0FFF4'},'Com defeito':{icon:'🔴',color:'#E53E3E',bg:'#FFF5F5'},'Em estoque':{icon:'🟡',color:'#DD6B20',bg:'#FFFBEB'}};
-    c.innerHTML=lista.map(eq=>{const st=stConf[eq.status]||stConf['Em uso'],emoji=eq.emoji||'📦';return`<div class="equip-card" onclick="verDetalhesEquip('${eq.fid}')"><div class="equip-actions"><button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editarEquipamento('${eq.fid}')" title="Editar">✏️</button><button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirEquipamento('${eq.fid}')" title="Excluir"><i class="fas fa-trash"></i></button></div>${eq.comentario?`<div class="comentario-badge" title="${eq.comentario}">💬</div>`:''}<div style="font-size:40px;margin-bottom:8px;">${emoji}</div><h4 style="font-size:13px;">${eq.nome}</h4><p style="font-size:10px;color:var(--text-muted);">${eq.tipo||'Equipamento'}</p><span style="padding:3px 10px;border-radius:16px;font-size:9px;background:${st.bg};color:${st.color};">${st.icon} ${eq.status}</span><div style="margin-top:4px;font-size:9px;">📍 ${eq.setor||'—'}</div>${eq.observacao?`<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">📝 ${eq.observacao.substring(0,40)}</div>`:''}</div>`;}).join('');
+    c.innerHTML=lista.map(eq=>{const st=stConf[eq.status]||stConf['Em uso'],emoji=eq.emoji||'📦';return`<div class="equip-card" onclick="verDetalhesEquip('${eq.fid}')"><div class="equip-actions"><button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editarEquipamento('${eq.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirEquipamento('${eq.fid}')">🗑️</button></div>${eq.comentario?`<div class="comentario-badge" title="${eq.comentario}">💬</div>`:''}<div style="font-size:40px;margin-bottom:8px;">${emoji}</div><h4 style="font-size:13px;">${eq.nome}</h4><p style="font-size:10px;color:var(--text-muted);">${eq.tipo||'Equipamento'}</p><span style="padding:3px 10px;border-radius:16px;font-size:9px;background:${st.bg};color:${st.color};">${st.icon} ${eq.status}</span><div style="margin-top:4px;font-size:9px;">📍 ${eq.setor||'—'}</div></div>`;}).join('');
 }
 
 function abrirModalEquipamento(eqId=null) {
     equipEditando=eqId;
-    document.getElementById('equipId').value='';
-    document.getElementById('equipTipo').value='';
-    document.getElementById('equipEmoji').value='';
-    document.getElementById('equipNome').value='';
-    document.getElementById('equipStatus').value='Em uso';
-    document.getElementById('equipSetor').value='';
-    document.getElementById('equipObs').value='';
-    document.getElementById('equipComentario').value='';
-    document.getElementById('tituloModalEquip').textContent='🖥️ Novo Equipamento';
-    
-    if(eqId) {
-        const eq=equipamentos.find(e=>e.fid===eqId);
-        if(eq) {
-            document.getElementById('equipId').value=eq.fid;
-            document.getElementById('equipTipo').value=eq.tipo||'';
-            document.getElementById('equipEmoji').value=eq.emoji||'';
-            document.getElementById('equipNome').value=eq.nome||'';
-            document.getElementById('equipStatus').value=eq.status||'Em uso';
-            document.getElementById('equipSetor').value=eq.setor||'';
-            document.getElementById('equipObs').value=eq.observacao||'';
-            document.getElementById('equipComentario').value=eq.comentario||'';
-            document.getElementById('tituloModalEquip').textContent='✏️ Editar Equipamento';
-        }
-    }
+    document.getElementById('equipId').value='';document.getElementById('equipTipo').value='';document.getElementById('equipEmoji').value='';
+    document.getElementById('equipNome').value='';document.getElementById('equipStatus').value='Em uso';document.getElementById('equipSetor').value='';
+    document.getElementById('equipObs').value='';document.getElementById('equipComentario').value='';document.getElementById('tituloModalEquip').textContent='🖥️ Novo Equipamento';
+    popularSelectSetores('equipSetor');
+    if(eqId){const eq=equipamentos.find(e=>e.fid===eqId);if(eq){document.getElementById('equipId').value=eq.fid;document.getElementById('equipTipo').value=eq.tipo||'';document.getElementById('equipEmoji').value=eq.emoji||'';document.getElementById('equipNome').value=eq.nome||'';document.getElementById('equipStatus').value=eq.status||'Em uso';document.getElementById('equipSetor').value=eq.setor||'';document.getElementById('equipObs').value=eq.observacao||'';document.getElementById('equipComentario').value=eq.comentario||'';document.getElementById('tituloModalEquip').textContent='✏️ Editar Equipamento';}}
     abrirModal('modalEquipamento');
 }
 
-function atualizarEmojiEquip() {
-    const sel=document.getElementById('equipTipo');
-    if(sel.value) document.getElementById('equipEmoji').value=sel.value;
-}
+function atualizarEmojiEquip() { const sel=document.getElementById('equipTipo');if(sel.value) document.getElementById('equipEmoji').value=sel.value; }
 
 function salvarEquipamento(e) {
     e.preventDefault();
@@ -1500,19 +1168,16 @@ function salvarEquipamento(e) {
 
 function editarEquipamento(fid) { abrirModalEquipamento(fid); }
 
-function excluirEquipamento(fid) {
-    if(!confirm('Excluir equipamento?')) return;
-    db.collection('equipamentos').doc(fid).delete().then(()=>{carregarEquipamentos();mostrarToast('🗑️ Excluído!','success');}).catch(e=>mostrarToast('Erro','error'));
-}
+function excluirEquipamento(fid) { if(!confirm('Excluir?')) return;db.collection('equipamentos').doc(fid).delete().then(()=>{carregarEquipamentos();mostrarToast('🗑️ Excluído!','success');}); }
 
 function verDetalhesEquip(fid) {
     const eq=equipamentos.find(e=>e.fid===fid);if(!eq) return;
-    document.getElementById('detalhesEquipConteudo').innerHTML=`<div style="text-align:center;font-size:64px;margin-bottom:16px;">${eq.emoji||'📦'}</div><h3 style="text-align:center;">${eq.nome}</h3><p style="text-align:center;color:var(--text-muted);">${eq.tipo||'Equipamento'}</p><div style="display:grid;gap:8px;margin-top:16px;"><p><strong>📍 Setor:</strong> ${eq.setor||'—'}</p><p><strong>📊 Status:</strong> ${eq.status||'—'}</p><p><strong>📝 Observação:</strong> ${eq.observacao||'Nenhuma'}</p><p><strong>💬 Comentário Técnico:</strong> ${eq.comentario||'Nenhum'}</p><p><strong>📅 Cadastro:</strong> ${formatarData(eq.data_cadastro)}</p><p><strong>🔄 Atualizado:</strong> ${formatarData(eq.data_atualizacao)}</p></div><div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-primary" onclick="fecharModal('modalDetalhesEquip');editarEquipamento('${eq.fid}')">✏️ Editar</button><button class="btn btn-danger" onclick="fecharModal('modalDetalhesEquip');excluirEquipamento('${eq.fid}')">🗑️ Excluir</button></div>`;
+    document.getElementById('detalhesEquipConteudo').innerHTML=`<div style="text-align:center;font-size:64px;">${eq.emoji||'📦'}</div><h3 style="text-align:center;">${eq.nome}</h3><p style="text-align:center;">${eq.tipo||''}</p><div style="display:grid;gap:8px;margin-top:16px;"><p><strong>📍 Setor:</strong> ${eq.setor||'—'}</p><p><strong>📊 Status:</strong> ${eq.status||'—'}</p><p><strong>📝 Obs:</strong> ${eq.observacao||'Nenhuma'}</p><p><strong>💬 Comentário:</strong> ${eq.comentario||'Nenhum'}</p></div><div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-primary" onclick="fecharModal('modalDetalhesEquip');editarEquipamento('${eq.fid}')">✏️</button><button class="btn btn-danger" onclick="fecharModal('modalDetalhesEquip');excluirEquipamento('${eq.fid}')">🗑️</button></div>`;
     abrirModal('modalDetalhesEquip');
 }
 
 // ============================================
-// INVENTÁRIO POR SETOR
+// INVENTÁRIO (SEM MONITORES - COMPUTADOR COMPLETO)
 // ============================================
 function carregarInventario() {
     db.collection('inventario').get().then(snap=>{inventario=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});renderizarInventario();}).catch(e=>mostrarToast('Erro','error'));
@@ -1521,46 +1186,66 @@ function carregarInventario() {
 function renderizarInventario() {
     const tb=document.getElementById('tabelaInventario');
     if(inventario.length===0){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;">Nenhum registro</td></tr>';return;}
-    tb.innerHTML=inventario.map(inv=>{const total=(inv.computadores||0)+(inv.impressoras||0)+(inv.monitores||0)+(inv.outros||0);return`<tr><td><strong>${inv.setor}</strong></td><td>💻 ${inv.computadores||0}</td><td>🖨️ ${inv.impressoras||0}</td><td>🖥️ ${inv.monitores||0}</td><td>📱 ${inv.outros||0}</td><td><strong>${total}</strong></td><td><button class="btn btn-sm btn-outline" onclick="editarInventario('${inv.fid}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirInventario('${inv.fid}')">🗑️</button></td></tr>`;}).join('');
+    tb.innerHTML=inventario.map(inv=>{
+        const total=(inv.computadores||0)+(inv.impressoras||0)+(inv.outros||0);
+        return`<tr>
+            <td><strong>${inv.setor}</strong></td>
+            <td style="text-align:center;"><strong>💻 ${inv.computadores||0}</strong></td>
+            <td style="text-align:center;">🖨️ ${inv.impressoras||0}</td>
+            <td style="text-align:center;">📱 ${inv.outros||0}</td>
+            <td style="text-align:center;"><strong>${total}</strong></td>
+            <td style="font-size:9px;">${inv.observacao||'—'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="editarInventario('${inv.fid}')">✏️</button>
+                <button class="btn btn-sm btn-danger" onclick="excluirInventario('${inv.fid}')">🗑️</button>
+            </td>
+        </tr>`;
+    }).join('');
 }
 
 function abrirModalInventario(invId=null) {
-    document.getElementById('invId').value='';document.getElementById('invSetor').value='';document.getElementById('invComputadores').value='0';document.getElementById('invImpressoras').value='0';document.getElementById('invMonitores').value='0';document.getElementById('invOutros').value='0';document.getElementById('invObs').value='';
-    if(invId){const inv=inventario.find(i=>i.fid===invId);if(inv){document.getElementById('invId').value=inv.fid;document.getElementById('invSetor').value=inv.setor;document.getElementById('invComputadores').value=inv.computadores||0;document.getElementById('invImpressoras').value=inv.impressoras||0;document.getElementById('invMonitores').value=inv.monitores||0;document.getElementById('invOutros').value=inv.outros||0;document.getElementById('invObs').value=inv.observacao||'';}}
+    document.getElementById('invId').value='';document.getElementById('invSetor').value='';document.getElementById('invComputadores').value='0';
+    document.getElementById('invImpressoras').value='0';document.getElementById('invOutros').value='0';document.getElementById('invObs').value='';
+    popularSelectSetores('invSetor');
+    if(invId){const inv=inventario.find(i=>i.fid===invId);if(inv){document.getElementById('invId').value=inv.fid;document.getElementById('invSetor').value=inv.setor;document.getElementById('invComputadores').value=inv.computadores||0;document.getElementById('invImpressoras').value=inv.impressoras||0;document.getElementById('invOutros').value=inv.outros||0;document.getElementById('invObs').value=inv.observacao||'';}}
     abrirModal('modalInventario');
 }
 
 function salvarInventario(e) {
     e.preventDefault();
-    const dados={setor:document.getElementById('invSetor').value,computadores:parseInt(document.getElementById('invComputadores').value)||0,impressoras:parseInt(document.getElementById('invImpressoras').value)||0,monitores:parseInt(document.getElementById('invMonitores').value)||0,outros:parseInt(document.getElementById('invOutros').value)||0,observacao:document.getElementById('invObs').value};
+    const dados={
+        setor:document.getElementById('invSetor').value,
+        computadores:parseInt(document.getElementById('invComputadores').value)||0,
+        impressoras:parseInt(document.getElementById('invImpressoras').value)||0,
+        outros:parseInt(document.getElementById('invOutros').value)||0,
+        observacao:document.getElementById('invObs').value
+    };
     const invId=document.getElementById('invId').value;
     const promise=invId?db.collection('inventario').doc(invId).update(dados):db.collection('inventario').add(dados);
     promise.then(()=>{fecharModal('modalInventario');carregarInventario();mostrarToast('✅ Salvo!','success');}).catch(e=>mostrarToast('Erro','error'));
 }
 
 function editarInventario(fid) { abrirModalInventario(fid); }
-
-function excluirInventario(fid) {
-    if(!confirm('Excluir?')) return;
-    db.collection('inventario').doc(fid).delete().then(()=>{carregarInventario();mostrarToast('🗑️ Excluído!','success');});
-}
+function excluirInventario(fid) { if(!confirm('Excluir?')) return;db.collection('inventario').doc(fid).delete().then(()=>{carregarInventario();mostrarToast('🗑️ Excluído!','success');}); }
 
 // ============================================
-// IPs & REDE (COM CRUD)
+// IPs
 // ============================================
 function carregarIPs() {
-    db.collection('ips_rede').get().then(snap=>{const ips=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;ips.push(x);});renderizarIPs(ips);}).catch(e=>mostrarToast('Erro','error'));
+    db.collection('ips_rede').get().then(snap=>{const ips=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;ips.push(x);});renderizarIPs(ips);});
 }
 
 function renderizarIPs(ips) {
     const tb=document.getElementById('tabelaIPs'),tipoEmoji={'Computador':'💻','Servidor':'🖥️','Impressora':'🖨️','Switch':'🖧','Roteador':'📡','Telefone':'📞','Câmera':'📷','TV':'📺'};
     if(ips.length===0){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;">Nenhum IP</td></tr>';return;}
-    tb.innerHTML=ips.map(ip=>{const em=tipoEmoji[ip.tipo]||'🔌';return`<tr><td><strong>${em} ${ip.dispositivo||'—'}</strong></td><td>${ip.tipo||'—'}</td><td><code style="background:#F7FAFC;padding:2px 8px;border-radius:4px;">${ip.ip||'—'}</code></td><td>${ip.mac||'—'}</td><td>${ip.localizacao||'—'}</td><td>${ip.setor||'—'}</td><td><button class="btn btn-sm btn-outline" onclick="editarIP('${ip.fid}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirIP('${ip.fid}')">🗑️</button></td></tr>`;}).join('');
+    tb.innerHTML=ips.map(ip=>{const em=tipoEmoji[ip.tipo]||'🔌';return`<tr><td><strong>${em} ${ip.dispositivo||'—'}</strong></td><td>${ip.tipo||'—'}</td><td><code>${ip.ip||'—'}</code></td><td>${ip.mac||'—'}</td><td>${ip.localizacao||'—'}</td><td>${ip.setor||'—'}</td><td><button class="btn btn-sm btn-outline" onclick="editarIP('${ip.fid}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirIP('${ip.fid}')">🗑️</button></td></tr>`;}).join('');
 }
 
 function abrirModalIP(ipId=null) {
-    document.getElementById('ipId').value='';document.getElementById('ipDispositivo').value='';document.getElementById('ipTipo').value='';document.getElementById('ipEndereco').value='';document.getElementById('ipMAC').value='';document.getElementById('ipLocal').value='';document.getElementById('ipSetor').value='';document.getElementById('ipObs').value='';
-    document.getElementById('tituloModalIP').textContent='🌐 Novo IP';
+    document.getElementById('ipId').value='';document.getElementById('ipDispositivo').value='';document.getElementById('ipTipo').value='';
+    document.getElementById('ipEndereco').value='';document.getElementById('ipMAC').value='';document.getElementById('ipLocal').value='';
+    document.getElementById('ipSetor').value='';document.getElementById('ipObs').value='';document.getElementById('tituloModalIP').textContent='🌐 Novo IP';
+    popularSelectSetores('ipSetor');
     if(ipId){db.collection('ips_rede').doc(ipId).get().then(doc=>{if(doc.exists){const ip=doc.data();document.getElementById('ipId').value=ipId;document.getElementById('ipDispositivo').value=ip.dispositivo||'';document.getElementById('ipTipo').value=ip.tipo||'';document.getElementById('ipEndereco').value=ip.ip||'';document.getElementById('ipMAC').value=ip.mac||'';document.getElementById('ipLocal').value=ip.localizacao||'';document.getElementById('ipSetor').value=ip.setor||'';document.getElementById('ipObs').value=ip.observacao||'';document.getElementById('tituloModalIP').textContent='✏️ Editar IP';}});}
     abrirModal('modalIP');
 }
@@ -1569,29 +1254,21 @@ function salvarIP(e) {
     e.preventDefault();
     const dados={dispositivo:document.getElementById('ipDispositivo').value,tipo:document.getElementById('ipTipo').value,ip:document.getElementById('ipEndereco').value,mac:document.getElementById('ipMAC').value,localizacao:document.getElementById('ipLocal').value,setor:document.getElementById('ipSetor').value,observacao:document.getElementById('ipObs').value};
     const ipId=document.getElementById('ipId').value;
-    const promise=ipId?db.collection('ips_rede').doc(ipId).update(dados):db.collection('ips_rede').add(dados);
-    promise.then(()=>{fecharModal('modalIP');carregarIPs();mostrarToast('✅ Salvo!','success');}).catch(e=>mostrarToast('Erro','error'));
+    (ipId?db.collection('ips_rede').doc(ipId).update(dados):db.collection('ips_rede').add(dados)).then(()=>{fecharModal('modalIP');carregarIPs();mostrarToast('✅ Salvo!','success');});
 }
 
 function editarIP(fid) { abrirModalIP(fid); }
-
-function excluirIP(fid) {
-    if(!confirm('Excluir IP?')) return;
-    db.collection('ips_rede').doc(fid).delete().then(()=>{carregarIPs();mostrarToast('🗑️ Excluído!','success');});
-}
+function excluirIP(fid) { if(!confirm('Excluir?')) return;db.collection('ips_rede').doc(fid).delete().then(()=>{carregarIPs();mostrarToast('🗑️ Excluído!','success');}); }
 
 // ============================================
 // EQUIPE
 // ============================================
 function carregarEquipe() {
     const p=verificarPermissoes();if(!p.podeGerenciarEquipe){document.getElementById('tabelaEquipe').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;">🔒 Restrito</td></tr>';return;}
-    db.collection('usuarios').get().then(snap=>{let h='';snap.forEach(d=>{const u=d.data();let acoes='';if(p.podeGerenciarEquipe&&u.usuario!==usuarioLogado.usuario)acoes=`<button class="btn btn-sm btn-outline" onclick="editarTecnico('${d.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="removerTecnico('${d.id}')"><i class="fas fa-trash"></i></button>`;else if(u.usuario===usuarioLogado.usuario)acoes='<span class="badge badge-gold">Você</span>';h+=`<tr><td><strong>${u.nome||''}</strong></td><td>@${u.usuario||''}</td><td>${u.cargo||''}</td><td>${u.whatsapp||'—'}</td><td>${u.departamento==='MANUTENCAO'?'🔧 Manutenção':'🖥️ TI'}</td><td><span class="badge ${u.status==='ativo'?'badge-green':'badge-amber'}">${u.status||''}</span></td><td>${acoes}</td></tr>`;});document.getElementById('tabelaEquipe').innerHTML=h;});
+    db.collection('usuarios').get().then(snap=>{let h='';snap.forEach(d=>{const u=d.data();let acoes='';if(p.podeGerenciarEquipe&&u.usuario!==usuarioLogado.usuario)acoes=`<button class="btn btn-sm btn-outline" onclick="editarTecnico('${d.id}')">✏️</button> <button class="btn btn-sm btn-danger" onclick="removerTecnico('${d.id}')">🗑️</button>`;else if(u.usuario===usuarioLogado.usuario)acoes='<span class="badge badge-gold">Você</span>';h+=`<tr><td><strong>${u.nome||''}</strong></td><td>@${u.usuario||''}</td><td>${u.cargo||''}</td><td>${u.whatsapp||'—'}</td><td>${u.departamento==='MANUTENCAO'?'🔧 Manutenção':'🖥️ TI'}</td><td><span class="badge ${u.status==='ativo'?'badge-green':'badge-amber'}">${u.status||''}</span></td><td>${acoes}</td></tr>`;});document.getElementById('tabelaEquipe').innerHTML=h;});
 }
 
-function abrirModalTecnico() {
-    if(!verificarPermissoes().podeGerenciarEquipe) return mostrarToast('⛔ Restrito','error');
-    document.getElementById('formTecnico').reset();document.getElementById('tecnicoUsuario').disabled=false;atualizarCargos();abrirModal('modalTecnico');
-}
+function abrirModalTecnico() { if(!verificarPermissoes().podeGerenciarEquipe) return mostrarToast('⛔ Restrito','error');document.getElementById('formTecnico').reset();document.getElementById('tecnicoUsuario').disabled=false;atualizarCargos();abrirModal('modalTecnico'); }
 
 function salvarTecnico(e) {
     e.preventDefault();const p=verificarPermissoes();if(!p.podeGerenciarEquipe) return;
@@ -1600,11 +1277,7 @@ function salvarTecnico(e) {
     db.collection('usuarios').where('usuario','==',u).get().then(snap=>{if(!snap.empty) return mostrarToast('Usuário existe','error');return db.collection('usuarios').add({nome:document.getElementById('tecnicoNome').value,usuario:u,senha:'12345',cargo,tipo:'tecnico',whatsapp:w,status:'ativo',primeiro_acesso:true,departamento:dep});}).then(()=>{fecharModal('modalTecnico');carregarEquipe();mostrarToast('✅ Cadastrado!','success');});
 }
 
-function atualizarCargos() {
-    const dep=document.getElementById('tecnicoDepartamento')?.value||'TI',sel=document.getElementById('tecnicoCargo');
-    if(sel) sel.innerHTML=(cargosPorDepartamento[dep]||cargosPorDepartamento['TI']).map(c=>`<option>${c}</option>`).join('');
-}
-
+function atualizarCargos() { const dep=document.getElementById('tecnicoDepartamento')?.value||'TI',sel=document.getElementById('tecnicoCargo');if(sel) sel.innerHTML=(cargosPorDepartamento[dep]||cargosPorDepartamento['TI']).map(c=>`<option>${c}</option>`).join(''); }
 function removerTecnico(id) { if(!confirm('Remover?')) return;db.collection('usuarios').doc(id).delete().then(()=>{carregarEquipe();mostrarToast('🗑️ Removido!','success');}); }
 function editarTecnico(id) { mostrarToast('Em desenvolvimento','info'); }
 
@@ -1632,38 +1305,30 @@ function atualizarIndicadores() {
 }
 
 // ============================================
-// CONFIG
+// CONFIG / RELATÓRIOS
 // ============================================
 function alterarSenha(e) {
     e.preventDefault();const sa=document.getElementById('senhaAtual').value,sn=document.getElementById('senhaNova').value;
-    db.collection('usuarios').where('usuario','==',usuarioLogado.usuario).get().then(snap=>{if(snap.empty) return mostrarToast('Usuário não encontrado','error');const d=snap.docs[0];if(d.data().senha!==sa) return mostrarToast('Senha incorreta','error');return d.ref.update({senha:sn,primeiro_acesso:false});}).then(()=>{mostrarToast('✅ Alterada!','success');e.target.reset();});
+    db.collection('usuarios').where('usuario','==',usuarioLogado.usuario).get().then(snap=>{if(snap.empty) return;const d=snap.docs[0];if(d.data().senha!==sa) return mostrarToast('Senha incorreta','error');return d.ref.update({senha:sn,primeiro_acesso:false});}).then(()=>{mostrarToast('✅ Alterada!','success');e.target.reset();});
 }
 
-// ============================================
-// RELATÓRIOS
-// ============================================
 function gerarRelatorioPDF() {
     const el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML=`<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><h2>Relatório - ${nomeDepartamento}</h2><p>${new Date().toLocaleString('pt-BR')}</p></div>`;
+    el.innerHTML=`<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><h2>${nomeDepartamento}</h2><p>${new Date().toLocaleString('pt-BR')}</p></div>`;
     const a=chamados.filter(c=>c.status!=='Concluído').length,co=chamados.filter(c=>c.status==='Concluído').length,tx=chamados.length>0?Math.round(co/chamados.length*100):0;
-    el.innerHTML+=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;font-weight:700;">${chamados.length}</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;font-weight:700;color:#E53E3E;">${a}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;font-weight:700;color:#38A169;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;font-weight:700;color:#DD6B20;">${tx}%</p></div></div>`;
-    el.innerHTML+=`<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr style="background:#1a3a5c;color:#fff;"><th>Protocolo</th><th>Data</th><th>Título</th><th>Setor</th><th>Status</th></tr></thead><tbody>${chamados.slice(0,50).map((c,i)=>`<tr style="background:${i%2===0?'#fff':'#F7FAFC'};"><td><strong>${c.protocolo||'—'}</strong></td><td>${formatarData(c.data_abertura)}</td><td>${c.titulo||'—'}</td><td>${c.setor||'—'}</td><td>${c.status||'—'}</td></tr>`).join('')}</tbody></table><div style="text-align:center;margin-top:24px;padding-top:14px;border-top:2px solid #E2E8F0;">HelpHosp © ${new Date().getFullYear()}</div>`;
+    el.innerHTML+=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${chamados.length}</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;color:#E53E3E;">${a}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;color:#38A169;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;color:#DD6B20;">${tx}%</p></div></div>`;
     document.body.appendChild(el);
-    html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(canvas=>{document.body.removeChild(el);const pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(canvas.toDataURL('image/png'),'PNG',5,5,200,(canvas.height*200)/canvas.width);pdf.save('relatorio-'+new Date().toISOString().slice(0,10)+'.pdf');mostrarToast('📄 PDF gerado!','success');});
+    html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(canvas=>{document.body.removeChild(el);const pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(canvas.toDataURL('image/png'),'PNG',5,5,200,(canvas.height*200)/canvas.width);pdf.save('relatorio.pdf');mostrarToast('📄 PDF gerado!','success');});
 }
 
 function imprimirIndicadores() {
     const el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML='<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><h2>Indicadores - '+nomeDepartamento+'</h2></div>';
+    el.innerHTML='<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><h2>Indicadores</h2></div>';
     el.appendChild(document.getElementById('indicadorGrid').cloneNode(true));
-    el.innerHTML+='<div style="text-align:center;margin-top:24px;">HelpHosp © '+new Date().getFullYear()+'</div>';
     document.body.appendChild(el);
-    html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(canvas=>{document.body.removeChild(el);const pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(canvas.toDataURL('image/png'),'PNG',5,5,200,(canvas.height*200)/canvas.width);pdf.save('indicadores-'+new Date().toISOString().slice(0,10)+'.pdf');mostrarToast('📄 Impresso!','success');});
+    html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(canvas=>{document.body.removeChild(el);const pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(canvas.toDataURL('image/png'),'PNG',5,5,200,(canvas.height*200)/canvas.width);pdf.save('indicadores.pdf');mostrarToast('📄 Impresso!','success');});
 }
 
-// ============================================
-// LOGOUT
-// ============================================
 function logout() { localStorage.removeItem('usuario_logado');window.location.href='admin.html'; }
 
 // ============================================
@@ -1677,13 +1342,11 @@ function inicializarSistema() {
     configurarListenerChamados();
     carregarEquipamentos();carregarInventario();carregarIPs();carregarEquipe();carregarToners();atualizarPeriodosIndicadores();
     if(Notification.permission==='default') Notification.requestPermission();
-    console.log('✅ HelpHosp inicializado!');
 }
 
 window.addEventListener('load',inicializarSistema);
 window.addEventListener('click',(e)=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('ativa');});
 window.addEventListener('keydown',(e)=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.ativa').forEach(m=>m.classList.remove('ativa'));});
-atualizarCargos();
 </script>
 
 </body>

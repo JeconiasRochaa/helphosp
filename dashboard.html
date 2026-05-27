@@ -275,24 +275,86 @@ function popularMeses(){
 }
 
 function atualizarIndicadores(){
-    var tipo=document.getElementById('indTipo').value,m1=document.getElementById('indMes1').value,m2=document.getElementById('indMes2').value;if(!m1||!m2)return;
-    var reais=chamados.filter(function(c){return c.tipo!=='gesthosp'&&c.tipo!=='toner'&&!c.isToner;});
-    console.log('📊 Indicadores analisando',reais.length,'chamados reais');
-    var f1=reais.filter(function(c){var d=c.data_abertura;if(!d)return false;var dt=typeof d.toDate==='function'?d.toDate():new Date(d);return(tipo==='mensal'?dt.toISOString().slice(0,7):dt.toISOString().slice(0,10))===m1;});
-    var f2=reais.filter(function(c){var d=c.data_abertura;if(!d)return false;var dt=typeof d.toDate==='function'?d.toDate():new Date(d);return(tipo==='mensal'?dt.toISOString().slice(0,7):dt.toISOString().slice(0,10))===m2;});
-    var t1=f1.length,t2=f2.length,c1=f1.filter(function(c){return c.status==='Concluído';}).length,c2=f2.filter(function(c){return c.status==='Concluído';}).length;
-    var taxa1=t1>0?Math.round(c1/t1*100):0,taxa2=t2>0?Math.round(c2/t2*100):0;
-    var crit1=f1.filter(function(c){return c.prioridade==='Crítica';}).length,crit2=f2.filter(function(c){return c.prioridade==='Crítica';}).length;
-    var varTotal=t1>0?Math.round((t2-t1)/t1*100):0;
-    var totalGeral=reais.length,concluidosGeral=reais.filter(function(c){return c.status==='Concluído';}).length;
-    document.getElementById('indicadorGrid').innerHTML=
-        '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total P2</small><strong>'+t2+'</strong><span style="font-size:9px;color:'+(varTotal>=0?'var(--success)':'var(--danger)')+';">'+(varTotal>=0?'↑':'↓')+Math.abs(varTotal)+'%</span></div></div>'+
-        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Resolução P2</small><strong>'+taxa2+'%</strong><span style="font-size:8px;color:var(--text-muted);">'+c2+'/'+t2+'</span></div></div>'+
-        '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>'+crit2+'</strong></div></div>'+
-        '<div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Total Geral</small><strong style="color:#1a3a5c;">'+totalGeral+'</strong><span style="font-size:8px;color:var(--text-muted);">'+concluidosGeral+' concluídos</span></div></div>';
-    Object.values(charts).forEach(function(c){if(c)c.destroy();});charts={};
-    var ctx5=document.getElementById('gComparativo');if(ctx5)charts.cmp=new Chart(ctx5,{type:'bar',data:{labels:['Total','Concluídos','Críticos'],datasets:[{label:'P1',data:[t1,c1,crit1],backgroundColor:'rgba(49,130,206,0.2)',borderColor:'#3182CE',borderWidth:1,borderRadius:4},{label:'P2',data:[t2,c2,crit2],backgroundColor:'rgba(56,161,105,0.2)',borderColor:'#38A169',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#4A5568',font:{size:9}}}}}});
-    var ctx6=document.getElementById('gResolucao');if(ctx6)charts.res=new Chart(ctx6,{type:'doughnut',data:{labels:['Resolvidos','Pendentes'],datasets:[{data:[c2,Math.max(0,t2-c2)],backgroundColor:['#38A169','rgba(229,62,62,0.2)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#4A5568',font:{size:9}}}}}});
+    var tipo=document.getElementById('indTipo').value,m1=document.getElementById('indMes1').value,m2=document.getElementById('indMes2').value;
+    if(!m1||!m2)return;
+    
+    // 🔥 CORREÇÃO: Contar TODOS os chamados (incluindo gesthosp e toner para teste)
+    // Depois podemos filtrar só os reais, mas primeiro vamos ver se está contando certo
+    var todosChamados = chamados; // usa o array global que já está filtrado por departamento
+    
+    console.log('📊 INDICADORES - Total chamados no array:', todosChamados.length);
+    console.log('📊 Período:', tipo, '| M1:', m1, '| M2:', m2);
+    
+    // Listar todos para debug
+    todosChamados.forEach(function(c, i){
+        if(i < 5) console.log('  📋', c.protocolo, '| Depto:', c.departamento, '| Tipo:', c.tipo, '| Status:', c.status, '| Data:', c.data_abertura?.toDate?.() || c.data_abertura);
+    });
+    
+    // Filtrar por período
+    var f1 = todosChamados.filter(function(c){
+        var d = c.data_abertura;
+        if(!d) return false;
+        var dt = typeof d.toDate === 'function' ? d.toDate() : new Date(d);
+        if(isNaN(dt.getTime())) return false;
+        var valor = tipo === 'mensal' ? dt.toISOString().slice(0,7) : dt.toISOString().slice(0,10);
+        return valor === m1;
+    });
+    
+    var f2 = todosChamados.filter(function(c){
+        var d = c.data_abertura;
+        if(!d) return false;
+        var dt = typeof d.toDate === 'function' ? d.toDate() : new Date(d);
+        if(isNaN(dt.getTime())) return false;
+        var valor = tipo === 'mensal' ? dt.toISOString().slice(0,7) : dt.toISOString().slice(0,10);
+        return valor === m2;
+    });
+    
+    console.log('📊 F1:', f1.length, 'chamados | F2:', f2.length, 'chamados');
+    
+    var t1 = f1.length, t2 = f2.length;
+    var c1 = f1.filter(function(c){ return c.status === 'Concluído'; }).length;
+    var c2 = f2.filter(function(c){ return c.status === 'Concluído'; }).length;
+    var taxa1 = t1 > 0 ? Math.round(c1 / t1 * 100) : 0;
+    var taxa2 = t2 > 0 ? Math.round(c2 / t2 * 100) : 0;
+    var crit1 = f1.filter(function(c){ return c.prioridade === 'Crítica'; }).length;
+    var crit2 = f2.filter(function(c){ return c.prioridade === 'Crítica'; }).length;
+    var varTotal = t1 > 0 ? Math.round((t2 - t1) / t1 * 100) : 0;
+    
+    // Total geral (todos os chamados, sem filtro de período)
+    var totalGeral = todosChamados.length;
+    var concluidosGeral = todosChamados.filter(function(c){ return c.status === 'Concluído'; }).length;
+    
+    console.log('📊 Total Geral:', totalGeral, '| Concluídos:', concluidosGeral);
+    console.log('📊 Cards: T2='+t2+' | Taxa='+taxa2+'% | Crit='+crit2+' | Geral='+totalGeral);
+    
+    document.getElementById('indicadorGrid').innerHTML =
+        '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total P2</small><strong>' + t2 + '</strong><span style="font-size:9px;color:' + (varTotal >= 0 ? 'var(--success)' : 'var(--danger)') + ';">' + (varTotal >= 0 ? '↑' : '↓') + Math.abs(varTotal) + '%</span></div></div>' +
+        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Resolução P2</small><strong>' + taxa2 + '%</strong><span style="font-size:8px;color:var(--text-muted);">' + c2 + '/' + t2 + '</span></div></div>' +
+        '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>' + crit2 + '</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Total Geral</small><strong style="color:#1a3a5c;">' + totalGeral + '</strong><span style="font-size:8px;color:var(--text-muted);">' + concluidosGeral + ' concluídos</span></div></div>';
+    
+    Object.values(charts).forEach(function(c){ if(c) c.destroy(); });
+    charts = {};
+    
+    var ctx5 = document.getElementById('gComparativo');
+    if(ctx5) charts.cmp = new Chart(ctx5, {
+        type: 'bar',
+        data: {
+            labels: ['Total', 'Concluídos', 'Críticos'],
+            datasets: [
+                { label: 'P1', data: [t1, c1, crit1], backgroundColor: 'rgba(49,130,206,0.2)', borderColor: '#3182CE', borderWidth: 1, borderRadius: 4 },
+                { label: 'P2', data: [t2, c2, crit2], backgroundColor: 'rgba(56,161,105,0.2)', borderColor: '#38A169', borderWidth: 1, borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#4A5568', font: { size: 9 } } } } }
+    });
+    
+    var ctx6 = document.getElementById('gResolucao');
+    if(ctx6) charts.res = new Chart(ctx6, {
+        type: 'doughnut',
+        data: { labels: ['Resolvidos', 'Pendentes'], datasets: [{ data: [c2, Math.max(0, t2 - c2)], backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'], borderWidth: 2, borderColor: '#fff' }] },
+        options: { responsive: true, maintainAspectRatio: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { color: '#4A5568', font: { size: 9 } } } } }
+    });
 }
 function imprimirIndicadores(){var el=document.createElement('div');el.style.cssText='padding:32px;background:#fff;color:#1A202C;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';el.innerHTML='<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1>HelpHosp</h1><h2>Indicadores - '+nomeDepto+'</h2></div>';el.appendChild(document.getElementById('indicadorGrid').cloneNode(true));el.innerHTML+='<div style="text-align:center;margin-top:24px;padding-top:14px;border-top:2px solid #E2E8F0;">HelpHosp © '+new Date().getFullYear()+'</div>';document.body.appendChild(el);html2canvas(el,{scale:2,backgroundColor:'#fff'}).then(function(c){document.body.removeChild(el);var pdf=new jspdf.jsPDF('p','mm','a4');pdf.addImage(c.toDataURL('image/png'),'PNG',5,5,200,(c.height*200)/c.width);pdf.save('indicadores-'+new Date().toISOString().slice(0,10)+'.pdf');toast('📄 PDF gerado!');});}
 

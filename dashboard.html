@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>HelpHosp - Painel Técnico</title>
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Bibliotecas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -42,7 +39,7 @@
             --text-sidebar: #CBD5E0;
             --border: #E2E8F0;
             --shadow: 0 4px 6px rgba(0,0,0,0.04);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
             --radius: 14px;
             --radius-sm: 10px;
             --sidebar-w: 260px;
@@ -253,6 +250,12 @@
             font-weight: 700;
             padding: 0 4px;
             display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
         }
 
         .sidebar-footer {
@@ -537,6 +540,7 @@
             gap: 8px;
             margin-bottom: 14px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .filtros-bar select,
@@ -588,8 +592,8 @@
             border-radius: var(--radius);
             padding: 24px 28px;
             width: 90%;
-            max-width: 580px;
-            max-height: 80vh;
+            max-width: 600px;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: var(--shadow-lg);
             animation: modalIn 0.3s ease;
@@ -654,15 +658,12 @@
             z-index: 9999;
             box-shadow: var(--shadow-lg);
             animation: toastIn 0.3s, toastOut 0.3s 3s forwards;
+            max-width: 400px;
         }
 
-        .toast.error {
-            border-left-color: var(--danger);
-        }
-
-        .toast.success {
-            border-left-color: var(--success);
-        }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--warning); }
 
         @keyframes toastIn {
             from { transform: translateY(60px); opacity: 0; }
@@ -672,21 +673,6 @@
         @keyframes toastOut {
             from { transform: translateY(0); opacity: 1; }
             to { transform: translateY(60px); opacity: 0; }
-        }
-
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--border);
-            border-radius: 50%;
-            border-top-color: var(--accent);
-            animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         /* Menu Toggle Mobile */
@@ -704,6 +690,117 @@
             border-radius: 10px;
             font-size: 16px;
             cursor: pointer;
+        }
+
+        /* Ficha Cadastral GestHosp */
+        .ficha-cadastral {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .ficha-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ficha-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .ficha-field {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #EDF2F7;
+        }
+
+        .ficha-field label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .ficha-field span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            background: #F7FAFC;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .emoji-option {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .emoji-option:hover {
+            transform: scale(1.2);
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .emoji-option.selected {
+            border-color: var(--primary);
+            background: var(--info-light);
+        }
+
+        /* Notificação Toast */
+        .notificacao-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            z-index: 9999;
+            max-width: 380px;
+            animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .notificacao-popup:hover {
+            transform: scale(1.02);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         /* Responsivo */
@@ -734,6 +831,10 @@
                 margin-left: 0;
                 padding: 16px;
                 padding-top: 60px;
+            }
+
+            .ficha-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -775,7 +876,7 @@
 <body>
 
 <!-- Menu Mobile -->
-<button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">
+<button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
     <i class="fas fa-bars"></i>
 </button>
 
@@ -894,9 +995,6 @@
     <section id="secao-chamados" class="secao">
         <div class="top-bar">
             <h1>📋 Chamados — <span id="tituloChamados"></span></h1>
-            <button class="btn btn-primary" onclick="novoChamado()">
-                <i class="fas fa-plus"></i> Novo Chamado
-            </button>
         </div>
         
         <div class="filtros-bar">
@@ -1007,10 +1105,12 @@
                     <tr>
                         <th>Setor</th>
                         <th>Última Troca</th>
+                        <th>Próxima Preventiva</th>
                         <th>Técnico</th>
                         <th>Tipo</th>
                         <th>Dias Desde Troca</th>
-                        <th>Total de Trocas</th>
+                        <th>Status</th>
+                        <th>Histórico</th>
                     </tr>
                 </thead>
                 <tbody id="tabelaToners"></tbody>
@@ -1022,11 +1122,20 @@
     <section id="secao-equipamentos" class="secao">
         <div class="top-bar">
             <h1>🖥️ Equipamentos</h1>
-            <button class="btn btn-primary" onclick="novoEquipamento()">
+            <button class="btn btn-primary" onclick="abrirModalEquipamento()">
                 <i class="fas fa-plus"></i> Novo Equipamento
             </button>
         </div>
-        <div id="listaEquipamentos" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:12px;"></div>
+        <div class="filtros-bar">
+            <input type="text" id="filtroEquip" placeholder="🔍 Filtrar equipamentos..." onkeyup="filtrarEquipamentos()">
+            <select id="filtroStatusEquip" onchange="filtrarEquipamentos()">
+                <option value="">Todos</option>
+                <option value="Em uso">Em uso</option>
+                <option value="Com defeito">Com defeito</option>
+                <option value="Em estoque">Em estoque</option>
+            </select>
+        </div>
+        <div id="listaEquipamentos" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:12px;"></div>
     </section>
 
     <!-- IPs & Rede -->
@@ -1131,7 +1240,7 @@
             <div class="form-group">
                 <label>Executante *</label>
                 <select id="executanteSelect" required>
-                    <option value="">Selecione um técnico...</option>
+                    <option value="">Selecione um profissional...</option>
                 </select>
             </div>
             <div style="display:flex;gap:8px;">
@@ -1174,7 +1283,7 @@
                 <label>WhatsApp *</label>
                 <input type="text" id="tecnicoWhatsApp" required placeholder="(11) 99999-9999">
             </div>
-            <p style="font-size:10px;color:var(--text-muted);">🔑 Senha padrão: <strong>12345</strong> (será solicitada alteração no primeiro acesso)</p>
+            <p style="font-size:10px;color:var(--text-muted);">🔑 Senha padrão: <strong>12345</strong></p>
             <div style="display:flex;gap:8px;">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Salvar
@@ -1215,13 +1324,89 @@
                     <option value="necessaria">🔴 Necessária</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Observação</label>
+                <textarea id="tonerObs" rows="2" placeholder="Observações sobre a troca..."></textarea>
+            </div>
             <div style="display:flex;gap:8px;">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Registrar
+                    <i class="fas fa-save"></i> Registrar Troca
                 </button>
                 <button type="button" class="btn btn-outline" onclick="fecharModal('modalToner')">Cancelar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalEquipamento">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>🖥️ Cadastrar Equipamento</h3>
+            <button onclick="fecharModal('modalEquipamento')" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
+        </div>
+        <form onsubmit="salvarEquipamento(event)" style="display:grid;gap:10px;">
+            <div class="form-group">
+                <label>Tipo de Equipamento *</label>
+                <select id="equipTipo" onchange="atualizarEmojiEquip()" required>
+                    <option value="">Selecione...</option>
+                    <option value="💻">💻 Computador</option>
+                    <option value="🖥️">🖥️ Monitor</option>
+                    <option value="🖨️">🖨️ Impressora</option>
+                    <option value="📱">📱 Tablet</option>
+                    <option value="🖱️">🖱️ Mouse</option>
+                    <option value="⌨️">⌨️ Teclado</option>
+                    <option value="🔌">🔌 Cabo/Rede</option>
+                    <option value="💾">💾 HD/SSD</option>
+                    <option value="🖧">🖧 Switch</option>
+                    <option value="📡">📡 Roteador</option>
+                    <option value="🔋">🔋 Nobreak</option>
+                    <option value="📞">📞 Telefone</option>
+                    <option value="🖼️">🖼️ Projetor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Emoji Personalizado</label>
+                <input type="text" id="equipEmoji" placeholder="Ou digite um emoji..." maxlength="2">
+            </div>
+            <div class="form-group">
+                <label>Nome do Equipamento *</label>
+                <input type="text" id="equipNome" required placeholder="Ex: Dell Optiplex 7080">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="equipStatus" required>
+                        <option value="Em uso">🟢 Em uso</option>
+                        <option value="Com defeito">🔴 Com defeito</option>
+                        <option value="Em estoque">🟡 Em estoque</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="equipQtd" value="1" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Observação</label>
+                <textarea id="equipObs" rows="2" placeholder="Observações sobre o equipamento..."></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+                <button type="button" class="btn btn-outline" onclick="fecharModal('modalEquipamento')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalHistoricoToner">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3>📜 Histórico de Trocas</h3>
+            <button onclick="fecharModal('modalHistoricoToner')" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
+        </div>
+        <div id="historicoTonerConteudo"></div>
     </div>
 </div>
 
@@ -1238,7 +1423,6 @@ const firebaseConfig = {
     appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
 };
 
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -1255,7 +1439,14 @@ let idsVistos = [];
 let comentarioChamadoId = null;
 let executanteChamadoId = null;
 
-// Configuração de cargos por departamento
+// Setores fixos para toner
+const SETORES_TONER = [
+    'UTI I', 'UTI II', 'Oncologia', 'Centro Cirúrgico',
+    'Farmácia', 'Administração', 'Recepção Geral',
+    'Recepção CR', 'NIR', 'Faturamento'
+];
+
+// Cargos por departamento
 const cargosPorDepartamento = {
     'TI': [
         'Técnico de Suporte TI',
@@ -1272,6 +1463,7 @@ const cargosPorDepartamento = {
         'Pedreiro',
         'Pintor',
         'Marceneiro',
+        'Assistente Administrativo',
         'Auxiliar de Manutenção'
     ]
 };
@@ -1280,9 +1472,6 @@ const cargosPorDepartamento = {
 // FUNÇÕES UTILITÁRIAS
 // ============================================
 
-/**
- * Formata data para exibição
- */
 function formatarData(data) {
     if (!data) return '—';
     try {
@@ -1291,23 +1480,17 @@ function formatarData(data) {
         return date.toLocaleDateString('pt-BR') + ' ' + 
                date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     } catch (e) {
-        console.error('Erro ao formatar data:', e);
         return '—';
     }
 }
 
-/**
- * Formata data de forma curta (relativa)
- */
 function formatarDataCurta(data) {
     if (!data) return '—';
     try {
         const date = data?.toDate ? data.toDate() : new Date(data);
         if (isNaN(date.getTime())) return '—';
-        
         const agora = new Date();
-        const diff = Math.floor((agora - date) / 1000); // diferença em segundos
-        
+        const diff = Math.floor((agora - date) / 1000);
         if (diff < 60) return 'agora';
         if (diff < 3600) return Math.floor(diff / 60) + 'min';
         if (diff < 86400) return Math.floor(diff / 3600) + 'h';
@@ -1318,32 +1501,29 @@ function formatarDataCurta(data) {
     }
 }
 
-/**
- * Converte data para objeto Date
- */
 function converterParaData(data) {
     if (!data) return new Date(0);
     return data?.toDate ? data.toDate() : new Date(data);
 }
 
-/**
- * Gera protocolo único
- */
 function gerarProtocolo(prefixo = 'CH') {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();
     return `${prefixo}-${timestamp}${random}`;
 }
 
-/**
- * Mostra toast de notificação
- */
 function mostrarToast(mensagem, tipo = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
+    const icones = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+    };
     toast.innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;">
-            <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <i class="fas fa-${icones[tipo] || icones.info}"></i>
             ${mensagem}
         </div>
     `;
@@ -1351,9 +1531,6 @@ function mostrarToast(mensagem, tipo = 'info') {
     setTimeout(() => toast.remove(), 3500);
 }
 
-/**
- * Toca som de notificação
- */
 function tocarBip() {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1363,46 +1540,31 @@ function tocarBip() {
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        oscillator.frequency.value = 800;
+        // Tom mais agradável e profissional
+        oscillator.frequency.value = 880;
         oscillator.type = 'sine';
-        gainNode.gain.value = 0.3;
+        gainNode.gain.value = 0.2;
         
         oscillator.start();
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-        oscillator.stop(audioContext.currentTime + 0.3);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.4);
+        oscillator.stop(audioContext.currentTime + 0.4);
     } catch (e) {
-        // Silenciosamente ignora erros de áudio
+        // Ignora erros de áudio
     }
 }
 
-/**
- * Abre modal
- */
 function abrirModal(id) {
     document.getElementById(id).classList.add('ativa');
 }
 
-/**
- * Fecha modal
- */
 function fecharModal(id) {
     document.getElementById(id).classList.remove('ativa');
-}
-
-/**
- * Toggle sidebar mobile
- */
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
 }
 
 // ============================================
 // AUTENTICAÇÃO E INICIALIZAÇÃO
 // ============================================
 
-/**
- * Verifica autenticação do usuário
- */
 function verificarAutenticacao() {
     const usuarioStr = localStorage.getItem('usuario_logado');
     
@@ -1414,7 +1576,6 @@ function verificarAutenticacao() {
     try {
         usuarioLogado = JSON.parse(usuarioStr);
         
-        // Verifica expiração da sessão (24 horas)
         if (usuarioLogado.expira && Date.now() > usuarioLogado.expira) {
             localStorage.removeItem('usuario_logado');
             window.location.href = 'admin.html';
@@ -1432,9 +1593,6 @@ function verificarAutenticacao() {
     }
 }
 
-/**
- * Verifica permissões do usuário
- */
 function verificarPermissoes() {
     const isAdmin = usuarioLogado.tipo === 'admin' || usuarioLogado.usuario === 'edson';
     const isSupervisorManut = usuarioLogado.usuario === 'bruno' || usuarioLogado.usuario === 'benicio';
@@ -1453,33 +1611,22 @@ function verificarPermissoes() {
 // INTERFACE DO USUÁRIO
 // ============================================
 
-/**
- * Inicializa interface do usuário
- */
 function inicializarInterface() {
-    // Atualiza informações do usuário
     document.getElementById('userName').textContent = usuarioLogado.nome;
     document.getElementById('userRole').textContent = `${usuarioLogado.cargo} · ${nomeDepartamento}`;
     document.getElementById('userAvatar').textContent = usuarioLogado.nome.charAt(0).toUpperCase();
     document.getElementById('deptoNome').textContent = nomeDepartamento;
     document.getElementById('tituloChamados').textContent = nomeDepartamento;
     
-    // Badge do departamento
     const deptoBadge = document.getElementById('deptoBadge');
     const deptoIcone = departamento === 'TI' ? '🖥️' : '🔧';
     const deptoClasse = departamento === 'TI' ? 'ti' : 'manutencao';
     deptoBadge.innerHTML = `<span class="depto-badge ${deptoClasse}">${deptoIcone} ${nomeDepartamento}</span>`;
     
-    // Constrói menu lateral
     construirMenuLateral();
-    
-    // Atualiza dropdown de cargos
     atualizarCargos();
 }
 
-/**
- * Constrói menu lateral baseado nas permissões
- */
 function construirMenuLateral() {
     const permissoes = verificarPermissoes();
     const nav = document.getElementById('sidebarNav');
@@ -1519,14 +1666,8 @@ function construirMenuLateral() {
     menuHTML += '</div>';
     
     nav.innerHTML = menuHTML;
-    
-    // Inicializa navegação
-    inicializarNavegacao();
 }
 
-/**
- * Cria item de menu HTML
- */
 function criarItemMenu(secao, icone, texto, ativo = false, badgeId = null) {
     const badge = badgeId ? `<span class="badge-notificacao" id="${badgeId}">0</span>` : '';
     return `
@@ -1538,69 +1679,28 @@ function criarItemMenu(secao, icone, texto, ativo = false, badgeId = null) {
     `;
 }
 
-/**
- * Inicializa navegação
- */
-function inicializarNavegacao() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const secao = this.dataset.secao;
-            navegar(secao, this);
-        });
-    });
-}
-
-/**
- * Navega entre seções
- */
 function navegar(secao, elemento) {
-    // Atualiza menu ativo
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     if (elemento) elemento.classList.add('active');
     
-    // Mostra seção correspondente
     document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
     const secaoElement = document.getElementById(`secao-${secao}`);
     if (secaoElement) secaoElement.classList.add('ativa');
     
-    // Fecha sidebar no mobile
     if (window.innerWidth < 1025) {
         document.getElementById('sidebar').classList.remove('open');
     }
     
     // Carrega dados da seção
-    carregarDadosSecao(secao);
-}
-
-/**
- * Carrega dados específicos de cada seção
- */
-function carregarDadosSecao(secao) {
     switch (secao) {
-        case 'dashboard':
-            atualizarDashboard();
-            break;
-        case 'chamados':
-            filtrarChamados();
-            break;
-        case 'gesthosp':
-            carregarGestHosp();
-            break;
-        case 'indicadores':
-            atualizarPeriodosIndicadores();
-            break;
-        case 'toners':
-            carregarToners();
-            break;
-        case 'equipamentos':
-            carregarEquipamentos();
-            break;
-        case 'ips':
-            carregarIPs();
-            break;
-        case 'equipe':
-            carregarEquipe();
-            break;
+        case 'dashboard': atualizarDashboard(); break;
+        case 'chamados': filtrarChamados(); break;
+        case 'gesthosp': carregarGestHosp(); break;
+        case 'indicadores': atualizarPeriodosIndicadores(); break;
+        case 'toners': carregarToners(); break;
+        case 'equipamentos': carregarEquipamentos(); break;
+        case 'ips': carregarIPs(); break;
+        case 'equipe': carregarEquipe(); break;
     }
 }
 
@@ -1608,9 +1708,6 @@ function carregarDadosSecao(secao) {
 // GERENCIAMENTO DE DADOS
 // ============================================
 
-/**
- * Carrega chamados do Firestore
- */
 function carregarChamados() {
     return new Promise((resolve, reject) => {
         db.collection('chamados')
@@ -1626,13 +1723,14 @@ function carregarChamados() {
                 
                 const permissoes = verificarPermissoes();
                 
-                // Filtra por departamento (exceto admin)
+                // SEPARAÇÃO RIGOROSA POR DEPARTAMENTO
                 if (permissoes.isAdmin) {
                     chamados = todosChamados;
                 } else {
-                    chamados = todosChamados.filter(c => 
-                        (c.departamento || 'TI') === departamento
-                    );
+                    chamados = todosChamados.filter(c => {
+                        const dep = c.departamento || 'TI';
+                        return dep === departamento;
+                    });
                 }
                 
                 console.log(`📦 ${chamados.length} chamados carregados para ${departamento}`);
@@ -1646,31 +1744,28 @@ function carregarChamados() {
     });
 }
 
-/**
- * Configura listener em tempo real para novos chamados
- */
 function configurarListenerChamados() {
     db.collection('chamados')
         .orderBy('data_abertura', 'desc')
         .onSnapshot(snapshot => {
-            const todosChamados = [];
+            const permissoes = verificarPermissoes();
             
             snapshot.docChanges().forEach(change => {
                 const doc = change.doc;
                 const dados = doc.data();
                 dados.fid = doc.id;
                 
-                // Notifica novos chamados
-                if (change.type === 'added' && !idsVistos.includes(doc.id)) {
+                // Verifica se é do departamento correto
+                const depDados = dados.departamento || 'TI';
+                const pertenceAoDepto = permissoes.isAdmin || depDados === departamento;
+                
+                if (change.type === 'added' && pertenceAoDepto && !idsVistos.includes(doc.id)) {
                     notificarNovoChamado(dados);
                     idsVistos.push(doc.id);
                 }
-                
-                todosChamados.push(dados);
             });
             
-            // Atualiza lista de chamados
-            const permissoes = verificarPermissoes();
+            // Atualiza lista completa
             if (permissoes.isAdmin) {
                 chamados = snapshot.docs.map(doc => {
                     const dados = doc.data();
@@ -1687,14 +1782,11 @@ function configurarListenerChamados() {
                     .filter(c => (c.departamento || 'TI') === departamento);
             }
             
-            // Salva IDs vistos
             localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-500)));
             
-            // Atualiza interface
             atualizarBadges();
             atualizarDashboard();
             
-            // Atualiza seção ativa
             const secaoAtiva = document.querySelector('.secao.ativa');
             if (secaoAtiva) {
                 const secaoId = secaoAtiva.id;
@@ -1705,48 +1797,32 @@ function configurarListenerChamados() {
         });
 }
 
-/**
- * Notifica novo chamado
- */
 function notificarNovoChamado(chamado) {
     tocarBip();
     
     // Notificação do navegador
     if (Notification.permission === 'granted') {
-        new Notification('🔔 Novo Chamado - ' + nomeDepartamento, {
-            body: `${chamado.titulo || 'Sem título'} - ${chamado.setor || 'Setor não informado'}`,
-            tag: chamado.fid
+        new Notification('🔔 Chamado Chegou!', {
+            body: `${chamado.titulo || 'Novo chamado'} - ${chamado.setor || ''}\nPrioridade: ${chamado.prioridade || 'Média'}`,
+            tag: chamado.fid,
+            requireInteraction: true
         });
     }
     
     // Notificação visual
     const notificacao = document.createElement('div');
-    notificacao.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        border-left: 4px solid var(--primary);
-        padding: 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 9999;
-        max-width: 350px;
-        animation: slideIn 0.3s ease;
-        cursor: pointer;
-    `;
-    
+    notificacao.className = 'notificacao-popup';
     notificacao.innerHTML = `
-        <button style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:16px;"
+        <button style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:18px;"
                 onclick="event.stopPropagation();this.parentElement.remove();">
             &times;
         </button>
-        <div style="font-weight:700;color:var(--primary);margin-bottom:4px;">🔔 Novo Chamado</div>
+        <div style="font-weight:700;color:var(--primary);margin-bottom:4px;font-size:14px;">🔔 Chamado Chegou!</div>
         <div style="font-size:12px;color:var(--text-secondary);">
             <strong>${chamado.titulo || 'Sem título'}</strong>
         </div>
         <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">
-            ${chamado.setor || ''} · ${chamado.prioridade || 'Média'}
+            ${chamado.setor || ''} · ${chamado.prioridade || 'Média'} · ${chamado.solicitante || ''}
         </div>
     `;
     
@@ -1758,12 +1834,9 @@ function notificarNovoChamado(chamado) {
     document.body.appendChild(notificacao);
     setTimeout(() => {
         if (notificacao.parentElement) notificacao.remove();
-    }, 6000);
+    }, 8000);
 }
 
-/**
- * Atualiza badges de notificação
- */
 function atualizarBadges() {
     const novosChamados = chamados.filter(c => !idsVistos.includes(c.fid) && c.tipo !== 'gesthosp').length;
     const badgeTI = document.getElementById('badgeTI');
@@ -1778,36 +1851,17 @@ function atualizarBadges() {
 // DASHBOARD
 // ============================================
 
-/**
- * Atualiza dashboard com dados filtrados
- */
 function atualizarDashboard() {
     const periodo = parseInt(document.getElementById('periodo').value || 30);
     const dataLimite = new Date();
     dataLimite.setDate(dataLimite.getDate() - periodo);
     
-    // Filtra chamados pelo período
     const chamadosFiltrados = chamados.filter(c => {
         const data = converterParaData(c.data_abertura);
         return !isNaN(data.getTime()) && data >= dataLimite;
     });
     
-    console.log(`📊 Dashboard: ${chamadosFiltrados.length} chamados no período`);
-    
-    // Atualiza cards de estatísticas
-    atualizarCardsEstatisticas(chamadosFiltrados);
-    
-    // Atualiza gráficos
-    atualizarGraficosDashboard(chamadosFiltrados);
-    
-    // Atualiza tabela de últimos chamados
-    atualizarUltimosChamados(chamadosFiltrados);
-}
-
-/**
- * Atualiza cards de estatísticas
- */
-function atualizarCardsEstatisticas(chamadosFiltrados) {
+    // Atualiza cards
     const total = chamadosFiltrados.length;
     const abertos = chamadosFiltrados.filter(c => c.status !== 'Concluído').length;
     const concluidos = chamadosFiltrados.filter(c => c.status === 'Concluído').length;
@@ -1817,37 +1871,22 @@ function atualizarCardsEstatisticas(chamadosFiltrados) {
     document.getElementById('statAbertos').textContent = abertos;
     document.getElementById('statConcluidos').textContent = concluidos;
     document.getElementById('statCriticos').textContent = criticos;
-}
-
-/**
- * Atualiza gráficos do dashboard
- */
-function atualizarGraficosDashboard(chamadosFiltrados) {
-    // Destrói gráficos existentes
-    Object.values(charts).forEach(chart => {
-        if (chart) chart.destroy();
-    });
+    
+    // Atualiza gráficos
+    Object.values(charts).forEach(chart => { if (chart) chart.destroy(); });
     charts = {};
     
-    // Dados para gráfico de setores
+    // Gráfico de setores
     const dadosSetor = {};
     chamadosFiltrados.forEach(c => {
         const setor = c.setor || 'Outros';
-        dadosSetor[setor] = (dadosSetor[setor] || 0) + 1;
+        if (c.tipo === 'gesthosp') dadosSetor['🏥 Cadastro GestHosp'] = (dadosSetor['🏥 Cadastro GestHosp'] || 0) + 1;
+        else if (c.tipo === 'toner' || c.isToner) dadosSetor['🖨️ Troca de Toner'] = (dadosSetor['🖨️ Troca de Toner'] || 0) + 1;
+        else dadosSetor[setor] = (dadosSetor[setor] || 0) + 1;
     });
-    
-    // Dados para gráfico de prioridades
-    const dadosPrioridade = {};
-    chamadosFiltrados
-        .filter(c => c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner)
-        .forEach(c => {
-            const prioridade = c.prioridade || 'Média';
-            dadosPrioridade[prioridade] = (dadosPrioridade[prioridade] || 0) + 1;
-        });
     
     const cores = ['#3182CE', '#38A169', '#805AD5', '#DD6B20', '#E53E3E', '#6366F1', '#D69E2E', '#EC4899', '#14B8A6', '#F59E0B'];
     
-    // Gráfico de setores
     const ctxSetor = document.getElementById('graficoSetor');
     if (ctxSetor && Object.keys(dadosSetor).length > 0) {
         charts.setor = new Chart(ctxSetor, {
@@ -1882,6 +1921,14 @@ function atualizarGraficosDashboard(chamadosFiltrados) {
     }
     
     // Gráfico de prioridades
+    const dadosPrioridade = {};
+    chamadosFiltrados
+        .filter(c => c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner)
+        .forEach(c => {
+            const prioridade = c.prioridade || 'Média';
+            dadosPrioridade[prioridade] = (dadosPrioridade[prioridade] || 0) + 1;
+        });
+    
     const ctxPrioridade = document.getElementById('graficoPrioridade');
     if (ctxPrioridade && Object.keys(dadosPrioridade).length > 0) {
         charts.prioridade = new Chart(ctxPrioridade, {
@@ -1913,12 +1960,8 @@ function atualizarGraficosDashboard(chamadosFiltrados) {
             }
         });
     }
-}
-
-/**
- * Atualiza tabela de últimos chamados
- */
-function atualizarUltimosChamados(chamadosFiltrados) {
+    
+    // Últimos chamados
     const ordenados = [...chamadosFiltrados]
         .sort((a, b) => converterParaData(b.data_abertura) - converterParaData(a.data_abertura))
         .slice(0, 8);
@@ -1943,7 +1986,7 @@ function atualizarUltimosChamados(chamadosFiltrados) {
             <tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;">
                 <td><strong>${c.protocolo || '—'}</strong></td>
                 <td style="font-size:9px;">${formatarDataCurta(c.data_abertura)}</td>
-                <td>${icone} ${c.titulo || '—'}${c.status === 'Concluído' ? ' ✓' : ''}</td>
+                <td>${icone} ${c.titulo || '—'}</td>
                 <td>${c.setor || '—'}</td>
                 <td><span class="badge ${statusClass}">${c.status || '—'}</span></td>
             </tr>
@@ -1952,12 +1995,9 @@ function atualizarUltimosChamados(chamadosFiltrados) {
 }
 
 // ============================================
-// GERENCIAMENTO DE CHAMADOS
+// CHAMADOS
 // ============================================
 
-/**
- * Filtra e exibe chamados
- */
 function filtrarChamados() {
     const filtroStatus = document.getElementById('filtroStatus').value;
     const filtroPrioridade = document.getElementById('filtroPrioridade').value;
@@ -1965,7 +2005,6 @@ function filtrarChamados() {
     
     let chamadosFiltrados = chamados.filter(c => c.tipo !== 'gesthosp');
     
-    // Aplica filtros
     if (filtroStatus) {
         chamadosFiltrados = chamadosFiltrados.filter(c => c.status === filtroStatus);
     }
@@ -1983,7 +2022,6 @@ function filtrarChamados() {
         );
     }
     
-    // Ordena por data
     chamadosFiltrados.sort((a, b) => 
         converterParaData(b.data_abertura) - converterParaData(a.data_abertura)
     );
@@ -1991,9 +2029,6 @@ function filtrarChamados() {
     renderizarTabelaChamados(chamadosFiltrados);
 }
 
-/**
- * Renderiza tabela de chamados
- */
 function renderizarTabelaChamados(listaChamados) {
     const tbody = document.getElementById('tabelaChamados');
     const permissoes = verificarPermissoes();
@@ -2065,9 +2100,6 @@ function renderizarTabelaChamados(listaChamados) {
     }).join('');
 }
 
-/**
- * Avança status do chamado
- */
 function avancarStatus(chamadoId) {
     const fluxoStatus = {
         'A Fazer': 'Em Andamento',
@@ -2088,12 +2120,10 @@ function avancarStatus(chamadoId) {
         const novoStatus = fluxoStatus[dados.status || 'A Fazer'] || 'A Fazer';
         const atualizacao = { status: novoStatus };
         
-        // Atribui técnico ao avançar
         if (novoStatus === 'Em Andamento' || novoStatus === 'Concluído') {
             atualizacao.tecnico = usuarioLogado.nome;
         }
         
-        // Adiciona ao histórico
         const historico = dados.historico || [];
         historico.push({
             data: new Date().toISOString(),
@@ -2104,7 +2134,7 @@ function avancarStatus(chamadoId) {
         return chamadoRef.update(atualizacao);
     })
     .then(() => {
-        mostrarToast(`✅ Status atualizado para "${fluxoStatus[chamados.find(c => c.fid === chamadoId)?.status]}"`, 'success');
+        mostrarToast('✅ Status atualizado com sucesso!', 'success');
     })
     .catch(error => {
         console.error('Erro ao atualizar status:', error);
@@ -2112,9 +2142,6 @@ function avancarStatus(chamadoId) {
     });
 }
 
-/**
- * Exclui chamado
- */
 function excluirChamado(chamadoId) {
     if (!confirm('Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita.')) {
         return;
@@ -2130,9 +2157,6 @@ function excluirChamado(chamadoId) {
         });
 }
 
-/**
- * Visualiza detalhes do chamado
- */
 function verDetalhes(chamadoId) {
     const chamado = chamados.find(c => c.fid === chamadoId);
     if (!chamado) {
@@ -2178,6 +2202,7 @@ function verDetalhes(chamadoId) {
             <p><strong>⚡ Prioridade:</strong> ${chamado.prioridade || '—'}</p>
             <p><strong>👷 Executante:</strong> ${chamado.executante || 'Não definido'}</p>
             <p><strong>📊 Status:</strong> ${chamado.status || '—'}</p>
+            ${chamado.descricao ? `<p><strong>📝 Descrição:</strong> ${chamado.descricao}</p>` : ''}
         </div>
         
         <hr style="margin:16px 0;">
@@ -2202,9 +2227,6 @@ function verDetalhes(chamadoId) {
 // COMENTÁRIOS
 // ============================================
 
-/**
- * Abre modal de comentários
- */
 function abrirComentarios(chamadoId) {
     comentarioChamadoId = chamadoId;
     const chamado = chamados.find(c => c.fid === chamadoId);
@@ -2244,9 +2266,6 @@ function abrirComentarios(chamadoId) {
     abrirModal('modalComentario');
 }
 
-/**
- * Salva comentário no chamado
- */
 function salvarComentario() {
     const texto = document.getElementById('textoComentario').value.trim();
     
@@ -2285,47 +2304,55 @@ function salvarComentario() {
 }
 
 // ============================================
-// EXECUTANTE
+// EXECUTANTE (ESPECÍFICO PARA MANUTENÇÃO)
 // ============================================
 
-/**
- * Abre modal para definir executante
- */
 function abrirModalExecutante(chamadoId) {
     executanteChamadoId = chamadoId;
     
-    // Carrega técnicos do departamento
+    // Carrega profissionais da manutenção (tanto usuários quanto colaboradores)
+    const select = document.getElementById('executanteSelect');
+    select.innerHTML = '<option value="">Selecione um profissional...</option>';
+    
+    // Carrega usuários da manutenção
     db.collection('usuarios')
         .where('departamento', '==', 'MANUTENCAO')
         .where('status', '==', 'ativo')
         .get()
         .then(snapshot => {
-            const select = document.getElementById('executanteSelect');
-            select.innerHTML = '<option value="">Selecione um técnico...</option>';
-            
             snapshot.forEach(doc => {
                 const usuario = doc.data();
-                select.innerHTML += `<option value="${usuario.nome}">${usuario.nome} - ${usuario.cargo}</option>`;
+                select.innerHTML += `<option value="${usuario.nome}">👤 ${usuario.nome} - ${usuario.cargo}</option>`;
             });
+            
+            // Carrega colaboradores cadastrados
+            return db.collection('colaboradores')
+                .where('departamento', '==', 'MANUTENCAO')
+                .get();
+        })
+        .then(snapshot => {
+            if (snapshot) {
+                snapshot.forEach(doc => {
+                    const colab = doc.data();
+                    select.innerHTML += `<option value="${colab.nome}">👷 ${colab.nome} - ${colab.cargo}</option>`;
+                });
+            }
             
             abrirModal('modalExecutante');
         })
         .catch(error => {
-            console.error('Erro ao carregar técnicos:', error);
-            mostrarToast('Erro ao carregar técnicos', 'error');
+            console.error('Erro ao carregar profissionais:', error);
+            mostrarToast('Erro ao carregar profissionais', 'error');
         });
 }
 
-/**
- * Define executante do chamado
- */
 function definirExecutante(event) {
     event.preventDefault();
     
     const executante = document.getElementById('executanteSelect').value;
     
     if (!executante || !executanteChamadoId) {
-        mostrarToast('Selecione um executante', 'error');
+        mostrarToast('Selecione um profissional', 'error');
         return;
     }
     
@@ -2343,12 +2370,9 @@ function definirExecutante(event) {
 }
 
 // ============================================
-// GESTHOSP
+// GESTHOSP - FICHA CADASTRAL COMPLETA
 // ============================================
 
-/**
- * Carrega chamados do GestHosp
- */
 function carregarGestHosp() {
     const permissoes = verificarPermissoes();
     
@@ -2405,9 +2429,6 @@ function carregarGestHosp() {
     }).join('');
 }
 
-/**
- * Visualiza detalhes do GestHosp
- */
 function verDetalhesGestHosp(chamadoId) {
     const chamado = chamados.find(c => c.fid === chamadoId);
     if (!chamado) return;
@@ -2419,16 +2440,61 @@ function verDetalhesGestHosp(chamadoId) {
     
     const conteudo = document.getElementById('detalhesConteudo');
     conteudo.innerHTML = `
-        <h3>🏥 ${chamado.titulo || 'Cadastro GestHosp'}</h3>
-        <span class="badge badge-gold">${chamado.protocolo || ''}</span>
-        
-        <div style="display:grid;gap:8px;font-size:11px;margin-top:16px;">
-            <p><strong>👤 Nome:</strong> ${dados.nome || '—'}</p>
-            <p><strong>📋 CPF:</strong> ${dados.cpf || '—'}</p>
-            <p><strong>📧 Email:</strong> ${dados.email || '—'}</p>
-            <p><strong>📞 Telefone:</strong> ${dados.telefone || '—'}</p>
-            <p><strong>🏥 Registro:</strong> ${dados.registro || '—'}</p>
-            <p><strong>📊 Status:</strong> ${chamado.status || '—'}</p>
+        <div class="ficha-cadastral">
+            <div class="ficha-header">
+                <h2 style="color:var(--primary);margin-bottom:4px;">🏥 Ficha Cadastral - GestHosp</h2>
+                <span class="badge badge-gold">${chamado.protocolo || ''}</span>
+                <p style="color:var(--text-muted);font-size:10px;margin-top:4px;">
+                    Cadastro realizado em ${formatarData(chamado.data_abertura)}
+                </p>
+            </div>
+            
+            <div class="ficha-grid">
+                <div class="ficha-field">
+                    <label>👤 Nome Completo</label>
+                    <span>${dados.nome || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>📋 CPF</label>
+                    <span>${dados.cpf || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>📧 Email</label>
+                    <span>${dados.email || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>📞 Telefone</label>
+                    <span>${dados.telefone || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>🏥 Registro Profissional</label>
+                    <span>${dados.registro || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>🎂 Data de Nascimento</label>
+                    <span>${dados.dataNascimento || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>🏠 Endereço</label>
+                    <span>${dados.endereco || '—'}</span>
+                </div>
+                <div class="ficha-field">
+                    <label>📊 Status do Cadastro</label>
+                    <span>${chamado.status || '—'}</span>
+                </div>
+                ${dados.observacao ? `
+                    <div class="ficha-field" style="grid-column: 1 / -1;">
+                        <label>📝 Observações</label>
+                        <span>${dados.observacao}</span>
+                    </div>
+                ` : ''}
+            </div>
+            
+            ${chamado.tecnico ? `
+                <div style="margin-top:16px;padding:12px;background:#F7FAFC;border-radius:8px;">
+                    <p style="font-size:10px;color:var(--text-muted);">👨‍💻 Processado por: <strong>${chamado.tecnico}</strong></p>
+                </div>
+            ` : ''}
         </div>
     `;
     
@@ -2436,306 +2502,147 @@ function verDetalhesGestHosp(chamadoId) {
 }
 
 // ============================================
-// INDICADORES
+// TONERS - CONTROLE PROFISSIONAL
 // ============================================
 
-/**
- * Atualiza períodos para indicadores
- */
-function atualizarPeriodosIndicadores() {
-    const tipo = document.getElementById('indTipo').value;
-    const agora = new Date();
-    const periodos = [];
-    
-    if (tipo === 'mensal') {
-        for (let i = 11; i >= 0; i--) {
-            const data = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-            periodos.push({
-                value: data.toISOString().slice(0, 7),
-                label: data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-            });
-        }
-    } else {
-        for (let i = 7; i >= 0; i--) {
-            const data = new Date();
-            data.setDate(data.getDate() - (i * 7));
-            periodos.push({
-                value: data.toISOString().slice(0, 10),
-                label: `Sem ${data.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`
-            });
-        }
-    }
-    
-    const select1 = document.getElementById('indPeriodo1');
-    const select2 = document.getElementById('indPeriodo2');
-    
-    const optionsHTML = periodos.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
-    select1.innerHTML = select2.innerHTML = optionsHTML;
-    
-    // Seleciona os dois últimos períodos
-    select1.value = periodos[periodos.length - 2]?.value || '';
-    select2.value = periodos[periodos.length - 1]?.value || '';
-    
-    atualizarIndicadores();
-}
-
-/**
- * Atualiza indicadores de performance
- */
-function atualizarIndicadores() {
-    const tipo = document.getElementById('indTipo').value;
-    const periodo1 = document.getElementById('indPeriodo1').value;
-    const periodo2 = document.getElementById('indPeriodo2').value;
-    
-    if (!periodo1 || !periodo2) return;
-    
-    // Filtra chamados reais (exclui GestHosp e Toners)
-    const chamadosReais = chamados.filter(c => 
-        c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner
-    );
-    
-    // Filtra por período
-    const filtrarPorPeriodo = (periodo) => {
-        return chamadosReais.filter(c => {
-            const data = converterParaData(c.data_abertura);
-            if (isNaN(data.getTime())) return false;
-            
-            return tipo === 'mensal' 
-                ? data.toISOString().slice(0, 7) === periodo
-                : data.toISOString().slice(0, 10) === periodo;
-        });
-    };
-    
-    const chamadosP1 = filtrarPorPeriodo(periodo1);
-    const chamadosP2 = filtrarPorPeriodo(periodo2);
-    
-    // Calcula métricas
-    const totalP1 = chamadosP1.length;
-    const totalP2 = chamadosP2.length;
-    const concluidosP1 = chamadosP1.filter(c => c.status === 'Concluído').length;
-    const concluidosP2 = chamadosP2.filter(c => c.status === 'Concluído').length;
-    const criticosP1 = chamadosP1.filter(c => c.prioridade === 'Crítica').length;
-    const criticosP2 = chamadosP2.filter(c => c.prioridade === 'Crítica').length;
-    
-    const taxaP1 = totalP1 > 0 ? Math.round((concluidosP1 / totalP1) * 100) : 0;
-    const taxaP2 = totalP2 > 0 ? Math.round((concluidosP2 / totalP2) * 100) : 0;
-    
-    const variacao = totalP1 > 0 ? Math.round(((totalP2 - totalP1) / totalP1) * 100) : 0;
-    
-    // Atualiza grid de indicadores
-    document.getElementById('indicadorGrid').innerHTML = `
-        <div class="stat-card">
-            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
-            <div class="stat-info">
-                <small>Total Período 2</small>
-                <strong>${totalP2}</strong>
-                <span style="font-size:9px;color:${variacao >= 0 ? 'var(--success)' : 'var(--danger)'};">
-                    ${variacao >= 0 ? '↑' : '↓'}${Math.abs(variacao)}%
-                </span>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-            <div class="stat-info">
-                <small>Taxa de Resolução</small>
-                <strong>${taxaP2}%</strong>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
-            <div class="stat-info">
-                <small>Críticos</small>
-                <strong>${criticosP2}</strong>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon amber"><i class="fas fa-chart-line"></i></div>
-            <div class="stat-info">
-                <small>Período Anterior</small>
-                <strong>${totalP1}</strong>
-            </div>
-        </div>
-    `;
-    
-    // Atualiza gráficos
-    atualizarGraficosIndicadores(totalP1, totalP2, concluidosP1, concluidosP2, criticosP1, criticosP2);
-}
-
-/**
- * Atualiza gráficos de indicadores
- */
-function atualizarGraficosIndicadores(totalP1, totalP2, concluidosP1, concluidosP2, criticosP1, criticosP2) {
-    // Destrói gráficos existentes
-    Object.values(charts).forEach(chart => {
-        if (chart) chart.destroy();
-    });
-    charts = {};
-    
-    // Gráfico comparativo
-    const ctxComparativo = document.getElementById('graficoComparativo');
-    if (ctxComparativo) {
-        charts.comparativo = new Chart(ctxComparativo, {
-            type: 'bar',
-            data: {
-                labels: ['Total', 'Concluídos', 'Críticos'],
-                datasets: [
-                    {
-                        label: 'Período 1',
-                        data: [totalP1, concluidosP1, criticosP1],
-                        backgroundColor: 'rgba(49,130,206,0.2)',
-                        borderColor: '#3182CE',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Período 2',
-                        data: [totalP2, concluidosP2, criticosP2],
-                        backgroundColor: 'rgba(56,161,105,0.2)',
-                        borderColor: '#38A169',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#4A5568',
-                            font: { size: 9 }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Gráfico de resolução
-    const ctxResolucao = document.getElementById('graficoResolucao');
-    if (ctxResolucao) {
-        charts.resolucao = new Chart(ctxResolucao, {
-            type: 'doughnut',
-            data: {
-                labels: ['Resolvidos', 'Pendentes'],
-                datasets: [{
-                    data: [concluidosP2, Math.max(0, totalP2 - concluidosP2)],
-                    backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                cutout: '55%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: '#4A5568',
-                            font: { size: 9 }
-                        }
-                    }
-                }
-            }
-        });
-    }
-}
-
-// ============================================
-// TONERS
-// ============================================
-
-/**
- * Carrega e exibe registros de toners
- */
 function carregarToners() {
     const chamadosToner = chamados.filter(c => c.tipo === 'toner' || c.isToner);
     
-    // Agrupa por setor
-    const agrupado = {};
+    // Estrutura fixa com todos os setores
+    const tonerData = {};
+    SETORES_TONER.forEach(setor => {
+        tonerData[setor] = {
+            ultimaTroca: null,
+            historico: [],
+            diasDesdeTroca: 0,
+            status: 'normal'
+        };
+    });
+    
+    // Preenche com dados reais
     chamadosToner.forEach(t => {
-        const setor = t.setor || 'N/I';
-        if (!agrupado[setor]) {
-            agrupado[setor] = { ultimo: t, total: 1 };
-        } else {
-            const dataExistente = converterParaData(agrupado[setor].ultimo.data_troca_toner || agrupado[setor].ultimo.data_abertura);
-            const dataNova = converterParaData(t.data_troca_toner || t.data_abertura);
-            
-            if (dataNova > dataExistente) {
-                agrupado[setor].ultimo = t;
-            }
-            agrupado[setor].total++;
+        const setor = t.setor;
+        if (setor && tonerData[setor]) {
+            const dataTroca = converterParaData(t.data_troca_toner || t.data_abertura);
+            tonerData[setor].historico.push({
+                data: dataTroca,
+                tecnico: t.solicitante || 'TI',
+                tipo: t.tipo_troca || 'preventiva',
+                obs: t.observacao || ''
+            });
         }
     });
     
-    // Ordena por data da última troca
-    const setores = Object.entries(agrupado).sort((a, b) => {
-        const dataA = converterParaData(a[1].ultimo.data_troca_toner || a[1].ultimo.data_abertura);
-        const dataB = converterParaData(b[1].ultimo.data_troca_toner || b[1].ultimo.data_abertura);
-        return dataB - dataA;
+    // Ordena histórico e define última troca
+    Object.keys(tonerData).forEach(setor => {
+        tonerData[setor].historico.sort((a, b) => b.data - a.data);
+        
+        if (tonerData[setor].historico.length > 0) {
+            tonerData[setor].ultimaTroca = tonerData[setor].historico[0];
+            tonerData[setor].diasDesdeTroca = Math.floor(
+                (new Date() - tonerData[setor].ultimaTroca.data) / 86400000
+            );
+            
+            // Define status
+            if (tonerData[setor].diasDesdeTroca > 90) {
+                tonerData[setor].status = 'critico';
+            } else if (tonerData[setor].diasDesdeTroca > 60) {
+                tonerData[setor].status = 'atencao';
+            }
+        }
     });
     
     const tbody = document.getElementById('tabelaToners');
     
-    if (setores.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">
-                    <i class="fas fa-print" style="font-size:24px;display:block;margin-bottom:8px;"></i>
-                    Nenhum registro de troca de toner
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    tbody.innerHTML = setores.map(([setor, dados]) => {
-        const ultimo = dados.ultimo;
-        const dataTroca = converterParaData(ultimo.data_troca_toner || ultimo.data_abertura);
-        const diasDesdeTroca = Math.floor((new Date() - dataTroca) / 86400000);
+    tbody.innerHTML = Object.entries(tonerData).map(([setor, dados]) => {
+        if (!dados.ultimaTroca) {
+            return `
+                <tr style="opacity:0.5;">
+                    <td><strong>${setor}</strong></td>
+                    <td colspan="7" style="text-align:center;color:var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Nenhuma troca registrada
+                    </td>
+                </tr>
+            `;
+        }
         
-        const corDias = diasDesdeTroca > 90 ? 'color:#E53E3E;' : 
-                       diasDesdeTroca > 60 ? 'color:#DD6B20;' : '';
+        const statusIcon = dados.status === 'critico' ? '🔴' :
+                          dados.status === 'atencao' ? '🟡' : '🟢';
+        
+        const statusText = dados.status === 'critico' ? 'Crítico' :
+                          dados.status === 'atencao' ? 'Atenção' : 'Normal';
+        
+        const corDias = dados.diasDesdeTroca > 90 ? 'color:#E53E3E;' : 
+                       dados.diasDesdeTroca > 60 ? 'color:#DD6B20;' : 'color:#38A169;';
+        
+        // Próxima troca preventiva (90 dias após última troca)
+        const proximaPreventiva = new Date(dados.ultimaTroca.data);
+        proximaPreventiva.setDate(proximaPreventiva.getDate() + 90);
+        const diasParaProxima = Math.floor((proximaPreventiva - new Date()) / 86400000);
         
         return `
-            <tr>
+            <tr style="${dados.status === 'critico' ? 'background:#FFF5F5;' : ''}">
                 <td><strong>${setor}</strong></td>
-                <td>${formatarData(dataTroca)}</td>
-                <td>${ultimo.solicitante || 'TI'}</td>
-                <td>${ultimo.tipo_troca === 'preventiva' ? '🟢 Preventiva' : '🔴 Necessária'}</td>
-                <td style="${corDias}font-weight:600;">${diasDesdeTroca} dias</td>
-                <td style="text-align:center;"><strong>${dados.total}</strong></td>
+                <td>${formatarData(dados.ultimaTroca.data)}</td>
+                <td>${diasParaProxima > 0 ? formatarData(proximaPreventiva) : '<span style="color:#E53E3E;">Vencida</span>'}</td>
+                <td>${dados.ultimaTroca.tecnico}</td>
+                <td>${dados.ultimaTroca.tipo === 'preventiva' ? '🟢 Preventiva' : '🔴 Necessária'}</td>
+                <td style="${corDias}font-weight:600;">${dados.diasDesdeTroca} dias</td>
+                <td>${statusIcon} ${statusText}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline" onclick="verHistoricoToner('${setor}')" title="Ver histórico">
+                        📜 ${dados.historico.length}
+                    </button>
+                </td>
             </tr>
         `;
     }).join('');
 }
 
-/**
- * Abre modal para registrar troca de toner
- */
+function verHistoricoToner(setor) {
+    const chamadosToner = chamados.filter(c => (c.tipo === 'toner' || c.isToner) && c.setor === setor);
+    
+    const historico = chamadosToner
+        .sort((a, b) => converterParaData(b.data_troca_toner || b.data_abertura) - 
+                        converterParaData(a.data_troca_toner || a.data_abertura))
+        .map(t => {
+            const data = converterParaData(t.data_troca_toner || t.data_abertura);
+            return `
+                <div style="padding:10px;border-bottom:1px solid #EDF2F7;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong>${formatarData(data)}</strong>
+                        <span style="font-size:10px;color:var(--text-muted);">
+                            — ${t.tipo_troca === 'preventiva' ? '🟢 Preventiva' : '🔴 Necessária'}
+                        </span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:10px;">${t.solicitante || 'TI'}</span>
+                        ${t.observacao ? `<p style="font-size:9px;color:var(--text-muted);">${t.observacao}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    
+    document.getElementById('historicoTonerConteudo').innerHTML = `
+        <h4 style="margin-bottom:12px;">📜 Histórico de Trocas - ${setor}</h4>
+        <div style="max-height:400px;overflow-y:auto;">
+            ${historico || '<p style="color:var(--text-muted);">Nenhum registro</p>'}
+        </div>
+    `;
+    
+    abrirModal('modalHistoricoToner');
+}
+
 function abrirModalToner() {
     abrirModal('modalToner');
 }
 
-/**
- * Registra troca de toner
- */
 function registrarTrocaToner(event) {
     event.preventDefault();
     
     const setor = document.getElementById('tonerSetor').value;
     const tipo = document.getElementById('tonerTipo').value;
+    const obs = document.getElementById('tonerObs').value;
     
     if (!setor) {
         mostrarToast('Selecione o setor', 'error');
@@ -2752,6 +2659,7 @@ function registrarTrocaToner(event) {
         departamento: departamento,
         titulo: `Troca de toner — ${setor}`,
         tipo_troca: tipo,
+        observacao: obs,
         data_abertura: firebase.firestore.Timestamp.now(),
         data_troca_toner: firebase.firestore.Timestamp.now()
     };
@@ -2769,12 +2677,9 @@ function registrarTrocaToner(event) {
 }
 
 // ============================================
-// EQUIPAMENTOS
+// EQUIPAMENTOS - CADASTRO COMPLETO
 // ============================================
 
-/**
- * Carrega equipamentos
- */
 function carregarEquipamentos() {
     db.collection('equipamentos').get()
         .then(snapshot => {
@@ -2784,7 +2689,7 @@ function carregarEquipamentos() {
                 dados.fid = doc.id;
                 equipamentos.push(dados);
             });
-            renderizarEquipamentos();
+            filtrarEquipamentos();
         })
         .catch(error => {
             console.error('Erro ao carregar equipamentos:', error);
@@ -2792,17 +2697,34 @@ function carregarEquipamentos() {
         });
 }
 
-/**
- * Renderiza lista de equipamentos
- */
-function renderizarEquipamentos() {
+function filtrarEquipamentos() {
+    const filtroNome = (document.getElementById('filtroEquip')?.value || '').toLowerCase();
+    const filtroStatus = document.getElementById('filtroStatusEquip')?.value || '';
+    
+    let equipamentosFiltrados = [...equipamentos];
+    
+    if (filtroNome) {
+        equipamentosFiltrados = equipamentosFiltrados.filter(eq => 
+            (eq.nome || '').toLowerCase().includes(filtroNome) ||
+            (eq.tipo || '').toLowerCase().includes(filtroNome)
+        );
+    }
+    
+    if (filtroStatus) {
+        equipamentosFiltrados = equipamentosFiltrados.filter(eq => eq.status === filtroStatus);
+    }
+    
+    renderizarEquipamentos(equipamentosFiltrados);
+}
+
+function renderizarEquipamentos(lista) {
     const container = document.getElementById('listaEquipamentos');
     
-    if (equipamentos.length === 0) {
+    if (lista.length === 0) {
         container.innerHTML = `
             <div style="text-align:center;padding:40px;grid-column:1/-1;color:var(--text-muted);">
                 <i class="fas fa-desktop" style="font-size:32px;display:block;margin-bottom:8px;"></i>
-                Nenhum equipamento cadastrado
+                Nenhum equipamento encontrado
             </div>
         `;
         return;
@@ -2814,42 +2736,94 @@ function renderizarEquipamentos() {
         'Em estoque': { icon: '🟡', color: '#DD6B20', bg: '#FFFBEB' }
     };
     
-    container.innerHTML = equipamentos.map(eq => {
+    container.innerHTML = lista.map(eq => {
         const status = statusConfig[eq.status] || statusConfig['Em uso'];
+        const emoji = eq.emoji || '📦';
         
         return `
-            <div style="background:var(--bg-card);border-radius:12px;padding:16px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:transform 0.2s;"
+            <div style="background:var(--bg-card);border-radius:12px;padding:16px;border:1px solid var(--border);
+                        text-align:center;cursor:pointer;transition:transform 0.2s;"
                  onmouseover="this.style.transform='translateY(-2px)'"
-                 onmouseout="this.style.transform='translateY(0)'">
-                <div style="font-size:32px;margin-bottom:8px;">${eq.emoji || '📦'}</div>
-                <h4 style="font-size:13px;margin-bottom:4px;">${eq.nome}</h4>
-                <p style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">${eq.tipo}</p>
+                 onmouseout="this.style.transform='translateY(0)'"
+                 onclick="editarEquipamento('${eq.fid}')">
+                <div style="font-size:40px;margin-bottom:8px;">${emoji}</div>
+                <h4 style="font-size:13px;margin-bottom:4px;color:var(--text-primary);">${eq.nome}</h4>
+                <p style="font-size:10px;color:var(--text-muted);margin-bottom:8px;">${eq.tipo || 'Equipamento'}</p>
                 <span style="padding:3px 10px;border-radius:16px;font-size:9px;background:${status.bg};color:${status.color};font-weight:600;">
                     ${status.icon} ${eq.status}
                 </span>
                 <div style="margin-top:8px;font-size:9px;color:var(--text-muted);">
-                    Quantidade: ${eq.quantidade || 1}
+                    Qtd: ${eq.quantidade || 1}
+                    ${eq.observacao ? `<br><i class="fas fa-sticky-note"></i> ${eq.observacao.substring(0, 30)}...` : ''}
                 </div>
             </div>
         `;
     }).join('');
 }
 
-/**
- * Abre formulário de novo equipamento
- */
-function novoEquipamento() {
-    // Implementar formulário de equipamento
+function abrirModalEquipamento() {
+    document.getElementById('equipEmoji').value = '';
+    document.getElementById('equipNome').value = '';
+    document.getElementById('equipQtd').value = '1';
+    document.getElementById('equipObs').value = '';
+    abrirModal('modalEquipamento');
+}
+
+function atualizarEmojiEquip() {
+    const select = document.getElementById('equipTipo');
+    const emojiInput = document.getElementById('equipEmoji');
+    
+    if (select.value) {
+        emojiInput.value = select.value;
+    }
+}
+
+function salvarEquipamento(event) {
+    event.preventDefault();
+    
+    const tipo = document.getElementById('equipTipo').value;
+    const emoji = document.getElementById('equipEmoji').value || '📦';
+    const nome = document.getElementById('equipNome').value;
+    const status = document.getElementById('equipStatus').value;
+    const quantidade = parseInt(document.getElementById('equipQtd').value) || 1;
+    const observacao = document.getElementById('equipObs').value;
+    
+    if (!nome) {
+        mostrarToast('Informe o nome do equipamento', 'error');
+        return;
+    }
+    
+    const dadosEquip = {
+        tipo: tipo,
+        emoji: emoji,
+        nome: nome,
+        status: status,
+        quantidade: quantidade,
+        observacao: observacao,
+        departamento: departamento,
+        data_cadastro: firebase.firestore.Timestamp.now()
+    };
+    
+    db.collection('equipamentos').add(dadosEquip)
+        .then(() => {
+            fecharModal('modalEquipamento');
+            mostrarToast('✅ Equipamento cadastrado com sucesso!', 'success');
+            carregarEquipamentos();
+        })
+        .catch(error => {
+            console.error('Erro ao cadastrar equipamento:', error);
+            mostrarToast('Erro ao cadastrar equipamento', 'error');
+        });
+}
+
+function editarEquipamento(id) {
     mostrarToast('Funcionalidade em desenvolvimento', 'info');
 }
 
 // ============================================
-// IPs E REDE
+// IPs & REDE - COM EMOJIS
 // ============================================
 
-/**
- * Carrega IPs
- */
 function carregarIPs() {
     db.collection('ips_rede').get()
         .then(snapshot => {
@@ -2870,15 +2844,30 @@ function carregarIPs() {
                 return;
             }
             
-            tbody.innerHTML = ips.map(ip => `
-                <tr>
-                    <td><strong>${ip.dispositivo || '—'}</strong></td>
-                    <td>${ip.tipo || '—'}</td>
-                    <td><code style="background:#F7FAFC;padding:2px 6px;border-radius:4px;">${ip.ip || '—'}</code></td>
-                    <td>${ip.localizacao || '—'}</td>
-                    <td>${ip.setor || '—'}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = ips.map(ip => {
+                const tipoEmoji = {
+                    'Computador': '💻',
+                    'Servidor': '🖥️',
+                    'Impressora': '🖨️',
+                    'Switch': '🖧',
+                    'Roteador': '📡',
+                    'Telefone': '📞',
+                    'Tablet': '📱',
+                    'Câmera': '📷'
+                };
+                
+                const emoji = tipoEmoji[ip.tipo] || '🔌';
+                
+                return `
+                    <tr>
+                        <td><strong>${emoji} ${ip.dispositivo || '—'}</strong></td>
+                        <td>${ip.tipo || '—'}</td>
+                        <td><code style="background:#F7FAFC;padding:2px 8px;border-radius:4px;font-size:11px;">${ip.ip || '—'}</code></td>
+                        <td>${ip.localizacao || '—'}</td>
+                        <td>${ip.setor || '—'}</td>
+                    </tr>
+                `;
+            }).join('');
         })
         .catch(error => {
             console.error('Erro ao carregar IPs:', error);
@@ -2890,9 +2879,6 @@ function carregarIPs() {
 // EQUIPE
 // ============================================
 
-/**
- * Carrega equipe
- */
 function carregarEquipe() {
     const permissoes = verificarPermissoes();
     
@@ -2952,9 +2938,6 @@ function carregarEquipe() {
         });
 }
 
-/**
- * Abre modal de técnico
- */
 function abrirModalTecnico() {
     const permissoes = verificarPermissoes();
     
@@ -2969,9 +2952,6 @@ function abrirModalTecnico() {
     abrirModal('modalTecnico');
 }
 
-/**
- * Salva técnico
- */
 function salvarTecnico(event) {
     event.preventDefault();
     
@@ -2989,7 +2969,6 @@ function salvarTecnico(event) {
         return;
     }
     
-    // Verifica se usuário já existe
     db.collection('usuarios').where('usuario', '==', usuario).get()
         .then(snapshot => {
             if (!snapshot.empty) {
@@ -2997,7 +2976,6 @@ function salvarTecnico(event) {
                 return;
             }
             
-            // Cria novo usuário
             return db.collection('usuarios').add({
                 nome: nome,
                 usuario: usuario,
@@ -3021,9 +2999,6 @@ function salvarTecnico(event) {
         });
 }
 
-/**
- * Atualiza dropdown de cargos
- */
 function atualizarCargos() {
     const departamento = document.getElementById('tecnicoDepartamento')?.value || 'TI';
     const select = document.getElementById('tecnicoCargo');
@@ -3034,16 +3009,10 @@ function atualizarCargos() {
     }
 }
 
-/**
- * Edita técnico
- */
 function editarTecnico(id) {
     mostrarToast('Funcionalidade em desenvolvimento', 'info');
 }
 
-/**
- * Remove técnico
- */
 function removerTecnico(id) {
     if (!confirm('Tem certeza que deseja remover este técnico?')) return;
     
@@ -3059,12 +3028,195 @@ function removerTecnico(id) {
 }
 
 // ============================================
+// INDICADORES
+// ============================================
+
+function atualizarPeriodosIndicadores() {
+    const tipo = document.getElementById('indTipo').value;
+    const agora = new Date();
+    const periodos = [];
+    
+    if (tipo === 'mensal') {
+        for (let i = 11; i >= 0; i--) {
+            const data = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+            periodos.push({
+                value: data.toISOString().slice(0, 7),
+                label: data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+            });
+        }
+    } else {
+        for (let i = 7; i >= 0; i--) {
+            const data = new Date();
+            data.setDate(data.getDate() - (i * 7));
+            periodos.push({
+                value: data.toISOString().slice(0, 10),
+                label: `Sem ${data.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}`
+            });
+        }
+    }
+    
+    const select1 = document.getElementById('indPeriodo1');
+    const select2 = document.getElementById('indPeriodo2');
+    
+    const optionsHTML = periodos.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
+    select1.innerHTML = select2.innerHTML = optionsHTML;
+    
+    select1.value = periodos[periodos.length - 2]?.value || '';
+    select2.value = periodos[periodos.length - 1]?.value || '';
+    
+    atualizarIndicadores();
+}
+
+function atualizarIndicadores() {
+    const tipo = document.getElementById('indTipo').value;
+    const periodo1 = document.getElementById('indPeriodo1').value;
+    const periodo2 = document.getElementById('indPeriodo2').value;
+    
+    if (!periodo1 || !periodo2) return;
+    
+    const chamadosReais = chamados.filter(c => 
+        c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner
+    );
+    
+    const filtrarPorPeriodo = (periodo) => {
+        return chamadosReais.filter(c => {
+            const data = converterParaData(c.data_abertura);
+            if (isNaN(data.getTime())) return false;
+            
+            return tipo === 'mensal' 
+                ? data.toISOString().slice(0, 7) === periodo
+                : data.toISOString().slice(0, 10) === periodo;
+        });
+    };
+    
+    const chamadosP1 = filtrarPorPeriodo(periodo1);
+    const chamadosP2 = filtrarPorPeriodo(periodo2);
+    
+    const totalP1 = chamadosP1.length;
+    const totalP2 = chamadosP2.length;
+    const concluidosP1 = chamadosP1.filter(c => c.status === 'Concluído').length;
+    const concluidosP2 = chamadosP2.filter(c => c.status === 'Concluído').length;
+    const criticosP1 = chamadosP1.filter(c => c.prioridade === 'Crítica').length;
+    const criticosP2 = chamadosP2.filter(c => c.prioridade === 'Crítica').length;
+    
+    const taxaP1 = totalP1 > 0 ? Math.round((concluidosP1 / totalP1) * 100) : 0;
+    const taxaP2 = totalP2 > 0 ? Math.round((concluidosP2 / totalP2) * 100) : 0;
+    
+    const variacao = totalP1 > 0 ? Math.round(((totalP2 - totalP1) / totalP1) * 100) : 0;
+    
+    document.getElementById('indicadorGrid').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+            <div class="stat-info">
+                <small>Total Período 2</small>
+                <strong>${totalP2}</strong>
+                <span style="font-size:9px;color:${variacao >= 0 ? 'var(--success)' : 'var(--danger)'};">
+                    ${variacao >= 0 ? '↑' : '↓'}${Math.abs(variacao)}%
+                </span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <small>Taxa de Resolução</small>
+                <strong>${taxaP2}%</strong>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+                <small>Críticos</small>
+                <strong>${criticosP2}</strong>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon amber"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-info">
+                <small>Período Anterior</small>
+                <strong>${totalP1}</strong>
+            </div>
+        </div>
+    `;
+    
+    // Gráficos
+    Object.values(charts).forEach(chart => { if (chart) chart.destroy(); });
+    charts = {};
+    
+    const ctxComparativo = document.getElementById('graficoComparativo');
+    if (ctxComparativo) {
+        charts.comparativo = new Chart(ctxComparativo, {
+            type: 'bar',
+            data: {
+                labels: ['Total', 'Concluídos', 'Críticos'],
+                datasets: [
+                    {
+                        label: 'Período 1',
+                        data: [totalP1, concluidosP1, criticosP1],
+                        backgroundColor: 'rgba(49,130,206,0.2)',
+                        borderColor: '#3182CE',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Período 2',
+                        data: [totalP2, concluidosP2, criticosP2],
+                        backgroundColor: 'rgba(56,161,105,0.2)',
+                        borderColor: '#38A169',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#4A5568', font: { size: 9 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    }
+    
+    const ctxResolucao = document.getElementById('graficoResolucao');
+    if (ctxResolucao) {
+        charts.resolucao = new Chart(ctxResolucao, {
+            type: 'doughnut',
+            data: {
+                labels: ['Resolvidos', 'Pendentes'],
+                datasets: [{
+                    data: [concluidosP2, Math.max(0, totalP2 - concluidosP2)],
+                    backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '55%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#4A5568', font: { size: 9 } }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// ============================================
 // CONFIGURAÇÕES
 // ============================================
 
-/**
- * Altera senha do usuário
- */
 function alterarSenha(event) {
     event.preventDefault();
     
@@ -3105,9 +3257,6 @@ function alterarSenha(event) {
 // RELATÓRIOS
 // ============================================
 
-/**
- * Gera relatório em PDF
- */
 function gerarRelatorioPDF() {
     const elemento = document.createElement('div');
     elemento.style.cssText = `
@@ -3120,7 +3269,6 @@ function gerarRelatorioPDF() {
         left: -9999px;
     `;
     
-    // Cabeçalho
     elemento.innerHTML = `
         <div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;margin-bottom:24px;">
             <h1 style="color:#1a3a5c;margin-bottom:8px;">
@@ -3131,7 +3279,6 @@ function gerarRelatorioPDF() {
         </div>
     `;
     
-    // Estatísticas
     const abertos = chamados.filter(c => c.status !== 'Concluído').length;
     const concluidos = chamados.filter(c => c.status === 'Concluído').length;
     const taxa = chamados.length > 0 ? Math.round((concluidos / chamados.length) * 100) : 0;
@@ -3139,35 +3286,34 @@ function gerarRelatorioPDF() {
     elemento.innerHTML += `
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;">
             <div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;">
-                <p style="color:#4A5568;margin-bottom:4px;">TOTAL</p>
-                <p style="font-size:32px;font-weight:700;color:#1A202C;">${chamados.length}</p>
+                <p style="color:#4A5568;">TOTAL</p>
+                <p style="font-size:32px;font-weight:700;">${chamados.length}</p>
             </div>
             <div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;">
-                <p style="color:#E53E3E;margin-bottom:4px;">ABERTOS</p>
+                <p style="color:#E53E3E;">ABERTOS</p>
                 <p style="font-size:32px;font-weight:700;color:#E53E3E;">${abertos}</p>
             </div>
             <div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;">
-                <p style="color:#38A169;margin-bottom:4px;">CONCLUÍDOS</p>
+                <p style="color:#38A169;">CONCLUÍDOS</p>
                 <p style="font-size:32px;font-weight:700;color:#38A169;">${concluidos}</p>
             </div>
             <div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;">
-                <p style="color:#DD6B20;margin-bottom:4px;">TAXA</p>
+                <p style="color:#DD6B20;">TAXA</p>
                 <p style="font-size:32px;font-weight:700;color:#DD6B20;">${taxa}%</p>
             </div>
         </div>
     `;
     
-    // Tabela de chamados
     elemento.innerHTML += `
         <h3 style="color:#1a3a5c;margin-bottom:12px;">📋 Chamados Recentes</h3>
         <table style="width:100%;border-collapse:collapse;font-size:10px;">
             <thead>
                 <tr style="background:#1a3a5c;color:#fff;">
-                    <th style="padding:8px;text-align:left;">Protocolo</th>
-                    <th style="padding:8px;text-align:left;">Data</th>
-                    <th style="padding:8px;text-align:left;">Título</th>
-                    <th style="padding:8px;text-align:left;">Setor</th>
-                    <th style="padding:8px;text-align:left;">Status</th>
+                    <th style="padding:8px;">Protocolo</th>
+                    <th style="padding:8px;">Data</th>
+                    <th style="padding:8px;">Título</th>
+                    <th style="padding:8px;">Setor</th>
+                    <th style="padding:8px;">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -3182,66 +3328,7 @@ function gerarRelatorioPDF() {
                 `).join('')}
             </tbody>
         </table>
-    `;
-    
-    // Rodapé
-    elemento.innerHTML += `
         <div style="text-align:center;margin-top:32px;padding-top:16px;border-top:2px solid #E2E8F0;color:#A0AEC0;font-size:9px;">
-            HelpHosp © ${new Date().getFullYear()} - Sistema de Gestão de Chamados Técnicos
-        </div>
-    `;
-    
-    document.body.appendChild(elemento);
-    
-    // Gera PDF
-    html2canvas(elemento, { scale: 2, backgroundColor: '#fff' })
-        .then(canvas => {
-            document.body.removeChild(elemento);
-            
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-            const imgWidth = 200;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            pdf.addImage(imgData, 'PNG', 5, 5, imgWidth, imgHeight);
-            pdf.save(`relatorio-${new Date().toISOString().slice(0, 10)}.pdf`);
-            
-            mostrarToast('📄 Relatório gerado com sucesso!', 'success');
-        })
-        .catch(error => {
-            document.body.removeChild(elemento);
-            console.error('Erro ao gerar PDF:', error);
-            mostrarToast('Erro ao gerar relatório', 'error');
-        });
-}
-
-/**
- * Imprime indicadores
- */
-function imprimirIndicadores() {
-    const elemento = document.createElement('div');
-    elemento.style.cssText = `
-        padding: 32px;
-        background: #fff;
-        color: #1A202C;
-        font-family: 'Inter', Arial, sans-serif;
-        width: 1000px;
-        position: absolute;
-        left: -9999px;
-    `;
-    
-    elemento.innerHTML = `
-        <div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;">
-            <h1>HelpHosp</h1>
-            <h2>Indicadores - ${nomeDepartamento}</h2>
-        </div>
-    `;
-    
-    // Clona grid de indicadores
-    elemento.appendChild(document.getElementById('indicadorGrid').cloneNode(true));
-    
-    elemento.innerHTML += `
-        <div style="text-align:center;margin-top:24px;padding-top:14px;border-top:2px solid #E2E8F0;">
             HelpHosp © ${new Date().getFullYear()}
         </div>
     `;
@@ -3251,20 +3338,44 @@ function imprimirIndicadores() {
     html2canvas(elemento, { scale: 2, backgroundColor: '#fff' })
         .then(canvas => {
             document.body.removeChild(elemento);
-            
             const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-            const imgWidth = 200;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, imgWidth, imgHeight);
-            pdf.save(`indicadores-${new Date().toISOString().slice(0, 10)}.pdf`);
-            
-            mostrarToast('📄 Indicadores impressos com sucesso!', 'success');
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, 200, (canvas.height * 200) / canvas.width);
+            pdf.save(`relatorio-${new Date().toISOString().slice(0, 10)}.pdf`);
+            mostrarToast('📄 Relatório gerado com sucesso!', 'success');
         })
         .catch(error => {
             document.body.removeChild(elemento);
-            console.error('Erro ao imprimir:', error);
-            mostrarToast('Erro ao imprimir indicadores', 'error');
+            console.error('Erro ao gerar PDF:', error);
+            mostrarToast('Erro ao gerar relatório', 'error');
+        });
+}
+
+function imprimirIndicadores() {
+    const elemento = document.createElement('div');
+    elemento.style.cssText = 'padding:32px;background:#fff;color:#1A202C;font-family:Inter,Arial;width:1000px;position:absolute;left:-9999px;';
+    elemento.innerHTML = `
+        <div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;">
+            <h1>HelpHosp</h1>
+            <h2>Indicadores - ${nomeDepartamento}</h2>
+        </div>
+    `;
+    elemento.appendChild(document.getElementById('indicadorGrid').cloneNode(true));
+    elemento.innerHTML += '<div style="text-align:center;margin-top:24px;padding-top:14px;border-top:2px solid #E2E8F0;">HelpHosp © ' + new Date().getFullYear() + '</div>';
+    
+    document.body.appendChild(elemento);
+    
+    html2canvas(elemento, { scale: 2, backgroundColor: '#fff' })
+        .then(canvas => {
+            document.body.removeChild(elemento);
+            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, 200, (canvas.height * 200) / canvas.width);
+            pdf.save(`indicadores-${new Date().toISOString().slice(0, 10)}.pdf`);
+            mostrarToast('📄 Indicadores impressos!', 'success');
+        })
+        .catch(error => {
+            document.body.removeChild(elemento);
+            console.error('Erro:', error);
+            mostrarToast('Erro ao imprimir', 'error');
         });
 }
 
@@ -3272,55 +3383,42 @@ function imprimirIndicadores() {
 // LOGOUT
 // ============================================
 
-/**
- * Realiza logout do sistema
- */
 function logout() {
     localStorage.removeItem('usuario_logado');
     window.location.href = 'admin.html';
 }
 
 // ============================================
-// INICIALIZAÇÃO DO SISTEMA
+// INICIALIZAÇÃO
 // ============================================
 
-/**
- * Inicializa o sistema
- */
 function inicializarSistema() {
-    // Verifica autenticação
     if (!verificarAutenticacao()) return;
     
-    // Carrega IDs vistos
     idsVistos = JSON.parse(localStorage.getItem('ids_vistos') || '[]');
     
-    // Inicializa interface
     inicializarInterface();
     
-    // Carrega dados iniciais
     carregarChamados().then(() => {
         atualizarDashboard();
         filtrarChamados();
     });
     
-    // Configura listener em tempo real
     configurarListenerChamados();
     
-    // Carrega outros dados
     carregarEquipamentos();
     carregarIPs();
     carregarEquipe();
+    carregarToners();
     atualizarPeriodosIndicadores();
     
-    // Solicita permissão para notificações
     if (Notification.permission === 'default') {
         Notification.requestPermission();
     }
     
-    console.log('✅ Sistema inicializado com sucesso!');
+    console.log('✅ Sistema HelpHosp inicializado com sucesso!');
 }
 
-// Inicializa o sistema quando a página carregar
 window.addEventListener('load', inicializarSistema);
 
 // Fecha modais ao clicar fora
@@ -3339,21 +3437,8 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
-// Adiciona estilo para animação de slide
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-`;
-document.head.appendChild(style);
+// Inicializa cargos
+atualizarCargos();
 </script>
 
 </body>

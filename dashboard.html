@@ -21,20 +21,15 @@
     
     <style>
         :root {
-            /* CORES - TEMA CLARO PADRÃO */
             --bg-body: #F0F4F8;
             --bg-card: #FFFFFF;
             --bg-sidebar: #1a3a5c;
             --bg-sidebar-hover: #1e4570;
-            
-            /* Cores principais */
             --primary: #1a3a5c;
             --primary-light: #2c5282;
             --accent: #3182CE;
             --gold: #D69E2E;
             --gold-light: #F6E05E;
-            
-            /* Status */
             --success: #38A169;
             --success-light: #C6F6D5;
             --warning: #DD6B20;
@@ -43,22 +38,16 @@
             --danger-light: #FED7D7;
             --info: #3182CE;
             --info-light: #BEE3F8;
-            
-            /* Texto */
             --text-primary: #1A202C;
             --text-secondary: #4A5568;
             --text-muted: #A0AEC0;
             --text-white: #FFFFFF;
             --text-sidebar: #CBD5E0;
-            
-            /* Borda e sombra */
             --border: #E2E8F0;
             --border-light: #EDF2F7;
             --shadow: 0 4px 6px rgba(0,0,0,0.04);
             --shadow-md: 0 6px 12px rgba(0,0,0,0.06);
             --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
-            
-            /* Layout */
             --radius: 14px;
             --radius-sm: 10px;
             --radius-xs: 6px;
@@ -82,7 +71,6 @@
             line-height: 1.6;
         }
 
-        /* Scrollbar personalizada */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -367,7 +355,6 @@
             color: #1A202C;
         }
 
-        /* STATS GRID */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -438,7 +425,6 @@
             font-weight: 700;
         }
 
-        /* CHARTS */
         .charts-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -467,7 +453,6 @@
             max-height: 240px;
         }
 
-        /* TABLES */
         .table-card {
             background: #FFFFFF;
             border-radius: var(--radius);
@@ -520,7 +505,6 @@
             cursor: pointer;
         }
 
-        /* BADGES */
         .badge {
             padding: 3px 8px;
             border-radius: 20px;
@@ -555,7 +539,6 @@
             color: #975A16;
         }
 
-        /* BUTTONS */
         .btn {
             padding: 8px 16px;
             border: none;
@@ -568,6 +551,7 @@
             gap: 5px;
             transition: var(--transition);
             font-family: inherit;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -614,7 +598,6 @@
             border-radius: 6px;
         }
 
-        /* FILTROS */
         .filtros-bar {
             display: flex;
             gap: 8px;
@@ -646,7 +629,6 @@
             min-width: 140px;
         }
 
-        /* MODALS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -723,7 +705,6 @@
             gap: 10px;
         }
 
-        /* TOAST */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -758,7 +739,6 @@
             to { transform: translateY(60px); opacity: 0; }
         }
 
-        /* NOTIFICATION POPUP */
         .notificacao-popup {
             position: fixed;
             top: 20px;
@@ -779,7 +759,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* MENU TOGGLE */
         .menu-toggle {
             display: none;
             position: fixed;
@@ -796,7 +775,6 @@
             cursor: pointer;
         }
 
-        /* TOTAL CARD */
         .total-card {
             background: linear-gradient(135deg, #1a3a5c 0%, #2c5282 100%);
             color: white;
@@ -816,7 +794,6 @@
             opacity: 0.9;
         }
 
-        /* EMPTY STATE */
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -1494,15 +1471,23 @@ function construirMenuLateral() {
     h += '<div class="nav-section"><div class="nav-section-title">Principal</div>';
     h += criarItemMenu('dashboard', 'chart-pie', 'Dashboard', true);
     h += criarItemMenu('chamados', 'ticket-alt', 'Chamados', false, 'badgeTI');
-    if (p.isTI || p.isAdmin) h += criarItemMenu('gesthosp', 'hospital-user', 'GestHosp');
-    if (p.isTI || p.isAdmin) h += criarItemMenu('indicadores', 'chart-line', 'Indicadores');
+    
+    // GestHosp e Indicadores apenas para TI
+    if (p.isTI || p.isAdmin) {
+        h += criarItemMenu('gesthosp', 'hospital-user', 'GestHosp');
+        h += criarItemMenu('indicadores', 'chart-line', 'Indicadores');
+    }
+    
     h += '</div><div class="nav-section"><div class="nav-section-title">Gestão</div>';
+    
+    // Toners, Estoque, Inventário, IPs - apenas para TI
     if (p.isTI || p.isAdmin) {
         h += criarItemMenu('toners', 'print', 'Toners');
         h += criarItemMenu('estoque', 'box', 'Estoque');
         h += criarItemMenu('inventario', 'clipboard-list', 'Inventário');
         h += criarItemMenu('ips', 'network-wired', 'IPs & Rede');
     }
+    
     if (p.podeGerenciarEquipe) h += criarItemMenu('equipe', 'users-cog', 'Equipe');
     h += criarItemMenu('config', 'cog', 'Configurações');
     h += '</div>';
@@ -1521,6 +1506,8 @@ function navegar(secao, el) {
     const sec = document.getElementById('secao-' + secao);
     if (sec) sec.classList.add('ativa');
     if (window.innerWidth < 1025) document.getElementById('sidebar').classList.remove('open');
+    
+    // Carregar dados da seção
     switch (secao) {
         case 'dashboard': atualizarDashboard(); break;
         case 'chamados': filtrarChamados(); break;
@@ -1536,7 +1523,7 @@ function navegar(secao, el) {
 }
 
 // ============================================
-// CHAMADOS
+// CHAMADOS (SEPARADOS POR DEPARTAMENTO)
 // ============================================
 async function carregarChamados() {
     const snap = await db.collection('chamados').orderBy('data_abertura', 'desc').get();
@@ -1547,7 +1534,16 @@ async function carregarChamados() {
         todos.push(x);
     });
     const p = verificarPermissoes();
-    chamados = p.isAdmin ? todos : todos.filter(c => (c.departamento || 'TI') === departamento);
+    
+    // Filtrar por departamento
+    if (p.isAdmin) {
+        chamados = todos;
+    } else {
+        chamados = todos.filter(c => {
+            const depChamado = c.departamento || 'TI';
+            return depChamado === departamento;
+        });
+    }
 }
 
 function configurarListenerChamados() {
@@ -1557,16 +1553,26 @@ function configurarListenerChamados() {
             const doc = change.doc;
             const dados = doc.data();
             dados.fid = doc.id;
-            if (change.type === 'added' && (p.isAdmin || (dados.departamento || 'TI') === departamento) && !idsVistos.includes(doc.id)) {
-                notificarNovoChamado(dados);
-                idsVistos.push(doc.id);
+            const depChamado = dados.departamento || 'TI';
+            
+            // Verificar se o chamado pertence ao departamento do usuário ou se é admin
+            if (p.isAdmin || depChamado === departamento) {
+                if (change.type === 'added' && !idsVistos.includes(doc.id)) {
+                    notificarNovoChamado(dados);
+                    idsVistos.push(doc.id);
+                }
             }
         });
+        
+        // Atualizar lista de chamados
         if (p.isAdmin) {
             chamados = snap.docs.map(d => { const x = d.data(); x.fid = d.id; return x; });
         } else {
-            chamados = snap.docs.map(d => { const x = d.data(); x.fid = d.id; return x; }).filter(c => (c.departamento || 'TI') === departamento);
+            chamados = snap.docs
+                .map(d => { const x = d.data(); x.fid = d.id; return x; })
+                .filter(c => (c.departamento || 'TI') === departamento);
         }
+        
         localStorage.setItem('ids_vistos', JSON.stringify(idsVistos.slice(-500)));
         atualizarBadges();
         atualizarDashboard();
@@ -1576,11 +1582,14 @@ function configurarListenerChamados() {
 function notificarNovoChamado(c) {
     tocarBip();
     if (Notification.permission === 'granted') {
-        new Notification('🔔 Chamado Chegou!', { body: (c.titulo || '') + ' - ' + (c.setor || ''), tag: c.fid });
+        new Notification('🔔 Novo Chamado - ' + nomeDepartamento, { 
+            body: (c.titulo || '') + ' - ' + (c.setor || ''), 
+            tag: c.fid 
+        });
     }
     const n = document.createElement('div');
     n.className = 'notificacao-popup';
-    n.innerHTML = '<button style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:18px;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button><div style="font-weight:700;color:var(--primary);">🔔 Chamado Chegou!</div><div style="font-size:12px;"><strong>' + (c.titulo || 'Sem título') + '</strong></div>';
+    n.innerHTML = '<button style="position:absolute;top:8px;right:12px;background:none;border:none;cursor:pointer;font-size:18px;" onclick="event.stopPropagation();this.parentElement.remove();">&times;</button><div style="font-weight:700;color:var(--primary);">🔔 Novo Chamado - ' + nomeDepartamento + '</div><div style="font-size:12px;"><strong>' + (c.titulo || 'Sem título') + '</strong></div>';
     n.onclick = () => { navegar('chamados', document.querySelector('.nav-item[data-secao="chamados"]')); n.remove(); };
     document.body.appendChild(n);
     setTimeout(() => { if (n.parentElement) n.remove(); }, 8000);
@@ -1603,6 +1612,7 @@ function atualizarDashboard() {
         const d = converterParaData(c.data_abertura);
         return !isNaN(d.getTime()) && d >= dl;
     });
+    
     document.getElementById('statTotal').textContent = f.length;
     document.getElementById('statAbertos').textContent = f.filter(c => c.status !== 'Concluído').length;
     document.getElementById('statConcluidos').textContent = f.filter(c => c.status === 'Concluído').length;
@@ -1611,57 +1621,126 @@ function atualizarDashboard() {
     Object.values(charts).forEach(c => { if (c) c.destroy(); });
     charts = {};
     
+    // Gráfico por setor
     const ds = {};
-    f.forEach(c => { let s = c.setor || 'Outros'; if (c.tipo === 'gesthosp') s = '🏥 Cadastro GestHosp'; ds[s] = (ds[s] || 0) + 1; });
+    f.forEach(c => { 
+        let s = c.setor || 'Outros'; 
+        if (c.tipo === 'gesthosp') s = '🏥 Cadastro GestHosp'; 
+        ds[s] = (ds[s] || 0) + 1; 
+    });
     const cores = ['#3182CE', '#38A169', '#805AD5', '#DD6B20', '#E53E3E', '#6366F1', '#D69E2E', '#EC4899'];
     const ctx1 = document.getElementById('graficoSetor');
     if (ctx1 && Object.keys(ds).length > 0) {
         charts.s = new Chart(ctx1, {
             type: 'doughnut',
-            data: { labels: Object.keys(ds), datasets: [{ data: Object.values(ds), backgroundColor: cores.slice(0, Object.keys(ds).length), borderWidth: 2, borderColor: '#fff' }] },
-            options: { responsive: true, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, color: '#4A5568' } } } }
+            data: { 
+                labels: Object.keys(ds), 
+                datasets: [{ 
+                    data: Object.values(ds), 
+                    backgroundColor: cores.slice(0, Object.keys(ds).length), 
+                    borderWidth: 2, 
+                    borderColor: '#fff' 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                cutout: '60%', 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { font: { size: 9 }, color: '#4A5568' } 
+                    } 
+                } 
+            }
         });
     }
     
+    // Gráfico por prioridade
     const dp = {};
-    f.filter(c => c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner).forEach(c => { dp[c.prioridade || 'Média'] = (dp[c.prioridade || 'Média'] || 0) + 1; });
+    f.filter(c => c.tipo !== 'gesthosp' && c.tipo !== 'toner' && !c.isToner).forEach(c => { 
+        dp[c.prioridade || 'Média'] = (dp[c.prioridade || 'Média'] || 0) + 1; 
+    });
     const ctx2 = document.getElementById('graficoPrioridade');
     if (ctx2 && Object.keys(dp).length > 0) {
         charts.p = new Chart(ctx2, {
             type: 'pie',
-            data: { labels: Object.keys(dp), datasets: [{ data: Object.values(dp), backgroundColor: ['#38A169', '#DD6B20', '#E53E3E', '#C53030'], borderWidth: 2, borderColor: '#fff' }] },
-            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, color: '#4A5568' } } } }
+            data: { 
+                labels: Object.keys(dp), 
+                datasets: [{ 
+                    data: Object.values(dp), 
+                    backgroundColor: ['#38A169', '#DD6B20', '#E53E3E', '#C53030'], 
+                    borderWidth: 2, 
+                    borderColor: '#fff' 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { font: { size: 9 }, color: '#4A5568' } 
+                    } 
+                } 
+            }
         });
     }
     
-    const ord = [...f].sort((a, b) => converterParaData(b.data_abertura) - converterParaData(a.data_abertura)).slice(0, 8);
-    document.getElementById('ultimosChamados').innerHTML = ord.length === 0 ? '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhum</td></tr>' : ord.map(c => {
-        const sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
-        return '<tr onclick="verDetalhes(\'' + c.fid + '\')"><td><strong>' + (c.protocolo || '—') + '</strong></td><td>' + formatarDataCurta(c.data_abertura) + '</td><td>' + (c.titulo || '—') + '</td><td>' + (c.setor || '—') + '</td><td><span class="badge ' + sc + '">' + (c.status || '—') + '</span></td></tr>';
-    }).join('');
+    // Últimos chamados
+    const ord = [...f]
+        .sort((a, b) => converterParaData(b.data_abertura) - converterParaData(a.data_abertura))
+        .slice(0, 8);
+    
+    document.getElementById('ultimosChamados').innerHTML = ord.length === 0 
+        ? '<tr><td colspan="5" style="text-align:center;padding:20px;">Nenhum chamado no período</td></tr>' 
+        : ord.map(c => {
+            const sc = c.status === 'Concluído' ? 'badge-green' : 
+                       c.status === 'Em Andamento' ? 'badge-amber' : 
+                       c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
+            return '<tr onclick="verDetalhes(\'' + c.fid + '\')"><td><strong>' + (c.protocolo || '—') + '</strong></td><td>' + formatarDataCurta(c.data_abertura) + '</td><td>' + (c.titulo || '—') + '</td><td>' + (c.setor || '—') + '</td><td><span class="badge ' + sc + '">' + (c.status || '—') + '</span></td></tr>';
+        }).join('');
 }
 
 function filtrarChamados() {
-    const fs = document.getElementById('filtroStatus').value;
-    const fp = document.getElementById('filtroPrioridade').value;
-    const fb = document.getElementById('filtroBusca').value.toLowerCase();
+    const fs = document.getElementById('filtroStatus')?.value || '';
+    const fp = document.getElementById('filtroPrioridade')?.value || '';
+    const fb = (document.getElementById('filtroBusca')?.value || '').toLowerCase();
+    
     let f = chamados.filter(c => c.tipo !== 'gesthosp');
     if (fs) f = f.filter(c => c.status === fs);
     if (fp) f = f.filter(c => c.prioridade === fp);
-    if (fb) f = f.filter(c => (c.titulo || '').toLowerCase().includes(fb) || (c.protocolo || '').toLowerCase().includes(fb));
+    if (fb) f = f.filter(c => 
+        (c.titulo || '').toLowerCase().includes(fb) || 
+        (c.protocolo || '').toLowerCase().includes(fb) ||
+        (c.solicitante || '').toLowerCase().includes(fb)
+    );
+    
     f.sort((a, b) => converterParaData(b.data_abertura) - converterParaData(a.data_abertura));
     
     const tb = document.getElementById('tabelaChamados');
     const p = verificarPermissoes();
     
     if (f.length === 0) {
-        tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">Nenhum</td></tr>';
+        tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">Nenhum chamado encontrado</td></tr>';
         return;
     }
     
     tb.innerHTML = f.map(c => {
-        const sc = c.status === 'Concluído' ? 'badge-green' : c.status === 'Em Andamento' ? 'badge-amber' : c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
-        const acoes = '<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus(\'' + c.fid + '\')">▶</button> <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios(\'' + c.fid + '\')">💬</button> ' + (departamento === 'MANUTENCAO' ? '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirModalExecutante(\'' + c.fid + '\')">👷</button> ' : '') + (p.podeGerenciarEquipe ? '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado(\'' + c.fid + '\')">🗑️</button>' : '');
+        const sc = c.status === 'Concluído' ? 'badge-green' : 
+                   c.status === 'Em Andamento' ? 'badge-amber' : 
+                   c.status === 'Pendente' ? 'badge-red' : 'badge-blue';
+        
+        let acoes = '<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus(\'' + c.fid + '\')">▶</button> ';
+        acoes += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios(\'' + c.fid + '\')">💬</button> ';
+        
+        // Botão de executante apenas para Manutenção
+        if (departamento === 'MANUTENCAO') {
+            acoes += '<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirModalExecutante(\'' + c.fid + '\')">👷</button> ';
+        }
+        
+        if (p.podeGerenciarEquipe) {
+            acoes += '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado(\'' + c.fid + '\')">🗑️</button>';
+        }
+        
         return '<tr onclick="verDetalhes(\'' + c.fid + '\')"><td><strong>' + (c.protocolo || '—') + '</strong></td><td>' + formatarDataCurta(c.data_abertura) + '</td><td>' + (c.titulo || '—') + '</td><td>' + (c.solicitante || '—') + '</td><td>' + (c.setor || '—') + '</td><td>' + (c.prioridade || '—') + '</td><td>' + (c.tecnico || '—') + '</td><td>' + (c.executante || '—') + '</td><td><span class="badge ' + sc + '">' + (c.status || '—') + '</span></td><td onclick="event.stopPropagation();">' + acoes + '</td></tr>';
     }).join('');
 }
@@ -1671,25 +1750,46 @@ function avancarStatus(id) {
     db.collection('chamados').doc(id).get().then(doc => {
         if (!doc.exists) return;
         const d = doc.data();
+        
+        // Verificar se o chamado pertence ao departamento correto
+        if (!verificarPermissoes().isAdmin && (d.departamento || 'TI') !== departamento) {
+            mostrarToast('⛔ Chamado de outro departamento', 'error');
+            return;
+        }
+        
         const ns = fluxo[d.status || 'A Fazer'] || 'A Fazer';
         const upd = { status: ns };
         if (ns === 'Em Andamento' || ns === 'Concluído') upd.tecnico = usuarioLogado.nome;
         const hist = d.historico || [];
-        hist.push({ data: new Date().toISOString(), acao: 'Status: ' + ns + ' por ' + usuarioLogado.nome });
+        hist.push({ 
+            data: new Date().toISOString(), 
+            acao: 'Status alterado para ' + ns + ' por ' + usuarioLogado.nome 
+        });
         upd.historico = hist;
         return doc.ref.update(upd);
-    }).then(() => mostrarToast('✅ Atualizado!', 'success'));
+    }).then(() => mostrarToast('✅ Status atualizado!', 'success'));
 }
 
 function excluirChamado(id) {
-    if (!confirm('Excluir?')) return;
-    db.collection('chamados').doc(id).delete().then(() => mostrarToast('🗑️ Excluído!', 'success'));
+    if (!confirm('Tem certeza que deseja excluir este chamado?')) return;
+    db.collection('chamados').doc(id).delete()
+        .then(() => mostrarToast('🗑️ Chamado excluído!', 'success'));
 }
 
 function verDetalhes(fid) {
     const c = chamados.find(x => x.fid === fid);
     if (!c) return;
-    document.getElementById('detalhesConteudo').innerHTML = '<h3>' + (c.titulo || '—') + '</h3><span class="badge badge-gold">' + (c.protocolo || '') + '</span><div style="display:grid;gap:6px;margin-top:12px;"><p><strong>👤:</strong> ' + (c.solicitante || '—') + '</p><p><strong>📍:</strong> ' + (c.setor || '—') + '</p><p><strong>⚡:</strong> ' + (c.prioridade || '—') + '</p><p><strong>👷:</strong> ' + (c.executante || 'Não definido') + '</p><p><strong>📊:</strong> ' + (c.status || '—') + '</p></div>';
+    document.getElementById('detalhesConteudo').innerHTML = 
+        '<h3>' + (c.titulo || 'Sem título') + '</h3>' +
+        '<span class="badge badge-gold">' + (c.protocolo || '') + '</span>' +
+        '<div style="display:grid;gap:6px;margin-top:12px;">' +
+        '<p><strong>👤 Solicitante:</strong> ' + (c.solicitante || '—') + '</p>' +
+        '<p><strong>📍 Setor:</strong> ' + (c.setor || '—') + '</p>' +
+        '<p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || '—') + '</p>' +
+        '<p><strong>👷 Executante:</strong> ' + (c.executante || 'Não definido') + '</p>' +
+        '<p><strong>📊 Status:</strong> ' + (c.status || '—') + '</p>' +
+        '<p><strong>🏢 Departamento:</strong> ' + ((c.departamento || 'TI') === 'TI' ? '🖥️ TI' : '🔧 Manutenção') + '</p>' +
+        '</div>';
     abrirModal('modalDetalhes');
 }
 
@@ -1697,8 +1797,22 @@ function abrirComentarios(fid) {
     comentarioChamadoId = fid;
     const c = chamados.find(x => x.fid === fid);
     if (!c) return;
-    const coms = (c.comentarios || []).map(co => '<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;"><strong>' + co.autor + '</strong><small> ' + formatarData(co.data) + '</small><p>' + co.texto + '</p></div>').join('');
-    document.getElementById('comentarioConteudo').innerHTML = '<p style="font-size:11px;">' + (c.protocolo || '') + ' — ' + (c.titulo || '') + '</p><div style="max-height:250px;overflow-y:auto;margin-bottom:12px;">' + (coms || '<p>Nenhum</p>') + '</div><div style="display:flex;gap:8px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:11px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>';
+    const coms = (c.comentarios || []).map(co => 
+        '<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;">' +
+        '<strong>' + co.autor + '</strong> ' +
+        '<small>' + formatarData(co.data) + '</small>' +
+        '<p>' + co.texto + '</p></div>'
+    ).join('');
+    
+    document.getElementById('comentarioConteudo').innerHTML = 
+        '<p style="font-size:11px;margin-bottom:8px;">' + (c.protocolo || '') + ' — ' + (c.titulo || '') + '</p>' +
+        '<div style="max-height:250px;overflow-y:auto;margin-bottom:12px;">' + 
+        (coms || '<p style="text-align:center;color:#A0AEC0;">Nenhum comentário</p>') + 
+        '</div>' +
+        '<div style="display:flex;gap:8px;">' +
+        '<textarea id="textoComentario" placeholder="Digite seu comentário..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:11px;resize:none;height:38px;"></textarea>' +
+        '<button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button>' +
+        '</div>';
     abrirModal('modalComentario');
 }
 
@@ -1707,20 +1821,41 @@ function salvarComentario() {
     if (!t) return;
     db.collection('chamados').doc(comentarioChamadoId).get().then(doc => {
         const coms = doc.data().comentarios || [];
-        coms.push({ autor: usuarioLogado.nome, data: new Date().toISOString(), texto: t });
+        coms.push({ 
+            autor: usuarioLogado.nome, 
+            data: new Date().toISOString(), 
+            texto: t 
+        });
         return doc.ref.update({ comentarios: coms });
-    }).then(() => { fecharModal('modalComentario'); mostrarToast('✅ Adicionado!', 'success'); });
+    }).then(() => { 
+        fecharModal('modalComentario'); 
+        mostrarToast('✅ Comentário adicionado!', 'success'); 
+    });
 }
 
 function abrirModalExecutante(fid) {
     executanteChamadoId = fid;
     const sel = document.getElementById('executanteSelect');
-    sel.innerHTML = '<option value="">Selecione...</option>';
-    db.collection('usuarios').where('departamento', '==', 'MANUTENCAO').where('status', '==', 'ativo').get().then(snap => {
-        snap.forEach(d => { sel.innerHTML += '<option value="' + d.data().nome + '">' + d.data().nome + ' - ' + d.data().cargo + '</option>'; });
-        return db.collection('colaboradores').where('departamento', '==', 'MANUTENCAO').get();
-    }).then(snap => {
-        if (snap) snap.forEach(d => { sel.innerHTML += '<option value="' + d.data().nome + '">' + d.data().nome + ' - ' + d.data().cargo + '</option>'; });
+    sel.innerHTML = '<option value="">Selecione um profissional...</option>';
+    
+    // Carregar profissionais da manutenção
+    Promise.all([
+        db.collection('usuarios').where('departamento', '==', 'MANUTENCAO').where('status', '==', 'ativo').get(),
+        db.collection('colaboradores').where('departamento', '==', 'MANUTENCAO').get()
+    ]).then(([snap1, snap2]) => {
+        const nomes = new Set();
+        snap1.forEach(d => {
+            if (!nomes.has(d.data().nome)) {
+                nomes.add(d.data().nome);
+                sel.innerHTML += '<option value="' + d.data().nome + '">' + d.data().nome + ' - ' + d.data().cargo + '</option>';
+            }
+        });
+        snap2.forEach(d => {
+            if (!nomes.has(d.data().nome)) {
+                nomes.add(d.data().nome);
+                sel.innerHTML += '<option value="' + d.data().nome + '">' + d.data().nome + ' - ' + d.data().cargo + '</option>';
+            }
+        });
         abrirModal('modalExecutante');
     });
 }
@@ -1729,48 +1864,70 @@ function definirExecutante(e) {
     e.preventDefault();
     const exec = document.getElementById('executanteSelect').value;
     if (!exec || !executanteChamadoId) return;
-    db.collection('chamados').doc(executanteChamadoId).update({ executante: exec }).then(() => {
-        fecharModal('modalExecutante');
-        mostrarToast('✅ Definido!', 'success');
-    });
+    db.collection('chamados').doc(executanteChamadoId).update({ executante: exec })
+        .then(() => {
+            fecharModal('modalExecutante');
+            mostrarToast('✅ Executante definido!', 'success');
+        });
 }
 
 // ============================================
-// GESTHOSP
+// GESTHOSP (APENAS TI)
 // ============================================
 function carregarGestHosp() {
     const p = verificarPermissoes();
     if (!p.isTI && !p.isAdmin) {
-        document.getElementById('tabelaGestHosp').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">🔒 Acesso restrito à TI</td></tr>';
+        document.getElementById('tabelaGestHosp').innerHTML = 
+            '<tr><td colspan="6" style="text-align:center;padding:40px;">🔒 Acesso restrito à TI</td></tr>';
         return;
     }
+    
     const f = chamados.filter(c => c.tipo === 'gesthosp');
     const tb = document.getElementById('tabelaGestHosp');
+    
     if (f.length === 0) {
-        tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">📭 Nenhum</td></tr>';
+        tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">📭 Nenhum cadastro pendente</td></tr>';
         return;
     }
+    
     tb.innerHTML = f.map(c => {
         let d = {};
         try { if (c.descricao) d = JSON.parse(c.descricao); } catch (e) {}
-        return '<tr><td><strong>' + (c.protocolo || '—') + '</strong></td><td>' + formatarDataCurta(c.data_abertura) + '</td><td>' + (d.nome || '—') + '</td><td>' + (d.cpf || '—') + '</td><td><span class="badge ' + (c.status === 'Concluído' ? 'badge-green' : 'badge-blue') + '">' + (c.status || '—') + '</span></td><td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus(\'' + c.fid + '\')">▶</button></td></tr>';
+        return '<tr>' +
+            '<td><strong>' + (c.protocolo || '—') + '</strong></td>' +
+            '<td>' + formatarDataCurta(c.data_abertura) + '</td>' +
+            '<td>' + (d.nome || '—') + '</td>' +
+            '<td>' + (d.cpf || '—') + '</td>' +
+            '<td><span class="badge ' + (c.status === 'Concluído' ? 'badge-green' : 'badge-blue') + '">' + (c.status || '—') + '</span></td>' +
+            '<td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus(\'' + c.fid + '\')">▶</button></td>' +
+            '</tr>';
     }).join('');
 }
 
 // ============================================
-// TONERS
+// TONERS (APENAS TI)
 // ============================================
 function carregarToners() {
     const ct = chamados.filter(c => c.tipo === 'toner' || c.isToner);
     const td = {};
-    setoresImpressora.forEach(s => { td[s] = { ultimaTroca: null, historico: [], diasDesdeTroca: 0, status: 'normal' }; });
+    
+    setoresImpressora.forEach(s => { 
+        td[s] = { ultimaTroca: null, historico: [], diasDesdeTroca: 0, status: 'normal' }; 
+    });
+    
     ct.forEach(t => {
         const s = t.setor;
         if (s && td[s]) {
             const dt = converterParaData(t.data_troca_toner || t.data_abertura);
-            td[s].historico.push({ data: dt, tecnico: t.solicitante || 'TI', tipo: t.tipo_troca || 'preventiva', obs: t.observacao || '' });
+            td[s].historico.push({ 
+                data: dt, 
+                tecnico: t.solicitante || 'TI', 
+                tipo: t.tipo_troca || 'preventiva', 
+                obs: t.observacao || '' 
+            });
         }
     });
+    
     Object.keys(td).forEach(s => {
         td[s].historico.sort((a, b) => b.data - a.data);
         if (td[s].historico.length > 0) {
@@ -1780,26 +1937,58 @@ function carregarToners() {
             else if (td[s].diasDesdeTroca > 60) td[s].status = 'atencao';
         }
     });
+    
     document.getElementById('tabelaToners').innerHTML = Object.entries(td).map(([s, d]) => {
-        if (!d.ultimaTroca) return '<tr style="opacity:0.5;"><td><strong>' + s + '</strong></td><td colspan="7" style="text-align:center;">Nenhuma troca</td></tr>';
+        if (!d.ultimaTroca) {
+            return '<tr style="opacity:0.5;">' +
+                '<td><strong>' + s + '</strong></td>' +
+                '<td colspan="7" style="text-align:center;color:#A0AEC0;">Nenhuma troca registrada</td>' +
+                '</tr>';
+        }
+        
         const si = d.status === 'critico' ? '🔴' : d.status === 'atencao' ? '🟡' : '🟢';
         const st = d.status === 'critico' ? 'Crítico' : d.status === 'atencao' ? 'Atenção' : 'Normal';
         const cd = d.diasDesdeTroca > 90 ? 'color:#E53E3E;' : d.diasDesdeTroca > 60 ? 'color:#DD6B20;' : 'color:#38A169;';
         const pp = new Date(d.ultimaTroca.data);
         pp.setDate(pp.getDate() + 90);
         const dpp = Math.floor((pp - new Date()) / 86400000);
-        return '<tr style="' + (d.status === 'critico' ? 'background:#FFF5F5;' : '') + '"><td><strong>' + s + '</strong></td><td>' + formatarData(d.ultimaTroca.data) + '</td><td>' + (dpp > 0 ? formatarData(pp) : '<span style="color:#E53E3E;">Vencida</span>') + '</td><td>' + d.ultimaTroca.tecnico + '</td><td>' + (d.ultimaTroca.tipo === 'preventiva' ? '🟢 Prev' : '🔴 Nec') + '</td><td style="' + cd + 'font-weight:600;">' + d.diasDesdeTroca + 'd</td><td>' + si + ' ' + st + '</td><td><button class="btn btn-sm btn-outline" onclick="verHistoricoToner(\'' + s + '\')">📜 ' + d.historico.length + '</button></td></tr>';
+        
+        return '<tr style="' + (d.status === 'critico' ? 'background:#FFF5F5;' : '') + '">' +
+            '<td><strong>' + s + '</strong></td>' +
+            '<td>' + formatarData(d.ultimaTroca.data) + '</td>' +
+            '<td>' + (dpp > 0 ? formatarData(pp) : '<span style="color:#E53E3E;font-weight:600;">Vencida</span>') + '</td>' +
+            '<td>' + d.ultimaTroca.tecnico + '</td>' +
+            '<td>' + (d.ultimaTroca.tipo === 'preventiva' ? '🟢 Prev' : '🔴 Nec') + '</td>' +
+            '<td style="' + cd + 'font-weight:600;">' + d.diasDesdeTroca + 'd</td>' +
+            '<td>' + si + ' ' + st + '</td>' +
+            '<td><button class="btn btn-sm btn-outline" onclick="verHistoricoToner(\'' + s + '\')">📜 ' + d.historico.length + '</button></td>' +
+            '</tr>';
     }).join('');
 }
 
 function verHistoricoToner(s) {
-    const ct = chamados.filter(c => (c.tipo === 'toner' || c.isToner) && c.setor === s).sort((a, b) => converterParaData(b.data_troca_toner || b.data_abertura) - converterParaData(a.data_troca_toner || a.data_abertura));
-    document.getElementById('historicoTonerConteudo').innerHTML = '<h4>📜 ' + s + '</h4><div style="max-height:400px;">' + (ct.map(t => '<div style="padding:10px;border-bottom:1px solid #EDF2F7;"><strong>' + formatarData(converterParaData(t.data_troca_toner || t.data_abertura)) + '</strong> — ' + (t.tipo_troca === 'preventiva' ? '🟢 Prev' : '🔴 Nec') + '<br><small>' + (t.solicitante || 'TI') + '</small></div>').join('') || '<p>Nenhum</p>') + '</div>';
+    const ct = chamados
+        .filter(c => (c.tipo === 'toner' || c.isToner) && c.setor === s)
+        .sort((a, b) => converterParaData(b.data_troca_toner || b.data_abertura) - converterParaData(a.data_troca_toner || a.data_abertura));
+    
+    document.getElementById('historicoTonerConteudo').innerHTML = 
+        '<h4>📜 Histórico de Trocas - ' + s + '</h4>' +
+        '<div style="max-height:400px;overflow-y:auto;">' + 
+        (ct.length > 0 ? ct.map(t => 
+            '<div style="padding:10px;border-bottom:1px solid #EDF2F7;">' +
+            '<strong>' + formatarData(converterParaData(t.data_troca_toner || t.data_abertura)) + '</strong> — ' + 
+            (t.tipo_troca === 'preventiva' ? '🟢 Preventiva' : '🔴 Necessária') +
+            '<br><small>' + (t.solicitante || 'TI') + (t.observacao ? ' - ' + t.observacao : '') + '</small>' +
+            '</div>'
+        ).join('') : '<p style="text-align:center;color:#A0AEC0;">Nenhum registro</p>') + 
+        '</div>';
     abrirModal('modalHistoricoToner');
 }
 
 function abrirModalToner() {
     popularSelectSetoresImpressora('tonerSetor');
+    document.getElementById('tonerTipo').value = 'preventiva';
+    document.getElementById('tonerObs').value = '';
     abrirModal('modalToner');
 }
 
@@ -1807,8 +1996,13 @@ function registrarTrocaToner(e) {
     e.preventDefault();
     const s = document.getElementById('tonerSetor').value;
     const t = document.getElementById('tonerTipo').value;
-    const o = document.getElementById('tonerObs').value;
-    if (!s) return mostrarToast('Selecione o setor', 'error');
+    const o = document.getElementById('tonerObs').value.trim();
+    
+    if (!s) {
+        mostrarToast('Selecione um setor', 'error');
+        return;
+    }
+    
     db.collection('chamados').add({
         protocolo: gerarProtocolo('TN'),
         setor: s,
@@ -1825,17 +2019,21 @@ function registrarTrocaToner(e) {
     }).then(() => {
         fecharModal('modalToner');
         carregarToners();
-        mostrarToast('✅ Registrado!', 'success');
+        mostrarToast('✅ Troca registrada com sucesso!', 'success');
     });
 }
 
 // ============================================
-// ESTOQUE
+// ESTOQUE (APENAS TI)
 // ============================================
 async function carregarEstoque() {
     const snap = await db.collection('estoque').get();
     estoque = [];
-    snap.forEach(d => { const x = d.data(); x.fid = d.id; estoque.push(x); });
+    snap.forEach(d => { 
+        const x = d.data(); 
+        x.fid = d.id; 
+        estoque.push(x); 
+    });
     filtrarEstoque();
 }
 
@@ -1851,16 +2049,27 @@ function filtrarEstoque() {
 function renderizarEstoque(lista) {
     const c = document.getElementById('listaEstoque');
     if (lista.length === 0) {
-        c.innerHTML = '<div style="text-align:center;padding:40px;grid-column:1/-1;">📦 Estoque vazio</div>';
+        c.innerHTML = '<div style="text-align:center;padding:40px;grid-column:1/-1;color:#A0AEC0;">📦 Estoque vazio</div>';
         return;
     }
+    
     const stConf = {
         'Em estoque': { icon: '🟢', color: '#38A169', bg: '#F0FFF4' },
         'Com defeito': { icon: '🔴', color: '#E53E3E', bg: '#FFF5F5' }
     };
+    
     c.innerHTML = lista.map(eq => {
         const st = stConf[eq.status] || stConf['Em estoque'];
-        return '<div style="background:#FFFFFF;border-radius:12px;padding:16px;border:1px solid #E2E8F0;text-align:center;position:relative;cursor:pointer;" onclick="abrirMoverEstoque(\'' + eq.fid + '\')"><div style="position:absolute;top:8px;right:8px;display:flex;gap:4px;" onclick="event.stopPropagation();"><button class="btn btn-sm btn-outline" onclick="editarEstoque(\'' + eq.fid + '\')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirEstoque(\'' + eq.fid + '\')">🗑️</button></div><div style="font-size:40px;">' + (eq.emoji || '📦') + '</div><h4>' + eq.nome + '</h4><span style="padding:3px 10px;border-radius:16px;font-size:9px;background:' + st.bg + ';color:' + st.color + ';">' + st.icon + ' ' + eq.status + '</span><div style="margin-top:6px;font-size:13px;font-weight:700;">Qtd: ' + (eq.quantidade || 1) + '</div></div>';
+        return '<div style="background:#FFFFFF;border-radius:12px;padding:16px;border:1px solid #E2E8F0;text-align:center;position:relative;cursor:pointer;transition:all 0.2s;" onclick="abrirMoverEstoque(\'' + eq.fid + '\')" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 12px rgba(0,0,0,0.08)\';" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'none\';">' +
+            '<div style="position:absolute;top:8px;right:8px;display:flex;gap:4px;" onclick="event.stopPropagation();">' +
+            '<button class="btn btn-sm btn-outline" onclick="editarEstoque(\'' + eq.fid + '\')" title="Editar">✏️</button>' +
+            '<button class="btn btn-sm btn-danger" onclick="excluirEstoque(\'' + eq.fid + '\')" title="Excluir">🗑️</button>' +
+            '</div>' +
+            '<div style="font-size:40px;">' + (eq.emoji || '📦') + '</div>' +
+            '<h4 style="margin:8px 0;">' + eq.nome + '</h4>' +
+            '<span style="padding:3px 10px;border-radius:16px;font-size:9px;background:' + st.bg + ';color:' + st.color + ';">' + st.icon + ' ' + eq.status + '</span>' +
+            '<div style="margin-top:6px;font-size:13px;font-weight:700;">Qtd: ' + (eq.quantidade || 1) + '</div>' +
+            '</div>';
     }).join('');
 }
 
@@ -1873,6 +2082,7 @@ function abrirModalEstoque(eqId) {
     document.getElementById('estoqueQtd').value = '1';
     document.getElementById('estoqueObs').value = '';
     document.getElementById('tituloModalEstoque').textContent = '📦 Novo Equipamento';
+    
     if (eqId) {
         const eq = estoque.find(e => e.fid === eqId);
         if (eq) {
@@ -1883,7 +2093,7 @@ function abrirModalEstoque(eqId) {
             document.getElementById('estoqueStatus').value = eq.status || 'Em estoque';
             document.getElementById('estoqueQtd').value = eq.quantidade || 1;
             document.getElementById('estoqueObs').value = eq.observacao || '';
-            document.getElementById('tituloModalEstoque').textContent = '✏️ Editar';
+            document.getElementById('tituloModalEstoque').textContent = '✏️ Editar Equipamento';
         }
     }
     abrirModal('modalEstoque');
@@ -1891,7 +2101,9 @@ function abrirModalEstoque(eqId) {
 
 function atualizarEmojiEstoque() {
     const s = document.getElementById('estoqueTipo');
-    if (s.value) document.getElementById('estoqueEmoji').value = s.value.split(' ')[0];
+    if (s.value) {
+        document.getElementById('estoqueEmoji').value = s.value.split(' ')[0];
+    }
 }
 
 function salvarEstoque(e) {
@@ -1899,29 +2111,45 @@ function salvarEstoque(e) {
     const dados = {
         tipo: document.getElementById('estoqueTipo').value,
         emoji: document.getElementById('estoqueEmoji').value || '📦',
-        nome: document.getElementById('estoqueNome').value,
+        nome: document.getElementById('estoqueNome').value.trim(),
         status: document.getElementById('estoqueStatus').value,
         quantidade: parseInt(document.getElementById('estoqueQtd').value) || 1,
-        observacao: document.getElementById('estoqueObs').value
+        observacao: document.getElementById('estoqueObs').value.trim()
     };
+    
+    if (!dados.nome) {
+        mostrarToast('Nome é obrigatório', 'error');
+        return;
+    }
+    
     const id = document.getElementById('estoqueId').value;
-    (id ? db.collection('estoque').doc(id).update(dados) : db.collection('estoque').add({ ...dados, data_cadastro: firebase.firestore.Timestamp.now() })).then(() => {
+    const promessa = id 
+        ? db.collection('estoque').doc(id).update(dados) 
+        : db.collection('estoque').add({ ...dados, data_cadastro: firebase.firestore.Timestamp.now() });
+    
+    promessa.then(() => {
         fecharModal('modalEstoque');
         carregarEstoque();
-        mostrarToast('✅ Salvo!', 'success');
+        mostrarToast('✅ Equipamento salvo!', 'success');
     });
 }
 
-function editarEstoque(fid) { abrirModalEstoque(fid); }
+function editarEstoque(fid) { 
+    abrirModalEstoque(fid); 
+}
 
 function excluirEstoque(fid) {
-    if (!confirm('Excluir?')) return;
-    db.collection('estoque').doc(fid).delete().then(() => { carregarEstoque(); mostrarToast('🗑️ Excluído!', 'success'); });
+    if (!confirm('Tem certeza que deseja excluir este equipamento?')) return;
+    db.collection('estoque').doc(fid).delete().then(() => { 
+        carregarEstoque(); 
+        mostrarToast('🗑️ Equipamento excluído!', 'success'); 
+    });
 }
 
 function abrirMoverEstoque(estoqueId) {
     const eq = estoque.find(e => e.fid === estoqueId);
     if (!eq) return;
+    
     document.getElementById('moverEstoqueId').value = estoqueId;
     document.getElementById('moverQtd').value = 1;
     document.getElementById('moverQtd').max = eq.quantidade || 1;
@@ -1930,6 +2158,8 @@ function abrirMoverEstoque(estoqueId) {
     document.getElementById('moverMotivoOutro').value = '';
     document.getElementById('moverObs').value = '';
     document.getElementById('grupoMotivoOutro').style.display = 'none';
+    
+    // Auto-detectar tipo
     const nome = (eq.nome || '').toLowerCase();
     const tipo = (eq.tipo || '').toLowerCase();
     if (tipo.includes('computador') || nome.includes('computador')) document.getElementById('moverTipoEspecifico').value = 'computador';
@@ -1939,45 +2169,78 @@ function abrirMoverEstoque(estoqueId) {
     else if (tipo.includes('switch') || nome.includes('switch')) document.getElementById('moverTipoEspecifico').value = 'switch';
     else if (tipo.includes('telefone') || nome.includes('telefone')) document.getElementById('moverTipoEspecifico').value = 'telefone';
     else if (tipo.includes('monitor') || nome.includes('monitor')) document.getElementById('moverTipoEspecifico').value = 'monitor';
-    document.getElementById('moverEstoqueInfo').innerHTML = '<strong>📦 ' + (eq.emoji || '📦') + ' ' + eq.nome + '</strong><br><small>Disponível: <strong>' + (eq.quantidade || 1) + '</strong> unidade(s)</small><br><small>Tipo: ' + (eq.tipo || 'Não especificado') + '</small>';
+    
+    document.getElementById('moverEstoqueInfo').innerHTML = 
+        '<strong>📦 ' + (eq.emoji || '📦') + ' ' + eq.nome + '</strong><br>' +
+        '<small>Disponível: <strong>' + (eq.quantidade || 1) + '</strong> unidade(s)</small><br>' +
+        '<small>Tipo: ' + (eq.tipo || 'Não especificado') + '</small>';
+    
     popularSelectSetores('moverSetorDestino');
     abrirModal('modalMoverEstoque');
 }
 
 async function confirmarMoverEstoque(e) {
     e.preventDefault();
+    
     const estoqueId = document.getElementById('moverEstoqueId').value;
     const qtdMover = parseInt(document.getElementById('moverQtd').value) || 1;
     const tipoEspecifico = document.getElementById('moverTipoEspecifico').value;
     const setorDestino = document.getElementById('moverSetorDestino').value;
     const motivo = document.getElementById('moverMotivo').value;
-    const motivoOutro = document.getElementById('moverMotivoOutro').value;
-    const obs = document.getElementById('moverObs').value;
-    if (!tipoEspecifico) return mostrarToast('Selecione o tipo', 'error');
-    if (!setorDestino) return mostrarToast('Selecione o setor', 'error');
+    const motivoOutro = document.getElementById('moverMotivoOutro').value.trim();
+    const obs = document.getElementById('moverObs').value.trim();
+    
+    if (!tipoEspecifico) return mostrarToast('Selecione o tipo específico', 'error');
+    if (!setorDestino) return mostrarToast('Selecione o setor de destino', 'error');
     if (!motivo) return mostrarToast('Selecione o motivo', 'error');
-    if (motivo === 'outro' && !motivoOutro.trim()) return mostrarToast('Descreva o motivo', 'error');
+    if (motivo === 'outro' && !motivoOutro) return mostrarToast('Descreva o motivo', 'error');
+    
     const eq = estoque.find(e => e.fid === estoqueId);
     if (!eq) return mostrarToast('Equipamento não encontrado', 'error');
-    if (qtdMover > (eq.quantidade || 1)) return mostrarToast('Quantidade maior que disponível', 'error');
+    if (qtdMover > (eq.quantidade || 1)) return mostrarToast('Quantidade indisponível', 'error');
+    
     const motivoFinal = motivo === 'outro' ? motivoOutro : motivo;
+    
     try {
+        // Atualizar estoque
         const qtdRestante = (eq.quantidade || 1) - qtdMover;
-        if (qtdRestante <= 0) await db.collection('estoque').doc(estoqueId).delete();
-        else await db.collection('estoque').doc(estoqueId).update({ quantidade: qtdRestante });
+        if (qtdRestante <= 0) {
+            await db.collection('estoque').doc(estoqueId).delete();
+        } else {
+            await db.collection('estoque').doc(estoqueId).update({ quantidade: qtdRestante });
+        }
         
-        const mapeamentoCampos = { computador: 'computadores', impressora: 'impressoras', telefone: 'ramais', tv: 'tvs', roteador: 'redes', switch: 'redes', monitor: 'outros', projetor: 'outros', teclado: 'outros', mouse: 'outros', cabo: 'outros', nobreak: 'outros', tablet: 'outros', outros: 'outros' };
+        // Atualizar inventário do setor
+        const mapeamentoCampos = { 
+            computador: 'computadores', impressora: 'impressoras', telefone: 'ramais', 
+            tv: 'tvs', roteador: 'redes', switch: 'redes', monitor: 'outros', 
+            projetor: 'outros', teclado: 'outros', mouse: 'outros', cabo: 'outros', 
+            nobreak: 'outros', tablet: 'outros', outros: 'outros' 
+        };
         const campo = mapeamentoCampos[tipoEspecifico] || 'outros';
+        
         const snap = await db.collection('inventario').where('setor', '==', setorDestino).get();
         if (snap.empty) {
-            await db.collection('inventario').add({ setor: setorDestino, computadores: 0, impressoras: 0, ramais: 0, tvs: 0, redes: 0, outros: 0, [campo]: qtdMover, observacao: '' });
+            await db.collection('inventario').add({ 
+                setor: setorDestino, computadores: 0, impressoras: 0, ramais: 0, 
+                tvs: 0, redes: 0, outros: 0, [campo]: qtdMover, observacao: '' 
+            });
         } else {
             const doc = snap.docs[0];
             const d = doc.data();
             d[campo] = (d[campo] || 0) + qtdMover;
             await doc.ref.update({ [campo]: d[campo] });
         }
-        const nomesTipos = { computador: '💻 Computador', impressora: '🖨️ Impressora', monitor: '🖥️ Monitor', telefone: '📞 Telefone', switch: '🖧 Switch', roteador: '📡 Roteador', tv: '📺 TV', projetor: '🖼️ Projetor', teclado: '⌨️ Teclado', mouse: '🖱️ Mouse', cabo: '🔌 Cabo', nobreak: '🔋 Nobreak', tablet: '📱 Tablet', outros: '📱 Outros' };
+        
+        // Registrar movimentação
+        const nomesTipos = { 
+            computador: '💻 Computador', impressora: '🖨️ Impressora', monitor: '🖥️ Monitor', 
+            telefone: '📞 Telefone', switch: '🖧 Switch', roteador: '📡 Roteador', 
+            tv: '📺 TV', projetor: '🖼️ Projetor', teclado: '⌨️ Teclado', 
+            mouse: '🖱️ Mouse', cabo: '🔌 Cabo', nobreak: '🔋 Nobreak', 
+            tablet: '📱 Tablet', outros: '📱 Outros' 
+        };
+        
         await db.collection('movimentacoes').add({
             data: firebase.firestore.Timestamp.now(),
             quantidade: qtdMover,
@@ -1991,23 +2254,29 @@ async function confirmarMoverEstoque(e) {
             tecnico: usuarioLogado.nome,
             departamento: departamento
         });
+        
         fecharModal('modalMoverEstoque');
         await carregarEstoque();
         await carregarInventario();
         mostrarToast('✅ ' + qtdMover + ' ' + nomesTipos[tipoEspecifico] + ' movido para ' + setorDestino + '!', 'success');
     } catch (error) {
-        console.error(error);
-        mostrarToast('Erro ao mover', 'error');
+        console.error('Erro ao mover:', error);
+        mostrarToast('Erro ao mover equipamento', 'error');
     }
 }
 
 // ============================================
-// INVENTÁRIO
+// INVENTÁRIO (APENAS TI)
 // ============================================
 async function carregarInventario() {
     const snap = await db.collection('inventario').get();
     inventario = [];
-    snap.forEach(d => { const x = d.data(); x.fid = d.id; inventario.push(x); });
+    snap.forEach(d => { 
+        const x = d.data(); 
+        x.fid = d.id; 
+        inventario.push(x); 
+    });
+    
     const fb = (document.getElementById('filtroInv')?.value || '').toLowerCase();
     let lista = [...inventario];
     if (fb) lista = lista.filter(inv => inv.setor.toLowerCase().includes(fb));
@@ -2028,8 +2297,10 @@ function getComposicaoOutros(setorNome) {
 function renderizarInventario(lista) {
     const tb = document.getElementById('tabelaInventario');
     let tg = 0, tc = 0, ti = 0, tr = 0, ttv = 0, tre = 0, to = 0;
+    
     lista.forEach(inv => {
-        tg += (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+        tg += (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + 
+              (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
         tc += inv.computadores || 0;
         ti += inv.impressoras || 0;
         tr += inv.ramais || 0;
@@ -2037,42 +2308,69 @@ function renderizarInventario(lista) {
         tre += inv.redes || 0;
         to += inv.outros || 0;
     });
+    
     document.getElementById('totalGeralEquipamentos').textContent = tg;
-    document.getElementById('detalheTotal').textContent = '💻 ' + tc + ' Comp | 🖨️ ' + ti + ' Imp | 📞 ' + tr + ' Ramais | 📺 ' + ttv + ' TVs | 📡 ' + tre + ' Redes | 📱 ' + to + ' Outros';
+    document.getElementById('detalheTotal').textContent = 
+        '💻 ' + tc + ' Comp | 🖨️ ' + ti + ' Imp | 📞 ' + tr + ' Ramais | 📺 ' + ttv + ' TVs | 📡 ' + tre + ' Redes | 📱 ' + to + ' Outros';
     
     if (lista.length === 0) {
-        tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;">Nenhum registro</td></tr>';
+        tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:#A0AEC0;">Nenhum registro de inventário</td></tr>';
         return;
     }
     
     tb.innerHTML = lista.map(inv => {
-        const t = (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+        const t = (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + 
+                  (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
         const comp = getComposicaoOutros(inv.setor);
         const partes = [];
         if (inv.tvs > 0) partes.push('📺 ' + inv.tvs + ' TV(s)');
         if (inv.redes > 0) partes.push('📡 ' + inv.redes + ' Rede(s)');
+        
         const outrosDetalhes = [];
         Object.entries(comp).forEach(([nome, qtd]) => {
-            if (!nome.includes('Computador') && !nome.includes('Impressora') && !nome.includes('Telefone') && !nome.includes('TV') && !nome.includes('Switch') && !nome.includes('Roteador')) {
+            if (!nome.includes('Computador') && !nome.includes('Impressora') && !nome.includes('Telefone') && 
+                !nome.includes('TV') && !nome.includes('Switch') && !nome.includes('Roteador')) {
                 outrosDetalhes.push(nome + '(' + qtd + ')');
             }
         });
+        
         if (inv.outros > 0) {
-            if (outrosDetalhes.length > 0) partes.push('📱 ' + inv.outros + ' Outros: ' + outrosDetalhes.join(', '));
-            else partes.push('📱 ' + inv.outros + ' Outro(s)');
+            if (outrosDetalhes.length > 0) {
+                partes.push('📱 ' + inv.outros + ' Outros: ' + outrosDetalhes.join(', '));
+            } else {
+                partes.push('📱 ' + inv.outros + ' Outro(s)');
+            }
         }
+        
         const composicaoFinal = partes.length > 0 ? partes.join(' · ') : '—';
         
-        return '<tr><td><strong>' + inv.setor + '</strong></td><td style="text-align:center;">' + (inv.computadores || 0) + '</td><td style="text-align:center;">' + (inv.impressoras || 0) + '</td><td style="text-align:center;">' + (inv.ramais || 0) + '</td><td style="text-align:center;">' + (inv.tvs || 0) + '</td><td style="text-align:center;">' + (inv.redes || 0) + '</td><td style="text-align:center;">' + (inv.outros || 0) + '</td><td style="text-align:center;font-weight:700;">' + t + '</td><td style="font-size:9px;max-width:200px;" title="' + composicaoFinal + '">' + composicaoFinal.substring(0, 60) + (composicaoFinal.length > 60 ? '...' : '') + '</td><td><button class="btn btn-sm btn-outline" onclick="verDetalhesSetor(\'' + inv.setor + '\')">📋</button> <button class="btn btn-sm btn-outline" onclick="editarInventario(\'' + inv.fid + '\')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirInventario(\'' + inv.fid + '\')">🗑️</button></td></tr>';
+        return '<tr>' +
+            '<td><strong>' + inv.setor + '</strong></td>' +
+            '<td style="text-align:center;">' + (inv.computadores || 0) + '</td>' +
+            '<td style="text-align:center;">' + (inv.impressoras || 0) + '</td>' +
+            '<td style="text-align:center;">' + (inv.ramais || 0) + '</td>' +
+            '<td style="text-align:center;">' + (inv.tvs || 0) + '</td>' +
+            '<td style="text-align:center;">' + (inv.redes || 0) + '</td>' +
+            '<td style="text-align:center;">' + (inv.outros || 0) + '</td>' +
+            '<td style="text-align:center;font-weight:700;">' + t + '</td>' +
+            '<td style="font-size:9px;max-width:200px;" title="' + composicaoFinal + '">' + 
+                composicaoFinal.substring(0, 60) + (composicaoFinal.length > 60 ? '...' : '') + 
+            '</td>' +
+            '<td>' +
+                '<button class="btn btn-sm btn-outline" onclick="verDetalhesSetor(\'' + inv.setor + '\')" title="Ver detalhes">📋</button> ' +
+                '<button class="btn btn-sm btn-outline" onclick="editarInventario(\'' + inv.fid + '\')" title="Editar">✏️</button> ' +
+                '<button class="btn btn-sm btn-danger" onclick="excluirInventario(\'' + inv.fid + '\')" title="Excluir">🗑️</button>' +
+            '</td>' +
+            '</tr>';
     }).join('');
 }
 
 function verDetalhesSetor(setorNome) {
     const inv = inventario.find(i => i.setor === setorNome);
     if (!inv) return;
+    
     const comp = getComposicaoOutros(setorNome);
-    const movsSetor = movimentacoes.filter(m => m.setorDestino === setorNome);
-    let html = '<h3>📋 ' + setorNome + '</h3>';
+    let html = '<h3>📋 Detalhes do Setor - ' + setorNome + '</h3>';
     html += '<div style="display:grid;gap:6px;margin:12px 0;font-size:11px;">';
     html += '<p><strong>💻 Computadores:</strong> ' + (inv.computadores || 0) + '</p>';
     html += '<p><strong>🖨️ Impressoras:</strong> ' + (inv.impressoras || 0) + '</p>';
@@ -2081,14 +2379,17 @@ function verDetalhesSetor(setorNome) {
     html += '<p><strong>📡 Redes:</strong> ' + (inv.redes || 0) + '</p>';
     html += '<p><strong>📱 Outros:</strong> ' + (inv.outros || 0) + '</p>';
     html += '</div>';
+    
     if (Object.keys(comp).length > 0) {
         html += '<h4 style="margin-top:12px;">📦 Composição detalhada:</h4>';
         html += '<div style="display:grid;gap:4px;margin-top:8px;font-size:10px;">';
         Object.entries(comp).forEach(([nome, qtd]) => {
-            html += '<div style="display:flex;justify-content:space-between;padding:4px 8px;background:#F7FAFC;border-radius:4px;"><span>' + nome + '</span><strong>' + qtd + '</strong></div>';
+            html += '<div style="display:flex;justify-content:space-between;padding:4px 8px;background:#F7FAFC;border-radius:4px;">' +
+                '<span>' + nome + '</span><strong>' + qtd + '</strong></div>';
         });
         html += '</div>';
     }
+    
     document.getElementById('detalhesConteudo').innerHTML = html;
     abrirModal('modalDetalhes');
 }
@@ -2102,7 +2403,8 @@ function abrirModalInventario(invId) {
     document.getElementById('invOutros').value = '0';
     document.getElementById('invObs').value = '';
     popularSelectSetores('invSetor');
-    document.getElementById('tituloModalInventario').textContent = '📊 Novo Registro';
+    document.getElementById('tituloModalInventario').textContent = '📊 Novo Registro de Inventário';
+    
     if (invId) {
         const inv = inventario.find(i => i.fid === invId);
         if (inv) {
@@ -2113,7 +2415,7 @@ function abrirModalInventario(invId) {
             document.getElementById('invRamais').value = inv.ramais || 0;
             document.getElementById('invOutros').value = (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
             document.getElementById('invObs').value = inv.observacao || '';
-            document.getElementById('tituloModalInventario').textContent = '✏️ Editar';
+            document.getElementById('tituloModalInventario').textContent = '✏️ Editar Inventário';
         }
     }
     abrirModal('modalInventario');
@@ -2129,8 +2431,14 @@ function salvarInventario(e) {
         tvs: 0,
         redes: 0,
         outros: parseInt(document.getElementById('invOutros').value) || 0,
-        observacao: document.getElementById('invObs').value
+        observacao: document.getElementById('invObs').value.trim()
     };
+    
+    if (!dados.setor) {
+        mostrarToast('Selecione um setor', 'error');
+        return;
+    }
+    
     const id = document.getElementById('invId').value;
     if (id) {
         const invExistente = inventario.find(i => i.fid === id);
@@ -2139,27 +2447,41 @@ function salvarInventario(e) {
             dados.redes = invExistente.redes || 0;
         }
     }
-    (id ? db.collection('inventario').doc(id).update(dados) : db.collection('inventario').add(dados)).then(() => {
+    
+    const promessa = id 
+        ? db.collection('inventario').doc(id).update(dados) 
+        : db.collection('inventario').add(dados);
+    
+    promessa.then(() => {
         fecharModal('modalInventario');
         carregarInventario();
-        mostrarToast('✅ Salvo!', 'success');
+        mostrarToast('✅ Inventário salvo!', 'success');
     });
 }
 
-function editarInventario(fid) { abrirModalInventario(fid); }
+function editarInventario(fid) { 
+    abrirModalInventario(fid); 
+}
 
 function excluirInventario(fid) {
-    if (!confirm('Excluir?')) return;
-    db.collection('inventario').doc(fid).delete().then(() => { carregarInventario(); mostrarToast('🗑️ Excluído!', 'success'); });
+    if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+    db.collection('inventario').doc(fid).delete().then(() => { 
+        carregarInventario(); 
+        mostrarToast('🗑️ Registro excluído!', 'success'); 
+    });
 }
 
 // ============================================
-// MOVIMENTAÇÕES
+// MOVIMENTAÇÕES (APENAS TI)
 // ============================================
 async function carregarMovimentacoes() {
     const snap = await db.collection('movimentacoes').orderBy('data', 'desc').limit(200).get();
     movimentacoes = [];
-    snap.forEach(d => { const x = d.data(); x.fid = d.id; movimentacoes.push(x); });
+    snap.forEach(d => { 
+        const x = d.data(); 
+        x.fid = d.id; 
+        movimentacoes.push(x); 
+    });
     filtrarMovimentacoes();
     abrirModal('modalHistoricoMovimentacoes');
 }
@@ -2168,29 +2490,71 @@ function filtrarMovimentacoes() {
     const fb = (document.getElementById('filtroMov')?.value || '').toLowerCase();
     const ft = document.getElementById('filtroTipoMov')?.value || '';
     let lista = [...movimentacoes];
-    if (fb) lista = lista.filter(m => (m.equipamentoNome || '').toLowerCase().includes(fb) || (m.setorDestino || '').toLowerCase().includes(fb) || (m.motivo || '').toLowerCase().includes(fb));
+    
+    if (fb) {
+        lista = lista.filter(m => 
+            (m.equipamentoNome || '').toLowerCase().includes(fb) || 
+            (m.setorDestino || '').toLowerCase().includes(fb) || 
+            (m.motivo || '').toLowerCase().includes(fb)
+        );
+    }
     if (ft) lista = lista.filter(m => m.tipo === ft);
+    
     const div = document.getElementById('listaMovimentacoes');
     if (lista.length === 0) {
-        div.innerHTML = '<div style="text-align:center;padding:40px;">📭 Nenhuma</div>';
+        div.innerHTML = '<div style="text-align:center;padding:40px;color:#A0AEC0;">📭 Nenhuma movimentação encontrada</div>';
         return;
     }
-    div.innerHTML = lista.map(m => '<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><strong>' + (m.tipoNome || '📦') + ' ' + m.equipamentoNome + '</strong><span>Qtd: ' + m.quantidade + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;font-size:11px;"><div><strong>📍:</strong> ' + m.setorDestino + '</div><div><strong>👤:</strong> ' + m.tecnico + '</div><div><strong>📋:</strong> ' + m.motivo + '</div><div><strong>📅:</strong> ' + formatarData(m.data) + '</div>' + (m.observacao ? '<div><strong>📝:</strong> ' + m.observacao + '</div>' : '') + '</div></div>').join('');
+    
+    div.innerHTML = lista.map(m => 
+        '<div style="background:#FFFFFF;border:1px solid #E2E8F0;border-radius:10px;padding:14px;margin-bottom:8px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<strong>' + (m.tipoNome || '📦') + ' ' + m.equipamentoNome + '</strong>' +
+        '<span style="font-weight:600;">Qtd: ' + m.quantidade + '</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;font-size:11px;">' +
+        '<div><strong>📍 Destino:</strong> ' + m.setorDestino + '</div>' +
+        '<div><strong>👤 Técnico:</strong> ' + m.tecnico + '</div>' +
+        '<div><strong>📋 Motivo:</strong> ' + m.motivo + '</div>' +
+        '<div><strong>📅 Data:</strong> ' + formatarData(m.data) + '</div>' +
+        (m.observacao ? '<div style="grid-column:1/-1;"><strong>📝 Obs:</strong> ' + m.observacao + '</div>' : '') +
+        '</div>' +
+        '</div>'
+    ).join('');
 }
 
 // ============================================
-// IPs
+// IPs (APENAS TI)
 // ============================================
 async function carregarIPs() {
     const snap = await db.collection('ips_rede').get();
     const ips = [];
-    snap.forEach(d => { const x = d.data(); x.fid = d.id; ips.push(x); });
+    snap.forEach(d => { 
+        const x = d.data(); 
+        x.fid = d.id; 
+        ips.push(x); 
+    });
+    
     const tb = document.getElementById('tabelaIPs');
     if (ips.length === 0) {
-        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;">Nenhum IP</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#A0AEC0;">Nenhum IP cadastrado</td></tr>';
         return;
     }
-    tb.innerHTML = ips.map(ip => '<tr><td><strong>' + (ip.dispositivo || '—') + '</strong></td><td>' + (ip.tipo || '—') + '</td><td><code>' + (ip.ip || '—') + '</code></td><td>' + (ip.mac || '—') + '</td><td>' + (ip.localizacao || '—') + '</td><td>' + (ip.setor || '—') + '</td><td><button class="btn btn-sm btn-outline" onclick="editarIP(\'' + ip.fid + '\')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirIP(\'' + ip.fid + '\')">🗑️</button></td></tr>').join('');
+    
+    tb.innerHTML = ips.map(ip => 
+        '<tr>' +
+        '<td><strong>' + (ip.dispositivo || '—') + '</strong></td>' +
+        '<td>' + (ip.tipo || '—') + '</td>' +
+        '<td><code style="background:#F7FAFC;padding:2px 6px;border-radius:4px;">' + (ip.ip || '—') + '</code></td>' +
+        '<td>' + (ip.mac || '—') + '</td>' +
+        '<td>' + (ip.localizacao || '—') + '</td>' +
+        '<td>' + (ip.setor || '—') + '</td>' +
+        '<td>' +
+            '<button class="btn btn-sm btn-outline" onclick="editarIP(\'' + ip.fid + '\')">✏️</button> ' +
+            '<button class="btn btn-sm btn-danger" onclick="excluirIP(\'' + ip.fid + '\')">🗑️</button>' +
+        '</td>' +
+        '</tr>'
+    ).join('');
 }
 
 function abrirModalIP(ipId) {
@@ -2204,6 +2568,7 @@ function abrirModalIP(ipId) {
     document.getElementById('ipObs').value = '';
     popularSelectSetores('ipSetor');
     document.getElementById('tituloModalIP').textContent = '🌐 Novo IP';
+    
     if (ipId) {
         db.collection('ips_rede').doc(ipId).get().then(doc => {
             if (doc.exists) {
@@ -2226,27 +2591,42 @@ function abrirModalIP(ipId) {
 function salvarIP(e) {
     e.preventDefault();
     const dados = {
-        dispositivo: document.getElementById('ipDispositivo').value,
+        dispositivo: document.getElementById('ipDispositivo').value.trim(),
         tipo: document.getElementById('ipTipo').value,
-        ip: document.getElementById('ipEndereco').value,
-        mac: document.getElementById('ipMAC').value,
-        localizacao: document.getElementById('ipLocal').value,
+        ip: document.getElementById('ipEndereco').value.trim(),
+        mac: document.getElementById('ipMAC').value.trim(),
+        localizacao: document.getElementById('ipLocal').value.trim(),
         setor: document.getElementById('ipSetor').value,
-        observacao: document.getElementById('ipObs').value
+        observacao: document.getElementById('ipObs').value.trim()
     };
+    
+    if (!dados.dispositivo || !dados.ip || !dados.setor) {
+        mostrarToast('Preencha os campos obrigatórios', 'error');
+        return;
+    }
+    
     const id = document.getElementById('ipId').value;
-    (id ? db.collection('ips_rede').doc(id).update(dados) : db.collection('ips_rede').add(dados)).then(() => {
+    const promessa = id 
+        ? db.collection('ips_rede').doc(id).update(dados) 
+        : db.collection('ips_rede').add(dados);
+    
+    promessa.then(() => {
         fecharModal('modalIP');
         carregarIPs();
-        mostrarToast('✅ Salvo!', 'success');
+        mostrarToast('✅ IP salvo!', 'success');
     });
 }
 
-function editarIP(fid) { abrirModalIP(fid); }
+function editarIP(fid) { 
+    abrirModalIP(fid); 
+}
 
 function excluirIP(fid) {
-    if (!confirm('Excluir?')) return;
-    db.collection('ips_rede').doc(fid).delete().then(() => { carregarIPs(); mostrarToast('🗑️ Excluído!', 'success'); });
+    if (!confirm('Excluir este IP?')) return;
+    db.collection('ips_rede').doc(fid).delete().then(() => { 
+        carregarIPs(); 
+        mostrarToast('🗑️ IP excluído!', 'success'); 
+    });
 }
 
 // ============================================
@@ -2255,26 +2635,44 @@ function excluirIP(fid) {
 async function carregarEquipe() {
     const p = verificarPermissoes();
     if (!p.podeGerenciarEquipe) {
-        document.getElementById('tabelaEquipe').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;">🔒 Restrito</td></tr>';
+        document.getElementById('tabelaEquipe').innerHTML = 
+            '<tr><td colspan="7" style="text-align:center;padding:40px;color:#A0AEC0;">🔒 Acesso restrito</td></tr>';
         return;
     }
+    
     const snap = await db.collection('usuarios').get();
     let h = '';
     snap.forEach(d => {
         const u = d.data();
         let acoes = '';
-        if (p.podeGerenciarEquipe && u.usuario !== usuarioLogado.usuario) acoes = '<button class="btn btn-sm btn-danger" onclick="removerTecnico(\'' + d.id + '\')">🗑️</button>';
-        else if (u.usuario === usuarioLogado.usuario) acoes = '<span class="badge badge-gold">Você</span>';
-        h += '<tr><td><strong>' + (u.nome || '') + '</strong></td><td>@' + (u.usuario || '') + '</td><td>' + (u.cargo || '') + '</td><td>' + (u.whatsapp || '—') + '</td><td>' + (u.departamento === 'MANUTENCAO' ? '🔧 Manutenção' : '🖥️ TI') + '</td><td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + (u.status || '') + '</span></td><td>' + acoes + '</td></tr>';
+        if (p.podeGerenciarEquipe && u.usuario !== usuarioLogado.usuario) {
+            acoes = '<button class="btn btn-sm btn-danger" onclick="removerTecnico(\'' + d.id + '\')">🗑️</button>';
+        } else if (u.usuario === usuarioLogado.usuario) {
+            acoes = '<span class="badge badge-gold">Você</span>';
+        }
+        
+        h += '<tr>' +
+            '<td><strong>' + (u.nome || '') + '</strong></td>' +
+            '<td>@' + (u.usuario || '') + '</td>' +
+            '<td>' + (u.cargo || '') + '</td>' +
+            '<td>' + (u.whatsapp || '—') + '</td>' +
+            '<td>' + (u.departamento === 'MANUTENCAO' ? '🔧 Manutenção' : '🖥️ TI') + '</td>' +
+            '<td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + (u.status || '') + '</span></td>' +
+            '<td>' + acoes + '</td>' +
+            '</tr>';
     });
     document.getElementById('tabelaEquipe').innerHTML = h;
 }
 
 function abrirModalTecnico() {
-    if (!verificarPermissoes().podeGerenciarEquipe) return mostrarToast('⛔ Restrito', 'error');
+    if (!verificarPermissoes().podeGerenciarEquipe) {
+        mostrarToast('⛔ Acesso restrito', 'error');
+        return;
+    }
     document.getElementById('tecnicoNome').value = '';
     document.getElementById('tecnicoUsuario').value = '';
     document.getElementById('tecnicoWhatsApp').value = '';
+    document.getElementById('tecnicoDepartamento').value = departamento;
     atualizarCargos();
     abrirModal('modalTecnico');
 }
@@ -2282,18 +2680,28 @@ function abrirModalTecnico() {
 function salvarTecnico(e) {
     e.preventDefault();
     if (!verificarPermissoes().podeGerenciarEquipe) return;
+    
     const u = document.getElementById('tecnicoUsuario').value.toLowerCase().trim();
     const w = document.getElementById('tecnicoWhatsApp').value.trim();
     const dep = document.getElementById('tecnicoDepartamento').value;
     const cargo = document.getElementById('tecnicoCargo').value;
-    if (!w) return mostrarToast('WhatsApp obrigatório', 'error');
+    const nome = document.getElementById('tecnicoNome').value.trim();
+    
+    if (!nome || !u || !w || !cargo) {
+        mostrarToast('Preencha todos os campos', 'error');
+        return;
+    }
+    
     db.collection('usuarios').where('usuario', '==', u).get().then(snap => {
-        if (!snap.empty) return mostrarToast('Usuário existe', 'error');
+        if (!snap.empty) {
+            mostrarToast('Usuário já existe', 'error');
+            return;
+        }
         return db.collection('usuarios').add({
-            nome: document.getElementById('tecnicoNome').value,
+            nome: nome,
             usuario: u,
             senha: '12345',
-            cargo,
+            cargo: cargo,
             tipo: 'tecnico',
             whatsapp: w,
             status: 'ativo',
@@ -2303,40 +2711,53 @@ function salvarTecnico(e) {
     }).then(() => {
         fecharModal('modalTecnico');
         carregarEquipe();
-        mostrarToast('✅ Cadastrado!', 'success');
+        mostrarToast('✅ Técnico cadastrado!', 'success');
     });
 }
 
 function atualizarCargos() {
-    const dep = document.getElementById('tecnicoDepartamento')?.value || 'TI';
+    const dep = document.getElementById('tecnicoDepartamento')?.value || departamento;
     const sel = document.getElementById('tecnicoCargo');
-    if (sel) sel.innerHTML = (cargosPorDepartamento[dep] || cargosPorDepartamento['TI']).map(c => '<option>' + c + '</option>').join('');
+    if (sel) {
+        sel.innerHTML = (cargosPorDepartamento[dep] || cargosPorDepartamento['TI']).map(c => '<option>' + c + '</option>').join('');
+    }
 }
 
 function removerTecnico(id) {
-    if (!confirm('Remover?')) return;
-    db.collection('usuarios').doc(id).delete().then(() => { carregarEquipe(); mostrarToast('🗑️ Removido!', 'success'); });
+    if (!confirm('Remover este técnico?')) return;
+    db.collection('usuarios').doc(id).delete().then(() => { 
+        carregarEquipe(); 
+        mostrarToast('🗑️ Técnico removido!', 'success'); 
+    });
 }
 
 // ============================================
-// INDICADORES
+// INDICADORES (APENAS TI)
 // ============================================
 function atualizarPeriodosIndicadores() {
     const tipo = document.getElementById('indTipo').value;
     const agora = new Date();
     const periodos = [];
+    
     if (tipo === 'mensal') {
         for (let i = 11; i >= 0; i--) {
             const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-            periodos.push({ value: d.toISOString().slice(0, 7), label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) });
+            periodos.push({ 
+                value: d.toISOString().slice(0, 7), 
+                label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) 
+            });
         }
     } else {
         for (let i = 7; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - (i * 7));
-            periodos.push({ value: d.toISOString().slice(0, 10), label: 'Sem ' + d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) });
+            periodos.push({ 
+                value: d.toISOString().slice(0, 10), 
+                label: 'Sem ' + d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) 
+            });
         }
     }
+    
     const s1 = document.getElementById('indPeriodo1');
     const s2 = document.getElementById('indPeriodo2');
     const opts = periodos.map(p => '<option value="' + p.value + '">' + p.label + '</option>').join('');
@@ -2350,12 +2771,15 @@ function atualizarIndicadores() {
     const tipo = document.getElementById('indTipo').value;
     const p1 = document.getElementById('indPeriodo1').value;
     const p2 = document.getElementById('indPeriodo2').value;
+    
     if (!p1 || !p2) return;
+    
     const cr = chamados.filter(c => c.tipo !== 'gesthosp');
     const fp = (p) => cr.filter(c => {
         const d = converterParaData(c.data_abertura);
         return tipo === 'mensal' ? d.toISOString().slice(0, 7) === p : d.toISOString().slice(0, 10) === p;
     });
+    
     const c1 = fp(p1);
     const c2 = fp(p2);
     const t1 = c1.length;
@@ -2363,51 +2787,102 @@ function atualizarIndicadores() {
     const conc2 = c2.filter(c => c.status === 'Concluído').length;
     const crit2 = c2.filter(c => c.prioridade === 'Crítica').length;
     const tx2 = t2 > 0 ? Math.round(conc2 / t2 * 100) : 0;
-    document.getElementById('indicadorGrid').innerHTML = '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total P2</small><strong>' + t2 + '</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Resolução</small><strong>' + tx2 + '%</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>' + crit2 + '</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Anterior</small><strong>' + t1 + '</strong></div></div>';
+    
+    document.getElementById('indicadorGrid').innerHTML = 
+        '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total P2</small><strong>' + t2 + '</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Resolução</small><strong>' + tx2 + '%</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>' + crit2 + '</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Anterior</small><strong>' + t1 + '</strong></div></div>';
+    
     Object.values(charts).forEach(c => { if (c) c.destroy(); });
     charts = {};
+    
     const ctx1 = document.getElementById('graficoComparativo');
-    if (ctx1) charts.cmp = new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: ['Total', 'Concluídos', 'Críticos'],
-            datasets: [
-                { label: 'P1', data: [t1, c1.filter(c => c.status === 'Concluído').length, c1.filter(c => c.prioridade === 'Crítica').length], backgroundColor: 'rgba(49,130,206,0.2)', borderColor: '#3182CE', borderWidth: 1 },
-                { label: 'P2', data: [t2, conc2, crit2], backgroundColor: 'rgba(56,161,105,0.2)', borderColor: '#38A169', borderWidth: 1 }
-            ]
-        },
-        options: { responsive: true }
-    });
+    if (ctx1) {
+        charts.cmp = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Total', 'Concluídos', 'Críticos'],
+                datasets: [
+                    { 
+                        label: 'P1', 
+                        data: [t1, c1.filter(c => c.status === 'Concluído').length, c1.filter(c => c.prioridade === 'Crítica').length], 
+                        backgroundColor: 'rgba(49,130,206,0.2)', 
+                        borderColor: '#3182CE', 
+                        borderWidth: 1 
+                    },
+                    { 
+                        label: 'P2', 
+                        data: [t2, conc2, crit2], 
+                        backgroundColor: 'rgba(56,161,105,0.2)', 
+                        borderColor: '#38A169', 
+                        borderWidth: 1 
+                    }
+                ]
+            },
+            options: { responsive: true }
+        });
+    }
+    
     const ctx2 = document.getElementById('graficoResolucao');
-    if (ctx2) charts.res = new Chart(ctx2, {
-        type: 'doughnut',
-        data: { labels: ['Resolvidos', 'Pendentes'], datasets: [{ data: [conc2, Math.max(0, t2 - conc2)], backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'] }] },
-        options: { responsive: true, cutout: '55%' }
-    });
+    if (ctx2) {
+        charts.res = new Chart(ctx2, {
+            type: 'doughnut',
+            data: { 
+                labels: ['Resolvidos', 'Pendentes'], 
+                datasets: [{ 
+                    data: [conc2, Math.max(0, t2 - conc2)], 
+                    backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'] 
+                }] 
+            },
+            options: { responsive: true, cutout: '55%' }
+        });
+    }
 }
 
 // ============================================
 // CONFIGURAÇÕES
 // ============================================
-function carregarConfig() { renderizarListaSetores(); }
+function carregarConfig() { 
+    renderizarListaSetores(); 
+}
 
 function alterarSenha(e) {
     e.preventDefault();
     const sa = document.getElementById('senhaAtual').value;
     const sn = document.getElementById('senhaNova').value;
+    
+    if (sn.length < 8) {
+        mostrarToast('Senha deve ter no mínimo 8 caracteres', 'error');
+        return;
+    }
+    
     db.collection('usuarios').where('usuario', '==', usuarioLogado.usuario).get().then(snap => {
         if (snap.empty) return;
         const d = snap.docs[0];
-        if (d.data().senha !== sa) return mostrarToast('Senha incorreta', 'error');
+        if (d.data().senha !== sa) {
+            mostrarToast('Senha atual incorreta', 'error');
+            return;
+        }
         return d.ref.update({ senha: sn, primeiro_acesso: false });
-    }).then(() => { mostrarToast('✅ Alterada!', 'success'); e.target.reset(); });
+    }).then(() => { 
+        mostrarToast('✅ Senha alterada com sucesso!', 'success'); 
+        e.target.reset(); 
+    });
 }
 
 function renderizarListaSetores() {
     const div = document.getElementById('listaSetores');
     div.innerHTML = setores.map((s, i) => {
         const temImp = setoresImpressora.includes(s);
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:4px;background:' + (temImp ? '#FFFBEB' : '#FFFFFF') + '"><span>📍 ' + s + ' ' + (temImp ? '<span style="font-size:9px;">🖨️</span>' : '') + '</span><div style="display:flex;gap:4px;">' + (!temImp ? '<button class="btn btn-sm btn-outline" onclick="toggleImpressora(' + i + ')">🖨️</button>' : '<button class="btn btn-sm btn-outline" onclick="toggleImpressora(' + i + ')">❌🖨️</button>') + '<button class="btn btn-sm btn-outline" onclick="editarSetor(' + i + ')">✏️</button><button class="btn btn-sm btn-danger" onclick="removerSetor(' + i + ')">🗑️</button></div></div>';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:1px solid #E2E8F0;border-radius:8px;margin-bottom:4px;background:' + (temImp ? '#FFFBEB' : '#FFFFFF') + '">' +
+            '<span>📍 ' + s + ' ' + (temImp ? '<span style="font-size:9px;">🖨️</span>' : '') + '</span>' +
+            '<div style="display:flex;gap:4px;">' +
+            (!temImp ? '<button class="btn btn-sm btn-outline" onclick="toggleImpressora(' + i + ')" title="Adicionar impressora">🖨️</button>' : 
+                      '<button class="btn btn-sm btn-outline" onclick="toggleImpressora(' + i + ')" title="Remover impressora">❌🖨️</button>') +
+            '<button class="btn btn-sm btn-outline" onclick="editarSetor(' + i + ')">✏️</button>' +
+            '<button class="btn btn-sm btn-danger" onclick="removerSetor(' + i + ')">🗑️</button>' +
+            '</div></div>';
     }).join('');
 }
 
@@ -2415,26 +2890,35 @@ function adicionarSetor() {
     const nome = document.getElementById('novoSetor').value.trim();
     if (!nome) return mostrarToast('Digite um nome', 'error');
     if (setores.includes(nome)) return mostrarToast('Setor já existe', 'error');
+    
     setores.push(nome);
-    if (document.getElementById('temImpressora').checked) setoresImpressora.push(nome);
+    if (document.getElementById('temImpressora').checked) {
+        setoresImpressora.push(nome);
+    }
+    
     salvarConfiguracoes();
     renderizarListaSetores();
     document.getElementById('novoSetor').value = '';
     document.getElementById('temImpressora').checked = false;
+    
+    // Atualizar selects
     popularSelectSetores('invSetor');
     popularSelectSetores('ipSetor');
     popularSelectSetores('moverSetorDestino');
     popularSelectSetoresImpressora('tonerSetor');
-    mostrarToast('✅ Adicionado!', 'success');
+    
+    mostrarToast('✅ Setor adicionado!', 'success');
 }
 
 function editarSetor(i) {
-    const novo = prompt('Editar:', setores[i]);
+    const novo = prompt('Editar nome do setor:', setores[i]);
     if (novo && novo.trim() && novo.trim() !== setores[i]) {
         const antigo = setores[i];
         setores[i] = novo.trim();
+        
         const idx = setoresImpressora.indexOf(antigo);
         if (idx >= 0) setoresImpressora[idx] = novo.trim();
+        
         salvarConfiguracoes();
         renderizarListaSetores();
         popularSelectSetores('invSetor');
@@ -2462,10 +2946,10 @@ function toggleImpressora(i) {
     const idx = setoresImpressora.indexOf(nome);
     if (idx >= 0) {
         setoresImpressora.splice(idx, 1);
-        mostrarToast('🖨️ Removida de ' + nome, 'warning');
+        mostrarToast('🖨️ Impressora removida de ' + nome, 'warning');
     } else {
         setoresImpressora.push(nome);
-        mostrarToast('🖨️ Adicionada a ' + nome, 'success');
+        mostrarToast('🖨️ Impressora adicionada a ' + nome, 'success');
     }
     salvarConfiguracoes();
     renderizarListaSetores();
@@ -2479,22 +2963,34 @@ function toggleImpressora(i) {
 function gerarRelatorioPDF() {
     const el = document.createElement('div');
     el.style.cssText = 'padding:32px;background:#fff;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML = '<div style="text-align:center;border-bottom:3px solid #3182CE;"><h1>HelpHosp</h1><h2>' + nomeDepartamento + '</h2></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">' + chamados.length + '</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;color:#E53E3E;">' + chamados.filter(c => c.status !== 'Concluído').length + '</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;color:#38A169;">' + chamados.filter(c => c.status === 'Concluído').length + '</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;color:#DD6B20;">' + (chamados.length > 0 ? Math.round(chamados.filter(c => c.status === 'Concluído').length / chamados.length * 100) : 0) + '%</p></div></div>';
+    el.innerHTML = 
+        '<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;">' +
+        '<h1 style="color:#1a3a5c;">HelpHosp</h1>' +
+        '<h2 style="color:#4A5568;">' + nomeDepartamento + '</h2>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;">' +
+        '<div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p style="color:#A0AEC0;">TOTAL</p><p style="font-size:32px;font-weight:700;">' + chamados.length + '</p></div>' +
+        '<div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;font-weight:700;color:#E53E3E;">' + chamados.filter(c => c.status !== 'Concluído').length + '</p></div>' +
+        '<div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;font-weight:700;color:#38A169;">' + chamados.filter(c => c.status === 'Concluído').length + '</p></div>' +
+        '<div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;font-weight:700;color:#DD6B20;">' + (chamados.length > 0 ? Math.round(chamados.filter(c => c.status === 'Concluído').length / chamados.length * 100) : 0) + '%</p></div>' +
+        '</div>';
+    
     document.body.appendChild(el);
     html2canvas(el, { scale: 2 }).then(canvas => {
         document.body.removeChild(el);
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, 200, (canvas.height * 200) / canvas.width);
-        pdf.save('relatorio.pdf');
-        mostrarToast('📄 PDF gerado!', 'success');
+        pdf.save('relatorio-' + nomeDepartamento.toLowerCase().replace(/\s/g, '-') + '.pdf');
+        mostrarToast('📄 Relatório gerado!', 'success');
     });
 }
 
 function imprimirIndicadores() {
     const el = document.createElement('div');
     el.style.cssText = 'padding:32px;background:#fff;width:1000px;position:absolute;left:-9999px;';
-    el.innerHTML = '<h1>HelpHosp - Indicadores</h1>';
+    el.innerHTML = '<h1 style="color:#1a3a5c;">HelpHosp - Indicadores</h1>';
     el.appendChild(document.getElementById('indicadorGrid').cloneNode(true));
+    
     document.body.appendChild(el);
     html2canvas(el, { scale: 2 }).then(canvas => {
         document.body.removeChild(el);
@@ -2511,36 +3007,63 @@ function logout() {
 }
 
 // ============================================
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO DO SISTEMA
 // ============================================
 async function inicializarSistema() {
     if (!verificarAutenticacao()) return;
+    
     await carregarConfiguracoes();
     idsVistos = JSON.parse(localStorage.getItem('ids_vistos') || '[]');
     inicializarInterface();
     await carregarChamados();
+    
+    // Atualizar views
     atualizarDashboard();
     filtrarChamados();
     configurarListenerChamados();
-    carregarEstoque();
-    carregarInventario();
-    carregarIPs();
-    carregarEquipe();
-    carregarToners();
-    atualizarPeriodosIndicadores();
-    db.collection('movimentacoes').orderBy('data', 'desc').limit(200).get().then(snap => {
-        movimentacoes = [];
-        snap.forEach(d => { const x = d.data(); x.fid = d.id; movimentacoes.push(x); });
-    });
-    if (Notification.permission === 'default') Notification.requestPermission();
+    
+    // Carregar dados específicos por departamento
+    const p = verificarPermissoes();
+    
+    if (p.isTI || p.isAdmin) {
+        carregarEstoque();
+        carregarInventario();
+        carregarIPs();
+        carregarToners();
+        atualizarPeriodosIndicadores();
+        
+        // Carregar movimentações
+        db.collection('movimentacoes').orderBy('data', 'desc').limit(200).get().then(snap => {
+            movimentacoes = [];
+            snap.forEach(d => { 
+                const x = d.data(); 
+                x.fid = d.id; 
+                movimentacoes.push(x); 
+            });
+        });
+    }
+    
+    if (p.podeGerenciarEquipe) {
+        carregarEquipe();
+    }
+    
+    // Solicitar permissão de notificação
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
 }
 
+// Event Listeners
 window.addEventListener('load', inicializarSistema);
 window.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('ativa');
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('ativa');
+    }
 });
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.ativa').forEach(m => m.classList.remove('ativa'));
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.ativa').forEach(m => m.classList.remove('ativa'));
+    }
 });
 </script>
 </body>

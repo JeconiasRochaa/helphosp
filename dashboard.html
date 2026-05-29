@@ -1221,12 +1221,529 @@ function definirExecutante(e) { e.preventDefault(); const exec = document.getEle
 function loadGestHosp() { if(!getPerms().isTI && !getPerms().isAdmin) { document.getElementById('tabelaGestHosp').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#A0AEC0;">🔒 Restrito à TI</td></tr>'; return; } const f = chamados.filter(c => c.tipo==='gesthosp'); const tb = document.getElementById('tabelaGestHosp'); if(f.length===0) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#A0AEC0;">📭 Nenhum</td></tr>'; return; } tb.innerHTML = f.map(c => { let d = {}; try { if(c.descricao) d = JSON.parse(c.descricao); } catch(e) {} return '<tr><td><strong>'+(c.protocolo||'—')+'</strong></td><td>'+fmtDataCurta(c.data_abertura)+'</td><td>'+(d.nome||'—')+'</td><td>'+(d.cpf||'—')+'</td><td><span class="badge '+(c.status==='Concluído'?'badge-green':'badge-blue')+'">'+(c.status||'—')+'</span></td><td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus(\''+c.fid+'\')">▶</button></td></tr>'; }).join(''); }
 
 // ============================================
-// TONERS, ESTOQUE, INVENTÁRIO, IPs, EQUIPE, INDICADORES, CONFIG
-// (Funções mantidas iguais às versões anteriores)
+// TONERS - CARREGAR DADOS SALVOS
 // ============================================
+function loadToners() {
+    const ct = chamados.filter(c => c.tipo === 'toner' || c.isToner);
+    const td = {};
+    setoresImp.forEach(s => { td[s] = { ultima: null, hist: [], dias: 0, status: 'normal' }; });
+    ct.forEach(t => {
+        const s = t.setor;
+        if (s && td[s]) {
+            const dt = toDate(t.data_troca_toner || t.data_abertura);
+            td[s].hist.push({ data: dt, tecnico: t.solicitante || 'TI', tipo: t.tipo_troca || 'preventiva', obs: t.observacao || '' });
+        }
+    });
+    Object.keys(td).forEach(s => {
+        td[s].hist.sort((a, b) => b.data - a.data);
+        if (td[s].hist.length > 0) {
+            td[s].ultima = td[s].hist[0];
+            td[s].dias = Math.floor((new Date() - td[s].ultima.data) / 86400000);
+            if (td[s].dias > 90) td[s].status = 'critico';
+            else if (td[s].dias > 60) td[s].status = 'atencao';
+        }
+    });
+    document.getElementById('tabelaToners').innerHTML = Object.entries(td).map(([s, d]) => {
+        if (!d.ultima) return '<tr style="opacity:0.4;"><td><strong>' + s + '</strong></td><td colspan="7" style="text-align:center;color:#A0AEC0;">Nenhuma troca</td></tr>';
+        const si = d.status === 'critico' ? '🔴' : d.status === 'atencao' ? '🟡' : '🟢';
+        const st = d.status === 'critico' ? 'Crítico' : d.status === 'atencao' ? 'Atenção' : 'Normal';
+        const cd = d.dias > 90 ? 'color:#E53E3E;' : d.dias > 60 ? 'color:#DD6B20;' : 'color:#38A169;';
+        const pp = new Date(d.ultima.data); pp.setDate(pp.getDate() + 90);
+        const dpp = Math.floor((pp - new Date()) / 86400000);
+        return '<tr style="' + (d.status === 'critico' ? 'background:#FFF5F5;' : '') + '"><td><strong>' + s + '</strong></td><td>' + fmtData(d.ultima.data) + '</td><td>' + (dpp > 0 ? fmtData(pp) : '<span style="color:#E53E3E;">Vencida</span>') + '</td><td>' + d.ultima.tecnico + '</td><td>' + (d.ultima.tipo === 'preventiva' ? '🟢 Prev' : '🔴 Nec') + '</td><td style="' + cd + 'font-weight:600;">' + d.dias + 'd</td><td>' + si + ' ' + st + '</td><td><button class="btn btn-sm btn-outline" onclick="verHistoricoToner(\'' + s + '\')">📜 ' + d.hist.length + '</button></td></tr>';
+    }).join('');
+}
 
-// ... (restante das funções de Toners, Estoque, Inventário, IPs, Equipe, Indicadores, Config)
+function verHistoricoToner(s) {
+    const ct = chamados.filter(c => (c.tipo === 'toner' || c.isToner) && c.setor === s).sort((a, b) => toDate(b.data_troca_toner || b.data_abertura) - toDate(a.data_troca_toner || a.data_abertura));
+    document.getElementById('historicoTonerConteudo').innerHTML = '<h4>📜 ' + s + '</h4><div>' + (ct.length > 0 ? ct.map(t => '<div style="padding:8px;border-bottom:1px solid #F3F4F6;"><strong>' + fmtData(toDate(t.data_troca_toner || t.data_abertura)) + '</strong> — ' + (t.tipo_troca === 'preventiva' ? '🟢 Prev' : '🔴 Nec') + '<br><small>' + (t.solicitante || 'TI') + (t.observacao ? ' - ' + t.observacao : '') + '</small></div>').join('') : '<p style="color:#A0AEC0;">Nenhum</p>') + '</div>';
+    abrirModal('modalHistoricoToner');
+}
 
+function abrirModalToner() { popSetoresImp('tonerSetor'); document.getElementById('tonerTipo').value = 'preventiva'; document.getElementById('tonerObs').value = ''; abrirModal('modalToner'); }
+
+function registrarTrocaToner(e) {
+    e.preventDefault();
+    const s = document.getElementById('tonerSetor').value;
+    if (!s) return toast('Selecione o setor', 'error');
+    db.collection('chamados').add({
+        protocolo: genProtocolo('TN'), setor: s, tipo: 'toner', isToner: true, status: 'Concluído',
+        solicitante: usuarioLogado.nome, departamento: depto, titulo: 'Troca de toner — ' + s,
+        tipo_troca: document.getElementById('tonerTipo').value,
+        observacao: document.getElementById('tonerObs').value.trim(),
+        data_abertura: firebase.firestore.Timestamp.now(),
+        data_troca_toner: firebase.firestore.Timestamp.now()
+    }).then(() => { fecharModal('modalToner'); loadToners(); toast('✅ Registrado!', 'success'); });
+}
+
+// ============================================
+// ESTOQUE - CARREGAR DADOS SALVOS
+// ============================================
+async function loadEstoque() {
+    const snap = await db.collection('estoque').get();
+    estoque = [];
+    snap.forEach(d => { const x = d.data(); x.fid = d.id; estoque.push(x); });
+    filtrarEstoque();
+}
+
+function filtrarEstoque() {
+    const fn = (document.getElementById('filtroEstoque')?.value || '').toLowerCase();
+    const fs = document.getElementById('filtroStatusEstoque')?.value || '';
+    let f = [...estoque];
+    if (fn) f = f.filter(eq => (eq.nome || '').toLowerCase().includes(fn));
+    if (fs) f = f.filter(eq => eq.status === fs);
+    renderEstoque(f);
+}
+
+function renderEstoque(lista) {
+    const c = document.getElementById('listaEstoque');
+    if (lista.length === 0) { c.innerHTML = '<div style="text-align:center;padding:40px;grid-column:1/-1;color:#A0AEC0;">📦 Vazio</div>'; return; }
+    c.innerHTML = lista.map(eq => {
+        const st = eq.status === 'Com defeito' ? { icon: '🔴', c: '#E53E3E', bg: '#FFF5F5' } : { icon: '🟢', c: '#38A169', bg: '#F0FFF4' };
+        return '<div class="estoque-item" onclick="abrirMoverEstoque(\'' + eq.fid + '\')"><div class="actions" onclick="event.stopPropagation();"><button class="btn btn-sm btn-outline" onclick="editarEstoque(\'' + eq.fid + '\')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirEstoque(\'' + eq.fid + '\')">🗑️</button></div><div class="emoji">' + (eq.emoji || '📦') + '</div><h4>' + eq.nome + '</h4><span style="padding:2px 8px;border-radius:12px;font-size:8px;background:' + st.bg + ';color:' + st.c + ';">' + st.icon + ' ' + eq.status + '</span><div class="qtd">Qtd: ' + (eq.quantidade || 1) + '</div></div>';
+    }).join('');
+}
+
+function abrirModalEstoque(eqId) {
+    document.getElementById('estoqueId').value = '';
+    document.getElementById('estoqueTipo').value = '';
+    document.getElementById('estoqueEmoji').value = '';
+    document.getElementById('estoqueNome').value = '';
+    document.getElementById('estoqueStatus').value = 'Em estoque';
+    document.getElementById('estoqueQtd').value = '1';
+    document.getElementById('estoqueObs').value = '';
+    document.getElementById('tituloModalEstoque').textContent = '📦 Novo';
+    popTiposEq('estoqueTipo');
+    if (eqId) {
+        const eq = estoque.find(e => e.fid === eqId);
+        if (eq) {
+            document.getElementById('estoqueId').value = eq.fid;
+            document.getElementById('estoqueTipo').value = eq.tipo || '';
+            document.getElementById('estoqueEmoji').value = eq.emoji || '';
+            document.getElementById('estoqueNome').value = eq.nome || '';
+            document.getElementById('estoqueStatus').value = eq.status || 'Em estoque';
+            document.getElementById('estoqueQtd').value = eq.quantidade || 1;
+            document.getElementById('estoqueObs').value = eq.observacao || '';
+            document.getElementById('tituloModalEstoque').textContent = '✏️ Editar';
+        }
+    }
+    abrirModal('modalEstoque');
+}
+
+function autoEmoji() { const s = document.getElementById('estoqueTipo'); if (s.value) document.getElementById('estoqueEmoji').value = s.value.split(' ')[0]; }
+
+function salvarEstoque(e) {
+    e.preventDefault();
+    const nome = document.getElementById('estoqueNome').value.trim();
+    if (!nome) return toast('Nome obrigatório', 'error');
+    const dados = {
+        tipo: document.getElementById('estoqueTipo').value,
+        emoji: document.getElementById('estoqueEmoji').value || sugereEmoji(nome),
+        nome: nome,
+        status: document.getElementById('estoqueStatus').value,
+        quantidade: parseInt(document.getElementById('estoqueQtd').value) || 1,
+        observacao: document.getElementById('estoqueObs').value.trim()
+    };
+    const id = document.getElementById('estoqueId').value;
+    (id ? db.collection('estoque').doc(id).update(dados) : db.collection('estoque').add({ ...dados, data_cadastro: firebase.firestore.Timestamp.now() }))
+        .then(() => { fecharModal('modalEstoque'); loadEstoque(); toast('✅ Salvo!', 'success'); });
+}
+
+function editarEstoque(fid) { abrirModalEstoque(fid); }
+
+function excluirEstoque(fid) { if (!confirm('Excluir?')) return; db.collection('estoque').doc(fid).delete().then(() => { loadEstoque(); toast('🗑️ Excluído!', 'success'); }); }
+
+function abrirMoverEstoque(estoqueId) {
+    const eq = estoque.find(e => e.fid === estoqueId);
+    if (!eq) return;
+    document.getElementById('moverEstoqueId').value = estoqueId;
+    document.getElementById('moverQtd').value = 1;
+    document.getElementById('moverQtd').max = eq.quantidade || 1;
+    document.getElementById('moverTipoEspecifico').value = eq.tipo || '';
+    document.getElementById('moverMotivo').value = '';
+    document.getElementById('moverMotivoOutro').value = '';
+    document.getElementById('moverObs').value = '';
+    document.getElementById('grupoMotivoOutro').style.display = 'none';
+    popTiposEq('moverTipoEspecifico');
+    document.getElementById('moverEstoqueInfo').innerHTML = '<strong>📦 ' + (eq.emoji || '📦') + ' ' + eq.nome + '</strong><br><small>Disponível: <strong>' + (eq.quantidade || 1) + '</strong> un.</small>';
+    popSetores('moverSetorDestino');
+    abrirModal('modalMoverEstoque');
+}
+
+async function confirmarMoverEstoque(e) {
+    e.preventDefault();
+    const estoqueId = document.getElementById('moverEstoqueId').value;
+    const qtd = parseInt(document.getElementById('moverQtd').value) || 1;
+    const tipo = document.getElementById('moverTipoEspecifico').value;
+    const setor = document.getElementById('moverSetorDestino').value;
+    const motivo = document.getElementById('moverMotivo').value;
+    const motivoOutro = document.getElementById('moverMotivoOutro').value.trim();
+    const obs = document.getElementById('moverObs').value.trim();
+    if (!tipo) return toast('Selecione o tipo', 'error');
+    if (!setor) return toast('Selecione o setor', 'error');
+    if (!motivo) return toast('Selecione o motivo', 'error');
+    if (motivo === 'outro' && !motivoOutro) return toast('Descreva o motivo', 'error');
+    const eq = estoque.find(e => e.fid === estoqueId);
+    if (!eq) return toast('Não encontrado', 'error');
+    if (qtd > (eq.quantidade || 1)) return toast('Quantidade indisponível', 'error');
+    const motivoFinal = motivo === 'outro' ? motivoOutro : motivo;
+    try {
+        const restante = (eq.quantidade || 1) - qtd;
+        if (restante <= 0) await db.collection('estoque').doc(estoqueId).delete();
+        else await db.collection('estoque').doc(estoqueId).update({ quantidade: restante });
+        const slug = getSlug(tipo);
+        const snap = await db.collection('inventario').where('setor', '==', setor).get();
+        if (snap.empty) {
+            const novo = { setor, computadores: 0, impressoras: 0, ramais: 0, tvs: 0, redes: 0, outros: 0, observacao: 'Criado automaticamente' };
+            novo[slug] = qtd;
+            await db.collection('inventario').add(novo);
+        } else {
+            const doc = snap.docs[0];
+            const d = doc.data();
+            d[slug] = (d[slug] || 0) + qtd;
+            await doc.ref.update({ [slug]: d[slug] });
+        }
+        await db.collection('movimentacoes').add({
+            data: firebase.firestore.Timestamp.now(), quantidade: qtd, tipo: slug, tipoNome: tipo,
+            equipamentoNome: eq.nome, equipamentoEmoji: eq.emoji || '📦', setorDestino: setor,
+            motivo: motivoFinal, observacao: obs, tecnico: usuarioLogado.nome, departamento: depto
+        });
+        fecharModal('modalMoverEstoque');
+        await loadEstoque();
+        await loadInventario();
+        toast('✅ ' + qtd + ' ' + tipo + ' movido para ' + setor + '!', 'success');
+    } catch (err) { console.error(err); toast('Erro ao mover', 'error'); }
+}
+
+// ============================================
+// INVENTÁRIO - CARREGAR DADOS SALVOS
+// ============================================
+async function loadInventario() {
+    const snap = await db.collection('inventario').get();
+    inventario = [];
+    snap.forEach(d => { const x = d.data(); x.fid = d.id; inventario.push(x); });
+    const fb = (document.getElementById('filtroInv')?.value || '').toLowerCase();
+    let lista = [...inventario];
+    if (fb) lista = lista.filter(inv => inv.setor.toLowerCase().includes(fb));
+    lista.sort((a, b) => a.setor.localeCompare(b.setor));
+    renderInventario(lista);
+}
+
+function getComposicao(setorNome) {
+    const movs = movimentacoes.filter(m => m.setorDestino === setorNome);
+    const comp = {};
+    movs.forEach(m => { const ch = m.tipoNome || m.tipo; comp[ch] = (comp[ch] || 0) + m.quantidade; });
+    return comp;
+}
+
+function renderInventario(lista) {
+    const tb = document.getElementById('tabelaInventario');
+    let tg = 0, tc = 0, ti = 0, tr = 0, ttv = 0, tre = 0, to = 0;
+    lista.forEach(inv => {
+        tg += (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+        tc += inv.computadores || 0; ti += inv.impressoras || 0; tr += inv.ramais || 0;
+        ttv += inv.tvs || 0; tre += inv.redes || 0; to += inv.outros || 0;
+    });
+    document.getElementById('invTotalGeral').textContent = tg;
+    document.getElementById('invTotalComp').textContent = tc;
+    document.getElementById('invTotalImp').textContent = ti;
+    document.getElementById('invTotalRamais').textContent = tr;
+    if (lista.length === 0) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#A0AEC0;">Nenhum</td></tr>'; return; }
+    tb.innerHTML = lista.map(inv => {
+        const t = (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+        return '<tr><td><strong>' + inv.setor + '</strong></td><td style="text-align:center;">' + (inv.computadores || 0) + '</td><td style="text-align:center;">' + (inv.impressoras || 0) + '</td><td style="text-align:center;">' + (inv.ramais || 0) + '</td><td style="text-align:center;">' + (inv.tvs || 0) + '</td><td style="text-align:center;">' + (inv.redes || 0) + '</td><td style="text-align:center;">' + (inv.outros || 0) + '</td><td style="text-align:center;font-weight:700;">' + t + '</td><td><button class="btn btn-sm btn-primary" onclick="verDetalhesInv(\'' + inv.fid + '\')">📋</button> <button class="btn btn-sm btn-outline" onclick="editarInv(\'' + inv.fid + '\')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirInv(\'' + inv.fid + '\')">🗑️</button></td></tr>';
+    }).join('');
+}
+
+function verDetalhesInv(fid) {
+    const inv = inventario.find(i => i.fid === fid);
+    if (!inv) return;
+    const comp = getComposicao(inv.setor);
+    const movsSetor = movimentacoes.filter(m => m.setorDestino === inv.setor);
+    let html = '<h4>📍 ' + inv.setor + '</h4>';
+    html += '<div class="inv-detail-grid">';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.computadores || 0) + '</div><div class="label">💻 Comp.</div></div>';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.impressoras || 0) + '</div><div class="label">🖨️ Imp.</div></div>';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.ramais || 0) + '</div><div class="label">📞 Ramais</div></div>';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.tvs || 0) + '</div><div class="label">📺 TVs</div></div>';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.redes || 0) + '</div><div class="label">📡 Redes</div></div>';
+    html += '<div class="inv-detail-card"><div class="count">' + (inv.outros || 0) + '</div><div class="label">📱 Outros</div></div>';
+    html += '</div>';
+    if (Object.keys(comp).length > 0) {
+        html += '<h5 style="margin-top:16px;">📦 Composição</h5><div style="display:grid;gap:4px;font-size:10px;">';
+        Object.entries(comp).forEach(([n, q]) => { html += '<div style="display:flex;justify-content:space-between;padding:6px 10px;background:#F7FAFC;border-radius:6px;"><span>' + n + '</span><strong>' + q + '</strong></div>'; });
+        html += '</div>';
+    }
+    if (inv.observacao) html += '<div style="margin-top:12px;padding:10px;background:#FFFBEB;border:1px solid #F6E05E;border-radius:8px;font-size:11px;"><strong>📝</strong> ' + inv.observacao + '</div>';
+    if (movsSetor.length > 0) {
+        html += '<h5 style="margin-top:16px;">📋 Movimentações</h5>';
+        movsSetor.slice(0, 8).forEach(m => {
+            html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:10px;"><div style="width:6px;height:6px;background:#3182CE;border-radius:50%;margin-top:5px;"></div><div><strong>' + m.tipoNome + '</strong> — Qtd: ' + m.quantidade + '<br><small>' + fmtData(m.data) + ' por ' + m.tecnico + '</small></div></div>';
+        });
+    }
+    document.getElementById('detalhesInventarioConteudo').innerHTML = html;
+    abrirModal('modalDetalhesInventario');
+}
+
+function abrirModalInventario(invId) {
+    document.getElementById('invId').value = '';
+    document.getElementById('invSetor').value = '';
+    document.getElementById('invComputadores').value = '0';
+    document.getElementById('invImpressoras').value = '0';
+    document.getElementById('invRamais').value = '0';
+    document.getElementById('invOutros').value = '0';
+    document.getElementById('invObs').value = '';
+    popSetores('invSetor');
+    document.getElementById('tituloModalInventario').textContent = '📊 Novo';
+    if (invId) {
+        const inv = inventario.find(i => i.fid === invId);
+        if (inv) {
+            document.getElementById('invId').value = inv.fid;
+            document.getElementById('invSetor').value = inv.setor;
+            document.getElementById('invComputadores').value = inv.computadores || 0;
+            document.getElementById('invImpressoras').value = inv.impressoras || 0;
+            document.getElementById('invRamais').value = inv.ramais || 0;
+            document.getElementById('invOutros').value = (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+            document.getElementById('invObs').value = inv.observacao || '';
+            document.getElementById('tituloModalInventario').textContent = '✏️ Editar';
+        }
+    }
+    abrirModal('modalInventario');
+}
+
+function salvarInventario(e) {
+    e.preventDefault();
+    const dados = {
+        setor: document.getElementById('invSetor').value,
+        computadores: parseInt(document.getElementById('invComputadores').value) || 0,
+        impressoras: parseInt(document.getElementById('invImpressoras').value) || 0,
+        ramais: parseInt(document.getElementById('invRamais').value) || 0,
+        tvs: 0, redes: 0,
+        outros: parseInt(document.getElementById('invOutros').value) || 0,
+        observacao: document.getElementById('invObs').value.trim()
+    };
+    if (!dados.setor) return toast('Selecione um setor', 'error');
+    const id = document.getElementById('invId').value;
+    (id ? db.collection('inventario').doc(id).update(dados) : db.collection('inventario').add(dados))
+        .then(() => { fecharModal('modalInventario'); loadInventario(); toast('✅ Salvo!', 'success'); });
+}
+
+function editarInv(fid) { abrirModalInventario(fid); }
+
+function excluirInv(fid) { if (!confirm('Excluir?')) return; db.collection('inventario').doc(fid).delete().then(() => { loadInventario(); toast('🗑️ Excluído!', 'success'); }); }
+
+// ============================================
+// MOVIMENTAÇÕES
+// ============================================
+async function carregarMovimentacoes() {
+    const snap = await db.collection('movimentacoes').orderBy('data', 'desc').limit(200).get();
+    movimentacoes = [];
+    snap.forEach(d => { const x = d.data(); x.fid = d.id; movimentacoes.push(x); });
+    const st = document.getElementById('filtroTipoMov');
+    st.innerHTML = '<option value="">Todos</option>';
+    tiposEq.forEach(t => { st.innerHTML += '<option value="' + t.slug + '">' + t.emoji + ' ' + t.nome + '</option>'; });
+    filtrarMovimentacoes();
+    abrirModal('modalHistoricoMovimentacoes');
+}
+
+function filtrarMovimentacoes() {
+    const fb = (document.getElementById('filtroMov')?.value || '').toLowerCase();
+    const ft = document.getElementById('filtroTipoMov')?.value || '';
+    let lista = [...movimentacoes];
+    if (fb) lista = lista.filter(m => (m.equipamentoNome || '').toLowerCase().includes(fb) || (m.setorDestino || '').toLowerCase().includes(fb) || (m.motivo || '').toLowerCase().includes(fb));
+    if (ft) lista = lista.filter(m => m.tipo === ft);
+    const div = document.getElementById('listaMovimentacoes');
+    if (lista.length === 0) { div.innerHTML = '<div style="text-align:center;padding:40px;color:#A0AEC0;">📭 Nenhuma</div>'; return; }
+    div.innerHTML = lista.map(m => '<div style="background:#FFF;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-bottom:6px;"><div style="display:flex;justify-content:space-between;"><strong>' + (m.tipoNome || '📦') + ' ' + m.equipamentoNome + '</strong><span>Qtd: ' + m.quantidade + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;font-size:10px;"><div><strong>📍</strong> ' + m.setorDestino + '</div><div><strong>👤</strong> ' + m.tecnico + '</div><div><strong>📋</strong> ' + m.motivo + '</div><div><strong>📅</strong> ' + fmtData(m.data) + '</div>' + (m.observacao ? '<div style="grid-column:1/-1;"><strong>📝</strong> ' + m.observacao + '</div>' : '') + '</div></div>').join('');
+}
+
+// ============================================
+// IPs - CARREGAR DADOS SALVOS
+// ============================================
+async function loadIPs() {
+    const snap = await db.collection('ips_rede').get();
+    const ips = [];
+    snap.forEach(d => { const x = d.data(); x.fid = d.id; ips.push(x); });
+    const tb = document.getElementById('tabelaIPs');
+    if (ips.length === 0) { tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:#A0AEC0;">Nenhum</td></tr>'; return; }
+    tb.innerHTML = ips.map(ip => '<tr><td><strong>' + (ip.dispositivo || '—') + '</strong></td><td>' + (ip.tipo || '—') + '</td><td><code>' + (ip.ip || '—') + '</code></td><td>' + (ip.mac || '—') + '</td><td>' + (ip.localizacao || '—') + '</td><td>' + (ip.setor || '—') + '</td><td><button class="btn btn-sm btn-outline" onclick="editarIP(\'' + ip.fid + '\')">✏️</button> <button class="btn btn-sm btn-danger" onclick="excluirIP(\'' + ip.fid + '\')">🗑️</button></td></tr>').join('');
+}
+
+function abrirModalIP(ipId) {
+    document.getElementById('ipId').value = '';
+    document.getElementById('ipDispositivo').value = '';
+    document.getElementById('ipTipo').value = '';
+    document.getElementById('ipEndereco').value = '';
+    document.getElementById('ipMAC').value = '';
+    document.getElementById('ipLocal').value = '';
+    document.getElementById('ipSetor').value = '';
+    document.getElementById('ipObs').value = '';
+    popSetores('ipSetor');
+    document.getElementById('tituloModalIP').textContent = '🌐 Novo IP';
+    if (ipId) {
+        db.collection('ips_rede').doc(ipId).get().then(doc => {
+            if (doc.exists) {
+                const ip = doc.data();
+                document.getElementById('ipId').value = ipId;
+                document.getElementById('ipDispositivo').value = ip.dispositivo || '';
+                document.getElementById('ipTipo').value = ip.tipo || '';
+                document.getElementById('ipEndereco').value = ip.ip || '';
+                document.getElementById('ipMAC').value = ip.mac || '';
+                document.getElementById('ipLocal').value = ip.localizacao || '';
+                document.getElementById('ipSetor').value = ip.setor || '';
+                document.getElementById('ipObs').value = ip.observacao || '';
+                document.getElementById('tituloModalIP').textContent = '✏️ Editar';
+            }
+        });
+    }
+    abrirModal('modalIP');
+}
+
+function salvarIP(e) {
+    e.preventDefault();
+    const dados = {
+        dispositivo: document.getElementById('ipDispositivo').value.trim(),
+        tipo: document.getElementById('ipTipo').value,
+        ip: document.getElementById('ipEndereco').value.trim(),
+        mac: document.getElementById('ipMAC').value.trim(),
+        localizacao: document.getElementById('ipLocal').value.trim(),
+        setor: document.getElementById('ipSetor').value,
+        observacao: document.getElementById('ipObs').value.trim()
+    };
+    if (!dados.dispositivo || !dados.ip || !dados.setor) return toast('Preencha os campos obrigatórios', 'error');
+    const id = document.getElementById('ipId').value;
+    (id ? db.collection('ips_rede').doc(id).update(dados) : db.collection('ips_rede').add(dados))
+        .then(() => { fecharModal('modalIP'); loadIPs(); toast('✅ Salvo!', 'success'); });
+}
+
+function editarIP(fid) { abrirModalIP(fid); }
+
+function excluirIP(fid) { if (!confirm('Excluir?')) return; db.collection('ips_rede').doc(fid).delete().then(() => { loadIPs(); toast('🗑️ Excluído!', 'success'); }); }
+
+// ============================================
+// EQUIPE - CARREGAR DADOS SALVOS (FILTRADO POR DEPARTAMENTO)
+// ============================================
+async function loadEquipe() {
+    const p = getPerms();
+    if (!p.podeEquipe) { document.getElementById('tabelaEquipe').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#A0AEC0;">🔒 Restrito</td></tr>'; return; }
+    const snap = await db.collection('usuarios').where('departamento', '==', depto).get();
+    let h = '';
+    snap.forEach(d => {
+        const u = d.data();
+        let ac = '';
+        if (u.usuario !== usuarioLogado.usuario) ac = '<button class="btn btn-sm btn-danger" onclick="removerTecnico(\'' + d.id + '\')">🗑️</button>';
+        else ac = '<span class="badge badge-amber">Você</span>';
+        h += '<tr><td><strong>' + (u.nome || '') + '</strong></td><td>@' + (u.usuario || '') + '</td><td>' + (u.cargo || '') + '</td><td>' + (u.whatsapp || '—') + '</td><td><span class="badge ' + (u.status === 'ativo' ? 'badge-green' : 'badge-amber') + '">' + (u.status || '') + '</span></td><td>' + ac + '</td></tr>';
+    });
+    if (!h) h = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#A0AEC0;">Nenhum membro</td></tr>';
+    document.getElementById('tabelaEquipe').innerHTML = h;
+}
+
+function abrirModalTecnico() { if (!getPerms().podeEquipe) return toast('⛔ Restrito', 'error'); document.getElementById('tecnicoNome').value = ''; document.getElementById('tecnicoUsuario').value = ''; document.getElementById('tecnicoWhatsApp').value = ''; updateCargos(); abrirModal('modalTecnico'); }
+
+function salvarTecnico(e) {
+    e.preventDefault();
+    if (!getPerms().podeEquipe) return;
+    const u = document.getElementById('tecnicoUsuario').value.toLowerCase().trim();
+    const w = document.getElementById('tecnicoWhatsApp').value.trim();
+    const cargo = document.getElementById('tecnicoCargo').value;
+    const nome = document.getElementById('tecnicoNome').value.trim();
+    if (!nome || !u || !w || !cargo) return toast('Preencha todos', 'error');
+    db.collection('usuarios').where('usuario', '==', u).get().then(snap => {
+        if (!snap.empty) return toast('Usuário existe', 'error');
+        return db.collection('usuarios').add({ nome, usuario: u, senha: '12345', cargo, tipo: 'tecnico', whatsapp: w, status: 'ativo', primeiro_acesso: true, departamento: depto });
+    }).then(() => { fecharModal('modalTecnico'); loadEquipe(); toast('✅ Cadastrado!', 'success'); });
+}
+
+function updateCargos() { const sel = document.getElementById('tecnicoCargo'); if (sel) sel.innerHTML = (cargosDepto[depto] || cargosDepto['TI']).map(c => '<option>' + c + '</option>').join(''); }
+
+function removerTecnico(id) { if (!confirm('Remover?')) return; db.collection('usuarios').doc(id).delete().then(() => { loadEquipe(); toast('🗑️ Removido!', 'success'); }); }
+
+// ============================================
+// INDICADORES
+// ============================================
+function updatePeriodosInd() {
+    const tipo = document.getElementById('indTipo').value;
+    const agora = new Date();
+    const periodos = [];
+    if (tipo === 'mensal') {
+        for (let i = 11; i >= 0; i--) { const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1); periodos.push({ value: d.toISOString().slice(0, 7), label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) }); }
+    } else {
+        for (let i = 7; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - (i * 7)); periodos.push({ value: d.toISOString().slice(0, 10), label: 'Sem ' + d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) }); }
+    }
+    const s1 = document.getElementById('indPeriodo1'), s2 = document.getElementById('indPeriodo2');
+    const opts = periodos.map(p => '<option value="' + p.value + '">' + p.label + '</option>').join('');
+    s1.innerHTML = s2.innerHTML = opts;
+    s1.value = periodos[periodos.length - 2]?.value || '';
+    s2.value = periodos[periodos.length - 1]?.value || '';
+    updateIndicadores();
+}
+
+function updateIndicadores() {
+    const tipo = document.getElementById('indTipo').value;
+    const p1 = document.getElementById('indPeriodo1').value;
+    const p2 = document.getElementById('indPeriodo2').value;
+    if (!p1 || !p2) return;
+    const cr = chamados.filter(c => c.tipo !== 'gesthosp');
+    const fp = (p) => cr.filter(c => { const d = toDate(c.data_abertura); return tipo === 'mensal' ? d.toISOString().slice(0, 7) === p : d.toISOString().slice(0, 10) === p; });
+    const c1 = fp(p1), c2 = fp(p2);
+    const t1 = c1.length, t2 = c2.length;
+    const conc2 = c2.filter(c => c.status === 'Concluído').length;
+    const crit2 = c2.filter(c => c.prioridade === 'Crítica').length;
+    const tx2 = t2 > 0 ? Math.round(conc2 / t2 * 100) : 0;
+    Object.values(charts).forEach(c => { if (c) c.destroy(); });
+    charts = {};
+    const ctx1 = document.getElementById('graficoComparativo');
+    if (ctx1) charts.cmp = new Chart(ctx1, { type: 'bar', data: { labels: ['Total', 'Concluídos', 'Críticos'], datasets: [{ label: 'P1', data: [t1, c1.filter(c => c.status === 'Concluído').length, c1.filter(c => c.prioridade === 'Crítica').length], backgroundColor: 'rgba(49,130,206,0.2)', borderColor: '#3182CE', borderWidth: 1 }, { label: 'P2', data: [t2, conc2, crit2], backgroundColor: 'rgba(56,161,105,0.2)', borderColor: '#38A169', borderWidth: 1 }] }, options: { responsive: true } });
+    const ctx2 = document.getElementById('graficoResolucao');
+    if (ctx2) charts.res = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Resolvidos', 'Pendentes'], datasets: [{ data: [conc2, Math.max(0, t2 - conc2)], backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'] }] }, options: { responsive: true, cutout: '55%' } });
+}
+
+// ============================================
+// CONFIGURAÇÕES
+// ============================================
+function alterarSenha(e) {
+    e.preventDefault();
+    const sa = document.getElementById('senhaAtual').value;
+    const sn = document.getElementById('senhaNova').value;
+    if (sn.length < 8) return toast('Mínimo 8 caracteres', 'error');
+    db.collection('usuarios').where('usuario', '==', usuarioLogado.usuario).get().then(snap => {
+        if (snap.empty) return;
+        if (snap.docs[0].data().senha !== sa) return toast('Senha incorreta', 'error');
+        return snap.docs[0].ref.update({ senha: sn, primeiro_acesso: false });
+    }).then(() => { toast('✅ Alterada!', 'success'); e.target.reset(); });
+}
+
+// ============================================
+// RELATÓRIOS
+// ============================================
+function gerarRelatorioPDF() {
+    const el = document.createElement('div');
+    el.style.cssText = 'padding:30px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:sans-serif;';
+    el.innerHTML = '<div style="text-align:center;border-bottom:3px solid #3182CE;padding-bottom:16px;"><h1 style="color:#1a3a5c;">HelpHosp</h1><h2>' + nomeDepto + '</h2></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">' + chamados.length + '</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;color:#E53E3E;">' + chamados.filter(c => c.status !== 'Concluído').length + '</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;color:#38A169;">' + chamados.filter(c => c.status === 'Concluído').length + '</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;color:#DD6B20;">' + (chamados.length > 0 ? Math.round(chamados.filter(c => c.status === 'Concluído').length / chamados.length * 100) : 0) + '%</p></div></div>';
+    document.body.appendChild(el);
+    html2canvas(el, { scale: 2 }).then(canvas => {
+        document.body.removeChild(el);
+        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, 200, (canvas.height * 200) / canvas.width);
+        pdf.save('relatorio-' + nomeDepto.toLowerCase().replace(/\s/g, '-') + '.pdf');
+        toast('📄 Gerado!', 'success');
+    });
+}
+
+function imprimirIndicadores() {
+    const el = document.createElement('div');
+    el.style.cssText = 'padding:30px;background:#fff;width:1000px;position:absolute;left:-9999px;';
+    el.innerHTML = '<h1>HelpHosp - Indicadores</h1>';
+    document.body.appendChild(el);
+    html2canvas(el, { scale: 2 }).then(canvas => {
+        document.body.removeChild(el);
+        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 5, 5, 200, (canvas.height * 200) / canvas.width);
+        pdf.save('indicadores.pdf');
+        toast('📄 Impresso!', 'success');
+    });
+}
 // ============================================
 // INICIALIZAÇÃO
 // ============================================

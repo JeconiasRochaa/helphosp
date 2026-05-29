@@ -690,19 +690,53 @@
     </section>
 
     <!-- Indicadores -->
-    <section id="secao-indicadores" class="secao">
-        <div class="top-bar"><h1>📊 Indicadores</h1><button class="btn btn-primary" onclick="imprimirIndicadores()"><i class="fas fa-print"></i> Imprimir</button></div>
-        <div class="filtros-bar">
-            <select id="indTipo" onchange="atualizarPeriodosIndicadores()"><option value="mensal">Mensal</option><option value="semanal">Semanal</option></select>
-            <select id="indPeriodo1" onchange="atualizarIndicadores()"></select>
-            <span>vs</span>
-            <select id="indPeriodo2" onchange="atualizarIndicadores()"></select>
-        </div>
-        <div class="charts-grid" style="margin-top:14px;">
-            <div class="chart-card"><h3>📈 Comparativo</h3><canvas id="graficoComparativo"></canvas></div>
-            <div class="chart-card"><h3>🎯 Taxa de Resolução</h3><canvas id="graficoResolucao"></canvas></div>
-        </div>
-    </section>
+   function atualizarPeriodosIndicadores() {
+    const tipo = document.getElementById('indTipo').value;
+    const agora = new Date();
+    const periodos = [];
+    if (tipo === 'mensal') {
+        for (let i = 11; i >= 0; i--) {
+            const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+            periodos.push({ value: d.toISOString().slice(0, 7), label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) });
+        }
+    } else {
+        for (let i = 7; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - (i * 7));
+            periodos.push({ value: d.toISOString().slice(0, 10), label: 'Sem ' + d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) });
+        }
+    }
+    const s1 = document.getElementById('indPeriodo1'), s2 = document.getElementById('indPeriodo2');
+    const opts = periodos.map(p => '<option value="' + p.value + '">' + p.label + '</option>').join('');
+    s1.innerHTML = s2.innerHTML = opts;
+    s1.value = periodos[periodos.length - 2]?.value || '';
+    s2.value = periodos[periodos.length - 1]?.value || '';
+    atualizarIndicadores();
+}
+
+function atualizarIndicadores() {
+    const tipo = document.getElementById('indTipo').value;
+    const p1 = document.getElementById('indPeriodo1').value;
+    const p2 = document.getElementById('indPeriodo2').value;
+    if (!p1 || !p2) return;
+    const cr = chamados.filter(c => c.tipo !== 'gesthosp');
+    const fp = (p) => cr.filter(c => { const d = converterParaData(c.data_abertura); return tipo === 'mensal' ? d.toISOString().slice(0, 7) === p : d.toISOString().slice(0, 10) === p; });
+    const c1 = fp(p1), c2 = fp(p2);
+    const t1 = c1.length, t2 = c2.length;
+    const conc2 = c2.filter(c => c.status === 'Concluído').length;
+    const crit2 = c2.filter(c => c.prioridade === 'Crítica').length;
+    const tx2 = t2 > 0 ? Math.round(conc2 / t2 * 100) : 0;
+    document.getElementById('indicadorGrid').innerHTML = 
+        '<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total P2</small><strong>' + t2 + '</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Resolução</small><strong>' + tx2 + '%</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>' + crit2 + '</strong></div></div>' +
+        '<div class="stat-card"><div class="stat-icon amber"><i class="fas fa-chart-line"></i></div><div class="stat-info"><small>Anterior</small><strong>' + t1 + '</strong></div></div>';
+    Object.values(charts).forEach(c => { if (c) c.destroy(); });
+    charts = {};
+    const ctx1 = document.getElementById('graficoComparativo');
+    if (ctx1) charts.cmp = new Chart(ctx1, { type: 'bar', data: { labels: ['Total', 'Concluídos', 'Críticos'], datasets: [{ label: 'P1', data: [t1, c1.filter(c => c.status === 'Concluído').length, c1.filter(c => c.prioridade === 'Crítica').length], backgroundColor: 'rgba(49,130,206,0.2)', borderColor: '#3182CE', borderWidth: 1 }, { label: 'P2', data: [t2, conc2, crit2], backgroundColor: 'rgba(56,161,105,0.2)', borderColor: '#38A169', borderWidth: 1 }] }, options: { responsive: true } });
+    const ctx2 = document.getElementById('graficoResolucao');
+    if (ctx2) charts.res = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Resolvidos', 'Pendentes'], datasets: [{ data: [conc2, Math.max(0, t2 - conc2)], backgroundColor: ['#38A169', 'rgba(229,62,62,0.2)'] }] }, options: { responsive: true, cutout: '55%' } });
+}
 
     <!-- Toners -->
     <section id="secao-toners" class="secao">

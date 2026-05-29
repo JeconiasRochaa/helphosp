@@ -12,7 +12,6 @@
             --primary: #0B3B5C;
             --primary-light: #1E4F6E;
             --secondary: #2F9B8F;
-            --accent: #00C9B7;
             --success: #10B981;
             --warning: #F59E0B;
             --danger: #EF4444;
@@ -196,6 +195,12 @@
         .action-card h3 { font-size: 15px; color: var(--primary); margin-bottom: 4px; }
         .action-card p { color: var(--gray); font-size: 11px; }
 
+        /* DESTAQUE PARA OS CARDS */
+        .card-ti { border-left: 3px solid #3B82F6; }
+        .card-manutencao { border-left: 3px solid #F59E0B; }
+        .card-ti .card-icon { background: linear-gradient(135deg, #1e40af, #3B82F6); }
+        .card-manutencao .card-icon { background: linear-gradient(135deg, #92400e, #F59E0B); }
+
         .form-container {
             background: white; border-radius: 18px; padding: 24px;
             display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
@@ -234,6 +239,16 @@
             margin-bottom: 10px; border-left: 3px solid #10B981;
         }
         .form-section h4 { color: #065f46; margin-bottom: 6px; font-size: 12px; }
+        
+        /* INDICADOR DE DEPARTAMENTO NO FORMULÁRIO */
+        .depto-indicator {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; border-radius: 8px; margin-bottom: 14px;
+            font-size: 12px; font-weight: 600;
+        }
+        .depto-indicator.ti { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .depto-indicator.manutencao { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        
         .btn-submit {
             width: 100%; padding: 12px;
             background: var(--gradient); color: white; border: none;
@@ -257,6 +272,8 @@
         }
         .chamado-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .chamado-card.concluido { border-left-color: #10B981; opacity: 0.8; }
+        .chamado-card.ti { border-left-color: #3B82F6; }
+        .chamado-card.manutencao { border-left-color: #F59E0B; }
         .status-badge {
             padding: 3px 8px; border-radius: 10px; font-size: 9px;
             font-weight: 600; white-space: nowrap;
@@ -371,7 +388,7 @@
 
     <div class="welcome-banner">
         <h2>🏥 Central de Chamados</h2>
-        <p>Abra chamados para TI ou Manutenção de forma rápida</p>
+        <p>Selecione o tipo de chamado abaixo. Cada setor receberá apenas os chamados de sua competência.</p>
     </div>
 
     <!-- SUPORTE -->
@@ -388,15 +405,15 @@
 
     <!-- AÇÕES -->
     <div class="action-grid">
-        <div class="action-card" onclick="abrirFormulario('TI')">
+        <div class="action-card card-ti" onclick="abrirFormulario('TI')">
             <div class="card-icon"><i class="fas fa-desktop"></i></div>
-            <h3>Tecnologia da Informação</h3>
-            <p>Computadores, sistemas, rede, internet</p>
+            <h3>🖥️ Tecnologia da Informação</h3>
+            <p>Computadores, sistemas, rede, internet, e-mail, senhas</p>
         </div>
-        <div class="action-card" onclick="abrirFormulario('MANUTENCAO')">
+        <div class="action-card card-manutencao" onclick="abrirFormulario('MANUTENCAO')">
             <div class="card-icon"><i class="fas fa-tools"></i></div>
-            <h3>Manutenção</h3>
-            <p>Elétrica, hidráulica, ar-condicionado, estrutura</p>
+            <h3>🔧 Manutenção</h3>
+            <p>Elétrica, hidráulica, ar-condicionado, estrutura, pintura</p>
         </div>
         <div class="action-card" onclick="abrirGestHosp()">
             <div class="card-icon"><i class="fas fa-user-plus"></i></div>
@@ -410,14 +427,20 @@
         </div>
     </div>
 
-    <!-- FORMULÁRIO CHAMADO -->
+    <!-- FORMULÁRIO CHAMADO (CORRIGIDO) -->
     <div class="form-container" id="formChamado">
         <div class="form-header">
             <h2 id="formTitle">Novo Chamado</h2>
             <button class="btn-close" onclick="fecharTudo()">&times;</button>
         </div>
+        <!-- INDICADOR VISUAL DO DEPARTAMENTO -->
+        <div class="depto-indicator" id="deptoIndicator" style="display:none;">
+            <span id="deptoIndicatorText"></span>
+        </div>
         <form onsubmit="criarChamado(event)">
+            <!-- DEPARTAMENTO FIXO (hidden) - determinado pela escolha do card -->
             <input type="hidden" id="departamento" value="">
+            
             <div class="form-row">
                 <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
                 <div class="form-group"><label>Contato</label><input type="text" id="contato" placeholder="WhatsApp/Ramal"></div>
@@ -445,33 +468,37 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Tipo *</label>
-                    <select id="categoria" required><option value="">Selecione...</option></select>
+                    <label>Tipo de Problema *</label>
+                    <select id="categoria" required onchange="atualizarCategoria()">
+                        <option value="">Selecione...</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group">
                 <label>Prioridade</label>
                 <select id="prioridade">
-                    <option value="Baixa">🔵 Baixa</option>
-                    <option value="Média" selected>🟡 Média</option>
-                    <option value="Alta">🟠 Alta</option>
+                    <option value="Baixa">🔵 Baixa - Pode aguardar</option>
+                    <option value="Média" selected>🟡 Média - Resolver hoje</option>
+                    <option value="Alta">🟠 Alta - Urgente</option>
                     <option value="Crítica">🔴 Crítica - Setor Parado</option>
                 </select>
             </div>
             <div class="form-group"><label>Título *</label><input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3" placeholder="Detalhe o problema..."></textarea></div>
+            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea></div>
             <button type="submit" class="btn-submit" id="btnSubmitChamado"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
         </form>
     </div>
 
-    <!-- FORMULÁRIO GESTHOSP (CORRIGIDO) -->
+    <!-- FORMULÁRIO GESTHOSP -->
     <div class="form-container" id="formGestHosp">
         <div class="form-header">
             <h2>🆕 Solicitar Cadastro - GestHosp</h2>
             <button class="btn-close" onclick="fecharTudo()">&times;</button>
         </div>
+        <div class="depto-indicator ti">
+            <span>🖥️ Este chamado será enviado para a equipe de TI</span>
+        </div>
         <form onsubmit="criarGestHosp(event)">
-            <!-- DADOS PESSOAIS -->
             <div class="form-section"><h4>👤 Dados Pessoais</h4>
                 <div class="form-row">
                     <div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNome" required></div>
@@ -490,7 +517,6 @@
                     <div class="form-group"><label>Cidade/Estado</label><input type="text" id="ghCidadeEstado" placeholder="Cidade - UF"></div>
                 </div>
             </div>
-            <!-- DADOS PROFISSIONAIS -->
             <div class="form-section"><h4>🏥 Dados Profissionais</h4>
                 <div class="form-row">
                     <div class="form-group"><label>Profissão *</label><input type="text" id="ghProfissao" required placeholder="Médico, Enfermeiro..."></div>
@@ -548,19 +574,63 @@ firebase.initializeApp(fc);
 const db = firebase.firestore();
 
 // ============================================
-// CONSTANTES
+// 🔥 CATEGORIAS SEPARADAS POR DEPARTAMENTO
 // ============================================
-const catsTI = ['Computador','Notebook','Impressora','Sistema','Rede','Internet','E-mail','Software','Hardware','Telefone','Senha','Acesso','Monitor','Servidor','Wi-Fi','VPN','Outros'];
-const catsMAN = ['Elétrica','Hidráulica','Ar-condicionado','Pintura','Marcenaria','Estrutura','Telhado','Piso','Vazamento','Gases','Encanamento','Refrigeração','Serralheria','Vidraçaria','Jardinagem','Limpeza','Outros'];
+const CATEGORIAS = {
+    TI: [
+        'Computador não liga',
+        'Computador lento/travando',
+        'Notebook com problema',
+        'Monitor com defeito',
+        'Teclado/Mouse quebrado',
+        'Impressora não funciona',
+        'Impressora sem toner',
+        'Sistema fora do ar',
+        'Sistema com erro',
+        'Rede fora do ar',
+        'Internet lenta',
+        'Wi-Fi não conecta',
+        'E-mail com problema',
+        'Senha bloqueada',
+        'Acesso ao sistema',
+        'Telefone com defeito',
+        'Instalação de software',
+        'Cabo de rede danificado',
+        'Vírus/Malware',
+        'Outros - TI'
+    ],
+    MANUTENCAO: [
+        'Problema elétrico',
+        'Tomada quebrada',
+        'Lâmpada queimada',
+        'Disjuntor desarmando',
+        'Vazamento de água',
+        'Torneira pingando',
+        'Descarga com problema',
+        'Pia entupida',
+        'Ar-condicionado não gela',
+        'Ar-condicionado pingando',
+        'Pintura danificada',
+        'Parede com infiltração',
+        'Móvel quebrado',
+        'Porta com problema',
+        'Janela quebrada',
+        'Telhado com goteira',
+        'Piso danificado',
+        'Fechadura com defeito',
+        'Gases medicinais',
+        'Outros - Manutenção'
+    ]
+};
 
 // ============================================
-// CARREGAR CONTATOS DO SUPORTE
+// CARREGAR CONTATOS
 // ============================================
 function carregarContatos() {
     db.collection('usuarios').where('status', '==', 'ativo').get().then(snap => {
         const c = document.getElementById('contatosSuporte');
         if (snap.empty) {
-            c.innerHTML = '<span style="color:var(--gray);font-size:12px;">Nenhum técnico disponível no momento</span>';
+            c.innerHTML = '<span style="color:var(--gray);font-size:12px;">Nenhum técnico disponível</span>';
             return;
         }
         let h = '';
@@ -569,16 +639,14 @@ function carregarContatos() {
             if (!u.whatsapp) return;
             const dc = u.departamento === 'MANUTENCAO' ? 'depto-manutencao' : 'depto-ti';
             const dn = u.departamento === 'MANUTENCAO' ? 'MANUTENÇÃO' : 'TI';
-            const av = u.departamento === 'MANUTENCAO' ? '🔧' : '🎧';
+            const av = u.departamento === 'MANUTENCAO' ? '🔧' : '🖥️';
             const whatsappLimpo = u.whatsapp.replace(/\D/g, '');
             h += '<a href="https://wa.me/55' + whatsappLimpo + '" target="_blank" class="contato-card">' +
                 '<div class="contato-avatar">' + av + '</div>' +
                 '<div style="flex:1;"><strong>' + (u.nome || 'Técnico') + '</strong><small>' + (u.cargo || '') + '</small></div>' +
                 '<span class="depto-tag ' + dc + '">' + dn + '</span></a>';
         });
-        c.innerHTML = h || '<span style="color:var(--gray);font-size:12px;">Nenhum contato disponível</span>';
-    }).catch(() => {
-        document.getElementById('contatosSuporte').innerHTML = '<span style="color:var(--gray);font-size:12px;">Erro ao carregar contatos</span>';
+        c.innerHTML = h || '<span style="color:var(--gray);font-size:12px;">Nenhum contato</span>';
     });
 }
 
@@ -588,17 +656,56 @@ function toggleSuporte() {
 }
 
 // ============================================
-// ABRIR FORMULÁRIOS
+// 🔥 ABRIR FORMULÁRIO COM DEPARTAMENTO FIXO
 // ============================================
 function abrirFormulario(dep) {
     document.getElementById('formChamado').classList.add('active');
     document.getElementById('formGestHosp').classList.remove('active');
     document.getElementById('chamadosContainer').classList.remove('active');
+    
+    // 🔥 DEFINIR DEPARTAMENTO FIXO
     document.getElementById('departamento').value = dep;
-    document.getElementById('formTitle').textContent = 'Novo Chamado - ' + (dep === 'TI' ? 'Tecnologia da Informação' : 'Manutenção');
-    document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' +
-        (dep === 'TI' ? catsTI : catsMAN).map(c => '<option>' + c + '</option>').join('');
+    
+    // Atualizar título
+    document.getElementById('formTitle').textContent = dep === 'TI' ? 
+        '🖥️ Chamado - Tecnologia da Informação' : 
+        '🔧 Chamado - Manutenção';
+    
+    // 🔥 MOSTRAR INDICADOR VISUAL DO DEPARTAMENTO
+    const indicador = document.getElementById('deptoIndicator');
+    const indicadorTexto = document.getElementById('deptoIndicatorText');
+    indicador.style.display = 'flex';
+    if (dep === 'TI') {
+        indicador.className = 'depto-indicator ti';
+        indicadorTexto.textContent = '🖥️ Este chamado será enviado para a equipe de TECNOLOGIA DA INFORMAÇÃO';
+    } else {
+        indicador.className = 'depto-indicator manutencao';
+        indicadorTexto.textContent = '🔧 Este chamado será enviado para a equipe de MANUTENÇÃO';
+    }
+    
+    // 🔥 CARREGAR CATEGORIAS ESPECÍFICAS DO DEPARTAMENTO
+    const catSelect = document.getElementById('categoria');
+    catSelect.innerHTML = '<option value="">Selecione o tipo de problema...</option>' +
+        CATEGORIAS[dep].map(c => '<option value="' + c + '">' + c + '</option>').join('');
+    
+    // Limpar campos
+    document.getElementById('solicitante').value = '';
+    document.getElementById('contato').value = '';
+    document.getElementById('setor').value = '';
+    document.getElementById('prioridade').value = 'Média';
+    document.getElementById('titulo').value = '';
+    document.getElementById('descricao').value = '';
+    
     document.getElementById('formChamado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function atualizarCategoria() {
+    // Apenas para feedback visual, o departamento já está fixo
+    const cat = document.getElementById('categoria').value;
+    if (cat && cat.includes('Outros')) {
+        // Se for "Outros", mantém o departamento selecionado
+        console.log('Categoria outros - departamento mantido:', document.getElementById('departamento').value);
+    }
 }
 
 function abrirGestHosp() {
@@ -615,37 +722,38 @@ function fecharTudo() {
 }
 
 // ============================================
-// DETERMINAR DEPARTAMENTO PELA CATEGORIA
-// ============================================
-function determinarDepto(cat) {
-    if (catsTI.includes(cat)) return 'TI';
-    if (catsMAN.includes(cat)) return 'MANUTENCAO';
-    return document.getElementById('departamento').value || 'TI';
-}
-
-// ============================================
-// CRIAR CHAMADO
+// 🔥 CRIAR CHAMADO COM DEPARTAMENTO CORRETO
 // ============================================
 function criarChamado(e) {
     e.preventDefault();
     
+    const dep = document.getElementById('departamento').value;
     const cat = document.getElementById('categoria').value;
-    if (!cat) { toast('Selecione o tipo de chamado', 'warning'); return; }
+    const titulo = document.getElementById('titulo').value.trim();
+    const solicitante = document.getElementById('solicitante').value.trim();
+    const setor = document.getElementById('setor').value;
     
-    const dep = determinarDepto(cat);
+    if (!cat) { toast('Selecione o tipo de problema', 'warning'); return; }
+    if (!titulo) { toast('Digite um título', 'warning'); return; }
+    if (!solicitante) { toast('Digite seu nome', 'warning'); return; }
+    if (!setor) { toast('Selecione o setor', 'warning'); return; }
+    
     const btn = document.getElementById('btnSubmitChamado');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
     
+    // 🔥 GARANTIR QUE O DEPARTAMENTO ESTÁ CORRETO
+    const departamentoFinal = dep; // Usa o departamento do card clicado
+    
     const chamado = {
         protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8),
-        departamento: dep,
+        departamento: departamentoFinal, // 🔥 DEPARTAMENTO FIXO
         tipo: 'chamado',
-        titulo: document.getElementById('titulo').value.trim(),
+        titulo: titulo,
         descricao: document.getElementById('descricao').value.trim(),
-        solicitante: document.getElementById('solicitante').value.trim(),
+        solicitante: solicitante,
         contato: document.getElementById('contato').value.trim(),
-        setor: document.getElementById('setor').value,
+        setor: setor,
         categoria: cat,
         prioridade: document.getElementById('prioridade').value,
         status: 'A Fazer',
@@ -653,27 +761,34 @@ function criarChamado(e) {
         timeline: [{
             data: new Date().toISOString(),
             status: 'A Fazer',
-            acao: 'Chamado aberto por ' + (document.getElementById('solicitante').value.trim() || 'Usuário')
+            acao: 'Chamado aberto por ' + solicitante + ' - Departamento: ' + (departamentoFinal === 'TI' ? 'TI' : 'Manutenção')
         }]
     };
     
+    console.log('📤 Enviando chamado:', {
+        departamento: chamado.departamento,
+        categoria: chamado.categoria,
+        titulo: chamado.titulo
+    });
+    
     db.collection('chamados').add(chamado).then(() => {
-        toast('✅ Chamado criado com sucesso! Protocolo: ' + chamado.protocolo, 'success');
+        const deptoNome = departamentoFinal === 'TI' ? 'Tecnologia da Informação' : 'Manutenção';
+        toast('✅ Chamado enviado para ' + deptoNome + '! Protocolo: ' + chamado.protocolo, 'success');
         document.getElementById('formChamado').querySelector('form').reset();
-        document.getElementById('departamento').value = dep;
+        document.getElementById('departamento').value = departamentoFinal;
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
         fecharTudo();
     }).catch(err => {
         console.error('Erro:', err);
-        toast('❌ Erro ao criar chamado. Tente novamente.', 'error');
+        toast('❌ Erro ao criar chamado', 'error');
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado';
     });
 }
 
 // ============================================
-// CRIAR GESTHOSP (CORRIGIDO)
+// CRIAR GESTHOSP
 // ============================================
 function criarGestHosp(e) {
     e.preventDefault();
@@ -682,7 +797,6 @@ function criarGestHosp(e) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
     
-    // Montar dados corretamente
     const dados = {
         nome: document.getElementById('ghNome').value.trim(),
         cpf: document.getElementById('ghCpf').value.trim(),
@@ -700,7 +814,7 @@ function criarGestHosp(e) {
     
     const chamado = {
         protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-6),
-        departamento: 'TI',
+        departamento: 'TI', // GestHosp sempre vai para TI
         tipo: 'gesthosp',
         titulo: 'Cadastro GestHosp - ' + dados.nome,
         descricao: JSON.stringify(dados),
@@ -718,14 +832,14 @@ function criarGestHosp(e) {
     };
     
     db.collection('chamados').add(chamado).then(() => {
-        toast('✅ Solicitação de cadastro enviada! Protocolo: ' + chamado.protocolo, 'success');
+        toast('✅ Solicitação enviada! Protocolo: ' + chamado.protocolo, 'success');
         document.getElementById('formGestHosp').querySelector('form').reset();
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
         fecharTudo();
     }).catch(err => {
         console.error('Erro:', err);
-        toast('❌ Erro ao enviar solicitação', 'error');
+        toast('❌ Erro ao enviar', 'error');
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro';
     });
@@ -741,7 +855,7 @@ function mostrarMeusChamados() {
     document.getElementById('chamadosContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
     
     const lista = document.getElementById('listaChamados');
-    lista.innerHTML = '<div class="spinner"></div><p style="text-align:center;color:var(--gray);font-size:12px;">Carregando chamados de hoje...</p>';
+    lista.innerHTML = '<div class="spinner"></div><p style="text-align:center;color:var(--gray);font-size:12px;">Carregando...</p>';
     
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
@@ -758,8 +872,7 @@ function mostrarMeusChamados() {
             if (snap.empty) {
                 lista.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">' +
                     '<div style="font-size:40px;margin-bottom:10px;">📭</div>' +
-                    '<h3>Nenhum chamado hoje</h3>' +
-                    '<p style="font-size:12px;">Os chamados abertos hoje aparecerão aqui</p></div>';
+                    '<h3>Nenhum chamado hoje</h3></div>';
                 return;
             }
             
@@ -770,7 +883,6 @@ function mostrarMeusChamados() {
                 chamados.push(c);
             });
             
-            // Ordenar: não concluídos primeiro
             chamados.sort((a, b) => {
                 if (a.status === 'Concluído' && b.status !== 'Concluído') return 1;
                 if (a.status !== 'Concluído' && b.status === 'Concluído') return -1;
@@ -778,34 +890,31 @@ function mostrarMeusChamados() {
             });
             
             lista.innerHTML = '<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">' +
-                '📋 ' + chamados.length + ' chamado(s) de hoje - ' + 
-                new Date().toLocaleDateString('pt-BR') + '</p>' +
+                '📋 ' + chamados.length + ' chamado(s) de hoje</p>' +
                 chamados.map(c => {
                     const data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
                     const statusClass = 'status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '');
-                    const icon = c.tipo === 'gesthosp' ? '🏥' : c.departamento === 'MANUTENCAO' ? '🔧' : '💻';
+                    const icon = c.tipo === 'gesthosp' ? '🏥' : c.departamento === 'MANUTENCAO' ? '🔧' : '🖥️';
+                    const deptoClass = c.departamento === 'MANUTENCAO' ? 'manutencao' : 'ti';
                     const concluidoClass = c.status === 'Concluído' ? ' concluido' : '';
                     
                     let tituloExibicao = c.titulo || 'Sem título';
-                    if (c.tipo === 'gesthosp') {
-                        tituloExibicao = '🏥 Solicitação de Cadastro';
-                    }
+                    if (c.tipo === 'gesthosp') tituloExibicao = '🏥 Solicitação de Cadastro';
                     
                     let motivo = '';
-                    if (c.status === 'Pendente') {
-                        const ultimoComentario = (c.comentarios && c.comentarios.length > 0) ? 
-                            c.comentarios[c.comentarios.length - 1] : null;
+                    if (c.status === 'Pendiente' || c.status === 'Pendente') {
+                        const ult = (c.comentarios && c.comentarios.length > 0) ? c.comentarios[c.comentarios.length - 1] : null;
                         motivo = '<div class="motivo-pendente"><strong>⏸️ Pendente:</strong> ' + 
-                            (ultimoComentario ? ultimoComentario.texto : 'Aguardando atualização') + 
-                            (ultimoComentario ? '<br><small>Por: ' + (ultimoComentario.autor || 'Técnico') + '</small>' : '') + '</div>';
+                            (ult ? ult.texto : 'Aguardando') + '</div>';
                     }
                     
-                    return '<div class="chamado-card' + concluidoClass + '" onclick="verDetalhes(\'' + c.fid + '\')">' +
+                    return '<div class="chamado-card ' + deptoClass + concluidoClass + '" onclick="verDetalhes(\'' + c.fid + '\')">' +
                         '<div style="flex:1;min-width:200px;">' +
                         '<strong>' + icon + ' ' + tituloExibicao + (c.status === 'Concluído' ? ' ✓' : '') + '</strong>' +
                         '<br><small style="color:var(--gray);">📋 ' + (c.protocolo || '—') + 
                         ' | 📍 ' + (c.setor || '—') + 
-                        ' | 🕐 ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + '</small>' +
+                        ' | 🕐 ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) + 
+                        ' | ' + (c.departamento === 'MANUTENCAO' ? '🔧 Manutenção' : '🖥️ TI') + '</small>' +
                         motivo + '</div>' +
                         '<span class="status-badge ' + statusClass + '">' + (c.status || 'A Fazer') + '</span>' +
                         '</div>';
@@ -813,7 +922,7 @@ function mostrarMeusChamados() {
         })
         .catch(err => {
             console.error('Erro:', err);
-            lista.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">Erro ao carregar chamados. Tente novamente.</p>';
+            lista.innerHTML = '<p style="text-align:center;color:var(--gray);">Erro ao carregar</p>';
         });
 }
 
@@ -825,14 +934,12 @@ function verDetalhes(id) {
         if (!doc.exists) return;
         const c = doc.data();
         const data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
-        
         const tl = (c.timeline || []).map(t =>
             '<div style="padding:5px 0;border-bottom:1px solid #eee;font-size:10px;">' +
             '<strong>' + new Date(t.data).toLocaleString('pt-BR') + '</strong><br>' + (t.acao || '') + '</div>'
         ).join('');
         
         if (c.tipo === 'gesthosp') {
-            // 🔒 GestHosp: dados protegidos
             document.getElementById('detalhesConteudo').innerHTML =
                 '<h3>🏥 Solicitação de Cadastro</h3>' +
                 '<span class="status-badge status-' + (c.status || 'A Fazer').toLowerCase().replace(/ /g, '') + '">' + (c.status || '—') + '</span>' +
@@ -840,14 +947,12 @@ function verDetalhes(id) {
                 '<p><strong>📊 Status:</strong> ' + (c.status || '—') + '</p>' +
                 '<p><strong>📅 Data:</strong> ' + data.toLocaleString('pt-BR') + '</p>' +
                 '<div style="background:#FFF5F5;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #FED7D7;">' +
-                '<p style="color:#E53E3E;font-size:11px;">🔒 <strong>Dados protegidos</strong></p>' +
-                '<p style="font-size:10px;color:#9a3412;">As informações detalhadas estão disponíveis apenas para a equipe técnica autorizada.</p></div>' +
-                '<hr><h4 style="color:var(--primary);font-size:13px;">📜 Andamento</h4>' + (tl || '<p style="font-size:11px;">Nenhum evento registrado</p>');
+                '<p style="color:#E53E3E;font-size:11px;">🔒 <strong>Dados protegidos</strong></p></div>' +
+                '<hr><h4>📜 Andamento</h4>' + (tl || '<p>Nenhum evento</p>');
         } else {
-            // Chamado normal
             let coms = '';
             if (c.comentarios && c.comentarios.length) {
-                coms = '<hr><h4 style="color:var(--primary);font-size:13px;">💬 Comentários</h4>';
+                coms = '<hr><h4>💬 Comentários</h4>';
                 c.comentarios.forEach(com => {
                     coms += '<div style="background:#f0fdf4;padding:7px;border-radius:6px;margin-bottom:3px;font-size:10px;">' +
                         '<strong>' + (com.autor || 'Técnico') + '</strong>: ' + (com.texto || '') + '</div>';
@@ -864,10 +969,9 @@ function verDetalhes(id) {
                 '<p><strong>🏷️ Categoria:</strong> ' + (c.categoria || '—') + '</p>' +
                 '<p><strong>⚡ Prioridade:</strong> ' + (c.prioridade || '—') + '</p>' +
                 '<p><strong>📅 Data:</strong> ' + data.toLocaleString('pt-BR') + '</p>' +
-                '<p><strong>🏢 Departamento:</strong> ' + ((c.departamento || 'TI') === 'TI' ? 'TI' : 'Manutenção') + '</p>' +
-                '</div>' +
-                coms +
-                '<hr><h4 style="color:var(--primary);font-size:13px;">📜 Andamento</h4>' + (tl || '<p style="font-size:11px;">Nenhum evento</p>');
+                '<p><strong>🏢 Departamento:</strong> ' + ((c.departamento || 'TI') === 'TI' ? '🖥️ TI' : '🔧 Manutenção') + '</p>' +
+                '</div>' + coms +
+                '<hr><h4>📜 Andamento</h4>' + (tl || '<p>Nenhum evento</p>');
         }
         
         document.getElementById('modalDetalhes').classList.add('ativo');
@@ -875,22 +979,16 @@ function verDetalhes(id) {
 }
 
 // ============================================
-// TOAST NOTIFICATION
+// TOAST
 // ============================================
 function toast(msg, tipo) {
     const t = document.createElement('div');
     t.className = 'toast-notification';
-    const cores = {
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        error: 'var(--danger)'
-    };
+    const cores = { success: 'var(--success)', warning: 'var(--warning)', error: 'var(--danger)' };
     const icones = { success: '✅', warning: '⚠️', error: '❌' };
     const titulos = { success: 'Sucesso', warning: 'Atenção', error: 'Erro' };
-    
     t.style.borderLeftColor = cores[tipo] || cores.success;
-    t.innerHTML = '<span>' + (icones[tipo] || '✅') + '</span> ' +
-        '<strong>' + (titulos[tipo] || 'Sucesso') + '</strong><br>' +
+    t.innerHTML = '<span>' + (icones[tipo] || '✅') + '</span> <strong>' + (titulos[tipo] || 'Sucesso') + '</strong><br>' +
         '<span style="font-size:11px;color:var(--gray);">' + msg + '</span>';
     document.body.appendChild(t);
     setTimeout(() => { if (t.parentElement) t.remove(); }, 4000);
@@ -903,7 +1001,6 @@ document.getElementById('modalDetalhes').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('ativo');
 });
 
-// Fechar modais com ESC
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         document.getElementById('modalDetalhes').classList.remove('ativo');
@@ -916,8 +1013,9 @@ document.addEventListener('keydown', function(e) {
 // ============================================
 window.onload = function() {
     carregarContatos();
-    console.log('🏥 HelpHosp - Portal de Chamados inicializado');
-    console.log('📅 Data: ' + new Date().toLocaleDateString('pt-BR'));
+    console.log('🏥 HelpHosp Portal - Chamados separados por departamento');
+    console.log('📋 TI: Categorias de tecnologia');
+    console.log('🔧 Manutenção: Categorias de infraestrutura');
 };
 </script>
 </body>

@@ -388,7 +388,7 @@
 
     <div class="welcome-banner">
         <h2>🏥 Central de Chamados</h2>
-        <p>Selecione o tipo de chamado abaixo. Cada setor receberá apenas os chamados de sua competência.</p>
+        <p>Selecione o tipo de chamado e Setor abaixo.</p>
     </div>
 
     <!-- SUPORTE -->
@@ -450,20 +450,46 @@
                     <label>Setor *</label>
                     <select id="setor" required>
                         <option value="">Selecione...</option>
-                        <option>Administração</option><option>Almoxarifado</option><option>CAF Principal</option>
-                        <option>CAF CR</option><option>Centro Cirúrgico</option><option>Clínica Cirurgica</option>
-                        <option>Clínica Médica I</option><option>Clínica Médica II</option><option>Comunicação</option>
-                        <option>Direção Administrativa</option><option>Direção Enfermagem</option><option>Direção geral</option>
-                        <option>Direção Medica</option><option>Emergência/Vermelha</option><option>Engenharia Clinica</option>
-                        <option>Farmácia</option><option>Faturamento</option><option>Fisioterapia</option>
-                        <option>Hotelaria</option><option>Juridico</option><option>Laboratório</option>
-                        <option>Manutenção</option><option>NIR</option><option>Nutrição</option>
-                        <option>Oncologia I</option><option>Oncologia II</option><option>Ouvidoria</option>
-                        <option>Patrimonio</option><option>Pediatria</option><option>Psicologia</option>
-                        <option>RH</option><option>Raio-X</option><option>Recepção CR</option>
-                        <option>Recepção Geral</option><option>Recepção Nefrologia</option><option>Same</option>
-                        <option>Serviço Social</option><option>Sesmt</option><option>Telemedicina</option>
-                        <option>TI</option><option>Tomografia</option><option>UTI I</option><option>UTI II</option>
+                        <option>Almoxarifado</option>
+                        <option>Centro Cirúrgico</option>
+                        <option>Clínica Cirurgica</option>
+                        <option>Clínica Médica I</option>
+                        <option>Clínica Médica II</option>
+                        <option>Comunicação</option>
+                        <option>Direção Administrativa</option>
+                        <option>Direção Enfermagem</option>
+                        <option>Direção geral</option>
+                        <option>Direção Medica</option>
+                        <option>Emergência/Vermelha</option>
+                        <option>Engenharia Clinica</option>
+                        <option>Farmácia CAF</option>
+                        <option>Faturamento</option>
+                        <option>Fisioterapia</option>
+                        <option>Hotelaria</option>
+                        <option>Juridico</option>
+                        <option>Laboratório</option>
+                        <option>Manutenção</option>
+                        <option>NIR</option>
+                        <option>Nutrição</option>
+                        <option>Oncologia I</option>
+                        <option>Oncologia II</option>
+                        <option>Ouvidoria</option>
+                        <option>Patrimonio</option>
+                        <option>Pediatria</option>
+                        <option>Psicologia</option>
+                        <option>RH</option>
+                        <option>Raio-X</option>
+                        <option>Recepção CR</option>
+                        <option>Recepção Geral</option>
+                        <option>Recepção Nefrologia</option>
+                        <option>Same</option>
+                        <option>Serviço Social</option>
+                        <option>Sesmt</option>
+                        <option>Telemedicina</option>
+                        <option>TI</option>
+                        <option>Tomografia</option>
+                        <option>UTI I</option>
+                        <option>UTI II</option>
                         <option>Outros</option>
                     </select>
                 </div>
@@ -525,10 +551,16 @@
                 <div class="form-group"><label>Perfil de Acesso</label>
                     <select id="ghPerfil">
                         <option value="">Selecione...</option>
-                        <option>Médico</option><option>Enfermeiro</option><option>Fisioterapeuta</option>
-                        <option>Nutricionista</option><option>Psicólogo</option><option>Farmacêutico</option>
-                        <option>Técnico de Enfermagem</option><option>Assistente Social</option>
-                        <option>Administrativo</option><option>Outros</option>
+                        <option>Médico</option>
+                        <option>Enfermeiro</option>
+                        <option>Fisioterapeuta</option>
+                        <option>Nutricionista</option>
+                        <option>Psicólogo</option>
+                        <option>Farmacêutico</option>
+                        <option>Técnico de Enfermagem</option>
+                        <option>Assistente Social</option>
+                        <option>Administrativo</option>
+                        <option>Outros</option>
                     </select>
                 </div>
                 <div class="form-group"><label>Observações</label><textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea></div>
@@ -580,7 +612,6 @@ const CATEGORIAS = {
     TI: [
         'Computador não liga',
         'Computador lento/travando',
-        'Notebook com problema',
         'Monitor com defeito',
         'Teclado/Mouse quebrado',
         'Impressora não funciona',
@@ -590,13 +621,11 @@ const CATEGORIAS = {
         'Rede fora do ar',
         'Internet lenta',
         'Wi-Fi não conecta',
-        'E-mail com problema',
         'Senha bloqueada',
         'Acesso ao sistema',
         'Telefone com defeito',
         'Instalação de software',
         'Cabo de rede danificado',
-        'Vírus/Malware',
         'Outros - TI'
     ],
     MANUTENCAO: [
@@ -819,7 +848,7 @@ function criarGestHosp(e) {
         titulo: 'Cadastro GestHosp - ' + dados.nome,
         descricao: JSON.stringify(dados),
         solicitante: dados.nome || 'Portal',
-        setor: 'N/I',
+        setor: 'GestHosp',
         categoria: 'Cadastro',
         prioridade: 'Média',
         status: 'A Fazer',

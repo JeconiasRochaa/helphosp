@@ -1287,57 +1287,389 @@ async function excluirEstoqueItem(id) {
 }
 
 // ============================================
-// INVENTÁRIO
+// INVENTÁRIO (ATUALIZADO COM TOTAIS)
 // ============================================
 let inventario = [];
 
 async function carregarInventario() {
-    try { const snap = await db.collection('inventario').get(); inventario = []; snap.forEach(d => { const x = d.data(); x.fid = d.id; inventario.push(x); }); } catch (e) {}
+    try { 
+        const snap = await db.collection('inventario').get(); 
+        inventario = []; 
+        snap.forEach(d => { 
+            const x = d.data(); 
+            x.fid = d.id; 
+            inventario.push(x); 
+        }); 
+    } catch (e) {
+        console.error('Erro ao carregar inventário:', e);
+    }
 }
 
 function renderInventario() {
     const main = document.getElementById('mainContent');
     carregarInventario().then(() => {
-        const linhas = inventario.length === 0 ? '<tr><td colspan="8" style="text-align:center;padding:20px;color:#A0AEC0;">Nenhum inventário</td></tr>' :
-            inventario.map(i => {
+        // Calcular totais
+        let totalComp = 0, totalImp = 0, totalRam = 0, totalTV = 0, totalRedes = 0, totalOutros = 0, totalGeral = 0;
+        
+        inventario.forEach(i => {
+            totalComp += i.computadores || 0;
+            totalImp += i.impressoras || 0;
+            totalRam += i.ramais || 0;
+            totalTV += i.tvs || 0;
+            totalRedes += i.redes || 0;
+            totalOutros += i.outros || 0;
+        });
+        
+        totalGeral = totalComp + totalImp + totalRam + totalTV + totalRedes + totalOutros;
+        
+        // Container de totais
+        const totaisHTML = `
+            <div class="info-bar" style="margin-bottom:16px;">
+                <div class="info-item">
+                    <div class="info-val" id="invTotalGeral">${totalGeral}</div>
+                    <div class="info-lbl">Total Geral</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalComp}</div>
+                    <div class="info-lbl">💻 Computadores</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalImp}</div>
+                    <div class="info-lbl">🖨️ Impressoras</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalRam}</div>
+                    <div class="info-lbl">📞 Ramais</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalTV}</div>
+                    <div class="info-lbl">📺 TVs</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalRedes}</div>
+                    <div class="info-lbl">📡 Redes</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-val">${totalOutros}</div>
+                    <div class="info-lbl">📱 Outros</div>
+                </div>
+            </div>
+        `;
+        
+        // Tabela de inventário
+        const linhas = inventario.length === 0 
+            ? '<tr><td colspan="9" style="text-align:center;padding:20px;color:#A0AEC0;">Nenhum inventário cadastrado</td></tr>' 
+            : inventario.sort((a, b) => a.setor.localeCompare(b.setor)).map(i => {
                 const t = (i.computadores || 0) + (i.impressoras || 0) + (i.ramais || 0) + (i.tvs || 0) + (i.redes || 0) + (i.outros || 0);
-                return `<tr><td><strong>${sanitizar(i.setor)}</strong></td><td style="text-align:center;">${i.computadores || 0}</td><td style="text-align:center;">${i.impressoras || 0}</td><td style="text-align:center;">${i.ramais || 0}</td><td style="text-align:center;">${i.tvs || 0}</td><td style="text-align:center;">${i.redes || 0}</td><td style="text-align:center;font-weight:700;">${t}</td><td><button class="btn btn-sm btn-outline" onclick="editarInv('${i.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirInv('${i.fid}')">🗑️</button></td></tr>`;
+                return `<tr>
+                    <td><strong>${sanitizar(i.setor)}</strong></td>
+                    <td style="text-align:center;">${i.computadores || 0}</td>
+                    <td style="text-align:center;">${i.impressoras || 0}</td>
+                    <td style="text-align:center;">${i.ramais || 0}</td>
+                    <td style="text-align:center;">${i.tvs || 0}</td>
+                    <td style="text-align:center;">${i.redes || 0}</td>
+                    <td style="text-align:center;">${i.outros || 0}</td>
+                    <td style="text-align:center;font-weight:700;background:#F7FAFC;">${t}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn btn-sm btn-primary" onclick="verDetalhesInv('${i.fid}')" title="Detalhes">📋</button>
+                        <button class="btn btn-sm btn-outline" onclick="editarInv('${i.fid}')" title="Editar">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="excluirInv('${i.fid}')" title="Excluir">🗑️</button>
+                    </td>
+                </tr>`;
             }).join('');
-        main.innerHTML = `<div class="top-bar"><h1>📊 Inventário por Setor</h1><button class="btn btn-primary" onclick="abrirModalInv()"><i class="fas fa-plus"></i> Adicionar</button></div><div class="table-card"><table><thead><tr><th>Setor</th><th>💻</th><th>🖨️</th><th>📞</th><th>📺</th><th>📡</th><th>Total</th><th>Ações</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
+        
+        main.innerHTML = `
+            <div class="top-bar">
+                <h1>📊 Inventário por Setor</h1>
+                <div style="display:flex;gap:6px;">
+                    <button class="btn btn-outline" onclick="carregarMovimentacoes()"><i class="fas fa-history"></i> Histórico</button>
+                    <button class="btn btn-primary" onclick="abrirModalInv()"><i class="fas fa-plus"></i> Adicionar Setor</button>
+                </div>
+            </div>
+            ${totaisHTML}
+            <div class="filtros-bar">
+                <input type="text" id="filtroInv" placeholder="🔍 Filtrar por setor..." onkeyup="filtrarInventario()" style="flex:1;">
+            </div>
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Setor</th>
+                            <th>💻 Comp.</th>
+                            <th>🖨️ Imp.</th>
+                            <th>📞 Ramais</th>
+                            <th>📺 TVs</th>
+                            <th>📡 Redes</th>
+                            <th>📱 Outros</th>
+                            <th>Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaInventario">${linhas}</tbody>
+                </table>
+            </div>
+        `;
     });
+}
+
+function filtrarInventario() {
+    const filtro = (document.getElementById('filtroInv')?.value || '').toLowerCase();
+    const tb = document.getElementById('tabelaInventario');
+    if (!tb) return;
+    
+    let lista = [...inventario];
+    if (filtro) lista = lista.filter(i => i.setor.toLowerCase().includes(filtro));
+    lista.sort((a, b) => a.setor.localeCompare(b.setor));
+    
+    tb.innerHTML = lista.length === 0 
+        ? '<tr><td colspan="9" style="text-align:center;padding:20px;color:#A0AEC0;">Nenhum setor encontrado</td></tr>'
+        : lista.map(i => {
+            const t = (i.computadores || 0) + (i.impressoras || 0) + (i.ramais || 0) + (i.tvs || 0) + (i.redes || 0) + (i.outros || 0);
+            return `<tr>
+                <td><strong>${sanitizar(i.setor)}</strong></td>
+                <td style="text-align:center;">${i.computadores || 0}</td>
+                <td style="text-align:center;">${i.impressoras || 0}</td>
+                <td style="text-align:center;">${i.ramais || 0}</td>
+                <td style="text-align:center;">${i.tvs || 0}</td>
+                <td style="text-align:center;">${i.redes || 0}</td>
+                <td style="text-align:center;">${i.outros || 0}</td>
+                <td style="text-align:center;font-weight:700;background:#F7FAFC;">${t}</td>
+                <td style="white-space:nowrap;">
+                    <button class="btn btn-sm btn-primary" onclick="verDetalhesInv('${i.fid}')" title="Detalhes">📋</button>
+                    <button class="btn btn-sm btn-outline" onclick="editarInv('${i.fid}')" title="Editar">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="excluirInv('${i.fid}')" title="Excluir">🗑️</button>
+                </td>
+            </tr>`;
+        }).join('');
+}
+
+async function carregarMovimentacoes() {
+    try {
+        const snap = await db.collection('movimentacoes').orderBy('data', 'desc').limit(100).get();
+        const movs = [];
+        snap.forEach(d => { const x = d.data(); x.fid = d.id; movs.push(x); });
+        
+        const conteudo = movs.length === 0 
+            ? '<div style="text-align:center;padding:40px;color:#A0AEC0;">📭 Nenhuma movimentação</div>'
+            : movs.map(m => `
+                <div style="background:#FFF;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-bottom:8px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <strong style="font-size:13px;">${sanitizar(m.tipoNome || '📦')} ${sanitizar(m.equipamentoNome || '')}</strong>
+                        <span style="background:#F7FAFC;padding:3px 10px;border-radius:8px;font-weight:600;font-size:12px;">Qtd: ${m.quantidade}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;font-size:12px;">
+                        <div>📍 ${sanitizar(m.setorDestino || '—')}</div>
+                        <div>👤 ${sanitizar(m.tecnico || '—')}</div>
+                        <div>📋 ${sanitizar(m.motivo || '—')}</div>
+                        <div>📅 ${fmtData(m.data)}</div>
+                    </div>
+                </div>
+            `).join('');
+        
+        abrirModal(`
+            <div class="modal-header">
+                <h3>📋 Histórico de Movimentações</h3>
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+            </div>
+            <div style="max-height:400px;overflow-y:auto;">${conteudo}</div>
+        `);
+    } catch (e) {
+        toast('Erro ao carregar histórico', 'error');
+    }
+}
+
+function verDetalhesInv(id) {
+    const inv = inventario.find(i => i.fid === id);
+    if (!inv) return;
+    
+    const total = (inv.computadores || 0) + (inv.impressoras || 0) + (inv.ramais || 0) + (inv.tvs || 0) + (inv.redes || 0) + (inv.outros || 0);
+    
+    const detalhesHTML = `
+        <div style="background:linear-gradient(135deg,#1a3a5c,#2c5282);color:white;padding:16px;border-radius:10px;margin-bottom:14px;">
+            <h3 style="margin:0;">📍 ${sanitizar(inv.setor)}</h3>
+            <p style="margin:4px 0 0;opacity:0.9;">Total de equipamentos: <strong>${total}</strong></p>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">
+            <div style="background:#DBEAFE;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">💻</div>
+                <div style="font-size:22px;font-weight:700;color:#1D4ED8;">${inv.computadores || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">Computadores</div>
+            </div>
+            <div style="background:#D1FAE5;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">🖨️</div>
+                <div style="font-size:22px;font-weight:700;color:#065F46;">${inv.impressoras || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">Impressoras</div>
+            </div>
+            <div style="background:#FEF3C7;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">📞</div>
+                <div style="font-size:22px;font-weight:700;color:#92400E;">${inv.ramais || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">Ramais</div>
+            </div>
+            <div style="background:#EDE9FE;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">📺</div>
+                <div style="font-size:22px;font-weight:700;color:#6D28D9;">${inv.tvs || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">TVs</div>
+            </div>
+            <div style="background:#FEE2E2;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">📡</div>
+                <div style="font-size:22px;font-weight:700;color:#991B1B;">${inv.redes || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">Redes</div>
+            </div>
+            <div style="background:#F3F4F6;padding:14px;border-radius:8px;text-align:center;">
+                <div style="font-size:28px;">📱</div>
+                <div style="font-size:22px;font-weight:700;color:#374151;">${inv.outros || 0}</div>
+                <div style="font-size:10px;color:#4A5568;text-transform:uppercase;">Outros</div>
+            </div>
+        </div>
+        
+        ${inv.observacao ? `
+            <div style="background:#FFFBEB;padding:12px;border-radius:8px;border:1px solid #F6E05E;margin-bottom:14px;">
+                <strong>📝 Observação:</strong> ${sanitizar(inv.observacao)}
+            </div>
+        ` : ''}
+        
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button class="btn btn-outline btn-sm" onclick="editarInv('${inv.fid}');this.closest('.modal-overlay').remove();">✏️ Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="excluirInv('${inv.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>
+        </div>
+    `;
+    
+    abrirModal(`
+        <div class="modal-header">
+            <h3>📋 Detalhes do Inventário</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+        </div>
+        ${detalhesHTML}
+    `);
 }
 
 function abrirModalInv(id = null) {
     const item = id ? inventario.find(i => i.fid === id) : null;
     const opts = setores.map(s => `<option value="${s}" ${item?.setor === s ? 'selected' : ''}>${s}</option>`).join('');
-    abrirModal(`<div class="modal-header"><h3>${id ? '✏️ Editar' : '📊 Novo'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>
-        <form onsubmit="salvarInv(event, '${id || ''}')" style="display:grid;gap:8px;">
-            <div class="form-group"><label>Setor *</label><select id="invSetor" required><option value="">Selecione...</option>${opts}</select></div>
-            <div class="form-row"><div class="form-group"><label>💻 Computadores</label><input type="number" id="invComp" value="${item?.computadores || 0}" min="0"></div><div class="form-group"><label>🖨️ Impressoras</label><input type="number" id="invImp" value="${item?.impressoras || 0}" min="0"></div></div>
-            <div class="form-row"><div class="form-group"><label>📞 Ramais</label><input type="number" id="invRam" value="${item?.ramais || 0}" min="0"></div><div class="form-group"><label>📺 TVs</label><input type="number" id="invTV" value="${item?.tvs || 0}" min="0"></div></div>
-            <div class="form-group"><label>Obs</label><textarea id="invObs" rows="2">${item?.observacao || ''}</textarea></div>
-            <div style="display:flex;gap:6px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button></div>
-        </form>`);
+    
+    abrirModal(`
+        <div class="modal-header">
+            <h3>${id ? '✏️ Editar Inventário' : '📊 Novo Inventário'}</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+        </div>
+        <form onsubmit="salvarInv(event, '${id || ''}')" style="display:grid;gap:10px;">
+            <div class="form-group">
+                <label>Setor *</label>
+                <select id="invSetor" required>
+                    <option value="">Selecione o setor...</option>
+                    ${opts}
+                </select>
+            </div>
+            
+            <h4 style="font-size:13px;color:#4A5568;margin:0;">Equipamentos</h4>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>💻 Computadores</label>
+                    <input type="number" id="invComp" value="${item?.computadores || 0}" min="0">
+                </div>
+                <div class="form-group">
+                    <label>🖨️ Impressoras</label>
+                    <input type="number" id="invImp" value="${item?.impressoras || 0}" min="0">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📞 Ramais</label>
+                    <input type="number" id="invRam" value="${item?.ramais || 0}" min="0">
+                </div>
+                <div class="form-group">
+                    <label>📺 TVs</label>
+                    <input type="number" id="invTV" value="${item?.tvs || 0}" min="0">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>📡 Equipamentos de Rede</label>
+                    <input type="number" id="invRedes" value="${item?.redes || 0}" min="0">
+                </div>
+                <div class="form-group">
+                    <label>📱 Outros Dispositivos</label>
+                    <input type="number" id="invOutros" value="${item?.outros || 0}" min="0">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>📝 Observações</label>
+                <textarea id="invObs" rows="2" placeholder="Informações adicionais...">${item?.observacao || ''}</textarea>
+            </div>
+            
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar Inventário
+                </button>
+            </div>
+        </form>
+    `);
 }
 
 async function salvarInv(e, id) {
     e.preventDefault();
-    const dados = { setor: document.getElementById('invSetor')?.value, computadores: parseInt(document.getElementById('invComp')?.value) || 0, impressoras: parseInt(document.getElementById('invImp')?.value) || 0, ramais: parseInt(document.getElementById('invRam')?.value) || 0, tvs: parseInt(document.getElementById('invTV')?.value) || 0, redes: 0, outros: 0, observacao: document.getElementById('invObs')?.value.trim() || '' };
-    if (!dados.setor) { toast('Selecione setor', 'error'); return; }
+    
+    const dados = {
+        setor: document.getElementById('invSetor')?.value,
+        computadores: parseInt(document.getElementById('invComp')?.value) || 0,
+        impressoras: parseInt(document.getElementById('invImp')?.value) || 0,
+        ramais: parseInt(document.getElementById('invRam')?.value) || 0,
+        tvs: parseInt(document.getElementById('invTV')?.value) || 0,
+        redes: parseInt(document.getElementById('invRedes')?.value) || 0,
+        outros: parseInt(document.getElementById('invOutros')?.value) || 0,
+        observacao: document.getElementById('invObs')?.value.trim() || ''
+    };
+    
+    if (!dados.setor) { 
+        toast('Selecione um setor', 'error'); 
+        return; 
+    }
+    
+    // Verificar se já existe inventário para este setor
+    if (!id) {
+        const existente = inventario.find(i => i.setor === dados.setor);
+        if (existente) {
+            toast('Já existe inventário para este setor. Use a opção editar.', 'error');
+            return;
+        }
+    }
+    
     try {
-        if (id) await db.collection('inventario').doc(id).update(dados);
-        else await db.collection('inventario').add(dados);
+        if (id) {
+            await db.collection('inventario').doc(id).update(dados);
+        } else {
+            await db.collection('inventario').add(dados);
+        }
         document.querySelector('.modal-overlay')?.remove();
         renderInventario();
-        toast('✅ Salvo!', 'success');
-    } catch (e) { toast('Erro', 'error'); }
+        toast('✅ Inventário salvo com sucesso!', 'success');
+    } catch (e) {
+        console.error('Erro ao salvar inventário:', e);
+        toast('Erro ao salvar inventário', 'error');
+    }
 }
 
-function editarInv(id) { abrirModalInv(id); }
+function editarInv(id) { 
+    abrirModalInv(id); 
+}
 
 async function excluirInv(id) {
-    if (!confirm('Excluir?')) return;
-    try { await db.collection('inventario').doc(id).delete(); renderInventario(); toast('🗑️ Excluído!', 'success'); } catch (e) { toast('Erro', 'error'); }
+    if (!confirm('Tem certeza que deseja excluir este inventário? Esta ação não pode ser desfeita.')) return;
+    
+    try { 
+        await db.collection('inventario').doc(id).delete(); 
+        renderInventario(); 
+        toast('🗑️ Inventário excluído com sucesso!', 'success'); 
+    } catch (e) { 
+        console.error('Erro ao excluir inventário:', e);
+        toast('Erro ao excluir inventário', 'error'); 
+    }
 }
 
 // ============================================

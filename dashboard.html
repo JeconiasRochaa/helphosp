@@ -65,7 +65,7 @@
         .btn:hover { opacity: 0.9; } .btn-primary { background: #1a3a5c; color: #fff; } .btn-outline { background: transparent; border: 1.5px solid #E2E8F0; color: #4A5568; } .btn-danger { background: #FFF5F5; color: #E53E3E; border: 1px solid #FED7D7; } .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 5px; }
         .filtros-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; } .filtros-bar select, .filtros-bar input { padding: 8px 10px; background: #FFF; border: 1.5px solid #E2E8F0; border-radius: 8px; font-size: 12px; outline: none; } .filtros-bar input { flex: 1; min-width: 140px; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 200; align-items: center; justify-content: center; }
-        .modal-overlay.ativa { display: flex; } .modal-box { background: #FFF; border-radius: var(--radius); padding: 24px; width: 92%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .modal-overlay.ativa { display: flex; } .modal-box { background: #FFF; border-radius: var(--radius); padding: 24px; width: 92%; max-width: 750px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; } .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #A0AEC0; }
         .form-group { margin-bottom: 10px; } .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 3px; color: #4A5568; text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 10px; border: 1.5px solid #E2E8F0; border-radius: 8px; font-size: 13px; outline: none; } .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -79,6 +79,12 @@
         .foto-card { background: #FFF; border-radius: 10px; overflow: hidden; border: 1px solid #E2E8F0; } .foto-card img { width: 100%; height: 150px; object-fit: cover; } .foto-card .foto-info { padding: 10px; font-size: 11px; }
         .agenda-item { background: #FFF; border-radius: 10px; padding: 14px; border: 1px solid #E2E8F0; margin-bottom: 8px; border-left: 4px solid #8B5CF6; }
         .config-section { background: #FFF; border-radius: 10px; padding: 14px; border: 1px solid #E2E8F0; margin-bottom: 10px; cursor: pointer; } .config-section .config-body { display: none; margin-top: 10px; } .config-section.open .config-body { display: block; }
+        
+        /* Estilos para detalhes GestHosp */
+        .gh-field { background: white; padding: 12px; border-radius: 8px; border: 1px solid #FDE68A; }
+        .gh-field label { font-size: 9px; color: #A0AEC0; text-transform: uppercase; font-weight: 700; display: block; }
+        .gh-field p { margin: 4px 0 0; font-size: 14px; font-weight: 600; color: #1A202C; }
+        
         @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .menu-toggle { display: flex; align-items: center; justify-content: center; } .main-content { margin-left: 0; padding: 14px; padding-top: 55px; } .charts-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } .estoque-grid, .foto-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } }
     </style>
@@ -140,7 +146,7 @@ function toDate(d){if(!d)return new Date(0);return d?.toDate?d.toDate():new Date
 function sanitizar(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function getStatusClass(s){const c={'Concluído':'badge-green','Em Andamento':'badge-amber','Pendente':'badge-red','A Fazer':'badge-blue'};return c[s]||'badge-blue'}
 function getPrioridadeClass(p){const c={'Baixa':'badge-blue','Média':'badge-amber','Alta':'badge-red','Crítica':'badge-red'};return c[p]||'badge-blue'}
-function abrirModal(conteudo,mw='650px'){const m=document.createElement('div');m.className='modal-overlay ativa';m.innerHTML=`<div class="modal-box" style="max-width:${mw};">${conteudo}</div>`;document.body.appendChild(m);m.addEventListener('click',e=>{if(e.target===m)m.remove()});return m}
+function abrirModal(conteudo,mw='750px'){const m=document.createElement('div');m.className='modal-overlay ativa';m.innerHTML=`<div class="modal-box" style="max-width:${mw};">${conteudo}</div>`;document.body.appendChild(m);m.addEventListener('click',e=>{if(e.target===m)m.remove()});return m}
 
 // ============================================
 // AUTENTICAÇÃO
@@ -225,12 +231,208 @@ async function avancarStatus(id){try{const doc=await db.collection('chamados').d
 async function atribuirExecutante(id){try{const snap=await db.collection('usuarios').where('departamento','==','MANUTENCAO').where('status','==','ativo').get();const t=[];snap.forEach(d=>t.push(d.data()));abrirModal(`<div class="modal-header"><h3>👷 Atribuir Executante</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarExecutante(event,'${id}')" style="display:grid;gap:8px;"><div class="form-group"><label>Profissional *</label><select id="execSel" required><option value="">Selecione...</option>${t.map(x=>`<option value="${x.nome}">${x.nome} - ${x.cargo}</option>`).join('')}</select></div><div style="display:flex;gap:6px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button></div></form>`)}catch(e){toast('Erro','error')}}
 async function salvarExecutante(e,id){e.preventDefault();const exec=document.getElementById('execSel')?.value;if(!exec){toast('Selecione','error');return}try{await db.collection('chamados').doc(id).update({executante:exec});document.querySelector('.modal-overlay')?.remove();toast('✅ Definido!','success')}catch(e){toast('Erro','error')}}
 async function excluirChamado(id){if(!confirm('Excluir?'))return;try{await db.collection('chamados').doc(id).delete();toast('🗑️ Excluído!','success')}catch(e){toast('Erro','error')}}
-function verDetalhes(id){const c=chamados.find(x=>x.fid===id);if(!c)return;let cont='';if(c.tipo==='gesthosp'){let d={};try{if(c.descricao)d=JSON.parse(c.descricao)}catch(e){}cont=`<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:16px;border-radius:10px;"><h3>🏥 GestHosp</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p></div><div style="background:#FEF3C7;padding:16px;border-radius:10px;border:2px solid #F59E0B;margin-top:14px;"><h4 style="color:#92400E;">👤 Dados</h4><div style="display:grid;gap:8px;margin-top:10px;"><div style="background:white;padding:10px;border-radius:6px;"><strong>Nome:</strong> ${sanitizar(d.nome||'—')}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><div style="background:white;padding:10px;border-radius:6px;"><strong>CPF:</strong> ${sanitizar(d.cpf||'—')}</div><div style="background:white;padding:10px;border-radius:6px;"><strong>Nasc:</strong> ${sanitizar(d.dataNascimento||'—')}</div></div></div></div>`}else{cont=`<div style="background:linear-gradient(135deg,#1a3a5c,#2c5282);color:white;padding:16px;border-radius:10px;"><h3>${sanitizar(c.titulo||'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;"><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> <span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Executante:</strong> ${sanitizar(c.executante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Depto:</strong> ${(c.departamento||'TI')==='TI'?'🖥️ TI':'🔧 Manutenção'}</div></div>${c.descricao?`<div style="background:white;padding:12px;border-radius:8px;border:1px solid #E2E8F0;margin-top:10px;"><strong>Descrição:</strong><p>${sanitizar(c.descricao)}</p></div>`:''}`}cont+=`<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:14px;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button>${depto==='MANUTENCAO'?`<button class="btn btn-outline btn-sm" onclick="atribuirExecutante('${c.fid}');this.closest('.modal-overlay').remove();">👷</button>`:''}<button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`;abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>${cont}`)}
-function abrirComentarios(id){comentarioChamadoId=id;const c=chamados.find(x=>x.fid===id);if(!c)return;const cs=(c.comentarios||[]).map(co=>`<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;"><strong>${sanitizar(co.autor)}</strong> <small>${fmtData(co.data)}</small><p>${sanitizar(co.texto)}</p></div>`).join('');abrirModal(`<div class="modal-header"><h3>💬 Comentários</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><p>${sanitizar(c.protocolo||'')}</p><div style="max-height:200px;overflow-y:auto;margin:10px 0;">${cs||'<p style="color:#A0AEC0;">Nenhum</p>'}</div><div style="display:flex;gap:6px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>`)}
-async function salvarComentario(){const t=document.getElementById('textoComentario')?.value.trim();if(!t)return;try{const d=await db.collection('chamados').doc(comentarioChamadoId).get();const cs=d.data().comentarios||[];cs.push({autor:`${usuarioLogado.nome} (${nomeDepto})`,data:new Date().toISOString(),texto:t});await d.ref.update({comentarios:cs});document.querySelector('.modal-overlay')?.remove();toast('✅ Adicionado!','success')}catch(e){toast('Erro','error')}}
-function renderGestHosp(){const main=document.getElementById('mainContent');const gh=chamados.filter(c=>c.tipo==='gesthosp');let l='<tr><td colspan="8" style="text-align:center;padding:20px;color:#A0AEC0;">📭 Nenhum</td></tr>';if(gh.length>0){l=gh.map(c=>{let d={};try{if(c.descricao)d=JSON.parse(c.descricao)}catch(e){}return`<tr onclick="verDetalhes('${c.fid}')"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtDataCurta(c.data_abertura)}</td><td><strong>${sanitizar(d.nome||'—')}</strong></td><td>${sanitizar(d.cpf||'—')}</td><td>${sanitizar(d.cargo||d.funcao||'—')}</td><td>${sanitizar(d.setor||'—')}</td><td><span class="badge ${c.status==='Concluído'?'badge-green':'badge-blue'}">${sanitizar(c.status||'—')}</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancarStatus('${c.fid}')">▶</button><button class="btn btn-sm btn-outline" onclick="abrirComentarios('${c.fid}')">💬</button>${getPerms().isAdmin?`<button class="btn btn-sm btn-danger" onclick="excluirChamado('${c.fid}')">🗑️</button>`:''}</td></tr>`}).join('')}main.innerHTML=`<div class="top-bar"><h1>🏥 GestHosp</h1></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Cargo</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${l}</tbody></table></div>`}
 
 // ============================================
+// 🔥 VISUALIZAÇÃO DE DETALHES (GESTHOSP CORRIGIDO)
+// ============================================
+function verDetalhes(id) {
+    const c = chamados.find(x => x.fid === id);
+    if (!c) return;
+    let cont = '';
+    
+    if (c.tipo === 'gesthosp') {
+        // Parse robusto dos dados
+        let d = {};
+        try {
+            if (c.descricao) {
+                if (typeof c.descricao === 'string') {
+                    d = JSON.parse(c.descricao);
+                } else {
+                    d = c.descricao;
+                }
+            }
+        } catch (e) {
+            console.error('Erro ao parsear GestHosp:', e);
+            d = {};
+        }
+        
+        cont = `
+            <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:18px;">🏥 Solicitação de Cadastro GestHosp</h3>
+                <p style="margin:6px 0 0;opacity:0.9;">Protocolo: <strong>${sanitizar(c.protocolo || '—')}</strong></p>
+                <p style="margin:4px 0 0;opacity:0.8;font-size:12px;">Status: ${sanitizar(c.status || '—')} | Data: ${fmtData(c.data_abertura)}</p>
+            </div>
+            
+            <div style="background:#FEF3C7;padding:20px;border-radius:12px;border:2px solid #F59E0B;margin-bottom:16px;">
+                <h4 style="color:#92400E;margin:0 0 14px;font-size:16px;">👤 Dados do Profissional</h4>
+                <div style="display:grid;gap:10px;">
+                    <div class="gh-field"><label>Nome Completo</label><p>${sanitizar(d.nome || 'Não informado')}</p></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>CPF</label><p>${sanitizar(d.cpf || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>RG</label><p>${sanitizar(d.rg || 'Não informado')}</p></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Data Nascimento</label><p>${sanitizar(d.dataNascimento || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>E-mail</label><p>${sanitizar(d.email || 'Não informado')}</p></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Telefone</label><p>${sanitizar(d.telefone || d.tel || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>CEP</label><p>${sanitizar(d.cep || 'Não informado')}</p></div>
+                    </div>
+                    ${d.cidadeEstado ? `<div class="gh-field"><label>Cidade/Estado</label><p>${sanitizar(d.cidadeEstado)}</p></div>` : ''}
+                    
+                    <div style="margin-top:6px;padding-top:10px;border-top:2px dashed #FDE68A;">
+                        <h5 style="color:#92400E;margin:0 0 8px;font-size:13px;">🏥 Dados Profissionais</h5>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <div class="gh-field"><label>Profissão</label><p>${sanitizar(d.profissao || 'Não informado')}</p></div>
+                            <div class="gh-field"><label>Nº Conselho</label><p>${sanitizar(d.numConselho || 'Não informado')}</p></div>
+                        </div>
+                    </div>
+                    
+                    ${d.perfil ? `<div class="gh-field"><label>Perfil de Acesso</label><p>${sanitizar(d.perfil)}</p></div>` : ''}
+                    ${d.observacoes || d.obs ? `<div style="background:#FFFBEB;padding:12px;border-radius:8px;border:1px solid #F6E05E;"><label style="color:#92400E;">📝 Observações</label><p style="margin-top:4px;">${sanitizar(d.observacoes || d.obs)}</p></div>` : ''}
+                </div>
+            </div>
+            
+            <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;">
+                <button class="btn btn-outline btn-sm" onclick="baixarPDFGestHosp('${c.fid}')"><i class="fas fa-download"></i> Baixar PDF</button>
+                <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
+                <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
+                ${getPerms().isAdmin ? `<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>` : ''}
+            </div>
+        `;
+    } else {
+        cont = `
+            <div style="background:linear-gradient(135deg,#1a3a5c,#2c5282);color:white;padding:16px;border-radius:10px;margin-bottom:14px;">
+                <h3>${sanitizar(c.titulo || 'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo || '—')}</strong></p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status || '—')}</span></div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> <span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade || '—')}</span></div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante || '—')}</div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor || '—')}</div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Executante:</strong> ${sanitizar(c.executante || '—')}</div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Depto:</strong> ${(c.departamento || 'TI') === 'TI' ? '🖥️ TI' : '🔧 Manutenção'}</div>
+            </div>
+            ${c.descricao && c.tipo !== 'gesthosp' ? `<div style="background:white;padding:12px;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:14px;"><strong>Descrição:</strong><p>${sanitizar(c.descricao)}</p></div>` : ''}
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
+                ${depto === 'MANUTENCAO' ? `<button class="btn btn-outline btn-sm" onclick="atribuirExecutante('${c.fid}');this.closest('.modal-overlay').remove();">👷 Atribuir</button>` : ''}
+                <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
+                ${getPerms().isAdmin ? `<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>` : ''}
+            </div>
+        `;
+    }
+    
+    abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>${cont}`, '750px');
+}
+
+// 🔥 FUNÇÃO PARA BAIXAR PDF DO GESTHOSP
+async function baixarPDFGestHosp(id) {
+    const c = chamados.find(x => x.fid === id);
+    if (!c) return;
+    
+    let d = {};
+    try {
+        if (c.descricao) {
+            d = typeof c.descricao === 'string' ? JSON.parse(c.descricao) : c.descricao;
+        }
+    } catch (e) { d = {}; }
+    
+    try {
+        const el = document.createElement('div');
+        el.style.cssText = 'padding:30px;background:#fff;width:800px;position:absolute;left:-9999px;font-family:sans-serif;';
+        el.innerHTML = `
+            <div style="text-align:center;border-bottom:2px solid #667eea;padding-bottom:12px;margin-bottom:16px;">
+                <h1 style="color:#667eea;margin:0;">HelpHosp</h1>
+                <p style="color:#4A5568;">Ficha de Cadastro - GestHosp</p>
+                <p style="font-size:11px;color:#A0AEC0;">Protocolo: ${c.protocolo || '—'} | Data: ${fmtData(c.data_abertura)}</p>
+            </div>
+            <h3 style="color:#1a3a5c;border-bottom:1px solid #E2E8F0;padding-bottom:6px;">Dados Pessoais</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+                <tr><td style="padding:6px;font-weight:600;width:150px;">Nome:</td><td style="padding:6px;">${d.nome || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">CPF:</td><td style="padding:6px;">${d.cpf || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">RG:</td><td style="padding:6px;">${d.rg || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">Nascimento:</td><td style="padding:6px;">${d.dataNascimento || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">E-mail:</td><td style="padding:6px;">${d.email || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">Telefone:</td><td style="padding:6px;">${d.telefone || d.tel || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">CEP:</td><td style="padding:6px;">${d.cep || '—'}</td></tr>
+                ${d.cidadeEstado ? `<tr><td style="padding:6px;font-weight:600;">Cidade/Estado:</td><td style="padding:6px;">${d.cidadeEstado}</td></tr>` : ''}
+            </table>
+            <h3 style="color:#1a3a5c;border-bottom:1px solid #E2E8F0;padding-bottom:6px;">Dados Profissionais</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+                <tr><td style="padding:6px;font-weight:600;width:150px;">Profissão:</td><td style="padding:6px;">${d.profissao || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">Nº Conselho:</td><td style="padding:6px;">${d.numConselho || '—'}</td></tr>
+                <tr><td style="padding:6px;font-weight:600;">Perfil:</td><td style="padding:6px;">${d.perfil || '—'}</td></tr>
+            </table>
+            ${d.observacoes || d.obs ? `<div style="background:#FFFBEB;padding:10px;border-radius:6px;"><strong>Observações:</strong> ${d.observacoes || d.obs}</div>` : ''}
+        `;
+        
+        document.body.appendChild(el);
+        const cv = await html2canvas(el, { scale: 2 });
+        document.body.removeChild(el);
+        
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        pdf.addImage(cv.toDataURL('image/png'), 'PNG', 5, 5, 200, (cv.height * 200) / cv.width);
+        pdf.save(`gesthosp-${d.nome || 'cadastro'}.pdf`);
+        toast('📄 PDF baixado!', 'success');
+    } catch (e) {
+        toast('Erro ao gerar PDF', 'error');
+    }
+}
+
+function abrirComentarios(id){comentarioChamadoId=id;const c=chamados.find(x=>x.fid===id);if(!c)return;const cs=(c.comentarios||[]).map(co=>`<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;"><strong>${sanitizar(co.autor)}</strong> <small>${fmtData(co.data)}</small><p>${sanitizar(co.texto)}</p></div>`).join('');abrirModal(`<div class="modal-header"><h3>💬 Comentários</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><p>${sanitizar(c.protocolo||'')}</p><div style="max-height:200px;overflow-y:auto;margin:10px 0;">${cs||'<p style="color:#A0AEC0;">Nenhum</p>'}</div><div style="display:flex;gap:6px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:12px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>`)}
+async function salvarComentario(){const t=document.getElementById('textoComentario')?.value.trim();if(!t)return;try{const d=await db.collection('chamados').doc(comentarioChamadoId).get();const cs=d.data().comentarios||[];cs.push({autor:`${usuarioLogado.nome} (${nomeDepto})`,data:new Date().toISOString(),texto:t});await d.ref.update({comentarios:cs});document.querySelector('.modal-overlay')?.remove();toast('✅ Adicionado!','success')}catch(e){toast('Erro','error')}}
+
+// 🔥 RENDERIZAR GESTHOSP (CORRIGIDO)
+function renderGestHosp() {
+    const main = document.getElementById('mainContent');
+    const gh = chamados.filter(c => c.tipo === 'gesthosp');
+    
+    let l = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#A0AEC0;">📭 Nenhum cadastro pendente</td></tr>';
+    
+    if (gh.length > 0) {
+        l = gh.map(c => {
+            let d = {};
+            try {
+                if (c.descricao) {
+                    d = typeof c.descricao === 'string' ? JSON.parse(c.descricao) : c.descricao;
+                }
+            } catch (e) { d = {}; }
+            
+            return `<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;">
+                <td><strong>${sanitizar(c.protocolo || '—')}</strong></td>
+                <td>${fmtDataCurta(c.data_abertura)}</td>
+                <td><strong>${sanitizar(d.nome || 'Não informado')}</strong></td>
+                <td>${sanitizar(d.cpf || '—')}</td>
+                <td>${sanitizar(d.profissao || d.cargo || d.funcao || '—')}</td>
+                <td>${sanitizar(d.setor || c.setor || '—')}</td>
+                <td><span class="badge ${c.status === 'Concluído' ? 'badge-green' : 'badge-blue'}">${sanitizar(c.status || '—')}</span></td>
+                <td onclick="event.stopPropagation();">
+                    <button class="btn btn-sm btn-primary" onclick="avancarStatus('${c.fid}')">▶</button>
+                    <button class="btn btn-sm btn-outline" onclick="abrirComentarios('${c.fid}')">💬</button>
+                    ${getPerms().isAdmin ? `<button class="btn btn-sm btn-danger" onclick="excluirChamado('${c.fid}')">🗑️</button>` : ''}
+                </td>
+            </tr>`;
+        }).join('');
+    }
+    
+    main.innerHTML = `
+        <div class="top-bar"><h1>🏥 GestHosp - Cadastros de Profissionais</h1></div>
+        <div class="table-card">
+            <table>
+                <thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Profissão</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody>${l}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+// ============================================
+// DEMAIS FUNÇÕES (IPs, EQUIPE, ARQUIVOS, AGENDA, CONFIG, RELATÓRIOS)
+// ============================================
+    // ============================================
 // INDICADORES
 // ============================================
 function renderIndicadores(){const main=document.getElementById('mainContent');main.innerHTML=`<div class="top-bar"><h1>📊 Indicadores</h1><div style="display:flex;gap:6px;"><button class="btn btn-outline" onclick="exportarIndicadoresPDF()"><i class="fas fa-file-pdf"></i> PDF</button><button class="btn btn-outline" onclick="exportarIndicadoresSlide()"><i class="fas fa-file-powerpoint"></i> Slide</button></div></div><div class="filtros-bar"><select id="indTipo" onchange="atualizarPeriodos()"><option value="mensal">Mensal</option><option value="semanal">Semanal</option></select><select id="indPeriodo" onchange="atualizarIndicadoresUI()"></select></div><div class="stats-grid" id="indicadorGrid"></div><div class="charts-grid"><div class="chart-card"><h3>📈 Evolução</h3><canvas id="graficoEvolucao"></canvas></div><div class="chart-card"><h3>🎯 Resolução</h3><canvas id="graficoResolucao"></canvas></div></div>`;atualizarPeriodos()}
@@ -307,6 +509,8 @@ async function removerDepto(i){if(!confirm('Remover?'))return;departamentosChama
 async function alterarSenha(e){e.preventDefault();const sa=document.getElementById('senhaAtual')?.value,sn=document.getElementById('senhaNova')?.value,sc=document.getElementById('senhaNovaConfirma')?.value;if(!sa||!sn||!sc){toast('Preencha todos','error');return}if(sn!==sc){toast('Não conferem','error');return}if(sn.length<8){toast('Mín 8 caracteres','error');return}try{const us=await db.collection('usuarios').where('usuario','==',usuarioLogado.usuario).get();if(us.empty){toast('Não encontrado','error');return}if(us.docs[0].data().senha!==sa){toast('Senha incorreta','error');return}await us.docs[0].ref.update({senha:sn,primeiro_acesso:false});toast('✅ Alterada!','success');e.target.reset()}catch(e){toast('Erro','error')}}
 
 async function gerarRelatorioPDF(){try{const el=document.createElement('div');el.style.cssText='padding:30px;background:#fff;width:900px;position:absolute;left:-9999px;';const t=chamados.length,a=chamados.filter(c=>c.status!=='Concluído').length,co=chamados.filter(c=>c.status==='Concluído').length,tx=t>0?Math.round(co/t*100):0;el.innerHTML=`<div style="text-align:center;border-bottom:3px solid #3182CE;"><h1>HelpHosp</h1><h2>${sanitizar(nomeDepto)}</h2></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${t}</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">ABERTOS</p><p style="font-size:32px;">${a}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;">${tx}%</p></div></div>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,200,(cv.height*200)/cv.width);pdf.save(`relatorio-${nomeDepto.toLowerCase()}.pdf`);toast('📄 Gerado!','success')}catch(e){toast('Erro','error')}}
+
+// ... (mantenha todas as outras funções do código anterior)
 
 // ============================================
 // INICIALIZAÇÃO

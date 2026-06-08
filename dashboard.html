@@ -370,7 +370,9 @@ function verDetalhes(id) {
     abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>${cont}`, '750px');
 }
 
-// 🔥 FUNÇÃO PARA BAIXAR PDF DO GESTHOSP
+// ============================================
+// 🔥 BAIXAR PDF GESTHOSP (CORRIGIDO COM ENDEREÇO)
+// ============================================
 async function baixarPDFGestHosp(id) {
     const c = chamados.find(x => x.fid === id);
     if (!c) return;
@@ -380,35 +382,64 @@ async function baixarPDFGestHosp(id) {
         if (c.descricao) {
             d = typeof c.descricao === 'string' ? JSON.parse(c.descricao) : c.descricao;
         }
-    } catch (e) { d = {}; }
+    } catch (e) { 
+        console.error('Erro ao parsear:', e);
+        d = {}; 
+    }
+    
+    console.log('📄 Gerando PDF com dados:', d);
     
     try {
         const el = document.createElement('div');
-        el.style.cssText = 'padding:30px;background:#fff;width:800px;position:absolute;left:-9999px;font-family:sans-serif;';
+        el.style.cssText = 'padding:30px;background:#fff;width:800px;position:absolute;left:-9999px;font-family:sans-serif;color:#1A202C;';
+        
         el.innerHTML = `
-            <div style="text-align:center;border-bottom:2px solid #667eea;padding-bottom:12px;margin-bottom:16px;">
-                <h1 style="color:#667eea;margin:0;">HelpHosp</h1>
-                <p style="color:#4A5568;">Ficha de Cadastro - GestHosp</p>
-                <p style="font-size:11px;color:#A0AEC0;">Protocolo: ${c.protocolo || '—'} | Data: ${fmtData(c.data_abertura)}</p>
+            <div style="text-align:center;border-bottom:3px solid #667eea;padding-bottom:14px;margin-bottom:20px;">
+                <h1 style="color:#667eea;margin:0;font-size:22px;">HelpHosp</h1>
+                <p style="color:#4A5568;font-size:14px;margin:4px 0;">Ficha de Cadastro - GestHosp</p>
+                <p style="font-size:10px;color:#A0AEC0;">Protocolo: ${c.protocolo || '—'} | Data: ${fmtData(c.data_abertura)}</p>
             </div>
-            <h3 style="color:#1a3a5c;border-bottom:1px solid #E2E8F0;padding-bottom:6px;">Dados Pessoais</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-                <tr><td style="padding:6px;font-weight:600;width:150px;">Nome:</td><td style="padding:6px;">${d.nome || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">CPF:</td><td style="padding:6px;">${d.cpf || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">RG:</td><td style="padding:6px;">${d.rg || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">Nascimento:</td><td style="padding:6px;">${d.dataNascimento || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">E-mail:</td><td style="padding:6px;">${d.email || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">Telefone:</td><td style="padding:6px;">${d.telefone || d.tel || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">CEP:</td><td style="padding:6px;">${d.cep || '—'}</td></tr>
-                ${d.cidadeEstado ? `<tr><td style="padding:6px;font-weight:600;">Cidade/Estado:</td><td style="padding:6px;">${d.cidadeEstado}</td></tr>` : ''}
+            
+            <!-- DADOS PESSOAIS -->
+            <h3 style="color:#1a3a5c;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;font-size:15px;">👤 Dados Pessoais</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">
+                <tr><td style="padding:6px 8px;font-weight:600;width:160px;background:#F7FAFC;">Nome Completo:</td><td style="padding:6px 8px;">${d.nome || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">CPF:</td><td style="padding:6px 8px;">${d.cpf || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">RG:</td><td style="padding:6px 8px;">${d.rg || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Data de Nascimento:</td><td style="padding:6px 8px;">${d.dataNascimento || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">E-mail:</td><td style="padding:6px 8px;">${d.email || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Telefone:</td><td style="padding:6px 8px;">${d.telefone || d.tel || '—'}</td></tr>
             </table>
-            <h3 style="color:#1a3a5c;border-bottom:1px solid #E2E8F0;padding-bottom:6px;">Dados Profissionais</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-                <tr><td style="padding:6px;font-weight:600;width:150px;">Profissão:</td><td style="padding:6px;">${d.profissao || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">Nº Conselho:</td><td style="padding:6px;">${d.numConselho || '—'}</td></tr>
-                <tr><td style="padding:6px;font-weight:600;">Perfil:</td><td style="padding:6px;">${d.perfil || '—'}</td></tr>
+            
+            <!-- ENDEREÇO -->
+            <h3 style="color:#1a3a5c;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;font-size:15px;">📍 Endereço</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">
+                <tr><td style="padding:6px 8px;font-weight:600;width:160px;background:#F7FAFC;">CEP:</td><td style="padding:6px 8px;">${d.cep || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Logradouro:</td><td style="padding:6px 8px;">${d.logradouro || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Número:</td><td style="padding:6px 8px;">${d.numero || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Complemento:</td><td style="padding:6px 8px;">${d.complemento || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Bairro:</td><td style="padding:6px 8px;">${d.bairro || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Cidade:</td><td style="padding:6px 8px;">${d.cidade || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Estado:</td><td style="padding:6px 8px;">${d.estado || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">País:</td><td style="padding:6px 8px;">${d.pais || 'Brasil'}</td></tr>
             </table>
-            ${d.observacoes || d.obs ? `<div style="background:#FFFBEB;padding:10px;border-radius:6px;"><strong>Observações:</strong> ${d.observacoes || d.obs}</div>` : ''}
+            
+            <!-- DADOS PROFISSIONAIS -->
+            <h3 style="color:#1a3a5c;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;font-size:15px;">🏥 Dados Profissionais</h3>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12px;">
+                <tr><td style="padding:6px 8px;font-weight:600;width:160px;background:#F7FAFC;">Profissão:</td><td style="padding:6px 8px;">${d.profissao || '—'}</td></tr>
+                <tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Nº Conselho:</td><td style="padding:6px 8px;">${d.numConselho || '—'}</td></tr>
+                ${d.especialidade ? `<tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Especialidade:</td><td style="padding:6px 8px;">${d.especialidade}</td></tr>` : ''}
+                ${d.setorAtuacao ? `<tr><td style="padding:6px 8px;font-weight:600;background:#F7FAFC;">Setor de Atuação:</td><td style="padding:6px 8px;">${d.setorAtuacao}</td></tr>` : ''}
+            </table>
+            
+            ${d.observacoes || d.obs ? `
+            <h3 style="color:#1a3a5c;border-bottom:2px solid #E2E8F0;padding-bottom:6px;margin-bottom:12px;font-size:15px;">📝 Observações</h3>
+            <div style="background:#FFFBEB;padding:12px;border-radius:6px;border:1px solid #F6E05E;margin-bottom:20px;font-size:12px;">${d.observacoes || d.obs}</div>` : ''}
+            
+            <div style="text-align:center;margin-top:20px;padding-top:14px;border-top:1px solid #E2E8F0;font-size:10px;color:#A0AEC0;">
+                Documento gerado em ${new Date().toLocaleString('pt-BR')} - HelpHosp
+            </div>
         `;
         
         document.body.appendChild(el);
@@ -417,10 +448,17 @@ async function baixarPDFGestHosp(id) {
         
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        pdf.addImage(cv.toDataURL('image/png'), 'PNG', 5, 5, 200, (cv.height * 200) / cv.width);
-        pdf.save(`gesthosp-${d.nome || 'cadastro'}.pdf`);
-        toast('📄 PDF baixado!', 'success');
+        const imgWidth = 200;
+        const imgHeight = (cv.height * imgWidth) / cv.width;
+        pdf.addImage(cv.toDataURL('image/png'), 'PNG', 5, 5, imgWidth, imgHeight);
+        
+        // Nome do arquivo
+        const nomeArquivo = d.nome ? d.nome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : 'cadastro';
+        pdf.save(`gesthosp-${nomeArquivo}.pdf`);
+        
+        toast('📄 PDF baixado com sucesso!', 'success');
     } catch (e) {
+        console.error('Erro ao gerar PDF:', e);
         toast('Erro ao gerar PDF', 'error');
     }
 }

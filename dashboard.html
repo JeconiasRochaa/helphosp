@@ -233,7 +233,7 @@ async function salvarExecutante(e,id){e.preventDefault();const exec=document.get
 async function excluirChamado(id){if(!confirm('Excluir?'))return;try{await db.collection('chamados').doc(id).delete();toast('🗑️ Excluído!','success')}catch(e){toast('Erro','error')}}
 
 // ============================================
-// 🔥 VISUALIZAÇÃO DE DETALHES (GESTHOSP CORRIGIDO)
+// 🔥 VISUALIZAÇÃO DE DETALHES GESTHOSP (COMPLETA)
 // ============================================
 function verDetalhes(id) {
     const c = chamados.find(x => x.fid === id);
@@ -253,18 +253,31 @@ function verDetalhes(id) {
             }
         } catch (e) {
             console.error('Erro ao parsear GestHosp:', e);
-            d = {};
+            // Tentar limpar a string antes de parsear
+            try {
+                if (typeof c.descricao === 'string') {
+                    d = JSON.parse(c.descricao.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+                }
+            } catch (e2) {
+                d = {};
+            }
         }
+        
+        // Debug no console
+        console.log('📋 Dados GestHosp:', d);
+        console.log('📋 Campos encontrados:', Object.keys(d));
         
         cont = `
             <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:16px;">
                 <h3 style="margin:0;font-size:18px;">🏥 Solicitação de Cadastro GestHosp</h3>
                 <p style="margin:6px 0 0;opacity:0.9;">Protocolo: <strong>${sanitizar(c.protocolo || '—')}</strong></p>
                 <p style="margin:4px 0 0;opacity:0.8;font-size:12px;">Status: ${sanitizar(c.status || '—')} | Data: ${fmtData(c.data_abertura)}</p>
+                <p style="margin:4px 0 0;opacity:0.7;font-size:10px;">Solicitante: ${sanitizar(c.solicitante || '—')}</p>
             </div>
             
+            <!-- DADOS PESSOAIS -->
             <div style="background:#FEF3C7;padding:20px;border-radius:12px;border:2px solid #F59E0B;margin-bottom:16px;">
-                <h4 style="color:#92400E;margin:0 0 14px;font-size:16px;">👤 Dados do Profissional</h4>
+                <h4 style="color:#92400E;margin:0 0 14px;font-size:16px;">👤 Dados Pessoais</h4>
                 <div style="display:grid;gap:10px;">
                     <div class="gh-field"><label>Nome Completo</label><p>${sanitizar(d.nome || 'Não informado')}</p></div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -272,54 +285,84 @@ function verDetalhes(id) {
                         <div class="gh-field"><label>RG</label><p>${sanitizar(d.rg || 'Não informado')}</p></div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div class="gh-field"><label>Data Nascimento</label><p>${sanitizar(d.dataNascimento || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>Data de Nascimento</label><p>${sanitizar(d.dataNascimento || 'Não informado')}</p></div>
                         <div class="gh-field"><label>E-mail</label><p>${sanitizar(d.email || 'Não informado')}</p></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div class="gh-field"><label>Telefone</label><p>${sanitizar(d.telefone || d.tel || 'Não informado')}</p></div>
-                        <div class="gh-field"><label>CEP</label><p>${sanitizar(d.cep || 'Não informado')}</p></div>
-                    </div>
-                    ${d.cidadeEstado ? `<div class="gh-field"><label>Cidade/Estado</label><p>${sanitizar(d.cidadeEstado)}</p></div>` : ''}
-                    
-                    <div style="margin-top:6px;padding-top:10px;border-top:2px dashed #FDE68A;">
-                        <h5 style="color:#92400E;margin:0 0 8px;font-size:13px;">🏥 Dados Profissionais</h5>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                            <div class="gh-field"><label>Profissão</label><p>${sanitizar(d.profissao || 'Não informado')}</p></div>
-                            <div class="gh-field"><label>Nº Conselho</label><p>${sanitizar(d.numConselho || 'Não informado')}</p></div>
-                        </div>
-                    </div>
-                    
-                    ${d.perfil ? `<div class="gh-field"><label>Perfil de Acesso</label><p>${sanitizar(d.perfil)}</p></div>` : ''}
-                    ${d.observacoes || d.obs ? `<div style="background:#FFFBEB;padding:12px;border-radius:8px;border:1px solid #F6E05E;"><label style="color:#92400E;">📝 Observações</label><p style="margin-top:4px;">${sanitizar(d.observacoes || d.obs)}</p></div>` : ''}
+                    <div class="gh-field"><label>Telefone</label><p>${sanitizar(d.telefone || d.tel || 'Não informado')}</p></div>
                 </div>
             </div>
             
+            <!-- ENDEREÇO -->
+            <div style="background:#DBEAFE;padding:20px;border-radius:12px;border:2px solid #93C5FD;margin-bottom:16px;">
+                <h4 style="color:#1E40AF;margin:0 0 14px;font-size:16px;">📍 Endereço</h4>
+                <div style="display:grid;gap:10px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>CEP</label><p>${sanitizar(d.cep || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>Logradouro</label><p>${sanitizar(d.logradouro || 'Não informado')}</p></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Número</label><p>${sanitizar(d.numero || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>Complemento</label><p>${sanitizar(d.complemento || 'Não informado')}</p></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Bairro</label><p>${sanitizar(d.bairro || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>Cidade</label><p>${sanitizar(d.cidade || 'Não informado')}</p></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Estado</label><p>${sanitizar(d.estado || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>País</label><p>${sanitizar(d.pais || 'Brasil')}</p></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DADOS PROFISSIONAIS -->
+            <div style="background:#D1FAE5;padding:20px;border-radius:12px;border:2px solid #6EE7B7;margin-bottom:16px;">
+                <h4 style="color:#065F46;margin:0 0 14px;font-size:16px;">🏥 Dados Profissionais</h4>
+                <div style="display:grid;gap:10px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="gh-field"><label>Profissão</label><p>${sanitizar(d.profissao || 'Não informado')}</p></div>
+                        <div class="gh-field"><label>Nº Conselho</label><p>${sanitizar(d.numConselho || 'Não informado')}</p></div>
+                    </div>
+                    ${d.especialidade ? `<div class="gh-field"><label>Especialidade</label><p>${sanitizar(d.especialidade)}</p></div>` : ''}
+                    ${d.setorAtuacao ? `<div class="gh-field"><label>Setor de Atuação</label><p>${sanitizar(d.setorAtuacao)}</p></div>` : ''}
+                </div>
+            </div>
+            
+            <!-- OBSERVAÇÕES -->
+            ${d.observacoes || d.obs ? `
+            <div style="background:#FFFBEB;padding:16px;border-radius:10px;border:1px solid #F6E05E;margin-bottom:16px;">
+                <h4 style="color:#92400E;margin:0 0 8px;font-size:14px;">📝 Observações</h4>
+                <p style="font-size:13px;color:#4A5568;">${sanitizar(d.observacoes || d.obs)}</p>
+            </div>` : ''}
+            
             <div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;">
                 <button class="btn btn-outline btn-sm" onclick="baixarPDFGestHosp('${c.fid}')"><i class="fas fa-download"></i> Baixar PDF</button>
-                <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
+                <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar Status</button>
                 <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
                 ${getPerms().isAdmin ? `<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>` : ''}
             </div>
         `;
     } else {
+        // Chamado normal
         cont = `
             <div style="background:linear-gradient(135deg,#1a3a5c,#2c5282);color:white;padding:16px;border-radius:10px;margin-bottom:14px;">
-                <h3>${sanitizar(c.titulo || 'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo || '—')}</strong></p>
+                <h3>${sanitizar(c.titulo || 'Sem título')}</h3>
+                <p>Protocolo: <strong>${sanitizar(c.protocolo || '—')}</strong></p>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
                 <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status || '—')}</span></div>
                 <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> <span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade || '—')}</span></div>
                 <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante || '—')}</div>
                 <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor || '—')}</div>
-                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Executante:</strong> ${sanitizar(c.executante || '—')}</div>
+                <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Categoria:</strong> ${sanitizar(c.categoria || '—')}</div>
                 <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Depto:</strong> ${(c.departamento || 'TI') === 'TI' ? '🖥️ TI' : '🔧 Manutenção'}</div>
             </div>
             ${c.descricao && c.tipo !== 'gesthosp' ? `<div style="background:white;padding:12px;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:14px;"><strong>Descrição:</strong><p>${sanitizar(c.descricao)}</p></div>` : ''}
             <div style="display:flex;gap:6px;justify-content:flex-end;">
                 <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
                 ${depto === 'MANUTENCAO' ? `<button class="btn btn-outline btn-sm" onclick="atribuirExecutante('${c.fid}');this.closest('.modal-overlay').remove();">👷 Atribuir</button>` : ''}
-                <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
-                ${getPerms().isAdmin ? `<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>` : ''}
+                <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>
+                ${getPerms().isAdmin ? `<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>` : ''}
             </div>
         `;
     }

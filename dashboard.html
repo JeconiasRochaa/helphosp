@@ -306,14 +306,256 @@ function editarTecnico(id){abrirModalTecnico(id)}
 async function removerTecnico(id){if(!confirm('Remover?'))return;try{await db.collection('usuarios').doc(id).delete();renderEquipe();toast('🗑️ Removido!','success')}catch(e){toast('Erro','error')}}
 
 // ============================================
-// ARQUIVOS
+// ARQUIVOS (UPLOAD DE FOTOS CORRIGIDO)
 // ============================================
-function renderArquivos(){const main=document.getElementById('mainContent');main.innerHTML=`<div class="top-bar"><h1>📁 Arquivos</h1><button class="btn btn-primary" onclick="abrirUploadFoto()"><i class="fas fa-upload"></i> Upload</button></div><div class="filtros-bar"><select id="filtroCatFoto" onchange="carregarFotos()"><option value="">Todas</option><option value="defeito">🔴 Defeito</option><option value="instalacao">🟢 Instalação</option><option value="servico">🔧 Serviço</option><option value="geral">📷 Geral</option></select></div><div class="foto-grid" id="listaFotos">Carregando...</div>`;carregarFotos()}
-async function carregarFotos(){try{const cat=document.getElementById('filtroCatFoto')?.value||'';let q=db.collection('arquivos').orderBy('data','desc');if(cat)q=q.where('categoria','==',cat);const s=await q.limit(50).get();const f=[];s.forEach(d=>{const x=d.data();x.fid=d.id;f.push(x)});const c=document.getElementById('listaFotos');if(!c)return;if(f.length===0){c.innerHTML='<div style="text-align:center;padding:40px;color:#A0AEC0;">📭 Nenhuma</div>';return}c.innerHTML=f.map(x=>`<div class="foto-card"><img src="${x.url}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22150%22><rect fill=%22%23F3F4F6%22 width=%22200%22 height=%22150%22/><text x=%22100%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23A0AEC0%22>📷</text></svg>'"><div class="foto-info"><div style="font-weight:600;">${sanitizar(x.categoria||'Geral')}</div><div style="font-size:10px;">${fmtDataCurta(x.data)}</div>${x.descricao?`<div>${sanitizar(x.descricao)}</div>`:''}<button class="btn btn-sm btn-danger" style="margin-top:4px;width:100%;" onclick="excluirFoto('${x.fid}')">🗑️</button></div></div>`).join('')}catch(e){}}
-function abrirUploadFoto(){abrirModal(`<div class="modal-header"><h3>📤 Upload</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="uploadFoto(event)" style="display:grid;gap:8px;"><div class="form-group"><label>Categoria</label><select id="fotoCat"><option value="defeito">🔴 Defeito</option><option value="instalacao">🟢 Instalação</option><option value="servico">🔧 Serviço</option><option value="geral">📷 Geral</option></select></div><div class="form-group"><label>Descrição</label><textarea id="fotoDesc" rows="2"></textarea></div><div class="form-group"><label>Arquivo *</label><input type="file" id="fotoArq" accept="image/*" required></div><div style="display:flex;gap:6px;"><button type="submit" class="btn btn-primary">Enviar</button><button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button></div></form>`)}
-async function uploadFoto(e){e.preventDefault();const f=document.getElementById('fotoArq')?.files[0];if(!f){toast('Selecione arquivo','error');return}try{const r=storage.ref('fotos/'+Date.now()+'_'+f.name);await r.put(f);const u=await r.getDownloadURL();await db.collection('arquivos').add({url:u,categoria:document.getElementById('fotoCat')?.value||'geral',descricao:document.getElementById('fotoDesc')?.value.trim()||'',autor:usuarioLogado.nome,departamento:depto,data:firebase.firestore.Timestamp.now()});document.querySelector('.modal-overlay')?.remove();carregarFotos();toast('✅ Enviada!','success')}catch(e){toast('Erro','error')}}
-async function excluirFoto(id){if(!confirm('Excluir?'))return;try{await db.collection('arquivos').doc(id).delete();carregarFotos();toast('🗑️ Excluída!','success')}catch(e){toast('Erro','error')}}
+function renderArquivos(){
+    const main=document.getElementById('mainContent');
+    main.innerHTML=`
+        <div class="top-bar">
+            <h1>📁 Arquivos e Fotos</h1>
+            <button class="btn btn-primary" onclick="abrirUploadFoto()">
+                <i class="fas fa-upload"></i> Upload de Foto
+            </button>
+        </div>
+        <div class="filtros-bar">
+            <select id="filtroCatFoto" onchange="carregarFotos()">
+                <option value="">Todas as Categorias</option>
+                <option value="defeito">🔴 Defeito/Problema</option>
+                <option value="instalacao">🟢 Instalação</option>
+                <option value="servico">🔧 Serviço Realizado</option>
+                <option value="geral">📷 Geral</option>
+            </select>
+        </div>
+        <div class="foto-grid" id="listaFotos">
+            <div style="text-align:center;padding:40px;grid-column:1/-1;">
+                <div class="spinner"></div>
+                <p style="color:#A0AEC0;">Carregando fotos...</p>
+            </div>
+        </div>`;
+    carregarFotos();
+}
 
+async function carregarFotos(){
+    try{
+        const cat=document.getElementById('filtroCatFoto')?.value||'';
+        let q=db.collection('arquivos').orderBy('data','desc');
+        if(cat) q=q.where('categoria','==',cat);
+        const s=await q.limit(50).get();
+        const f=[];
+        s.forEach(d=>{const x=d.data();x.fid=d.id;f.push(x)});
+        const c=document.getElementById('listaFotos');
+        if(!c)return;
+        
+        if(f.length===0){
+            c.innerHTML='<div style="text-align:center;padding:40px;grid-column:1/-1;color:#A0AEC0;"><div style="font-size:40px;margin-bottom:10px;">📭</div><h3>Nenhuma foto encontrada</h3><p style="font-size:12px;">Clique em "Upload de Foto" para adicionar</p></div>';
+            return;
+        }
+        
+        c.innerHTML=f.map(x=>`
+            <div class="foto-card">
+                <img src="${x.url}" alt="${sanitizar(x.descricao||'Foto')}" 
+                     onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22150%22><rect fill=%22%23F3F4F6%22 width=%22200%22 height=%22150%22/><text x=%22100%22 y=%2280%22 text-anchor=%22middle%22 fill=%22%23A0AEC0%22 font-size=%2240%22>📷</text></svg>'"
+                     style="cursor:pointer;" onclick="verFotoGrande('${x.url}')">
+                <div class="foto-info">
+                    <div style="font-weight:600;font-size:11px;">${sanitizar(x.categoria||'Geral')}</div>
+                    <div style="font-size:9px;color:#A0AEC0;">${fmtDataCurta(x.data)} • ${sanitizar(x.autor||'—')}</div>
+                    ${x.descricao?`<div style="font-size:10px;margin-top:3px;color:#4A5568;">${sanitizar(x.descricao)}</div>`:''}
+                    <button class="btn btn-sm btn-danger" style="margin-top:6px;width:100%;" 
+                            onclick="event.stopPropagation();excluirFoto('${x.fid}')">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }catch(e){
+        console.error('Erro ao carregar fotos:',e);
+    }
+}
+
+function verFotoGrande(url){
+    const modal=document.createElement('div');
+    modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+    modal.innerHTML=`<img src="${url}" style="max-width:90%;max-height:90%;object-fit:contain;border-radius:8px;"><button style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.2);color:white;border:none;font-size:24px;width:40px;height:40px;border-radius:50%;cursor:pointer;">&times;</button>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click',function(e){if(e.target===modal||e.target.tagName==='BUTTON')modal.remove()});
+}
+
+function abrirUploadFoto(){
+    const modal=abrirModal(`
+        <div class="modal-header">
+            <h3>📤 Upload de Foto</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+        </div>
+        <form onsubmit="uploadFoto(event)" style="display:grid;gap:10px;">
+            <div class="form-group">
+                <label>Categoria *</label>
+                <select id="fotoCat" required>
+                    <option value="">Selecione a categoria...</option>
+                    <option value="defeito">🔴 Defeito/Problema</option>
+                    <option value="instalacao">🟢 Instalação</option>
+                    <option value="servico">🔧 Serviço Realizado</option>
+                    <option value="geral">📷 Geral</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="fotoDesc" rows="2" placeholder="Descreva a foto..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Selecionar Arquivo *</label>
+                <input type="file" id="fotoArq" accept="image/*" required 
+                       style="padding:8px;border:2px dashed #E2E8F0;border-radius:8px;background:#F7FAFC;">
+                <small style="color:#A0AEC0;font-size:10px;">Formatos aceitos: JPG, PNG, GIF, WEBP</small>
+            </div>
+            <div id="previewFoto" style="display:none;text-align:center;">
+                <img id="previewImg" style="max-width:200px;max-height:200px;border-radius:8px;border:2px solid #E2E8F0;">
+            </div>
+            <div style="display:flex;gap:6px;">
+                <button type="submit" class="btn btn-primary" id="btnUploadFoto">
+                    <i class="fas fa-cloud-upload-alt"></i> Enviar Foto
+                </button>
+                <button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">
+                    Cancelar
+                </button>
+            </div>
+            <div id="progressoUpload" style="display:none;">
+                <div style="background:#E2E8F0;border-radius:10px;height:8px;overflow:hidden;">
+                    <div id="barraProgresso" style="background:var(--success);height:100%;width:0%;transition:width 0.3s;"></div>
+                </div>
+                <p style="text-align:center;font-size:11px;color:#A0AEC0;margin-top:4px;">Enviando...</p>
+            </div>
+        </form>
+    `);
+    
+    // Preview da imagem
+    setTimeout(()=>{
+        const input=document.getElementById('fotoArq');
+        if(input){
+            input.addEventListener('change',function(){
+                const file=this.files[0];
+                if(file){
+                    const reader=new FileReader();
+                    reader.onload=function(e){
+                        document.getElementById('previewFoto').style.display='block';
+                        document.getElementById('previewImg').src=e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    },300);
+}
+
+async function uploadFoto(e){
+    e.preventDefault();
+    
+    const fileInput=document.getElementById('fotoArq');
+    const file=fileInput?.files[0];
+    
+    if(!file){
+        toast('⚠️ Selecione um arquivo de imagem','warning');
+        return;
+    }
+    
+    // Validar tipo
+    if(!file.type.startsWith('image/')){
+        toast('⚠️ Selecione apenas arquivos de imagem','warning');
+        return;
+    }
+    
+    // Validar tamanho (máx 10MB)
+    if(file.size>10*1024*1024){
+        toast('⚠️ Arquivo muito grande. Máximo 10MB','warning');
+        return;
+    }
+    
+    const btn=document.getElementById('btnUploadFoto');
+    const progresso=document.getElementById('progressoUpload');
+    const barra=document.getElementById('barraProgresso');
+    
+    btn.disabled=true;
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    progresso.style.display='block';
+    
+    try{
+        // Criar referência no Storage
+        const timestamp=Date.now();
+        const nomeArquivo=`${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g,'_')}`;
+        const storageRef=storage.ref('fotos/'+nomeArquivo);
+        
+        // Upload com monitoramento de progresso
+        const uploadTask=storageRef.put(file);
+        
+        uploadTask.on('state_changed',
+            (snapshot)=>{
+                // Progresso
+                const progress=(snapshot.bytesTransferred/snapshot.totalBytes)*100;
+                barra.style.width=progress+'%';
+            },
+            (error)=>{
+                console.error('Erro no upload:',error);
+                toast('❌ Erro ao fazer upload: '+error.message,'error');
+                btn.disabled=false;
+                btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Enviar Foto';
+                progresso.style.display='none';
+            },
+            async ()=>{
+                // Upload completo
+                const url=await uploadTask.snapshot.ref.getDownloadURL();
+                
+                // Salvar no Firestore
+                await db.collection('arquivos').add({
+                    url:url,
+                    categoria:document.getElementById('fotoCat')?.value||'geral',
+                    descricao:document.getElementById('fotoDesc')?.value.trim()||'',
+                    autor:usuarioLogado.nome,
+                    departamento:depto,
+                    data:firebase.firestore.Timestamp.now(),
+                    nomeArquivo:nomeArquivo
+                });
+                
+                // Fechar modal e recarregar
+                document.querySelector('.modal-overlay')?.remove();
+                toast('✅ Foto enviada com sucesso!','success');
+                carregarFotos();
+            }
+        );
+        
+    }catch(e){
+        console.error('Erro ao enviar foto:',e);
+        toast('❌ Erro ao enviar foto: '+e.message,'error');
+        btn.disabled=false;
+        btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Enviar Foto';
+        progresso.style.display='none';
+    }
+}
+
+async function excluirFoto(id){
+    if(!confirm('Tem certeza que deseja excluir esta foto?'))return;
+    
+    try{
+        // Buscar dados da foto para saber o nome do arquivo
+        const doc=await db.collection('arquivos').doc(id).get();
+        if(doc.exists){
+            const dados=doc.data();
+            // Tentar excluir do Storage
+            if(dados.nomeArquivo){
+                try{
+                    await storage.ref('fotos/'+dados.nomeArquivo).delete();
+                }catch(e){
+                    console.log('Arquivo já removido do storage ou não encontrado');
+                }
+            }
+        }
+        // Excluir do Firestore
+        await db.collection('arquivos').doc(id).delete();
+        toast('🗑️ Foto excluída!','success');
+        carregarFotos();
+    }catch(e){
+        console.error('Erro ao excluir:',e);
+        toast('❌ Erro ao excluir foto','error');
+    }
+}
 // ============================================
 // AGENDA
 // ============================================

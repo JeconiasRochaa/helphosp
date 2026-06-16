@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpHosp - Painel TV</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #00ff00;
+            --card-bg: #0a0a0a;
+            --border: #00ff00;
+            --critical: #ff0000;
+            --warning: #ffff00;
+            --info: #00ffff;
+            --header-bg: #000000;
+            --font-size-base: 22px;
+            --font-size-header: 32px;
+            --font-size-title: 26px;
+            --font-size-card: 20px;
+            --font-size-small: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', 'Lucida Console', 'Consolas', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 0, 0.015) 2px,
+                    rgba(0, 255, 0, 0.015) 4px);
+        }
+
+        /* CRT flicker */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.98; }
+            15% { opacity: 0.96; }
+            20% { opacity: 0.99; }
+            50% { opacity: 1; }
+            80% { opacity: 0.98; }
+            90% { opacity: 0.97; }
+            100% { opacity: 0.99; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 30px 40px;
+            animation: flicker 4s infinite;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .tv-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--border);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .tv-header::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: var(--border);
+            box-shadow: 0 0 20px var(--border), 0 0 40px var(--border);
+        }
+
+        .tv-header h1 {
+            font-size: var(--font-size-header);
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px var(--border), 0 0 40px var(--border);
+            margin-bottom: 5px;
+        }
+
+        .tv-header .date {
+            font-size: var(--font-size-small);
+            color: var(--info);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--info);
+        }
+
+        .tv-header .stats {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: var(--font-size-card);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--border);
+        }
+
+        .tv-header .stats .count {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+        }
+
+        /* Relógio */
+        .clock {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin: 15px 0;
+            letter-spacing: 6px;
+            text-shadow: 0 0 30px var(--info), 0 0 60px var(--info);
+            color: var(--info);
+        }
+
+        /* Grid de chamados */
+        .chamados-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .chamados-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px 25px;
+            }
+            :root {
+                --font-size-base: 18px;
+                --font-size-header: 26px;
+                --font-size-card: 17px;
+                --font-size-small: 14px;
+            }
+            .clock {
+                font-size: 36px;
+            }
+        }
+
+        /* Card de chamado */
+        .tv-chamado {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 18px 22px;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .tv-chamado:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+        }
+
+        /* Chamado crítico */
+        .tv-critical {
+            border-color: var(--critical) !important;
+            animation: criticalPulse 1s infinite;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.4) !important;
+        }
+
+        @keyframes criticalPulse {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+                border-color: #ff0000;
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+                border-color: #ff4444;
+            }
+        }
+
+        .tv-chamado .protocolo {
+            font-size: var(--font-size-small);
+            color: var(--info);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px var(--info);
+        }
+
+        .tv-chamado .titulo {
+            font-size: var(--font-size-card);
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tv-chamado .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: var(--font-size-small);
+        }
+
+        .tv-chamado .setor {
+            color: var(--warning);
+            text-shadow: 0 0 10px var(--warning);
+        }
+
+        .tv-chamado .departamento {
+            color: var(--info);
+            text-shadow: 0 0 10px var(--info);
+        }
+
+        .tv-chamado .prioridade {
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .tv-chamado .status {
+            padding: 4px 12px;
+            border: 1px solid currentColor;
+            border-radius: 4px;
+            font-size: var(--font-size-small);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .tv-chamado .hora {
+            font-size: var(--font-size-small);
+            color: var(--info);
+            text-shadow: 0 0 10px var(--info);
+        }
+
+        /* Estados */
+        .tv-empty {
+            text-align: center;
+            padding: 60px;
+            font-size: var(--font-size-header);
+            color: var(--text);
+            text-shadow: 0 0 20px var(--text);
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            margin: 20px 0;
+            grid-column: 1 / -1;
+        }
+
+        .tv-loading {
+            text-align: center;
+            padding: 60px;
+            font-size: var(--font-size-base);
+            color: var(--text);
+            animation: blink 1s infinite;
+            grid-column: 1 / -1;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Footer */
+        .tv-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 0, 0.3);
+            font-size: var(--font-size-small);
+            color: rgba(0, 255, 0, 0.5);
+            letter-spacing: 3px;
+        }
+
+        .tv-footer .blink-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #00ff00;
+        }
+    </style>
+</head>
+<body>
+
+<div class="scanlines"></div>
+
+<div class="container">
+    <!-- Header -->
+    <div class="tv-header">
+        <h1>🏥 HelpHosp</h1>
+        <div class="date" id="dataAtual"></div>
+        <div class="clock" id="relogio"></div>
+        <div class="stats">
+            CHAMADOS DO DIA: <span class="count" id="contador">0</span>
+        </div>
+    </div>
+
+    <!-- Chamados -->
+    <div class="chamados-grid" id="listaChamados">
+        <div class="tv-loading">CARREGANDO CHAMADOS...</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="tv-footer">
+        <span class="blink-dot"></span> SISTEMA ATIVO | ATUALIZAÇÃO AUTOMÁTICA A CADA 30s | HelpHosp © <span id="anoAtual"></span>
+    </div>
+</div>
+
+<script>
+// ============================================
+// FIREBASE CONFIG
+// ============================================
+const fc = {
+    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+    authDomain: "helphosp.firebaseapp.com",
+    projectId: "helphosp",
+    storageBucket: "helphosp.firebasestorage.app",
+    messagingSenderId: "1075623193163",
+    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+};
+firebase.initializeApp(fc);
+const db = firebase.firestore();
+
+// ============================================
+// VARIÁVEIS
+// ============================================
+let chamados = [];
+let intervaloAtualizacao = null;
+
+// ============================================
+// UTILITÁRIOS
+// ============================================
+function sanitizar(s) {
+    if (!s) return '';
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function fmtData(d) {
+    if (!d) return '—';
+    try {
+        const dt = d?.toDate ? d.toDate() : new Date(d);
+        if (isNaN(dt.getTime())) return '—';
+        return dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return '—'; }
+}
+
+function toDate(d) {
+    if (!d) return new Date(0);
+    return d?.toDate ? d.toDate() : new Date(d);
+}
+
+// ============================================
+// RELÓGIO
+// ============================================
+function atualizarRelogio() {
+    const agora = new Date();
+    document.getElementById('relogio').textContent =
+        agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('dataAtual').textContent =
+        agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+    document.getElementById('anoAtual').textContent = agora.getFullYear();
+}
+
+// ============================================
+// CARREGAR CHAMADOS DO DIA
+// ============================================
+async function carregarChamados() {
+    try {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const amanha = new Date(hoje);
+        amanha.setDate(amanha.getDate() + 1);
+
+        const snap = await db.collection('chamados')
+            .where('data_abertura', '>=', firebase.firestore.Timestamp.fromDate(hoje))
+            .where('data_abertura', '<', firebase.firestore.Timestamp.fromDate(amanha))
+            .orderBy('data_abertura', 'desc')
+            .get();
+
+        chamados = [];
+        snap.forEach(doc => {
+            const dados = doc.data();
+            dados.fid = doc.id;
+            chamados.push(dados);
+        });
+
+        renderizarChamados();
+    } catch (e) {
+        console.error('Erro ao carregar chamados:', e);
+        document.getElementById('listaChamados').innerHTML =
+            '<div class="tv-empty">ERRO AO CARREGAR CHAMADOS</div>';
+    }
+}
+
+// ============================================
+// RENDERIZAR CHAMADOS
+// ============================================
+function renderizarChamados() {
+    const container = document.getElementById('listaChamados');
+    document.getElementById('contador').textContent = chamados.length;
+
+    if (chamados.length === 0) {
+        container.innerHTML = '<div class="tv-empty">✅ NENHUM CHAMADO REGISTRADO HOJE</div>';
+        return;
+    }
+
+    // Ordenar: críticos primeiro, depois por data
+    const ordenados = [...chamados].sort((a, b) => {
+        if (a.prioridade === 'Crítica' && b.prioridade !== 'Crítica') return -1;
+        if (a.prioridade !== 'Crítica' && b.prioridade === 'Crítica') return 1;
+        return toDate(b.data_abertura) - toDate(a.data_abertura);
+    });
+
+    container.innerHTML = ordenados.map(c => {
+        const isCritical = c.prioridade === 'Crítica';
+        const data = toDate(c.data_abertura);
+        const hora = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const corPrioridade = c.prioridade === 'Crítica' ? '#ff0000' :
+                              c.prioridade === 'Alta' ? '#ff6600' :
+                              c.prioridade === 'Média' ? '#ffff00' : '#00ff00';
+
+        return `
+            <div class="tv-chamado ${isCritical ? 'tv-critical' : ''}">
+                <div class="protocolo">📋 ${sanitizar(c.protocolo || '—')}</div>
+                <div class="titulo">${sanitizar(c.titulo || 'SEM TÍTULO')}</div>
+                <div class="info-row">
+                    <span class="setor">📍 ${sanitizar(c.setor || '—')}</span>
+                    <span class="departamento">🏢 ${sanitizar((c.departamento || 'TI') === 'TI' ? 'TI' : 'MANUTENÇÃO')}</span>
+                </div>
+                <div class="info-row" style="margin-top: 8px;">
+                    <span class="prioridade" style="color: ${corPrioridade}; text-shadow: 0 0 10px ${corPrioridade};">
+                        ${c.prioridade === 'Crítica' ? '⚡ CRÍTICO' : c.prioridade || 'MÉDIA'}
+                    </span>
+                    <span class="status" style="color: ${c.status === 'Concluído' ? '#00ff00' : '#ffff00'};">
+                        ${sanitizar(c.status || 'A FAZER')}
+                    </span>
+                    <span class="hora">🕐 ${hora}</span>
+                </div>
+                ${c.solicitante ? `<div style="font-size: var(--font-size-small); margin-top: 8px; color: #aaa;">👤 ${sanitizar(c.solicitante)}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// ============================================
+// ESCUTAR EM TEMPO REAL
+// ============================================
+function escutarChamados() {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const amanha = new Date(hoje);
+    amanha.setDate(amanha.getDate() + 1);
+
+    db.collection('chamados')
+        .where('data_abertura', '>=', firebase.firestore.Timestamp.fromDate(hoje))
+        .where('data_abertura', '<', firebase.firestore.Timestamp.fromDate(amanha))
+        .orderBy('data_abertura', 'desc')
+        .onSnapshot(snap => {
+            chamados = [];
+            snap.forEach(doc => {
+                const dados = doc.data();
+                dados.fid = doc.id;
+                chamados.push(dados);
+            });
+            renderizarChamados();
+        }, error => {
+            console.error('Listener erro:', error);
+        });
+}
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+function init() {
+    console.log('📺 Painel TV HelpHosp iniciando...');
+
+    // Verificar autenticação
+    const userData = localStorage.getItem('usuario_logado');
+    if (!userData) {
+        document.getElementById('listaChamados').innerHTML =
+            '<div class="tv-empty">🔒 ACESSO NÃO AUTORIZADO<br><br><a href="admin.html" style="color: #00ff00; text-decoration: underline;">FAZER LOGIN</a></div>';
+        return;
+    }
+
+    // Iniciar relógio
+    atualizarRelogio();
+    setInterval(atualizarRelogio, 1000);
+
+    // Carregar chamados
+    carregarChamados();
+
+    // Escutar em tempo real
+    escutarChamados();
+
+    // Atualizar a cada 30 segundos (fallback)
+    intervaloAtualizacao = setInterval(carregarChamados, 30000);
+}
+
+// ============================================
+// EVENTOS
+// ============================================
+window.addEventListener('load', init);
+
+// Tecla ESC para voltar
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        window.location.href = 'admin.html';
+    }
+});
+
+// Atualizar ao voltar para a aba
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        carregarChamados();
+        atualizarRelogio();
+    }
+});
+</script>
+</body>
+</html>

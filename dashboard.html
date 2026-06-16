@@ -111,7 +111,48 @@ const storage=firebase.storage();
 // ============================================
 // VARIÁVEIS GLOBAIS
 // ============================================
-const SETORES_PADRAO=['Administração','Almoxarifado','CAF Principal','CAF CR','Centro Cirúrgico','Clínica Cirurgica','Clínica Médica I','Clínica Médica II','Comunicação','Direção Administrativa','Direção Enfermagem','Direção geral','Direção Medica','Emergência/Vermelha','Engenharia Clinica','Farmácia','Faturamento','Fisioterapia','Hotelaria','Juridico','Laboratório','Manutenção','NIR','Nutrição','Oncologia I','Oncologia II','Outros','Ouvidoria','Patrimonio','Pediatria','Psicologia','RH','Raio-X','Recepção CR','Recepção Geral','Recepção Nefrologia','Same','Serviço Social','Sesmt','Telemedicina','TI','Tomografia','UTI I','UTI II'];
+const SETORES_PADRAO=['Administração',
+                      'Almoxarifado',
+                      'CAF Principal',
+                      'CAF CR',
+                      'Centro Cirúrgico',
+                      'Clínica Cirurgica',
+                      'Clínica Médica I',
+                      'Clínica Médica II',
+                      'Comunicação',
+                      'Direção Administrativa',
+                      'Direção Enfermagem',
+                      'Direção geral',
+                      'Direção Medica',
+                      'Emergência/Vermelha',
+                      'Engenharia Clinica',
+                      'Farmácia',
+                      'Faturamento',
+                      'Fisioterapia',
+                      'Hotelaria',
+                      'Juridico',
+                      'Laboratório',
+                      'Manutenção',
+                      'NIR','Nutrição',
+                      'Oncologia I',
+                      'Oncologia II',
+                      'Ouvidoria',
+                      'Patrimonio',
+                      'Pediatria',
+                      'Psicologia',
+                      'RH',
+                      'Raio-X',
+                      'Recepção CR',
+                      'Recepção Geral',
+                      'Recepção Nefrologia',
+                      'Same',
+                      'Serviço Social',
+                      'Sesmt',
+                      'Telemedicina',
+                      'Tomografia',
+                      'UTI I',
+                      'UTI II'];
+                      'Outros',
 let setores=[...SETORES_PADRAO];
 let departamentosChamados=['TI','MANUTENCAO'];
 let usuarioLogado=null;
@@ -446,7 +487,20 @@ function renderGestHosp(){
             return`<tr onclick="verDetalhes('${c.fid}')"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtDataCurta(c.data_abertura)}</td><td><strong>${sanitizar(d.nome||'—')}</strong></td><td>${sanitizar(d.cpf||'—')}</td><td>${sanitizar(d.profissao||d.cargo||'—')}</td><td>${sanitizar(d.setor||c.setor||'—')}</td><td><span class="badge ${c.status==='Concluído'?'badge-green':'badge-blue'}">${sanitizar(c.status||'—')}</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancarStatus('${c.fid}')">▶</button><button class="btn btn-sm btn-outline" onclick="abrirComentarios('${c.fid}')">💬</button>${getPerms().isAdmin?`<button class="btn btn-sm btn-danger" onclick="excluirChamado('${c.fid}')">🗑️</button>`:''}</td></tr>`;
         }).join('');
     }
-    main.innerHTML=`<div class="top-bar"><h1>🏥 GestHosp</h1></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Profissão</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${l}</tbody></table></div>`;
+    main.innerHTML=`<div class="top-bar"><h1>🏥 GestHosp</h1>
+    </div>
+    <div class="table-card"><table><thead><tr>
+    <th>Protocolo</th><th>Data</th>
+    <th>Profissional</th>
+    <th>CPF</th>
+    <th>Profissão</th>
+    <th>Setor</th>
+    <th>Status</th>
+    <th>Ações</th>
+    </tr></thead>
+    <tbody>${l}</tbody>
+    </table>
+    </div>`;
 }
 
 // ============================================
@@ -492,7 +546,7 @@ function exportarIndicadoresSlide(){toast('📊 Slide exportado!','success');}
 // ============================================
 function renderToners(){
     const main=document.getElementById('mainContent');
-    const si=['Recepção Geral','Recepção CR','Administração','UTI I','UTI II','Farmácia','CAF Principal','CAF CR','Faturamento','NIR','Oncologia I','Oncologia II','Centro Cirúrgico'];
+    const si=['Recepção Geral','Recepção CR','Administração','UTI I','UTI II','Farmácia CAF','Faturamento','NIR','Oncologia I','Centro Cirúrgico'];
     const ct=chamados.filter(c=>c.isToner||c.tipo==='toner');
     const td={};si.forEach(s=>{td[s]={ultima:null,hist:[],dias:0,status:'normal'}});
     ct.forEach(t=>{const s=t.setor;if(s&&td[s]){const d=toDate(t.data_troca_toner||t.data_abertura);td[s].hist.push({data:d,tecnico:t.solicitante||'TI',tipo:t.tipo_troca||'preventiva',obs:t.observacao||''})}});

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Painel Técnico Premium</title>
+    <title>HelpHosp - Painel Técnico </title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
@@ -138,8 +138,48 @@
 const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
 firebase.initializeApp(fc);const db=firebase.firestore();const storage=firebase.storage();
 
-const SETORES_PADRAO=['Administração','Almoxarifado','CAF Principal','CAF CR','Centro Cirúrgico','Clínica Cirurgica','Clínica Médica I','Clínica Médica II','Comunicação','Direção Administrativa','Direção Enfermagem','Direção geral','Direção Medica','Emergência/Vermelha','Engenharia Clinica','Farmácia','Faturamento','Fisioterapia','Hotelaria','Juridico','Laboratório','Manutenção','NIR','Nutrição','Oncologia I','Oncologia II','Outros','Ouvidoria','Patrimonio','Pediatria','Psicologia','RH','Raio-X','Recepção CR','Recepção Geral','Recepção Nefrologia','Same','Serviço Social','Sesmt','Telemedicina','Tomografia','UTI I','UTI II'];
-const SETORES_TONERS=['Administração','Faturamento','UTI I','UTI II','NIR','Oncologia I','Oncologia II','Recepção Geral','Recepção CR','Farmácia CAF','Centro Cirúrgico'];
+const SETORES_PADRAO=['Administração',
+                      'Almoxarifado',
+                      'Farmacia CAF',
+                      'Centro Cirúrgico',
+                      'Clínica Cirurgica',
+                      'Clínica Médica I',
+                      'Clínica Médica II',
+                      'Comunicação',
+                      'Direção Administrativa',
+                      'Direção Enfermagem',
+                      'Direção geral',
+                      'Direção Medica',
+                      'Emergência/Vermelha',
+                      'Engenharia Clinica',
+                      'Farmácia',
+                      'Faturamento',
+                      'Fisioterapia',
+                      'Hotelaria',
+                      'Juridico',
+                      'Laboratório',
+                      'Manutenção',
+                      'NIR',
+                      'Nutrição',
+                      'Oncologia I',
+                      'Oncologia II',
+                      'Outros',
+                      'Ouvidoria',
+                      'Patrimonio',
+                      'Pediatria',
+                      'Psicologia',
+                      'RH',
+                      'Raio-X',
+                      'Recepção CR',
+                      'Recepção Geral',
+                      'Recepção Nefrologia',
+                      'Same','Serviço Social',
+                      'Sesmt',
+                      'Telemedicina',
+                      'Tomografia',
+                      'UTI I',
+                      'UTI II'];
+const SETORES_TONERS=['Administração','Faturamento','UTI I','UTI II','NIR','Oncologia I & II','Recepção Geral','Recepção CR','Farmácia CAF','Centro Cirúrgico'];
 let setores=[...SETORES_PADRAO],departamentosChamados=['TI','MANUTENCAO'];
 let usuarioLogado=null,depto='TI',nomeDepto='Tecnologia da Informação';
 let chamados=[],inventario=[],estoque=[],movimentacoes=[],charts={},comentarioChamadoId=null,logoHospital=null,logoGoverno=null;
@@ -209,108 +249,13 @@ function navegar(s,el){
 }
 
 // ============================================
-// CARREGAR DADOS (CORRIGIDO)
+// CARREGAR DADOS
 // ============================================
-async function carregarTodosDados(){
-    try{
-        console.log('📋 Carregando dados...');
-        
-        // Carregar TODOS os chamados do banco
-        const sc = await db.collection('chamados').orderBy('data_abertura','desc').get();
-        const todosChamados = [];
-        sc.forEach(d => {
-            const x = d.data();
-            x.fid = d.id;
-            todosChamados.push(x);
-        });
-        
-        // APLICAR FILTRO DE DEPARTAMENTO
-        chamados = todosChamados.filter(c => chamadoPertenceAoDepartamento(c));
-        
-        console.log(`✅ ${chamados.length} chamados carregados (de ${todosChamados.length} totais no banco)`);
-        console.log(`📋 Departamento atual: ${depto} (${nomeDepto})`);
-        
-        // Carregar inventário
-        const si = await db.collection('inventario').get();
-        inventario = [];
-        si.forEach(d => {
-            const x = d.data();
-            x.fid = d.id;
-            inventario.push(x);
-        });
-        console.log(`✅ ${inventario.length} itens no inventário`);
-        
-        // Carregar estoque
-        const se = await db.collection('estoque').get();
-        estoque = [];
-        se.forEach(d => {
-            const x = d.data();
-            x.fid = d.id;
-            estoque.push(x);
-        });
-        console.log(`✅ ${estoque.length} itens no estoque`);
-        
-        // Carregar movimentações
-        const sm = await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();
-        movimentacoes = [];
-        sm.forEach(d => {
-            const x = d.data();
-            x.fid = d.id;
-            movimentacoes.push(x);
-        });
-        
-        renderDashboard();
-        escutarChamados();
-        atualizarBadges();
-        verificarAgenda();
-    } catch(e) {
-        console.error('❌ Erro ao carregar dados:', e);
-        renderDashboard();
-    }
-}
+async function carregarTodosDados(){try{const sc=await db.collection('chamados').orderBy('data_abertura','desc').get();chamados=[];sc.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});const si=await db.collection('inventario').get();inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});const se=await db.collection('estoque').get();estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});renderDashboard();escutarChamados();atualizarBadges();verificarAgenda();}catch(e){console.error(e);renderDashboard();}}
+function escutarChamados(){db.collection('chamados').orderBy('data_abertura','desc').onSnapshot(snap=>{chamados=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});atualizarBadges();verificarAgenda();if(document.getElementById('infoTotal'))atualizarDashboard();if(document.getElementById('tabelaChamados'))filtrarChamadosUI();});}
+function atualizarBadges(){const b1=document.getElementById('badgeChamados'),b2=document.getElementById('badgeSLA'),b3=document.getElementById('badgeGestHosp');if(b1){const n=chamados.filter(c=>c.tipo!=='gesthosp'&&c.status!=='Concluído').length;b1.style.display=n>0?'inline-block':'none';b1.textContent=n>99?'99+':n}if(b2){const n=chamados.filter(c=>getSLAStatus(c)==='sla-critical').length;b2.style.display=n>0?'inline-block':'none';b2.textContent=n}if(b3){const n=chamados.filter(c=>c.tipo==='gesthosp'&&c.status!=='Concluído').length;b3.style.display=n>0?'inline-block':'none';b3.textContent=n>99?'99+':n}}
+async function verificarAgenda(){try{const h=new Date();h.setHours(0,0,0,0);const s=await db.collection('agenda').where('data','>=',firebase.firestore.Timestamp.fromDate(h)).get();const b=document.getElementById('badgeAgenda');if(b){b.style.display=s.size>0?'inline-block':'none';b.textContent=s.size}}catch(e){}}
 
-// ============================================
-// ESCUTAR CHAMADOS EM TEMPO REAL (CORRIGIDO)
-// ============================================
-function escutarChamados(){
-    // Remove listener anterior se existir
-    if(window._listenerChamados) {
-        window._listenerChamados();
-    }
-    
-    window._listenerChamados = db.collection('chamados')
-        .orderBy('data_abertura','desc')
-        .onSnapshot(snap => {
-            const todosChamados = [];
-            snap.forEach(d => {
-                const x = d.data();
-                x.fid = d.id;
-                todosChamados.push(x);
-            });
-            
-            // APLICAR FILTRO DE DEPARTAMENTO (MESMO FILTRO)
-            chamados = todosChamados.filter(c => chamadoPertenceAoDepartamento(c));
-            
-            console.log(`🔄 Listener: ${chamados.length} chamados após filtro (${depto})`);
-            
-            atualizarBadges();
-            verificarAgenda();
-            
-            // Atualizar dashboard se estiver visível
-            if(document.getElementById('infoTotal')) atualizarDashboard();
-            
-            // Atualizar tabela de chamados se estiver visível
-            if(document.getElementById('tabelaChamados')) filtrarChamadosUI();
-            
-            // Atualizar SLA se estiver visível
-            if(document.getElementById('tabelaSLA') && document.getElementById('mainContent').querySelector('h1')?.textContent?.includes('Monitor SLA')) {
-                renderSLA();
-            }
-        }, error => {
-            console.error('❌ Listener erro:', error);
-            setTimeout(() => escutarChamados(), 3000);
-        });
-}
 // ============================================
 // DASHBOARD
 // ============================================
@@ -495,7 +440,7 @@ async function alterarSenha(e){e.preventDefault();const sa=document.getElementBy
 // ============================================
 // INICIALIZAÇÃO
 // ============================================
-async function init(){console.log('🚀 HelpHosp Premium iniciando...');if(!checkAuth())return;console.log('✅ Autenticado:',usuarioLogado.nome,'-',depto);await loadConfig();console.log('✅ Configurações carregadas. Setores:',setores.length);initUI();if(Notification.permission==='default')Notification.requestPermission();}
+async function init(){console.log('🚀 HelpHosp iniciando...');if(!checkAuth())return;console.log('✅ Autenticado:',usuarioLogado.nome,'-',depto);await loadConfig();console.log('✅ Configurações carregadas. Setores:',setores.length);initUI();if(Notification.permission==='default')Notification.requestPermission();}
 window.addEventListener('load',init);if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(init,100);
 </script>
 </body>

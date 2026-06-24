@@ -137,6 +137,7 @@ const SETORES_TONERS=['Administração','Faturamento','UTI I','UTI II','NIR','On
 let setores=[...SETORES_PADRAO],departamentosChamados=['TI','MANUTENCAO'];
 let usuarioLogado=null,depto='TI',nomeDepto='Tecnologia da Informação';
 let chamados=[],inventario=[],estoque=[],movimentacoes=[],charts={},comentarioChamadoId=null,logoHospital=null,logoGoverno=null;
+let ipsRede=[],agenda=[],arquivos=[],equipe=[];
 
 // ============================================
 // TEMA
@@ -163,53 +164,30 @@ function getSLATexto(c){const s=getSLAStatus(c);if(s==='sla-critical')return'�
 // ============================================
 function checkAuth(){
     const u=localStorage.getItem('usuario_logado');
-    if(!u){
-        window.location.href='admin.html';
-        return false;
-    }
+    if(!u){window.location.href='admin.html';return false}
     try{
         usuarioLogado=JSON.parse(u);
-        // Verifica se o usuário ainda é válido (não expirou)
-        const tempoLimite = 24 * 60 * 60 * 1000; // 24 horas
-        if(usuarioLogado.expira && Date.now() > usuarioLogado.expira){
-            console.log('⏰ Sessão expirada');
+        if(usuarioLogado.expira&&Date.now()>usuarioLogado.expira){
             localStorage.removeItem('usuario_logado');
             window.location.href='admin.html';
             return false;
         }
-        // Atualiza a expiração para mais 24 horas
-        usuarioLogado.expira = Date.now() + tempoLimite;
-        localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogado));
-        
+        usuarioLogado.expira=Date.now()+86400000;
+        localStorage.setItem('usuario_logado',JSON.stringify(usuarioLogado));
         depto=usuarioLogado.departamento||'TI';
         nomeDepto=depto==='TI'?'Tecnologia da Informação':'Manutenção';
-        
-        console.log('✅ Autenticado:', usuarioLogado.nome, '| Departamento:', depto);
         return true;
     }catch(e){
-        console.error('❌ Erro ao verificar autenticação:', e);
         localStorage.removeItem('usuario_logado');
         window.location.href='admin.html';
         return false;
     }
 }
-
 function getPerms(){
     const isAdmin=usuarioLogado.tipo==='admin'||usuarioLogado.usuario==='edson';
-    return{
-        isAdmin,
-        isTI:depto==='TI',
-        isManut:depto==='MANUTENCAO',
-        podeEquipe:isAdmin||(depto==='MANUTENCAO'&&(usuarioLogado.usuario==='bruno'||usuarioLogado.usuario==='benicio'))
-    };
+    return{isAdmin,isTI:depto==='TI',isManut:depto==='MANUTENCAO',podeEquipe:isAdmin||(depto==='MANUTENCAO'&&(usuarioLogado.usuario==='bruno'||usuarioLogado.usuario==='benicio'))};
 }
-
-function logout(){
-    if(confirm('Sair do sistema?')){
-        localStorage.removeItem('usuario_logado');
-        window.location.href='admin.html';
-    }
-}
+function logout(){if(confirm('Sair do sistema?')){localStorage.removeItem('usuario_logado');window.location.href='admin.html'}}
 
 // ============================================
 // CONFIGURAÇÕES E LOGOS
@@ -225,45 +203,27 @@ async function loadConfig(){
             if(dl.data().hospital)logoHospital=dl.data().hospital;
             if(dl.data().governo)logoGoverno=dl.data().governo;
         }
-        console.log('✅ Configurações carregadas');
-    }catch(e){
-        console.error('❌ Erro ao carregar configs:', e);
-    }
+    }catch(e){}
 }
 
 // ============================================
-// FILTRO DE CHAMADOS POR DEPARTAMENTO
+// FILTRO DE CHAMADOS - CORRIGIDO
 // ============================================
 function getChamadosDoDepartamento(){
-    console.log(`📊 Filtrando chamados para departamento: ${depto}`);
-    console.log(`📊 Total de chamados carregados: ${chamados.length}`);
-    
-    const filtrados = chamados.filter(c => {
-        const chamadoDepto = c.departamento || '';
-        
-        // Se o chamado tem departamento definido, verifica se é do departamento do usuário
-        if(chamadoDepto && chamadoDepto === depto) return true;
-        
-        // Se o chamado NÃO tem departamento definido (chamados antigos)
-        if(!chamadoDepto){
-            // TI vê todos os chamados sem departamento
-            if(depto === 'TI') return true;
-            // Manutenção vê apenas chamados sem departamento que parecem ser de manutenção
-            if(depto === 'MANUTENCAO') {
-                // Verifica se o setor é típico de manutenção
-                const setorManut = ['Manutenção','Hotelaria','Engenharia Clinica','Patrimonio','Almoxarifado'];
-                if(setorManut.includes(c.setor)) return true;
-                // Se tem executante de manutenção
-                if(c.executante && c.executante.includes('Manutenção')) return true;
+    return chamados.filter(c=>{
+        const cd=c.departamento||'';
+        if(cd===depto)return true;
+        if(!cd){
+            if(depto==='TI')return true;
+            if(depto==='MANUTENCAO'){
+                const sm=['Manutenção','Hotelaria','Engenharia Clinica','Patrimonio','Almoxarifado'];
+                if(sm.includes(c.setor))return true;
+                if(c.executante)return true;
                 return false;
             }
         }
-        
         return false;
     });
-    
-    console.log(`📊 Chamados filtrados para ${nomeDepto}: ${filtrados.length}`);
-    return filtrados;
 }
 
 // ============================================
@@ -276,7 +236,6 @@ function initUI(){
     buildMenu();
     carregarTodosDados();
 }
-
 function buildMenu(){
     const p=getPerms();
     const nav=document.getElementById('sidebarNav');
@@ -300,12 +259,10 @@ function buildMenu(){
     h+='</div>';
     nav.innerHTML=h;
 }
-
 function navItem(s,ic,tx,at=false,bd=null){
     const badge=bd?`<span class="badge-notify" id="${bd}">0</span>`:'';
     return`<div class="nav-item${at?' active':''}" data-secao="${s}" onclick="navegar('${s}',this)"><i class="fas fa-${ic}"></i><span>${tx}</span>${badge}</div>`;
 }
-
 function navegar(s,el){
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     if(el)el.classList.add('active');
@@ -327,651 +284,102 @@ function navegar(s,el){
 }
 
 // ============================================
-// CARREGAR DADOS - CORRIGIDO PARA NÃO PERDER CHAMADOS
+// CARREGAR TODOS OS DADOS - SEM LIMITE
 // ============================================
 async function carregarTodosDados(){
     try{
-        console.log('📥 Carregando TODOS os dados do Firestore...');
+        // CARREGA TODOS OS CHAMADOS (SEM FILTRO)
+        const sc=await db.collection('chamados').orderBy('data_abertura','desc').get();
+        chamados=[];sc.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});
         
-        // CARREGA TODOS OS CHAMADOS SEM LIMITE DE DATA
-        const sc=await db.collection('chamados')
-            .orderBy('data_abertura','desc')
-            .get();
-        
-        chamados=[];
-        sc.forEach(d=>{
-            const x=d.data();
-            x.fid=d.id;
-            chamados.push(x);
-        });
-        
-        console.log(`✅ ${chamados.length} chamados carregados do Firestore`);
-        console.log(`📊 Status dos chamados:`);
-        const statusCount = {};
-        chamados.forEach(c => {
-            statusCount[c.status] = (statusCount[c.status] || 0) + 1;
-        });
-        console.table(statusCount);
-        
-        // Carrega inventário
         const si=await db.collection('inventario').get();
-        inventario=[];
-        si.forEach(d=>{
-            const x=d.data();
-            x.fid=d.id;
-            inventario.push(x);
-        });
-        console.log(`✅ ${inventario.length} itens de inventário carregados`);
+        inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});
         
-        // Carrega estoque
         const se=await db.collection('estoque').get();
-        estoque=[];
-        se.forEach(d=>{
-            const x=d.data();
-            x.fid=d.id;
-            estoque.push(x);
-        });
-        console.log(`✅ ${estoque.length} itens de estoque carregados`);
+        estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});
         
-        // Carrega movimentações
         const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();
-        movimentacoes=[];
-        sm.forEach(d=>{
-            const x=d.data();
-            x.fid=d.id;
-            movimentacoes.push(x);
-        });
-        console.log(`✅ ${movimentacoes.length} movimentações carregadas`);
+        movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});
         
-        console.log('✅ Todos os dados carregados com sucesso!');
+        const sip=await db.collection('ips_rede').orderBy('setor').get();
+        ipsRede=[];sip.forEach(d=>{const x=d.data();x.fid=d.id;ipsRede.push(x);});
+        
+        const sag=await db.collection('agenda').orderBy('data','asc').get();
+        agenda=[];sag.forEach(d=>{const x=d.data();x.fid=d.id;agenda.push(x);});
+        
+        const sar=await db.collection('arquivos').orderBy('data','desc').get();
+        arquivos=[];sar.forEach(d=>{const x=d.data();x.fid=d.id;arquivos.push(x);});
+        
+        const seq=await db.collection('usuarios').where('departamento','==',depto).get();
+        equipe=[];seq.forEach(d=>{const x=d.data();x.fid=d.id;equipe.push(x);});
+        
         renderDashboard();
         escutarChamados();
         atualizarBadges();
         verificarAgenda();
-    }catch(e){
-        console.error('❌ Erro ao carregar dados:', e);
-        toast('Erro ao carregar dados do servidor','error');
-        renderDashboard();
-    }
+    }catch(e){console.error(e);renderDashboard();}
 }
 
 function escutarChamados(){
-    console.log('👂 Iniciando listener em tempo real para TODOS os chamados...');
-    
-    // Listener em tempo real para TODOS os chamados (sem filtro)
-    db.collection('chamados')
-        .orderBy('data_abertura','desc')
-        .onSnapshot(snap=>{
-            const timestamp = new Date().toLocaleTimeString();
-            console.log(`🔄 [${timestamp}] Atualização em tempo real recebida`);
-            
-            chamados=[];
-            snap.forEach(d=>{
-                const x=d.data();
-                x.fid=d.id;
-                chamados.push(x);
-            });
-            
-            console.log(`📊 [${timestamp}] ${chamados.length} chamados no listener`);
-            
-            // Log detalhado dos status
-            const statusCount = {};
-            chamados.forEach(c => {
-                statusCount[c.status] = (statusCount[c.status] || 0) + 1;
-            });
-            console.log(`📊 Status após atualização:`, statusCount);
-            
-            atualizarBadges();
-            verificarAgenda();
-            
-            // Atualiza a UI se estiver visível
-            if(document.getElementById('infoTotal')) {
-                console.log('🔄 Atualizando dashboard...');
-                atualizarDashboard();
-            }
-            if(document.getElementById('tabelaChamados')) {
-                console.log('🔄 Atualizando tabela de chamados...');
-                filtrarChamadosUI();
-            }
-        }, error => {
-            console.error('❌ Erro no listener:', error);
-        });
+    db.collection('chamados').orderBy('data_abertura','desc').onSnapshot(snap=>{
+        chamados=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});
+        atualizarBadges();
+        if(document.getElementById('infoTotal'))atualizarDashboard();
+        if(document.getElementById('tabelaChamados'))filtrarChamadosUI();
+    });
 }
-
 function atualizarBadges(){
-    const chamadosDoDepto = getChamadosDoDepartamento();
-    
+    const cd=getChamadosDoDepartamento();
     const b1=document.getElementById('badgeChamados');
-    if(b1){
-        const n=chamadosDoDepto.filter(c=>c.status!=='Concluído').length;
-        b1.style.display=n>0?'inline-block':'none';
-        b1.textContent=n>99?'99+':n;
-    }
-    
+    if(b1){const n=cd.filter(c=>c.status!=='Concluído').length;b1.style.display=n>0?'inline-block':'none';b1.textContent=n>99?'99+':n}
     const b2=document.getElementById('badgeSLA');
-    if(b2){
-        const n=chamadosDoDepto.filter(c=>getSLAStatus(c)==='sla-critical').length;
-        b2.style.display=n>0?'inline-block':'none';
-        b2.textContent=n;
-    }
+    if(b2){const n=cd.filter(c=>getSLAStatus(c)==='sla-critical').length;b2.style.display=n>0?'inline-block':'none';b2.textContent=n}
 }
-
 async function verificarAgenda(){
     try{
-        const h=new Date();
-        h.setHours(0,0,0,0);
+        const h=new Date();h.setHours(0,0,0,0);
         const s=await db.collection('agenda').where('data','>=',firebase.firestore.Timestamp.fromDate(h)).get();
         const b=document.getElementById('badgeAgenda');
-        if(b){
-            b.style.display=s.size>0?'inline-block':'none';
-            b.textContent=s.size;
-        }
-    }catch(e){
-        console.error('Erro ao verificar agenda:', e);
-    }
+        if(b){b.style.display=s.size>0?'inline-block':'none';b.textContent=s.size}
+    }catch(e){}
 }
 
 // ============================================
-// DASHBOARD - SEPARADO POR DEPARTAMENTO
+// DASHBOARD
 // ============================================
 function renderDashboard(){
-    const main=document.getElementById('mainContent');
-    const p=getPerms();
-    const chamadosDoDepto = getChamadosDoDepartamento();
-    
-    console.log(`📊 Renderizando dashboard para ${nomeDepto} com ${chamadosDoDepto.length} chamados`);
-    
-    // Estatísticas do inventário (apenas para TI)
+    const main=document.getElementById('mainContent'),p=getPerms(),cd=getChamadosDoDepartamento();
     let te=0,tc=0,ti=0,tEst=0;
-    if(p.isTI||p.isAdmin){
-        inventario.forEach(i=>{
-            tc+=parseInt(i.computadores)||0;
-            ti+=parseInt(i.impressoras)||0;
-            te+=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0);
-        });
-        tEst=estoque.reduce((s,e)=>s+(parseInt(e.quantidade)||0),0);
-    }
-    
+    inventario.forEach(i=>{tc+=parseInt(i.computadores)||0;ti+=parseInt(i.impressoras)||0;te+=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0)});
+    tEst=estoque.reduce((s,e)=>s+(parseInt(e.quantidade)||0),0);
     let statsHTML='';
-    if(p.isTI||p.isAdmin){
-        statsHTML=`
-        <div class="stats-grid">
-            <div class="stat-card" onclick="navegar('inventario',document.querySelector('[data-secao=inventario]'))">
-                <div class="stat-icon purple"><i class="fas fa-desktop"></i></div>
-                <div class="stat-info"><small>Equipamentos</small><strong>${te}</strong></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon blue"><i class="fas fa-laptop"></i></div>
-                <div class="stat-info"><small>Computadores</small><strong>${tc}</strong></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="fas fa-print"></i></div>
-                <div class="stat-info"><small>Impressoras</small><strong>${ti}</strong></div>
-            </div>
-            <div class="stat-card" onclick="navegar('estoque',document.querySelector('[data-secao=estoque]'))">
-                <div class="stat-icon amber"><i class="fas fa-box"></i></div>
-                <div class="stat-info"><small>Estoque</small><strong>${tEst}</strong></div>
-            </div>
-        </div>`;
-    }
-    
-    // Estatísticas dos chamados do departamento
-    const t=chamadosDoDepto.length;
-    const a=chamadosDoDepto.filter(c=>c.status!=='Concluído').length;
-    const co=chamadosDoDepto.filter(c=>c.status==='Concluído').length;
-    const cr=chamadosDoDepto.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
-    const tx=t>0?Math.round(co/t*100):0;
-    const sa=chamadosDoDepto.filter(c=>getSLAStatus(c)==='sla-critical').length;
-    
-    console.log(`📊 Dashboard: Total=${t}, Abertos=${a}, Concluídos=${co}, Críticos=${cr}, Taxa=${tx}%, SLA Atrasado=${sa}`);
-    
-    main.innerHTML=`
-    <div class="top-bar">
-        <h1>📊 Dashboard Premium — ${sanitizar(nomeDepto)}</h1>
-        <div style="display:flex;gap:6px;">
-            <select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);">
-                <option value="7">7 dias</option>
-                <option value="30" selected>30 dias</option>
-                <option value="90">90 dias</option>
-                <option value="365">1 ano</option>
-                <option value="all">Todo período</option>
-            </select>
-            <button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button>
-        </div>
-    </div>
-    <div class="info-bar">
-        <div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total</div></div>
-        <div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div>
-        <div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div>
-        <div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div>
-        <div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div>
-        <div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div>
-    </div>
-    ${statsHTML}
-    <div class="charts-grid">
-        <div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div>
-        <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div>
-    </div>
-    <div class="table-card">
-        <h3>🚨 Últimos Chamados - ${sanitizar(nomeDepto)}</h3>
-        <table>
-            <thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Aberto</th></tr></thead>
-            <tbody>
-            ${chamadosDoDepto.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).slice(0,10).map(c=>`
-                <tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;">
-                    <td><strong>${sanitizar(c.protocolo||'—')}</strong></td>
-                    <td>${sanitizar(c.titulo||'—')}</td>
-                    <td>${sanitizar(c.setor||'—')}</td>
-                    <td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td>
-                    <td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td>
-                    <td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td>
-                    <td>${fmtDataCurta(c.data_abertura)}</td>
-                </tr>
-            `).join('')}
-            </tbody>
-        </table>
-    </div>`;
-    
+    if(p.isTI||p.isAdmin)statsHTML=`<div class="stats-grid"><div class="stat-card" onclick="navegar('inventario',document.querySelector('[data-secao=inventario]'))"><div class="stat-icon purple"><i class="fas fa-desktop"></i></div><div class="stat-info"><small>Equipamentos</small><strong>${te}</strong></div></div><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-laptop"></i></div><div class="stat-info"><small>Computadores</small><strong>${tc}</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-print"></i></div><div class="stat-info"><small>Impressoras</small><strong>${ti}</strong></div></div><div class="stat-card" onclick="navegar('estoque',document.querySelector('[data-secao=estoque]'))"><div class="stat-icon amber"><i class="fas fa-box"></i></div><div class="stat-info"><small>Estoque</small><strong>${tEst}</strong></div></div></div>`;
+    const t=cd.length,a=cd.filter(c=>c.status!=='Concluído').length,co=cd.filter(c=>c.status==='Concluído').length,cr=cd.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length,tx=t>0?Math.round(co/t*100):0,sa=cd.filter(c=>getSLAStatus(c)==='sla-critical').length;
+    main.innerHTML=`<div class="top-bar"><h1>📊 Dashboard Premium — ${sanitizar(nomeDepto)}</h1><div style="display:flex;gap:6px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option><option value="all">Todo período</option></select><button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div><div class="info-bar"><div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total</div></div><div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div><div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div><div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div><div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div><div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div></div>${statsHTML}<div class="charts-grid"><div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div></div><div class="table-card"><h3>🚨 Últimos Chamados - ${sanitizar(nomeDepto)}</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Aberto</th></tr></thead><tbody>${cd.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).slice(0,10).map(c=>`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;
     atualizarDashboard();
 }
-
 function atualizarDashboard(){
-    const periodoSelect = document.getElementById('periodo');
-    const periodoValue = periodoSelect?.value || '30';
-    
-    const chamadosDoDepto = getChamadosDoDepartamento();
-    let f = chamadosDoDepto;
-    
-    // Só filtra por período se não for "all"
-    if(periodoValue !== 'all'){
-        const p=parseInt(periodoValue);
-        const dl=new Date();
-        dl.setDate(dl.getDate()-p);
-        
-        f=chamadosDoDepto.filter(c=>{
-            const d=toDate(c.data_abertura);
-            return!isNaN(d.getTime())&&d>=dl;
-        });
+    const periodoValue=document.getElementById('periodo')?.value||'30';
+    const cd=getChamadosDoDepartamento();
+    let f=cd;
+    if(periodoValue!=='all'){
+        const p=parseInt(periodoValue),dl=new Date();dl.setDate(dl.getDate()-p);
+        f=cd.filter(c=>{const d=toDate(c.data_abertura);return!isNaN(d.getTime())&&d>=dl;});
     }
-    
-    console.log(`📊 Dashboard atualizado: ${f.length} chamados no período selecionado`);
-    
-    const infoTotal = document.getElementById('infoTotal');
-    const infoAbertos = document.getElementById('infoAbertos');
-    const infoConcluidos = document.getElementById('infoConcluidos');
-    const infoCriticos = document.getElementById('infoCriticos');
-    const infoTaxa = document.getElementById('infoTaxa');
-    const infoSLA = document.getElementById('infoSLA');
-    
-    if(infoTotal) infoTotal.textContent=f.length;
-    if(infoAbertos) infoAbertos.textContent=f.filter(c=>c.status!=='Concluído').length;
-    if(infoConcluidos) infoConcluidos.textContent=f.filter(c=>c.status==='Concluído').length;
-    if(infoCriticos) infoCriticos.textContent=f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
-    if(infoTaxa) infoTaxa.textContent=f.length>0?Math.round(f.filter(c=>c.status==='Concluído').length/f.length*100)+'%':'0%';
-    if(infoSLA) infoSLA.textContent=f.filter(c=>getSLAStatus(c)==='sla-critical').length;
-    
-    // Destroi gráficos antigos
-    Object.values(charts).forEach(c=>{if(c)c.destroy()});
-    charts={};
-    
-    // Gráfico por Setor
-    const ds={};
-    f.forEach(c=>{
-        const s=c.setor||'Outros';
-        ds[s]=(ds[s]||0)+1;
-    });
+    document.getElementById('infoTotal').textContent=f.length;
+    document.getElementById('infoAbertos').textContent=f.filter(c=>c.status!=='Concluído').length;
+    document.getElementById('infoConcluidos').textContent=f.filter(c=>c.status==='Concluído').length;
+    document.getElementById('infoCriticos').textContent=f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
+    document.getElementById('infoTaxa').textContent=f.length>0?Math.round(f.filter(c=>c.status==='Concluído').length/f.length*100)+'%':'0%';
+    document.getElementById('infoSLA').textContent=f.filter(c=>getSLAStatus(c)==='sla-critical').length;
+    Object.values(charts).forEach(c=>{if(c)c.destroy()});charts={};
+    const ds={};f.forEach(c=>{const s=c.setor||'Outros';ds[s]=(ds[s]||0)+1});
     const cores=['#3182CE','#38A169','#805AD5','#DD6B20','#E53E3E','#6366F1','#D69E2E','#EC4899'];
     const ctx1=document.getElementById('graficoSetor');
-    if(ctx1){
-        charts.setor=new Chart(ctx1,{
-            type:'doughnut',
-            data:{
-                labels:Object.keys(ds).slice(0,8),
-                datasets:[{data:Object.values(ds).slice(0,8),backgroundColor:cores,borderWidth:2,borderColor:'#fff'}]
-            },
-            options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:15}}}}
-        });
-    }
-    
-    // Gráfico por Prioridade
-    const dp={};
-    f.forEach(c=>{
-        const pr=c.prioridade||'Média';
-        dp[pr]=(dp[pr]||0)+1;
-    });
+    if(ctx1)charts.setor=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(ds).slice(0,8),datasets:[{data:Object.values(ds).slice(0,8),backgroundColor:cores,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:15}}}}});
+    const dp={};f.forEach(c=>{const pr=c.prioridade||'Média';dp[pr]=(dp[pr]||0)+1});
     const ctx2=document.getElementById('graficoPrioridade');
-    if(ctx2){
-        charts.prioridade=new Chart(ctx2,{
-            type:'pie',
-            data:{
-                labels:Object.keys(dp),
-                datasets:[{data:Object.values(dp),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:2,borderColor:'#fff'}]
-            },
-            options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:15}}}}
-        });
-    }
-}
-
-// ============================================
-// CHAMADOS - MOSTRA TODOS (INCLUINDO CONCLUÍDOS)
-// ============================================
-function renderChamados(){
-    const main=document.getElementById('mainContent');
-    const chamadosDoDepto = getChamadosDoDepartamento();
-    
-    console.log(`📋 Renderizando chamados: ${chamadosDoDepto.length} para ${nomeDepto}`);
-    
-    main.innerHTML=`
-    <div class="top-bar">
-        <h1>📋 Chamados — ${sanitizar(nomeDepto)}</h1>
-        <small style="color:var(--text-secondary);">Total: ${chamadosDoDepto.length} chamados</small>
-    </div>
-    <div class="filtros-bar">
-        <select id="filtroStatus" onchange="filtrarChamadosUI()">
-            <option value="">Todos os Status</option>
-            <option>A Fazer</option>
-            <option>Em Andamento</option>
-            <option>Pendente</option>
-            <option>Concluído</option>
-        </select>
-        <select id="filtroPrioridade" onchange="filtrarChamadosUI()">
-            <option value="">Todas as Prioridades</option>
-            <option>Baixa</option>
-            <option>Média</option>
-            <option>Alta</option>
-            <option>Crítica</option>
-        </select>
-        <input type="text" id="filtroBusca" placeholder="🔍 Buscar por protocolo ou título..." onkeyup="filtrarChamadosUI()">
-        <button class="btn btn-outline btn-sm" onclick="document.getElementById('filtroStatus').value='';document.getElementById('filtroPrioridade').value='';document.getElementById('filtroBusca').value='';filtrarChamadosUI();">
-            <i class="fas fa-times"></i> Limpar
-        </button>
-    </div>
-    <div class="table-card">
-        <table>
-            <thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th></tr></thead>
-            <tbody id="tabelaChamados">${renderLinhasChamados(chamadosDoDepto)}</tbody>
-        </table>
-    </div>`;
-}
-
-function renderLinhasChamados(l){
-    if(l.length===0)return'<tr><td colspan="9" style="text-align:center;padding:20px;">📭 Nenhum chamado encontrado</td></tr>';
-    
-    // Ordena por data (mais recente primeiro)
-    const ordenados = l.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura));
-    
-    return ordenados.map(c=>{
-        let ac=`<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus('${c.fid}')" title="Avançar Status">▶</button>`;
-        if(depto==='MANUTENCAO')ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();atribuirExecutante('${c.fid}')" title="Atribuir Executante">👷</button>`;
-        ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios('${c.fid}')" title="Comentários">💬</button>`;
-        if(getPerms().isAdmin)ac+=`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado('${c.fid}')" title="Excluir">🗑️</button>`;
-        
-        return`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;">
-            <td><strong>${sanitizar(c.protocolo||'—')}</strong></td>
-            <td>${fmtDataCurta(c.data_abertura)}</td>
-            <td>${sanitizar(c.titulo||'—')}</td>
-            <td>${sanitizar(c.solicitante||'—')}</td>
-            <td>${sanitizar(c.setor||'—')}</td>
-            <td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td>
-            <td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td>
-            <td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td>
-            <td onclick="event.stopPropagation();">${ac}</td>
-        </tr>`;
-    }).join('');
-}
-
-function filtrarChamadosUI(){
-    const sf=document.getElementById('filtroStatus')?.value||'';
-    const pf=document.getElementById('filtroPrioridade')?.value||'';
-    const bf=(document.getElementById('filtroBusca')?.value||'').toLowerCase();
-    
-    let l=getChamadosDoDepartamento();
-    
-    console.log(`🔍 Filtrando: Status="${sf}", Prioridade="${pf}", Busca="${bf}"`);
-    console.log(`📊 Antes do filtro: ${l.length} chamados`);
-    
-    if(sf)l=l.filter(c=>c.status===sf);
-    if(pf)l=l.filter(c=>c.prioridade===pf);
-    if(bf)l=l.filter(c=>(c.titulo||'').toLowerCase().includes(bf)||(c.protocolo||'').toLowerCase().includes(bf));
-    
-    console.log(`📊 Após filtro: ${l.length} chamados`);
-    
-    const tb=document.getElementById('tabelaChamados');
-    if(tb)tb.innerHTML=renderLinhasChamados(l);
-}
-
-async function avancarStatus(id){
-    try{
-        const doc=await db.collection('chamados').doc(id).get();
-        if(!doc.exists){toast('Chamado não encontrado','error');return}
-        const d=doc.data();
-        const fluxo={'A Fazer':'Em Andamento','Em Andamento':'Pendente','Pendente':'Concluído','Concluído':'A Fazer'};
-        const ns=fluxo[d.status||'A Fazer']||'A Fazer';
-        const upd={status:ns,data_atualizacao:firebase.firestore.Timestamp.now()};
-        if(ns==='Em Andamento'||ns==='Concluído')upd.tecnico=usuarioLogado.nome;
-        const h=d.historico||[];
-        h.push({data:new Date().toISOString(),acao:`Status alterado para: ${ns} por ${usuarioLogado.nome} (${nomeDepto})`});
-        upd.historico=h;
-        await doc.ref.update(upd);
-        toast(`✅ Status alterado para "${ns}"`,'success');
-    }catch(e){
-        console.error('Erro ao avançar status:', e);
-        toast('Erro ao atualizar status','error');
-    }
-}
-
-async function excluirChamado(id){
-    if(!confirm('Tem certeza que deseja excluir este chamado? Esta ação não pode ser desfeita.'))return;
-    try{
-        await db.collection('chamados').doc(id).delete();
-        toast('🗑️ Chamado excluído com sucesso!','success');
-    }catch(e){
-        toast('Erro ao excluir chamado','error');
-    }
-}
-
-function verDetalhes(id){
-    const c=chamados.find(x=>x.fid===id);
-    if(!c)return;
-    
-    abrirModal(`
-        <div class="modal-header">
-            <h3>📋 Detalhes do Chamado</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
-        </div>
-        <div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;">
-            <h3>${sanitizar(c.titulo||'Sem título')}</h3>
-            <p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong> | Departamento: ${sanitizar(c.departamento||nomeDepto)}</p>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> ${sanitizar(c.prioridade||'—')}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div>
-        </div>
-        <div style="display:flex;gap:6px;justify-content:flex-end;">
-            <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
-            <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
-            ${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>`:''}
-        </div>
-    `,'750px');
-}
-
-function abrirComentarios(id){
-    comentarioChamadoId=id;
-    const c=chamados.find(x=>x.fid===id);
-    if(!c)return;
-    const cs=(c.comentarios||[]).map(co=>`
-        <div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;">
-            <strong>${sanitizar(co.autor)}</strong> <small>${fmtData(co.data)}</small>
-            <p>${sanitizar(co.texto)}</p>
-        </div>
-    `).join('');
-    abrirModal(`
-        <div class="modal-header">
-            <h3>💬 Comentários</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
-        </div>
-        <p style="margin-bottom:10px;"><strong>Protocolo:</strong> ${sanitizar(c.protocolo||'')}</p>
-        <div style="max-height:200px;overflow-y:auto;margin:10px 0;">${cs||'<p style="color:#A0AEC0;">Nenhum comentário ainda</p>'}</div>
-        <div style="display:flex;gap:6px;">
-            <textarea id="textoComentario" placeholder="Digite seu comentário..." style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;resize:none;height:38px;"></textarea>
-            <button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button>
-        </div>
-    `);
-}
-
-async function salvarComentario(){
-    const t=document.getElementById('textoComentario')?.value.trim();
-    if(!t)return;
-    try{
-        const d=await db.collection('chamados').doc(comentarioChamadoId).get();
-        const cs=d.data().comentarios||[];
-        cs.push({
-            autor:`${usuarioLogado.nome} (${nomeDepto})`,
-            data:new Date().toISOString(),
-            texto:t
-        });
-        await d.ref.update({comentarios:cs});
-        document.querySelector('.modal-overlay')?.remove();
-        toast('✅ Comentário adicionado!','success');
-    }catch(e){
-        toast('Erro ao salvar comentário','error');
-    }
-}
-
-// ============================================
-// SLA
-// ============================================
-function renderSLA(){
-    const main=document.getElementById('mainContent');
-    const chamadosDoDepto = getChamadosDoDepartamento();
-    const pendentes=chamadosDoDepto.filter(c=>c.status!=='Concluído').sort((a,b)=>toDate(a.data_abertura)-toDate(b.data_abertura));
-    
-    main.innerHTML=`
-    <div class="top-bar"><h1>⏱️ Monitor SLA — ${sanitizar(nomeDepto)}</h1></div>
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>No Prazo</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-ok').length}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Próximos</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-warning').length}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Atrasados</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-critical').length}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total Pendente</small><strong>${pendentes.length}</strong></div></div>
-    </div>
-    <div class="table-card">
-        <table>
-            <thead><tr><th>Protocolo</th><th>Título</th><th>Prioridade</th><th>Prazo SLA</th><th>Status SLA</th><th>Aberto há</th></tr></thead>
-            <tbody>
-            ${pendentes.map(c=>`
-                <tr style="${getSLAStatus(c)==='sla-critical'?'background:rgba(254,226,226,0.3);':''}">
-                    <td><strong>${sanitizar(c.protocolo||'—')}</strong></td>
-                    <td>${sanitizar(c.titulo||'—')}</td>
-                    <td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td>
-                    <td>${c.prioridade==='Crítica'?'1 hora':c.prioridade==='Alta'?'4 horas':c.prioridade==='Média'?'24 horas':'48 horas'}</td>
-                    <td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td>
-                    <td>${fmtDataCurta(c.data_abertura)}</td>
-                </tr>
-            `).join('')}
-            </tbody>
-        </table>
-    </div>`;
-}
-
-// ============================================
-// INDICADORES
-// ============================================
-function renderIndicadores(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`
-    <div class="top-bar"><h1>📊 Indicadores — ${sanitizar(nomeDepto)}</h1></div>
-    <p style="text-align:center;padding:40px;">📊 Funcionalidade de indicadores</p>`;
-}
-
-// ============================================
-// TONERS, ESTOQUE, INVENTÁRIO, IPs
-// ============================================
-function renderToners(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>🖨️ Monitor de Toners</h1></div><p style="text-align:center;padding:40px;">Funcionalidade disponível</p>';
-}
-
-function renderEstoque(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📦 Estoque</h1></div><p style="text-align:center;padding:40px;">Funcionalidade disponível</p>';
-}
-
-function renderInventario(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📊 Inventário</h1></div><p style="text-align:center;padding:40px;">Funcionalidade disponível</p>';
-}
-
-function renderIPs(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>🌐 IPs & Rede</h1></div><p style="text-align:center;padding:40px;">Funcionalidade disponível</p>';
-}
-
-// ============================================
-// EQUIPE
-// ============================================
-function renderEquipe(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>👥 Equipe</h1></div><p style="text-align:center;padding:40px;">Funcionalidade disponível</p>';
-}
-
-// ============================================
-// ARQUIVOS, AGENDA
-// ============================================
-function renderArquivos(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📁 Arquivos e Fotos</h1></div><p style="text-align:center;padding:40px;">📁 Funcionalidade disponível</p>';
-}
-
-function renderAgenda(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📅 Agenda</h1></div><p style="text-align:center;padding:40px;">📅 Funcionalidade disponível</p>';
-}
-
-// ============================================
-// CONFIGURAÇÕES
-// ============================================
-async function renderConfig(){
-    const main=document.getElementById('mainContent');
-    await loadConfig();
-    main.innerHTML=`
-    <div class="top-bar"><h1>⚙️ Configurações</h1></div>
-    <div style="max-width:600px;">
-        <div class="config-section open">
-            <div style="display:flex;justify-content:space-between;align-items:center;" onclick="this.parentElement.classList.toggle('open')">
-                <h3>🔐 Alterar Senha</h3><i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="config-body">
-                <form onsubmit="alterarSenha(event)" style="display:grid;gap:10px;margin-top:10px;">
-                    <div class="form-group"><label>Senha Atual *</label><input type="password" id="senhaAtual" required></div>
-                    <div class="form-group"><label>Nova Senha *</label><input type="password" id="senhaNova" required minlength="6"></div>
-                    <div class="form-group"><label>Confirmar *</label><input type="password" id="senhaNovaConfirma" required minlength="6"></div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Alterar Senha</button>
-                </form>
-            </div>
-        </div>
-    </div>`;
-}
-
-async function alterarSenha(e){
-    e.preventDefault();
-    const sa=document.getElementById('senhaAtual')?.value,
-          sn=document.getElementById('senhaNova')?.value,
-          sc=document.getElementById('senhaNovaConfirma')?.value;
-    if(!sa||!sn||!sc){toast('Preencha todos os campos','error');return}
-    if(sn!==sc){toast('Senhas não conferem','error');return}
-    if(sn.length<6){toast('Mínimo 6 caracteres','error');return}
-    try{
-        const us=await db.collection('usuarios').where('usuario','==',usuarioLogado.usuario).get();
-        if(us.empty){toast('Usuário não encontrado','error');return}
-        if(us.docs[0].data().senha!==sa){toast('Senha atual incorreta','error');return}
-        await us.docs[0].ref.update({senha:sn,primeiro_acesso:false});
-        toast('✅ Senha alterada com sucesso!','success');
-        e.target.reset();
-    }catch(e){
-        toast('Erro ao alterar senha','error');
-    }
+    if(ctx2)charts.prioridade=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(dp),datasets:[{data:Object.values(dp),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:15}}}}});
 }
 
 // ============================================
@@ -980,74 +388,460 @@ async function alterarSenha(e){
 async function gerarRelatorioPDF(){
     try{
         toast('📄 Gerando relatório...','info');
-        const chamadosDoDepto = getChamadosDoDepartamento();
-        const t=chamadosDoDepto.length;
-        const co=chamadosDoDepto.filter(c=>c.status==='Concluído').length;
-        const tx=t>0?Math.round(co/t*100):0;
-        
+        const cd=getChamadosDoDepartamento(),t=cd.length,co=cd.filter(c=>c.status==='Concluído').length,tx=t>0?Math.round(co/t*100):0;
         const el=document.createElement('div');
         el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';
-        
-        el.innerHTML=`
-        <div style="text-align:center;border-bottom:3px solid #06224a;padding-bottom:20px;margin-bottom:20px;">
-            <h1 style="color:#06224a;">HelpHosp Premium</h1>
-            <h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2>
-            <p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;">
-            <div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${t}</p></div>
-            <div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;">${co}</p></div>
-            <div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;">${tx}%</p></div>
-            <div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">SLA ATRASADO</p><p style="font-size:32px;">${chamadosDoDepto.filter(c=>getSLAStatus(c)==='sla-critical').length}</p></div>
-        </div>`;
-        
+        el.innerHTML=`<div style="text-align:center;border-bottom:3px solid #06224a;padding-bottom:20px;margin-bottom:20px;"><h1 style="color:#06224a;">HelpHosp Premium</h1><h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2><p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${t}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;">${tx}%</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">SLA ATRASADO</p><p style="font-size:32px;">${cd.filter(c=>getSLAStatus(c)==='sla-critical').length}</p></div></div>`;
         document.body.appendChild(el);
-        const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});
-        document.body.removeChild(el);
-        
-        const{jsPDF}=window.jspdf;
-        const pdf=new jsPDF('p','mm','a4');
-        const iw=200,ih=(cv.height*iw)/cv.width;
-        pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,iw,ih);
+        const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});document.body.removeChild(el);
+        const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+        const iw=200,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,iw,ih);
         pdf.save(`relatorio-${depto.toLowerCase()}-${new Date().toISOString().slice(0,10)}.pdf`);
         toast('✅ Relatório gerado!','success');
-    }catch(e){
-        console.error('Erro PDF:',e);
-        toast('Erro ao gerar relatório','error');
-    }
+    }catch(e){console.error(e);toast('Erro','error');}
+}
+
+// ============================================
+// SLA
+// ============================================
+function renderSLA(){
+    const main=document.getElementById('mainContent'),cd=getChamadosDoDepartamento();
+    const pendentes=cd.filter(c=>c.status!=='Concluído').sort((a,b)=>toDate(a.data_abertura)-toDate(b.data_abertura));
+    main.innerHTML=`<div class="top-bar"><h1>⏱️ Monitor SLA — ${sanitizar(nomeDepto)}</h1></div><div class="stats-grid"><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>No Prazo</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-ok').length}</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Próximos</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-warning').length}</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Atrasados</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-critical').length}</strong></div></div><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total Pendente</small><strong>${pendentes.length}</strong></div></div></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Título</th><th>Prioridade</th><th>Prazo SLA</th><th>Status SLA</th><th>Aberto há</th></tr></thead><tbody>${pendentes.map(c=>`<tr style="${getSLAStatus(c)==='sla-critical'?'background:rgba(254,226,226,0.3);':''}"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td>${c.prioridade==='Crítica'?'1 hora':c.prioridade==='Alta'?'4 horas':c.prioridade==='Média'?'24 horas':'48 horas'}</td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+// ============================================
+// CHAMADOS
+// ============================================
+function renderChamados(){
+    const main=document.getElementById('mainContent'),cd=getChamadosDoDepartamento();
+    main.innerHTML=`<div class="top-bar"><h1>📋 Chamados — ${sanitizar(nomeDepto)}</h1><small style="color:var(--text-secondary);">Total: ${cd.length} chamados</small></div><div class="filtros-bar"><select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos os Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select><select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas as Prioridades</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select><input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()"><button class="btn btn-outline btn-sm" onclick="document.getElementById('filtroStatus').value='';document.getElementById('filtroPrioridade').value='';document.getElementById('filtroBusca').value='';filtrarChamadosUI();"><i class="fas fa-times"></i> Limpar</button></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th></tr></thead><tbody id="tabelaChamados">${renderLinhasChamados(cd)}</tbody></table></div>`;
+}
+function renderLinhasChamados(l){
+    if(l.length===0)return'<tr><td colspan="9" style="text-align:center;padding:20px;">📭 Nenhum chamado encontrado</td></tr>';
+    return l.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).map(c=>{
+        let ac=`<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus('${c.fid}')">▶</button>`;
+        if(depto==='MANUTENCAO')ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();atribuirExecutante('${c.fid}')">👷</button>`;
+        ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios('${c.fid}')">💬</button>`;
+        if(getPerms().isAdmin)ac+=`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado('${c.fid}')">🗑️</button>`;
+        return`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtDataCurta(c.data_abertura)}</td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.solicitante||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td onclick="event.stopPropagation();">${ac}</td></tr>`;
+    }).join('');
+}
+function filtrarChamadosUI(){
+    const sf=document.getElementById('filtroStatus')?.value||'',pf=document.getElementById('filtroPrioridade')?.value||'',bf=(document.getElementById('filtroBusca')?.value||'').toLowerCase();
+    let l=getChamadosDoDepartamento();
+    if(sf)l=l.filter(c=>c.status===sf);
+    if(pf)l=l.filter(c=>c.prioridade===pf);
+    if(bf)l=l.filter(c=>(c.titulo||'').toLowerCase().includes(bf)||(c.protocolo||'').toLowerCase().includes(bf));
+    const tb=document.getElementById('tabelaChamados');
+    if(tb)tb.innerHTML=renderLinhasChamados(l);
+}
+
+async function avancarStatus(id){
+    try{
+        const doc=await db.collection('chamados').doc(id).get();
+        if(!doc.exists){toast('Não encontrado','error');return}
+        const d=doc.data();
+        const fluxo={'A Fazer':'Em Andamento','Em Andamento':'Pendente','Pendente':'Concluído','Concluído':'A Fazer'};
+        const ns=fluxo[d.status||'A Fazer']||'A Fazer';
+        const upd={status:ns,data_atualizacao:firebase.firestore.Timestamp.now()};
+        if(ns==='Em Andamento'||ns==='Concluído')upd.tecnico=usuarioLogado.nome;
+        const h=d.historico||[];
+        h.push({data:new Date().toISOString(),acao:`Status: ${ns} por ${usuarioLogado.nome} (${nomeDepto})`});
+        upd.historico=h;
+        await doc.ref.update(upd);
+        toast(`✅ Status: ${ns}`,'success');
+    }catch(e){toast('Erro','error');}
+}
+async function atribuirExecutante(id){
+    try{
+        const snap=await db.collection('usuarios').where('departamento','==','MANUTENCAO').where('status','==','ativo').get();
+        const t=[];snap.forEach(d=>t.push(d.data()));
+        abrirModal(`<div class="modal-header"><h3>👷 Atribuir Executante</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarExecutante(event,'${id}')" style="display:grid;gap:8px;"><div class="form-group"><label>Profissional *</label><select id="execSel" required><option value="">Selecione...</option>${t.map(x=>`<option value="${x.nome}">${x.nome} - ${x.cargo}</option>`).join('')}</select></div><div style="display:flex;gap:6px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button></div></form>`);
+    }catch(e){toast('Erro','error');}
+}
+async function salvarExecutante(e,id){
+    e.preventDefault();
+    const exec=document.getElementById('execSel')?.value;
+    if(!exec){toast('Selecione','error');return}
+    try{await db.collection('chamados').doc(id).update({executante:exec});document.querySelector('.modal-overlay')?.remove();toast('✅ Definido!','success');}catch(e){toast('Erro','error');}
+}
+async function excluirChamado(id){
+    if(!confirm('Excluir?'))return;
+    try{await db.collection('chamados').doc(id).delete();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}
+}
+function verDetalhes(id){
+    const c=chamados.find(x=>x.fid===id);
+    if(!c)return;
+    abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;"><h3>${sanitizar(c.titulo||'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> ${sanitizar(c.prioridade||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div></div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button><button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`,'750px');
+}
+function abrirComentarios(id){
+    comentarioChamadoId=id;
+    const c=chamados.find(x=>x.fid===id);
+    if(!c)return;
+    const cs=(c.comentarios||[]).map(co=>`<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;"><strong>${sanitizar(co.autor)}</strong> <small>${fmtData(co.data)}</small><p>${sanitizar(co.texto)}</p></div>`).join('');
+    abrirModal(`<div class="modal-header"><h3>💬 Comentários</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><p>${sanitizar(c.protocolo||'')}</p><div style="max-height:200px;overflow-y:auto;margin:10px 0;">${cs||'<p>Nenhum</p>'}</div><div style="display:flex;gap:6px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>`);
+}
+async function salvarComentario(){
+    const t=document.getElementById('textoComentario')?.value.trim();
+    if(!t)return;
+    try{
+        const d=await db.collection('chamados').doc(comentarioChamadoId).get();
+        const cs=d.data().comentarios||[];
+        cs.push({autor:`${usuarioLogado.nome} (${nomeDepto})`,data:new Date().toISOString(),texto:t});
+        await d.ref.update({comentarios:cs});
+        document.querySelector('.modal-overlay')?.remove();
+        toast('✅ Adicionado!','success');
+    }catch(e){toast('Erro','error');}
+}
+
+// ============================================
+// INDICADORES
+// ============================================
+function renderIndicadores(){
+    const main=document.getElementById('mainContent');
+    main.innerHTML=`<div class="top-bar"><h1>📊 Indicadores — ${sanitizar(nomeDepto)}</h1><div style="display:flex;gap:6px;"><select id="indTipo" onchange="atualizarIndicadoresUI()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="mensal">Por Mês</option></select><button class="btn btn-primary btn-sm" onclick="exportarIndicadoresPDF()"><i class="fas fa-file-pdf"></i> Exportar</button></div></div><div class="stats-grid" id="indicadorGrid"></div><div class="charts-grid"><div class="chart-card"><h3>📈 Evolução</h3><canvas id="graficoEvolucao"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridadeInd"></canvas></div></div><div class="table-card"><h3>📋 Detalhamento</h3><table><thead><tr><th>Status</th><th>Quantidade</th><th>Percentual</th></tr></thead><tbody id="tabelaStatusInd"></tbody></table></div>`;
+    atualizarIndicadoresUI();
+}
+function atualizarIndicadoresUI(){
+    const tipo=document.getElementById('indTipo')?.value||'30';
+    const cd=getChamadosDoDepartamento();
+    let f;const agora=new Date();
+    if(tipo==='mensal'){const d=new Date(agora.getFullYear(),agora.getMonth(),1);f=cd.filter(c=>toDate(c.data_abertura)>=d)}
+    else{const dias=parseInt(tipo),dl=new Date();dl.setDate(dl.getDate()-dias);f=cd.filter(c=>{const d=toDate(c.data_abertura);return!isNaN(d.getTime())&&d>=dl;})}
+    const t=f.length,ca=f.filter(c=>c.status==='Concluído').length,cr=f.filter(c=>c.prioridade==='Crítica').length;
+    document.getElementById('indicadorGrid').innerHTML=`<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong>${t}</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong>${ca}</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Pendentes</small><strong>${t-ca}</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>${cr}</strong></div></div>`;
+    document.getElementById('tabelaStatusInd').innerHTML=['A Fazer','Em Andamento','Pendente','Concluído'].map(s=>{const q=f.filter(c=>c.status===s).length;return`<tr><td><span class="badge ${getStatusClass(s)}">${s}</span></td><td><strong>${q}</strong></td><td>${t>0?Math.round(q/t*100):0}%</td></tr>`;}).join('');
+    Object.values(charts).forEach(c=>{if(c)c.destroy()});charts={};
+    const dp={};f.forEach(c=>{const pr=c.prioridade||'Média';dp[pr]=(dp[pr]||0)+1});
+    const ctx2=document.getElementById('graficoPrioridadeInd');
+    if(ctx2)charts.prioridadeInd=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(dp),datasets:[{data:Object.values(dp),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+}
+async function exportarIndicadoresPDF(){
+    try{
+        toast('📄 Gerando PDF...','info');
+        const cd=getChamadosDoDepartamento(),t=cd.length,ca=cd.filter(c=>c.status==='Concluído').length;
+        const el=document.createElement('div');
+        el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';
+        el.innerHTML=`<h1>Indicadores - ${sanitizar(nomeDepto)}</h1><p>${new Date().toLocaleDateString('pt-BR')}</p><table style="width:100%;border-collapse:collapse;"><thead><tr><th>Status</th><th>Qtd</th><th>%</th></tr></thead><tbody>${['A Fazer','Em Andamento','Pendente','Concluído'].map(s=>{const q=cd.filter(c=>c.status===s).length;return`<tr><td>${s}</td><td>${q}</td><td>${t>0?Math.round(q/t*100):0}%</td></tr>`;}).join('')}</tbody></table>`;
+        document.body.appendChild(el);
+        const cv=await html2canvas(el,{scale:2,useCORS:true});document.body.removeChild(el);
+        const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');
+        const iw=210,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',0,0,iw,ih);
+        pdf.save('indicadores.pdf');toast('✅ PDF gerado!','success');
+    }catch(e){toast('Erro','error');}
+}
+
+// ============================================
+// TONERS
+// ============================================
+function renderToners(){
+    const main=document.getElementById('mainContent');
+    const tonerChamados=chamados.filter(c=>c.tipo==='toner').sort((a,b)=>toDate(b.data_troca_toner||b.data_abertura)-toDate(a.data_troca_toner||a.data_abertura));
+    const ultimasTrocas={};tonerChamados.forEach(t=>{const s=t.setor;if(!ultimasTrocas[s])ultimasTrocas[s]=t;});
+    const l=SETORES_TONERS.map(s=>{
+        const ult=ultimasTrocas[s];
+        if(!ult)return`<tr><td><strong>${s}</strong></td><td colspan="7" style="text-align:center;">Nenhuma troca</td></tr>`;
+        const d=toDate(ult.data_troca_toner||ult.data_abertura),dias=Math.floor((new Date()-d)/86400000);
+        const st=dias>90?'crítico':dias>60?'atenção':'normal';
+        return`<tr style="${st==='crítico'?'background:#FFF5F5;':''}"><td><strong>${s}</strong></td><td>${fmtData(d)}</td><td>${sanitizar(ult.solicitante||ult.tecnico||'—')}</td><td>${ult.tipo_troca==='preventiva'?'🟢 Preventiva':'🔴 Necessária'}</td><td style="font-weight:600;">${dias} dias</td><td>${st==='crítico'?'🔴 Crítico':st==='atenção'?'🟡 Atenção':'🟢 Normal'}</td><td>${sanitizar(ult.observacao||'—')}</td><td><button class="btn btn-sm btn-outline" onclick="registrarTrocaTonerSetor('${s}')">🔄 Trocar</button></td></tr>`;
+    }).join('');
+    main.innerHTML=`<div class="top-bar"><h1>🖨️ Monitor de Toners</h1><button class="btn btn-primary btn-sm" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button></div><div class="table-card"><table><thead><tr><th>Setor</th><th>Última Troca</th><th>Técnico</th><th>Tipo</th><th>Dias</th><th>Status</th><th>Obs</th><th>Ação</th></tr></thead><tbody>${l}</tbody></table></div>`;
+}
+function abrirModalToner(setor=''){
+    abrirModal(`<div class="modal-header"><h3>🖨️ Registrar Troca de Toner</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="registrarTrocaToner(event)" style="display:grid;gap:8px;"><div class="form-group"><label>Setor *</label><select id="tonerSetor" required><option value="">Selecione...</option>${SETORES_TONERS.map(s=>`<option value="${s}" ${s===setor?'selected':''}>${s}</option>`).join('')}</select></div><div class="form-row"><div class="form-group"><label>Tipo *</label><select id="tonerTipo" required><option value="preventiva">🟢 Preventiva</option><option value="necessaria">🔴 Necessária</option></select></div><div class="form-group"><label>Técnico</label><input type="text" id="tonerTecnico" value="${usuarioLogado.nome}"></div></div><div class="form-group"><label>Observação</label><textarea id="tonerObs" rows="2"></textarea></div><button type="submit" class="btn btn-primary">Registrar</button></form>`);
+}
+function registrarTrocaTonerSetor(s){abrirModalToner(s);}
+async function registrarTrocaToner(e){
+    e.preventDefault();
+    const s=document.getElementById('tonerSetor')?.value,tipo=document.getElementById('tonerTipo')?.value,tec=document.getElementById('tonerTecnico')?.value.trim()||usuarioLogado.nome,obs=document.getElementById('tonerObs')?.value.trim();
+    if(!s)return;
+    try{
+        await db.collection('chamados').add({protocolo:'TN-'+Date.now().toString(36).toUpperCase(),setor:s,tipo:'toner',isToner:true,status:'Concluído',solicitante:tec,tecnico:tec,departamento:depto,titulo:`Troca de toner — ${s}`,tipo_troca:tipo,observacao:obs,data_abertura:firebase.firestore.Timestamp.now(),data_troca_toner:firebase.firestore.Timestamp.now()});
+        document.querySelector('.modal-overlay')?.remove();
+        toast('✅ Registrado!','success');
+        renderToners();
+    }catch(e){toast('Erro','error');}
+}
+
+// ============================================
+// ESTOQUE
+// ============================================
+function renderEstoque(){
+    const main=document.getElementById('mainContent');
+    db.collection('estoque').get().then(snap=>{
+        estoque=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});
+        const items=estoque.map(e=>`<div class="estoque-item"><div class="actions" onclick="event.stopPropagation();"><button class="btn btn-sm btn-outline" onclick="editarEstoqueItem('${e.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirEstoqueItem('${e.fid}')">🗑️</button></div><div class="emoji">${sanitizar(e.emoji||'📦')}</div><h4>${sanitizar(e.nome)}</h4><div style="font-size:9px;color:var(--text-secondary);">${sanitizar(e.status||'Em estoque')}</div><div class="qtd">Qtd: ${e.quantidade||1}</div><button class="btn btn-sm btn-success" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();moverParaSetor('${e.fid}')"><i class="fas fa-arrow-right"></i> Mover p/ Setor</button></div>`).join('');
+        main.innerHTML=`<div class="top-bar"><h1>📦 Estoque</h1><button class="btn btn-primary btn-sm" onclick="abrirModalEstoqueItem()"><i class="fas fa-plus"></i> Adicionar</button></div><div class="estoque-grid">${items||'<div style="text-align:center;padding:40px;">📦 Vazio</div>'}</div>`;
+    });
+}
+function moverParaSetor(eid){
+    const item=estoque.find(e=>e.fid===eid);
+    if(!item)return;
+    abrirModal(`<div class="modal-header"><h3>📤 Mover para Setor</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><p style="background:#F7FAFC;padding:10px;border-radius:8px;margin-bottom:12px;"><strong>${sanitizar(item.emoji||'📦')} ${sanitizar(item.nome)}</strong> — Disponível: ${item.quantidade||1}</p><form onsubmit="confirmarMoverSetor(event,'${eid}')" style="display:grid;gap:8px;"><div class="form-group"><label>Setor Destino *</label><select id="moverSetor" required><option value="">Selecione...</option>${setores.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div><div class="form-row"><div class="form-group"><label>Quantidade *</label><input type="number" id="moverQtd" value="1" min="1" max="${item.quantidade||1}" required></div><div class="form-group"><label>Motivo *</label><select id="moverMotivo" required><option value="">Selecione...</option><option>Novo equipamento</option><option>Substituição</option><option>Reposição</option><option>Expansão</option><option>Emergência</option></select></div></div><div class="form-group"><label>Tipo de Equipamento</label><select id="moverTipoEquip"><option value="computadores">💻 Computador</option><option value="impressoras">🖨️ Impressora</option><option value="ramais">📞 Ramal</option><option value="tvs">📺 TV</option><option value="redes">📡 Rede</option><option value="outros">📱 Outros</option></select></div><button type="submit" class="btn btn-success">Confirmar</button></form>`);
+}
+async function confirmarMoverSetor(e,eid){
+    e.preventDefault();
+    const setor=document.getElementById('moverSetor')?.value,qtd=parseInt(document.getElementById('moverQtd')?.value)||1,motivo=document.getElementById('moverMotivo')?.value,tipoEquip=document.getElementById('moverTipoEquip')?.value||'outros';
+    const item=estoque.find(x=>x.fid===eid);
+    if(!item||!setor||!motivo)return;
+    try{
+        const rest=(item.quantidade||1)-qtd;
+        if(rest<=0)await db.collection('estoque').doc(eid).delete();
+        else await db.collection('estoque').doc(eid).update({quantidade:rest});
+        const is=await db.collection('inventario').where('setor','==',setor).get();
+        if(is.empty){
+            const n={setor,computadores:0,impressoras:0,ramais:0,tvs:0,redes:0,outros:0};
+            n[tipoEquip]=qtd;
+            await db.collection('inventario').add(n);
+        }else{
+            const d=is.docs[0],da=d.data();da[tipoEquip]=(da[tipoEquip]||0)+qtd;
+            await d.ref.update({[tipoEquip]:da[tipoEquip]});
+        }
+        await db.collection('movimentacoes').add({data:firebase.firestore.Timestamp.now(),quantidade:qtd,tipo:tipoEquip,itemNome:item.nome,setorDestino:setor,motivo,tecnico:usuarioLogado.nome,departamento:depto});
+        document.querySelector('.modal-overlay')?.remove();
+        toast(`✅ ${qtd} un. movida(s) para ${setor}!`,'success');
+        renderEstoque();
+    }catch(e){toast('Erro','error');}
+}
+function abrirModalEstoqueItem(id=null){
+    const item=id?estoque.find(e=>e.fid===id):null;
+    abrirModal(`<div class="modal-header"><h3>${id?'✏️ Editar':'📦 Novo'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarEstoqueItem(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Emoji</label><input type="text" id="estoqueEmoji" maxlength="2" value="${item?.emoji||'📦'}"></div><div class="form-group"><label>Nome *</label><input type="text" id="estoqueNome" required value="${sanitizar(item?.nome||'')}"></div><div class="form-row"><div class="form-group"><label>Status</label><select id="estoqueStatus"><option value="Em estoque">🟢 Em estoque</option><option value="Com defeito">🔴 Com defeito</option><option value="Em manutenção">🟡 Em manutenção</option></select></div><div class="form-group"><label>Quantidade *</label><input type="number" id="estoqueQtd" value="${item?.quantidade||1}" min="1"></div></div><button type="submit" class="btn btn-primary">Salvar</button></form>`);
+}
+async function salvarEstoqueItem(e,id){
+    e.preventDefault();
+    const d={emoji:document.getElementById('estoqueEmoji')?.value||'📦',nome:document.getElementById('estoqueNome')?.value.trim(),status:document.getElementById('estoqueStatus')?.value||'Em estoque',quantidade:parseInt(document.getElementById('estoqueQtd')?.value)||1};
+    if(!d.nome)return;
+    try{
+        if(id)await db.collection('estoque').doc(id).update(d);
+        else{d.data_cadastro=firebase.firestore.Timestamp.now();await db.collection('estoque').add(d);}
+        document.querySelector('.modal-overlay')?.remove();
+        renderEstoque();
+        toast('✅ Salvo!','success');
+    }catch(e){toast('Erro','error');}
+}
+function editarEstoqueItem(id){abrirModalEstoqueItem(id);}
+async function excluirEstoqueItem(id){
+    if(!confirm('Excluir?'))return;
+    try{await db.collection('estoque').doc(id).delete();renderEstoque();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}
+}
+
+// ============================================
+// INVENTÁRIO
+// ============================================
+function renderInventario(){
+    const main=document.getElementById('mainContent');
+    db.collection('inventario').get().then(snap=>{
+        inventario=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});
+        let tC=0,tI=0,tR=0,tTV=0,tRed=0,tO=0;
+        inventario.forEach(i=>{tC+=parseInt(i.computadores)||0;tI+=parseInt(i.impressoras)||0;tR+=parseInt(i.ramais)||0;tTV+=parseInt(i.tvs)||0;tRed+=parseInt(i.redes)||0;tO+=parseInt(i.outros)||0;});
+        const tg=tC+tI+tR+tTV+tRed+tO;
+        const cards=inventario.sort((a,b)=>a.setor.localeCompare(b.setor)).map(i=>{
+            const t=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0);
+            return`<div class="inv-card" onclick="verDetalhesInv('${i.fid}')"><div class="inv-card-header"><h3>📍 ${sanitizar(i.setor)}</h3><span class="badge badge-blue">${t} equip.</span></div><div class="inv-card-stats"><div class="inv-stat"><div class="num">${i.computadores||0}</div><div class="lbl">💻</div></div><div class="inv-stat"><div class="num">${i.impressoras||0}</div><div class="lbl">🖨️</div></div><div class="inv-stat"><div class="num">${i.ramais||0}</div><div class="lbl">📞</div></div><div class="inv-stat"><div class="num">${i.tvs||0}</div><div class="lbl">📺</div></div><div class="inv-stat"><div class="num">${i.redes||0}</div><div class="lbl">📡</div></div><div class="inv-stat"><div class="num">${i.outros||0}</div><div class="lbl">📱</div></div></div></div>`;
+        }).join('');
+        main.innerHTML=`<div class="top-bar"><h1>📊 Inventário</h1><button class="btn btn-primary btn-sm" onclick="abrirModalInv()"><i class="fas fa-plus"></i> Adicionar</button></div><div class="info-bar"><div class="info-item"><div class="info-val">${tg}</div><div class="info-lbl">Total</div></div><div class="info-item"><div class="info-val">${tC}</div><div class="info-lbl">💻</div></div><div class="info-item"><div class="info-val">${tI}</div><div class="info-lbl">🖨️</div></div><div class="info-item"><div class="info-val">${tR}</div><div class="info-lbl">📞</div></div><div class="info-item"><div class="info-val">${tTV}</div><div class="info-lbl">📺</div></div><div class="info-item"><div class="info-val">${tRed}</div><div class="info-lbl">📡</div></div></div><div class="filtros-bar"><input type="text" id="filtroInv" placeholder="🔍 Filtrar setor..." onkeyup="filtrarInventarioUI()" style="flex:1;"></div><div class="inv-grid" id="invGrid">${cards}</div>`;
+    });
+}
+function filtrarInventarioUI(){
+    const f=(document.getElementById('filtroInv')?.value||'').toLowerCase();
+    const g=document.getElementById('invGrid');
+    if(!g)return;
+    let l=[...inventario];
+    if(f)l=l.filter(i=>i.setor.toLowerCase().includes(f));
+    l.sort((a,b)=>a.setor.localeCompare(b.setor));
+    g.innerHTML=l.length===0?'<div style="text-align:center;padding:40px;">Nenhum</div>':l.map(i=>{const t=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0);return`<div class="inv-card" onclick="verDetalhesInv('${i.fid}')"><div class="inv-card-header"><h3>📍 ${sanitizar(i.setor)}</h3><span class="badge badge-blue">${t} equip.</span></div><div class="inv-card-stats"><div class="inv-stat"><div class="num">${i.computadores||0}</div><div class="lbl">💻</div></div><div class="inv-stat"><div class="num">${i.impressoras||0}</div><div class="lbl">🖨️</div></div><div class="inv-stat"><div class="num">${i.ramais||0}</div><div class="lbl">📞</div></div><div class="inv-stat"><div class="num">${i.tvs||0}</div><div class="lbl">📺</div></div><div class="inv-stat"><div class="num">${i.redes||0}</div><div class="lbl">📡</div></div><div class="inv-stat"><div class="num">${i.outros||0}</div><div class="lbl">📱</div></div></div></div>`;}).join('');
+}
+function verDetalhesInv(id){
+    const inv=inventario.find(i=>i.fid===id);
+    if(!inv)return;
+    const total=(parseInt(inv.computadores)||0)+(parseInt(inv.impressoras)||0)+(parseInt(inv.ramais)||0)+(parseInt(inv.tvs)||0)+(parseInt(inv.redes)||0)+(parseInt(inv.outros)||0);
+    abrirModal(`<div class="modal-header"><h3>📍 ${sanitizar(inv.setor)} - Total: ${total}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"><div style="background:#DBEAFE;padding:14px;border-radius:8px;text-align:center;"><div>💻</div><div style="font-size:20px;font-weight:700;">${inv.computadores||0}</div><small>Computadores</small></div><div style="background:#D1FAE5;padding:14px;border-radius:8px;text-align:center;"><div>🖨️</div><div style="font-size:20px;font-weight:700;">${inv.impressoras||0}</div><small>Impressoras</small></div><div style="background:#FEF3C7;padding:14px;border-radius:8px;text-align:center;"><div>📞</div><div style="font-size:20px;font-weight:700;">${inv.ramais||0}</div><small>Ramais</small></div><div style="background:#EDE9FE;padding:14px;border-radius:8px;text-align:center;"><div>📺</div><div style="font-size:20px;font-weight:700;">${inv.tvs||0}</div><small>TVs</small></div><div style="background:#FEE2E2;padding:14px;border-radius:8px;text-align:center;"><div>📡</div><div style="font-size:20px;font-weight:700;">${inv.redes||0}</div><small>Redes</small></div><div style="background:#F3F4F6;padding:14px;border-radius:8px;text-align:center;"><div>📱</div><div style="font-size:20px;font-weight:700;">${inv.outros||0}</div><small>Outros</small></div></div><div style="display:flex;gap:6px;justify-content:flex-end;margin-top:12px;"><button class="btn btn-outline btn-sm" onclick="editarInv('${inv.fid}');this.closest('.modal-overlay').remove();">✏️ Editar</button><button class="btn btn-danger btn-sm" onclick="excluirInv('${inv.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button></div>`,'700px');
+}
+function abrirModalInv(id=null){
+    const item=id?inventario.find(i=>i.fid===id):null;
+    abrirModal(`<div class="modal-header"><h3>${id?'✏️ Editar':'📊 Novo'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarInv(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Setor *</label><select id="invSetor" required><option value="">Selecione...</option>${setores.map(s=>`<option value="${s}" ${item?.setor===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="form-row"><div class="form-group"><label>💻 Computadores</label><input type="number" id="invComp" value="${item?.computadores||0}" min="0"></div><div class="form-group"><label>🖨️ Impressoras</label><input type="number" id="invImp" value="${item?.impressoras||0}" min="0"></div></div><div class="form-row"><div class="form-group"><label>📞 Ramais</label><input type="number" id="invRam" value="${item?.ramais||0}" min="0"></div><div class="form-group"><label>📺 TVs</label><input type="number" id="invTV" value="${item?.tvs||0}" min="0"></div></div><div class="form-row"><div class="form-group"><label>📡 Redes</label><input type="number" id="invRedes" value="${item?.redes||0}" min="0"></div><div class="form-group"><label>📱 Outros</label><input type="number" id="invOutros" value="${item?.outros||0}" min="0"></div></div><button type="submit" class="btn btn-primary">Salvar</button></form>`);
+}
+async function salvarInv(e,id){
+    e.preventDefault();
+    const d={setor:document.getElementById('invSetor')?.value,computadores:parseInt(document.getElementById('invComp')?.value)||0,impressoras:parseInt(document.getElementById('invImp')?.value)||0,ramais:parseInt(document.getElementById('invRam')?.value)||0,tvs:parseInt(document.getElementById('invTV')?.value)||0,redes:parseInt(document.getElementById('invRedes')?.value)||0,outros:parseInt(document.getElementById('invOutros')?.value)||0};
+    if(!d.setor)return;
+    try{if(id)await db.collection('inventario').doc(id).update(d);else await db.collection('inventario').add(d);document.querySelector('.modal-overlay')?.remove();renderInventario();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}
+}
+function editarInv(id){abrirModalInv(id);}
+async function excluirInv(id){if(!confirm('Excluir?'))return;try{await db.collection('inventario').doc(id).delete();renderInventario();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
+
+// ============================================
+// IPs
+// ============================================
+function renderIPs(){
+    const main=document.getElementById('mainContent');
+    db.collection('ips_rede').orderBy('setor').get().then(snap=>{
+        ipsRede=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;ipsRede.push(x);});
+        const l=ipsRede.length===0?'<tr><td colspan="8" style="text-align:center;">Nenhum IP</td></tr>':ipsRede.map(ip=>`<tr><td><strong>${sanitizar(ip.dispositivo||'—')}</strong></td><td>${sanitizar(ip.tipo||'—')}</td><td><code>${sanitizar(ip.ip||'—')}</code></td><td>${sanitizar(ip.mac||'—')}</td><td>${sanitizar(ip.localizacao||'—')}</td><td>${sanitizar(ip.setor||'—')}</td><td><span class="badge ${ip.status==='Ativo'?'badge-green':'badge-red'}">${sanitizar(ip.status||'Ativo')}</span></td><td><button class="btn btn-sm btn-outline" onclick="editarIP('${ip.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirIP('${ip.fid}')">🗑️</button></td></tr>`).join('');
+        main.innerHTML=`<div class="top-bar"><h1>🌐 IPs & Rede</h1><button class="btn btn-primary btn-sm" onclick="abrirModalIP()"><i class="fas fa-plus"></i> Novo</button></div><div class="filtros-bar"><input type="text" id="filtroIPs" placeholder="🔍 Filtrar..." onkeyup="filtrarIPsUI()" style="flex:1;"></div><div class="table-card"><table><thead><tr><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>MAC</th><th>Local</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tabelaIPs">${l}</tbody></table></div>`;
+    });
+}
+function filtrarIPsUI(){
+    const f=(document.getElementById('filtroIPs')?.value||'').toLowerCase();
+    const tb=document.getElementById('tabelaIPs');
+    if(!tb)return;
+    const fl=f?ipsRede.filter(ip=>(ip.dispositivo||'').toLowerCase().includes(f)||(ip.ip||'').toLowerCase().includes(f)||(ip.setor||'').toLowerCase().includes(f)):ipsRede;
+    tb.innerHTML=fl.length===0?'<tr><td colspan="8" style="text-align:center;">Nenhum</td></tr>':fl.map(ip=>`<tr><td><strong>${sanitizar(ip.dispositivo||'—')}</strong></td><td>${sanitizar(ip.tipo||'—')}</td><td><code>${sanitizar(ip.ip||'—')}</code></td><td>${sanitizar(ip.mac||'—')}</td><td>${sanitizar(ip.localizacao||'—')}</td><td>${sanitizar(ip.setor||'—')}</td><td><span class="badge ${ip.status==='Ativo'?'badge-green':'badge-red'}">${sanitizar(ip.status||'Ativo')}</span></td><td><button class="btn btn-sm btn-outline" onclick="editarIP('${ip.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="excluirIP('${ip.fid}')">🗑️</button></td></tr>`).join('');
+}
+function abrirModalIP(id=null){
+    if(id)db.collection('ips_rede').doc(id).get().then(d=>{if(d.exists)mostrarModalIP(id,d.data());});
+    else mostrarModalIP(null,{});
+}
+function mostrarModalIP(id,ip){
+    abrirModal(`<div class="modal-header"><h3>${id?'✏️ Editar':'🌐 Novo IP'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarIP(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Dispositivo *</label><input type="text" id="ipDisp" required value="${ip.dispositivo||''}"></div><div class="form-group"><label>Tipo</label><select id="ipTipo"><option value="">Selecione...</option>${['💻 Computador','🖨️ Impressora','🖧 Switch','📡 Roteador','📞 Telefone','📷 Câmera','📺 TV','🖥️ Servidor'].map(t=>`<option ${ip.tipo===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="form-row"><div class="form-group"><label>IP *</label><input type="text" id="ipEnd" required value="${ip.ip||''}"></div><div class="form-group"><label>MAC</label><input type="text" id="ipMAC" value="${ip.mac||''}"></div></div><div class="form-row"><div class="form-group"><label>Localização</label><input type="text" id="ipLoc" value="${ip.localizacao||''}"></div><div class="form-group"><label>Setor *</label><select id="ipSetor" required><option value="">Selecione...</option>${setores.map(s=>`<option value="${s}" ${ip.setor===s?'selected':''}>${s}</option>`).join('')}</select></div></div><div class="form-row"><div class="form-group"><label>Status</label><select id="ipStatus"><option value="Ativo">🟢 Ativo</option><option value="Inativo">🔴 Inativo</option><option value="Reservado">🟡 Reservado</option></select></div><div class="form-group"><label>Observação</label><input type="text" id="ipObs" value="${ip.observacao||''}"></div></div><button type="submit" class="btn btn-primary">Salvar</button></form>`);
+}
+async function salvarIP(e,id){
+    e.preventDefault();
+    const d={dispositivo:document.getElementById('ipDisp')?.value.trim(),tipo:document.getElementById('ipTipo')?.value,ip:document.getElementById('ipEnd')?.value.trim(),mac:document.getElementById('ipMAC')?.value.trim(),localizacao:document.getElementById('ipLoc')?.value.trim(),setor:document.getElementById('ipSetor')?.value,status:document.getElementById('ipStatus')?.value||'Ativo',observacao:document.getElementById('ipObs')?.value.trim()||''};
+    if(!d.dispositivo||!d.ip||!d.setor){toast('Preencha obrigatórios','error');return}
+    try{if(id)await db.collection('ips_rede').doc(id).update(d);else await db.collection('ips_rede').add(d);document.querySelector('.modal-overlay')?.remove();renderIPs();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}
+}
+function editarIP(id){abrirModalIP(id);}
+async function excluirIP(id){if(!confirm('Excluir?'))return;try{await db.collection('ips_rede').doc(id).delete();renderIPs();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
+
+// ============================================
+// EQUIPE
+// ============================================
+function renderEquipe(){
+    const main=document.getElementById('mainContent');
+    db.collection('usuarios').where('departamento','==',depto).get().then(snap=>{
+        equipe=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;equipe.push(x);});
+        let l='';equipe.forEach(u=>{l+=`<tr><td><strong>${sanitizar(u.nome||'')}</strong></td><td>@${sanitizar(u.usuario||'')}</td><td>${sanitizar(u.cargo||'')}</td><td>${sanitizar(u.whatsapp||'—')}</td><td><span class="badge ${u.mostrarContato!==false?'badge-green':'badge-amber'}">${u.mostrarContato!==false?'Visível':'Oculto'}</span></td><td>${u.usuario!==usuarioLogado.usuario?`<button class="btn btn-sm btn-outline" onclick="editarTecnico('${u.fid}')">✏️</button><button class="btn btn-sm btn-danger" onclick="removerTecnico('${u.fid}')">🗑️</button>`:'<span class="badge badge-amber">Você</span>'}</td></tr>`;});
+        if(!l)l='<tr><td colspan="6" style="text-align:center;">Nenhum</td></tr>';
+        main.innerHTML=`<div class="top-bar"><h1>👥 Equipe — ${sanitizar(nomeDepto)}</h1><button class="btn btn-primary btn-sm" onclick="abrirModalTecnico()"><i class="fas fa-plus"></i> Novo</button></div><div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th><th>WhatsApp</th><th>Contato</th><th>Ações</th></tr></thead><tbody>${l}</tbody></table></div>`;
+    });
+}
+function abrirModalTecnico(id=null){
+    if(id)db.collection('usuarios').doc(id).get().then(d=>{if(d.exists)mostrarModalTecnico(id,d.data());});
+    else mostrarModalTecnico(null,{});
+}
+function mostrarModalTecnico(id,u){
+    const cargos=depto==='TI'?['Técnico de Suporte TI','Analista de Sistemas','Analista de Redes','Técnico de Informática','Coordenador de TI']:['Supervisor de Manutenção','Técnico de Manutenção','Eletricista','Encanador','Técnico de Refrigeração','Pedreiro','Pintor','Marceneiro','Auxiliar de Manutenção'];
+    abrirModal(`<div class="modal-header"><h3>${id?'✏️ Editar':'👤 Novo Técnico'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarTecnico(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Nome *</label><input type="text" id="tecNome" required value="${u.nome||''}"></div><div class="form-group"><label>Usuário *</label><input type="text" id="tecUsuario" required value="${u.usuario||''}" ${id?'readonly':''}></div><div class="form-group"><label>Cargo *</label><select id="tecCargo">${cargos.map(c=>`<option ${u.cargo===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="form-group"><label>WhatsApp *</label><input type="text" id="tecWhatsApp" required value="${u.whatsapp||''}"></div><div class="form-group"><label>Mostrar no portal?</label><select id="tecMostrar"><option value="true">✅ Sim</option><option value="false">❌ Não</option></select></div>${!id?'<p style="font-size:10px;">🔑 Senha: 12345</p>':''}<button type="submit" class="btn btn-primary">Salvar</button></form>`);
+}
+async function salvarTecnico(e,id){
+    e.preventDefault();
+    const n=document.getElementById('tecNome')?.value.trim(),u=document.getElementById('tecUsuario')?.value.toLowerCase().trim(),w=document.getElementById('tecWhatsApp')?.value.trim(),c=document.getElementById('tecCargo')?.value,m=document.getElementById('tecMostrar')?.value==='true';
+    if(!n||!u||!w||!c){toast('Preencha todos','error');return}
+    try{
+        if(id)await db.collection('usuarios').doc(id).update({nome:n,cargo:c,whatsapp:w,mostrarContato:m});
+        else{const ex=await db.collection('usuarios').where('usuario','==',u).get();if(!ex.empty){toast('Usuário já existe','error');return}await db.collection('usuarios').add({nome:n,usuario:u,senha:'12345',cargo:c,tipo:'tecnico',whatsapp:w,mostrarContato:m,status:'ativo',primeiro_acesso:true,departamento:depto});}
+        document.querySelector('.modal-overlay')?.remove();renderEquipe();toast('✅ Salvo!','success');
+    }catch(e){toast('Erro','error');}
+}
+function editarTecnico(id){abrirModalTecnico(id);}
+async function removerTecnico(id){if(!confirm('Remover?'))return;try{await db.collection('usuarios').doc(id).delete();renderEquipe();toast('🗑️ Removido!','success');}catch(e){toast('Erro','error');}}
+
+// ============================================
+// ARQUIVOS
+// ============================================
+function renderArquivos(){
+    const main=document.getElementById('mainContent');
+    main.innerHTML=`<div class="top-bar"><h1>📁 Arquivos e Fotos</h1><button class="btn btn-primary btn-sm" onclick="abrirUploadFoto()"><i class="fas fa-upload"></i> Upload</button></div><div class="filtros-bar"><select id="filtroCatFoto" onchange="carregarFotos()"><option value="">Todas</option><option value="defeito">🔴 Defeito</option><option value="instalacao">🟢 Instalação</option><option value="servico">🔧 Serviço</option><option value="geral">📷 Geral</option></select></div><div class="foto-grid" id="listaFotos">Carregando...</div>`;
+    carregarFotos();
+}
+async function carregarFotos(){
+    try{
+        const cat=document.getElementById('filtroCatFoto')?.value||'';
+        let q=db.collection('arquivos').orderBy('data','desc');
+        if(cat)q=q.where('categoria','==',cat);
+        const s=await q.limit(50).get();
+        arquivos=[];s.forEach(d=>{const x=d.data();x.fid=d.id;arquivos.push(x);});
+        const c=document.getElementById('listaFotos');
+        if(!c)return;
+        if(arquivos.length===0){c.innerHTML='<div style="text-align:center;padding:40px;">📭 Nenhuma foto</div>';return}
+        c.innerHTML=arquivos.map(x=>`<div class="foto-card"><img src="${x.url}" onerror="this.style.display='none'" style="cursor:pointer;" onclick="window.open('${x.url}','_blank')"><div class="foto-info"><strong>${sanitizar(x.categoria||'Geral')}</strong><br><small>${fmtDataCurta(x.data)} • ${sanitizar(x.autor||'—')}</small><br><button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirFoto('${x.fid}')">🗑️</button></div></div>`).join('');
+    }catch(e){}
+}
+function abrirUploadFoto(){
+    abrirModal(`<div class="modal-header"><h3>📤 Upload de Foto</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="uploadFoto(event)" style="display:grid;gap:10px;"><div class="form-group"><label>Categoria</label><select id="fotoCat"><option value="defeito">🔴 Defeito</option><option value="instalacao">🟢 Instalação</option><option value="servico">🔧 Serviço</option><option value="geral">📷 Geral</option></select></div><div class="form-group"><label>Descrição</label><textarea id="fotoDesc" rows="2"></textarea></div><div class="form-group"><label>Arquivo *</label><input type="file" id="fotoArq" accept="image/*" required style="padding:8px;border:2px dashed var(--border);border-radius:8px;background:var(--bg);"></div><button type="submit" class="btn btn-primary">Enviar</button></form>`);
+}
+async function uploadFoto(e){
+    e.preventDefault();
+    const file=document.getElementById('fotoArq')?.files[0];
+    if(!file){toast('Selecione','error');return}
+    try{
+        const nomeArquivo=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'_');
+        const uploadTask=storage.ref('fotos/'+nomeArquivo).put(file);
+        uploadTask.on('state_changed',null,error=>toast('Erro: '+error.message,'error'),async ()=>{
+            const url=await uploadTask.snapshot.ref.getDownloadURL();
+            await db.collection('arquivos').add({url,categoria:document.getElementById('fotoCat')?.value||'geral',descricao:document.getElementById('fotoDesc')?.value.trim()||'',autor:usuarioLogado.nome,departamento:depto,data:firebase.firestore.Timestamp.now(),nomeArquivo});
+            document.querySelector('.modal-overlay')?.remove();carregarFotos();toast('✅ Enviada!','success');
+        });
+    }catch(e){toast('Erro','error');}
+}
+async function excluirFoto(id){if(!confirm('Excluir?'))return;try{await db.collection('arquivos').doc(id).delete();carregarFotos();toast('🗑️ Excluída!','success');}catch(e){toast('Erro','error');}}
+
+// ============================================
+// AGENDA
+// ============================================
+function renderAgenda(){
+    const main=document.getElementById('mainContent');
+    main.innerHTML=`<div class="top-bar"><h1>📅 Agenda</h1><button class="btn btn-primary btn-sm" onclick="abrirModalAgenda()"><i class="fas fa-plus"></i> Agendar</button></div><div id="listaAgenda">Carregando...</div>`;
+    carregarAgenda();
+}
+async function carregarAgenda(){
+    try{
+        const s=await db.collection('agenda').orderBy('data','asc').get();
+        agenda=[];s.forEach(d=>{const x=d.data();x.fid=d.id;agenda.push(x);});
+        const c=document.getElementById('listaAgenda');
+        if(c)c.innerHTML=agenda.length===0?'<p style="text-align:center;padding:40px;">📭 Nenhum</p>':agenda.map(a=>{const d=toDate(a.data);return`<div class="agenda-item"><div><strong>${sanitizar(a.titulo||'—')}</strong><div>📅 ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div><div>📍 ${sanitizar(a.local||'—')} | 👤 ${sanitizar(a.responsavel||'—')}</div></div><button class="btn btn-sm btn-danger" onclick="excluirAgenda('${a.fid}')">🗑️</button></div>`;}).join('');
+    }catch(e){}
+}
+function abrirModalAgenda(id=null){
+    if(id)db.collection('agenda').doc(id).get().then(d=>{if(d.exists)mostrarModalAgenda(id,d.data());});
+    else mostrarModalAgenda(null,{});
+}
+function mostrarModalAgenda(id,d){
+    const ds=d.data?toDate(d.data).toISOString().slice(0,16):'';
+    abrirModal(`<div class="modal-header"><h3>${id?'✏️ Editar':'📅 Agendar'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarAgenda(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Título *</label><input type="text" id="agTitulo" required value="${d.titulo||''}"></div><div class="form-row"><div class="form-group"><label>Data/Hora *</label><input type="datetime-local" id="agData" required value="${ds}"></div><div class="form-group"><label>Local</label><input type="text" id="agLocal" value="${d.local||''}"></div></div><div class="form-group"><label>Responsável</label><input type="text" id="agResp" value="${d.responsavel||usuarioLogado.nome}"></div><div class="form-group"><label>Descrição</label><textarea id="agDesc" rows="2">${d.descricao||''}</textarea></div><button type="submit" class="btn btn-primary">Salvar</button></form>`);
+}
+async function salvarAgenda(e,id){
+    e.preventDefault();
+    const d={titulo:document.getElementById('agTitulo')?.value.trim(),data:firebase.firestore.Timestamp.fromDate(new Date(document.getElementById('agData')?.value)),local:document.getElementById('agLocal')?.value.trim(),responsavel:document.getElementById('agResp')?.value.trim(),descricao:document.getElementById('agDesc')?.value.trim(),criadoPor:usuarioLogado.nome,departamento:depto};
+    if(!d.titulo||!document.getElementById('agData')?.value)return;
+    try{if(id)await db.collection('agenda').doc(id).update(d);else await db.collection('agenda').add(d);document.querySelector('.modal-overlay')?.remove();carregarAgenda();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}
+}
+async function excluirAgenda(id){if(!confirm('Excluir?'))return;try{await db.collection('agenda').doc(id).delete();carregarAgenda();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
+
+// ============================================
+// CONFIGURAÇÕES
+// ============================================
+async function renderConfig(){
+    const main=document.getElementById('mainContent');
+    await loadConfig();
+    main.innerHTML=`<div class="top-bar"><h1>⚙️ Configurações</h1></div><div style="max-width:600px;"><div class="config-section open"><div style="display:flex;justify-content:space-between;align-items:center;" onclick="this.parentElement.classList.toggle('open')"><h3>🔐 Alterar Senha</h3><i class="fas fa-chevron-down"></i></div><div class="config-body"><form onsubmit="alterarSenha(event)" style="display:grid;gap:10px;margin-top:10px;"><div class="form-group"><label>Senha Atual *</label><input type="password" id="senhaAtual" required></div><div class="form-group"><label>Nova Senha *</label><input type="password" id="senhaNova" required minlength="6"></div><div class="form-group"><label>Confirmar *</label><input type="password" id="senhaNovaConfirma" required minlength="6"></div><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Alterar</button></form></div></div></div>`;
+}
+async function alterarSenha(e){
+    e.preventDefault();
+    const sa=document.getElementById('senhaAtual')?.value,sn=document.getElementById('senhaNova')?.value,sc=document.getElementById('senhaNovaConfirma')?.value;
+    if(!sa||!sn||!sc){toast('Preencha todos','error');return}
+    if(sn!==sc){toast('Não conferem','error');return}
+    if(sn.length<6){toast('Mínimo 6 caracteres','error');return}
+    try{
+        const us=await db.collection('usuarios').where('usuario','==',usuarioLogado.usuario).get();
+        if(us.empty){toast('Usuário não encontrado','error');return}
+        if(us.docs[0].data().senha!==sa){toast('Senha incorreta','error');return}
+        await us.docs[0].ref.update({senha:sn,primeiro_acesso:false});
+        toast('✅ Senha alterada!','success');e.target.reset();
+    }catch(e){toast('Erro','error');}
 }
 
 // ============================================
 // INICIALIZAÇÃO
 // ============================================
 async function init(){
-    console.log('🚀 HelpHosp Premium iniciando...');
-    console.log('🕐 Horário:', new Date().toLocaleString());
-    
-    if(!checkAuth()){
-        console.log('❌ Autenticação falhou');
-        return;
-    }
-    
-    console.log('✅ Autenticado:', usuarioLogado.nome, '- Departamento:', depto);
-    
+    if(!checkAuth())return;
     await loadConfig();
-    console.log('✅ Configurações carregadas');
-    
     initUI();
-    
-    if(Notification.permission==='default')Notification.requestPermission();
-    
-    console.log('✅ Inicialização completa');
 }
-
-// Previne perda de dados ao recarregar
-window.addEventListener('beforeunload', () => {
-    console.log('💾 Salvando estado antes de sair...');
-    // Os dados estão no Firestore, então não precisamos salvar localmente
-});
-
-window.addEventListener('load', init);
+window.addEventListener('load',init);
 if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(init,100);
 </script>
 </body>

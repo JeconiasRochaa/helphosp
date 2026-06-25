@@ -108,9 +108,7 @@
         .inv-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
         .inv-stat{text-align:center;background:var(--bg);padding:10px 6px;border-radius:8px}
         .inv-stat .num{font-size:18px;font-weight:700;color:var(--primary)}.inv-stat .lbl{font-size:8px;color:var(--text-secondary);text-transform:uppercase}
-        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;}
-        .loading-spinner{width:60px;height:60px;border:5px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:15px;}
-        @keyframes spin{to{transform:rotate(360deg)}}
+        .alert-info{background:#DBEAFE;border:2px solid #3182CE;border-radius:12px;padding:16px;margin-bottom:16px;color:#1E40AF;font-weight:600;}
         @media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-toggle{display:flex;align-items:center;justify-content:center}.main-content{margin-left:0;padding:14px;padding-top:55px}.charts-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:640px){.form-row{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}}
     </style>
@@ -163,26 +161,6 @@ function getSLAStatus(c){if(c.status==='Concluído')return'sla-ok';const sla={'C
 function getSLATexto(c){const s=getSLAStatus(c);if(s==='sla-critical')return'🔴 Atrasado';if(s==='sla-warning')return'🟡 Próximo';return'🟢 No prazo'}
 
 // ============================================
-// LOADING OVERLAY
-// ============================================
-function showLoading(msg='Carregando...'){
-    let el=document.getElementById('loadingGlobal');
-    if(!el){
-        el=document.createElement('div');
-        el.id='loadingGlobal';
-        el.className='loading-overlay';
-        el.innerHTML='<div class="loading-spinner"></div><div id="loadingMsg">'+msg+'</div>';
-        document.body.appendChild(el);
-    }
-    document.getElementById('loadingMsg').textContent=msg;
-    el.style.display='flex';
-}
-function hideLoading(){
-    const el=document.getElementById('loadingGlobal');
-    if(el)el.style.display='none';
-}
-
-// ============================================
 // AUTENTICAÇÃO
 // ============================================
 function checkAuth(){
@@ -199,7 +177,6 @@ function checkAuth(){
         localStorage.setItem('usuario_logado',JSON.stringify(usuarioLogado));
         depto=usuarioLogado.departamento||'TI';
         nomeDepto=depto==='TI'?'Tecnologia da Informação':'Manutenção';
-        console.log('✅ Auth OK:',usuarioLogado.nome,'| Depto:',depto);
         return true;
     }catch(e){
         localStorage.removeItem('usuario_logado');
@@ -227,28 +204,42 @@ async function loadConfig(){
             if(dl.data().hospital)logoHospital=dl.data().hospital;
             if(dl.data().governo)logoGoverno=dl.data().governo;
         }
-        console.log('✅ Configs carregadas. Setores:',setores.length);
-    }catch(e){console.error('Erro config:',e);}
+    }catch(e){}
 }
 
 // ============================================
-// FILTRO DE CHAMADOS POR DEPARTAMENTO
+// FILTRO DE CHAMADOS - CORRIGIDO PARA MOSTRAR TODOS
 // ============================================
 function getChamadosDoDepartamento(){
-    const filtrados = chamados.filter(c=>{
-        const cd=c.departamento||'';
-        if(cd===depto)return true;
-        if(!cd){
-            if(depto==='TI')return true;
-            if(depto==='MANUTENCAO'){
-                const sm=['Manutenção','Hotelaria','Engenharia Clinica','Patrimonio','Almoxarifado'];
-                if(sm.includes(c.setor))return true;
-                if(c.executante)return true;
-                return false;
-            }
+    // AGORA MOSTRA TODOS OS CHAMADOS, independente do departamento
+    // Apenas filtra se o departamento for MANUTENCAO (para não misturar)
+    const filtrados = chamados.filter(c => {
+        const cd = c.departamento || '';
+        
+        // Se o chamado tem departamento definido
+        if (cd) {
+            // TI vê todos os chamados (TI + sem departamento)
+            if (depto === 'TI') return true;
+            // Manutenção vê apenas chamados de manutenção
+            if (depto === 'MANUTENCAO') return cd === 'MANUTENCAO';
+            return cd === depto;
         }
-        return false;
+        
+        // Se NÃO tem departamento definido (chamados antigos)
+        // TI vê TODOS os chamados sem departamento
+        if (depto === 'TI') return true;
+        
+        // Manutenção vê apenas chamados sem departamento que parecem ser de manutenção
+        if (depto === 'MANUTENCAO') {
+            const setoresManut = ['Manutenção', 'Hotelaria', 'Engenharia Clinica', 'Patrimonio', 'Almoxarifado'];
+            if (setoresManut.includes(c.setor)) return true;
+            if (c.executante) return true;
+            return false;
+        }
+        
+        return true;
     });
+    
     console.log(`📊 getChamadosDoDepartamento(${depto}): ${filtrados.length} de ${chamados.length} total`);
     return filtrados;
 }
@@ -311,18 +302,15 @@ function navegar(s,el){
 }
 
 // ============================================
-// CARREGAR TODOS OS DADOS - COM PAGINAÇÃO
+// CARREGAR TODOS OS DADOS
 // ============================================
 async function carregarTodosDados(){
-    showLoading('Carregando dados do servidor...');
     try{
-        console.log('📥 Iniciando carregamento de TODOS os dados...');
+        console.log('📥 Carregando TODOS os dados...');
         
-        // ========== CARREGA CHAMADOS COM PAGINAÇÃO ==========
-        showLoading('Carregando chamados...');
+        // CARREGA CHAMADOS COM PAGINAÇÃO
         chamados=[];
         let ultimoDoc=null;
-        let totalCarregado=0;
         const pageSize=500;
         
         while(true){
@@ -338,79 +326,58 @@ async function carregarTodosDados(){
                 chamados.push(x);
             });
             
-            totalCarregado+=snap.size;
             ultimoDoc=snap.docs[snap.docs.length-1];
-            
-            console.log(`📄 Página carregada: ${snap.size} chamados (Total: ${totalCarregado})`);
+            console.log(`📄 Página: ${snap.size} chamados (Total acumulado: ${chamados.length})`);
             
             if(snap.size<pageSize)break;
         }
         
-        console.log(`✅ TOTAL DE CHAMADOS CARREGADOS: ${chamados.length}`);
+        console.log(`✅ TOTAL CHAMADOS: ${chamados.length}`);
         
-        // Log detalhado dos status
-        const statusCount={};
-        chamados.forEach(c=>{statusCount[c.status]=(statusCount[c.status]||0)+1;});
-        console.log('📊 Status dos chamados:',JSON.stringify(statusCount));
+        // Log dos status
+        const sc={};chamados.forEach(c=>{sc[c.status]=(sc[c.status]||0)+1;});
+        console.log('📊 Status:',JSON.stringify(sc));
         
-        // ========== CARREGA OUTROS DADOS ==========
-        showLoading('Carregando inventário...');
+        // Log dos departamentos
+        const dc={};chamados.forEach(c=>{const d=c.departamento||'sem_depto';dc[d]=(dc[d]||0)+1;});
+        console.log('📊 Departamentos:',JSON.stringify(dc));
+        
+        // CARREGA OUTROS DADOS
         const si=await db.collection('inventario').get();
         inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});
-        console.log(`✅ Inventário: ${inventario.length}`);
         
-        showLoading('Carregando estoque...');
         const se=await db.collection('estoque').get();
         estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});
-        console.log(`✅ Estoque: ${estoque.length}`);
         
-        showLoading('Carregando movimentações...');
         const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(500).get();
         movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});
-        console.log(`✅ Movimentações: ${movimentacoes.length}`);
         
-        showLoading('Carregando IPs...');
         const sip=await db.collection('ips_rede').orderBy('setor').get();
         ipsRede=[];sip.forEach(d=>{const x=d.data();x.fid=d.id;ipsRede.push(x);});
-        console.log(`✅ IPs: ${ipsRede.length}`);
         
-        showLoading('Carregando agenda...');
         const sag=await db.collection('agenda').orderBy('data','asc').get();
         agenda=[];sag.forEach(d=>{const x=d.data();x.fid=d.id;agenda.push(x);});
-        console.log(`✅ Agenda: ${agenda.length}`);
         
-        showLoading('Carregando arquivos...');
         const sar=await db.collection('arquivos').orderBy('data','desc').get();
         arquivos=[];sar.forEach(d=>{const x=d.data();x.fid=d.id;arquivos.push(x);});
-        console.log(`✅ Arquivos: ${arquivos.length}`);
         
-        showLoading('Carregando equipe...');
         const seq=await db.collection('usuarios').where('departamento','==',depto).get();
         equipe=[];seq.forEach(d=>{const x=d.data();x.fid=d.id;equipe.push(x);});
-        console.log(`✅ Equipe: ${equipe.length}`);
         
-        hideLoading();
-        console.log('✅ TODOS OS DADOS CARREGADOS COM SUCESSO!');
-        console.log(`📊 TOTAL CHAMADOS: ${chamados.length}`);
-        console.log(`📊 Concluídos: ${statusCount['Concluído']||0}`);
-        console.log(`📊 Em Andamento: ${statusCount['Em Andamento']||0}`);
-        console.log(`📊 Pendente: ${statusCount['Pendente']||0}`);
-        console.log(`📊 A Fazer: ${statusCount['A Fazer']||0}`);
+        console.log('✅ TODOS OS DADOS CARREGADOS!');
         
         renderDashboard();
         escutarChamados();
         atualizarBadges();
         verificarAgenda();
     }catch(e){
-        hideLoading();
-        console.error('❌ Erro ao carregar dados:',e);
-        toast('Erro ao carregar dados: '+e.message,'error');
+        console.error('❌ Erro:',e);
         renderDashboard();
     }
 }
 
 function escutarChamados(){
-    console.log('👂 Iniciando listener em tempo real...');
+    console.log('👂 Listener em tempo real...');
     db.collection('chamados').orderBy('data_abertura','desc').onSnapshot(snap=>{
         chamados=[];
         snap.forEach(d=>{
@@ -418,19 +385,16 @@ function escutarChamados(){
             x.fid=d.id;
             chamados.push(x);
         });
-        console.log(`🔄 Listener: ${chamados.length} chamados recebidos`);
+        console.log(`🔄 Listener: ${chamados.length} chamados`);
         
-        const statusCount={};
-        chamados.forEach(c=>{statusCount[c.status]=(statusCount[c.status]||0)+1;});
-        console.log('📊 Status via listener:',JSON.stringify(statusCount));
+        const sc={};chamados.forEach(c=>{sc[c.status]=(sc[c.status]||0)+1;});
+        console.log('📊 Status:',JSON.stringify(sc));
         
         atualizarBadges();
         verificarAgenda();
         if(document.getElementById('infoTotal'))atualizarDashboard();
         if(document.getElementById('tabelaChamados'))filtrarChamadosUI();
-    },error=>{
-        console.error('❌ Erro no listener:',error);
-    });
+    },error=>{console.error('❌ Listener:',error);});
 }
 
 function atualizarBadges(){
@@ -454,7 +418,6 @@ async function verificarAgenda(){
 // ============================================
 function renderDashboard(){
     const main=document.getElementById('mainContent'),p=getPerms(),cd=getChamadosDoDepartamento();
-    console.log(`📊 Dashboard: ${cd.length} chamados do departamento ${depto}`);
     
     let te=0,tc=0,ti=0,tEst=0;
     inventario.forEach(i=>{tc+=parseInt(i.computadores)||0;ti+=parseInt(i.impressoras)||0;te+=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0)});
@@ -465,7 +428,11 @@ function renderDashboard(){
     
     const t=cd.length,a=cd.filter(c=>c.status!=='Concluído').length,co=cd.filter(c=>c.status==='Concluído').length,cr=cd.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length,tx=t>0?Math.round(co/t*100):0,sa=cd.filter(c=>getSLAStatus(c)==='sla-critical').length;
     
-    main.innerHTML=`<div class="top-bar"><h1>📊 Dashboard Premium — ${sanitizar(nomeDepto)}</h1><div style="display:flex;gap:6px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option><option value="all">Todo período</option></select><button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div><div class="info-bar"><div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total (${chamados.length} geral)</div></div><div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div><div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div><div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div><div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div><div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div></div>${statsHTML}<div class="charts-grid"><div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div></div><div class="table-card"><h3>🚨 Últimos Chamados - ${sanitizar(nomeDepto)}</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Aberto</th></tr></thead><tbody>${cd.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).slice(0,10).map(c=>`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;
+    // Verifica se há chamados sem departamento
+    const semDepto=chamados.filter(c=>!c.departamento).length;
+    const alertaSemDepto=semDepto>0?`<div class="alert-info">⚠️ Existem ${semDepto} chamados sem departamento definido. ${depto==='TI'?'O TI pode ver todos eles.':''}</div>`:'';
+    
+    main.innerHTML=`<div class="top-bar"><h1>📊 Dashboard Premium — ${sanitizar(nomeDepto)}</h1><div style="display:flex;gap:6px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option><option value="all">Todo período</option></select><button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div>${alertaSemDepto}<div class="info-bar"><div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total (${chamados.length} no sistema)</div></div><div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div><div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div><div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div><div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div><div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div></div>${statsHTML}<div class="charts-grid"><div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div></div><div class="table-card"><h3>🚨 Últimos Chamados</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Aberto</th></tr></thead><tbody>${cd.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).slice(0,10).map(c=>`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;
     atualizarDashboard();
 }
 
@@ -522,12 +489,23 @@ function renderSLA(){
 }
 
 // ============================================
-// CHAMADOS
+// CHAMADOS - CORRIGIDO
 // ============================================
 function renderChamados(){
     const main=document.getElementById('mainContent'),cd=getChamadosDoDepartamento();
-    console.log(`📋 Chamados: ${cd.length} exibidos de ${chamados.length} total`);
-    main.innerHTML=`<div class="top-bar"><h1>📋 Chamados — ${sanitizar(nomeDepto)}</h1><small style="color:var(--text-secondary);">Exibindo: ${cd.length} | Total no sistema: ${chamados.length} | Concluídos: ${chamados.filter(c=>c.status==='Concluído').length}</small></div><div class="filtros-bar"><select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos os Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select><select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas as Prioridades</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select><input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()"><button class="btn btn-outline btn-sm" onclick="document.getElementById('filtroStatus').value='';document.getElementById('filtroPrioridade').value='';document.getElementById('filtroBusca').value='';filtrarChamadosUI();"><i class="fas fa-times"></i> Limpar</button></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th></tr></thead><tbody id="tabelaChamados">${renderLinhasChamados(cd)}</tbody></table></div>`;
+    console.log(`📋 Exibindo ${cd.length} de ${chamados.length} chamados`);
+    
+    main.innerHTML=`<div class="top-bar"><h1>📋 Chamados — ${sanitizar(nomeDepto)}</h1><small style="color:var(--text-secondary);">Exibindo: ${cd.length} | Total no sistema: ${chamados.length}</small></div>
+    <div class="alert-info" style="margin-bottom:12px;">
+        📊 <strong>Resumo:</strong> 
+        Total: ${chamados.length} | 
+        Concluídos: ${chamados.filter(c=>c.status==='Concluído').length} | 
+        Em Andamento: ${chamados.filter(c=>c.status==='Em Andamento').length} | 
+        Pendente: ${chamados.filter(c=>c.status==='Pendente').length} | 
+        A Fazer: ${chamados.filter(c=>c.status==='A Fazer').length}
+        ${chamados.filter(c=>!c.departamento).length>0?` | ⚠️ Sem depto: ${chamados.filter(c=>!c.departamento).length}`:''}
+    </div>
+    <div class="filtros-bar"><select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos os Status</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select><select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas as Prioridades</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select><input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()"><button class="btn btn-outline btn-sm" onclick="document.getElementById('filtroStatus').value='';document.getElementById('filtroPrioridade').value='';document.getElementById('filtroBusca').value='';filtrarChamadosUI();"><i class="fas fa-times"></i> Limpar</button></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th></tr></thead><tbody id="tabelaChamados">${renderLinhasChamados(cd)}</tbody></table></div>`;
 }
 function renderLinhasChamados(l){
     if(l.length===0)return'<tr><td colspan="9" style="text-align:center;padding:20px;">📭 Nenhum chamado encontrado</td></tr>';
@@ -542,9 +520,11 @@ function renderLinhasChamados(l){
 function filtrarChamadosUI(){
     const sf=document.getElementById('filtroStatus')?.value||'',pf=document.getElementById('filtroPrioridade')?.value||'',bf=(document.getElementById('filtroBusca')?.value||'').toLowerCase();
     let l=getChamadosDoDepartamento();
+    console.log(`🔍 Antes dos filtros: ${l.length} chamados`);
     if(sf)l=l.filter(c=>c.status===sf);
     if(pf)l=l.filter(c=>c.prioridade===pf);
     if(bf)l=l.filter(c=>(c.titulo||'').toLowerCase().includes(bf)||(c.protocolo||'').toLowerCase().includes(bf));
+    console.log(`🔍 Após filtros: ${l.length} chamados`);
     const tb=document.getElementById('tabelaChamados');
     if(tb)tb.innerHTML=renderLinhasChamados(l);
 }
@@ -585,7 +565,7 @@ async function excluirChamado(id){
 function verDetalhes(id){
     const c=chamados.find(x=>x.fid===id);
     if(!c)return;
-    abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;"><h3>${sanitizar(c.titulo||'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> ${sanitizar(c.prioridade||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div></div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button><button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`,'750px');
+    abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;"><h3>${sanitizar(c.titulo||'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong> | Depto: ${sanitizar(c.departamento||'Não definido')}</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> ${sanitizar(c.prioridade||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div></div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button><button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`,'750px');
 }
 function abrirComentarios(id){
     comentarioChamadoId=id;
@@ -608,64 +588,26 @@ async function salvarComentario(){
 }
 
 // ============================================
-// INDICADORES, TONERS, ESTOQUE, INVENTÁRIO, IPs, EQUIPE, ARQUIVOS, AGENDA, CONFIG
-// (Mantidos iguais ao código anterior para não alongar)
+// INDICADORES
 // ============================================
-
 function renderIndicadores(){
     const main=document.getElementById('mainContent'),cd=getChamadosDoDepartamento();
-    main.innerHTML=`<div class="top-bar"><h1>📊 Indicadores — ${sanitizar(nomeDepto)}</h1></div><div class="stats-grid"><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong>${cd.length}</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong>${cd.filter(c=>c.status==='Concluído').length}</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Pendentes</small><strong>${cd.filter(c=>c.status!=='Concluído').length}</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>${cd.filter(c=>c.prioridade==='Crítica').length}</strong></div></div></div>`;
+    const co=cd.filter(c=>c.status==='Concluído').length,pe=cd.filter(c=>c.status!=='Concluído').length,cr=cd.filter(c=>c.prioridade==='Crítica').length;
+    main.innerHTML=`<div class="top-bar"><h1>📊 Indicadores — ${sanitizar(nomeDepto)}</h1></div><div class="stats-grid"><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total</small><strong>${cd.length}</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>Concluídos</small><strong>${co}</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Pendentes</small><strong>${pe}</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Críticos</small><strong>${cr}</strong></div></div></div><div class="table-card"><h3>📋 Todos os ${cd.length} chamados</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Status</th><th>Prioridade</th><th>Data</th></tr></thead><tbody>${cd.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).map(c=>`<tr onclick="verDetalhes('${c.fid}')" style="cursor:pointer;"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
-function renderToners(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>🖨️ Monitor de Toners</h1></div><p style="text-align:center;padding:40px;">Funcionalidade de Toners</p>';
-}
-
-function renderEstoque(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`<div class="top-bar"><h1>📦 Estoque</h1><button class="btn btn-primary btn-sm" onclick="abrirModalEstoqueItem()"><i class="fas fa-plus"></i> Adicionar</button></div><div class="estoque-grid">${estoque.map(e=>`<div class="estoque-item"><div class="emoji">${sanitizar(e.emoji||'📦')}</div><h4>${sanitizar(e.nome)}</h4><div class="qtd">Qtd: ${e.quantidade||1}</div><button class="btn btn-sm btn-outline" onclick="editarEstoqueItem('${e.fid}')">✏️</button></div>`).join('')||'📦 Vazio'}</div>`;
-}
-function abrirModalEstoqueItem(id=null){
-    const item=id?estoque.find(e=>e.fid===id):null;
-    abrirModal(`<div class="modal-header"><h3>${id?'Editar':'Novo'}</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarEstoqueItem(event,'${id||''}')" style="display:grid;gap:8px;"><div class="form-group"><label>Nome *</label><input type="text" id="estoqueNome" required value="${sanitizar(item?.nome||'')}"></div><div class="form-group"><label>Quantidade</label><input type="number" id="estoqueQtd" value="${item?.quantidade||1}" min="1"></div><button type="submit" class="btn btn-primary">Salvar</button></form>`);
-}
-async function salvarEstoqueItem(e,id){
-    e.preventDefault();
-    const d={nome:document.getElementById('estoqueNome')?.value.trim(),quantidade:parseInt(document.getElementById('estoqueQtd')?.value)||1,emoji:'📦'};
-    if(!d.nome)return;
-    try{if(id)await db.collection('estoque').doc(id).update(d);else await db.collection('estoque').add(d);document.querySelector('.modal-overlay')?.remove();renderEstoque();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}
-}
-function editarEstoqueItem(id){abrirModalEstoqueItem(id);}
-
-function renderInventario(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`<div class="top-bar"><h1>📊 Inventário</h1></div><div class="inv-grid">${inventario.map(i=>`<div class="inv-card"><div class="inv-card-header"><h3>📍 ${sanitizar(i.setor)}</h3></div><div class="inv-card-stats"><div class="inv-stat"><div class="num">${i.computadores||0}</div><div class="lbl">💻</div></div><div class="inv-stat"><div class="num">${i.impressoras||0}</div><div class="lbl">🖨️</div></div><div class="inv-stat"><div class="num">${i.ramais||0}</div><div class="lbl">📞</div></div></div></div>`).join('')||'Nenhum'}</div>`;
-}
-
-function renderIPs(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`<div class="top-bar"><h1>🌐 IPs & Rede</h1></div><div class="table-card"><table><thead><tr><th>Dispositivo</th><th>IP</th><th>Setor</th><th>Status</th></tr></thead><tbody>${ipsRede.map(ip=>`<tr><td>${sanitizar(ip.dispositivo||'—')}</td><td><code>${sanitizar(ip.ip||'—')}</code></td><td>${sanitizar(ip.setor||'—')}</td><td><span class="badge ${ip.status==='Ativo'?'badge-green':'badge-red'}">${sanitizar(ip.status||'Ativo')}</span></td></tr>`).join('')||'<tr><td colspan="4">Nenhum</td></tr>'}</tbody></table></div>`;
-}
-
-function renderEquipe(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`<div class="top-bar"><h1>👥 Equipe — ${sanitizar(nomeDepto)}</h1></div><div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th></tr></thead><tbody>${equipe.map(u=>`<tr><td>${sanitizar(u.nome||'—')}</td><td>@${sanitizar(u.usuario||'—')}</td><td>${sanitizar(u.cargo||'—')}</td></tr>`).join('')||'<tr><td colspan="3">Nenhum</td></tr>'}</tbody></table></div>`;
-}
-
-function renderArquivos(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📁 Arquivos e Fotos</h1></div><p style="text-align:center;padding:40px;">📁 Funcionalidade de Arquivos</p>';
-}
-
-function renderAgenda(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML='<div class="top-bar"><h1>📅 Agenda</h1></div><p style="text-align:center;padding:40px;">📅 Funcionalidade de Agenda</p>';
-}
-
+// ============================================
+// TONERS, ESTOQUE, INVENTÁRIO, IPs, EQUIPE, ARQUIVOS, AGENDA, CONFIG
+// ============================================
+function renderToners(){document.getElementById('mainContent').innerHTML='<div class="top-bar"><h1>🖨️ Monitor de Toners</h1></div><p style="text-align:center;padding:40px;">Funcionalidade de Toners</p>';}
+function renderEstoque(){document.getElementById('mainContent').innerHTML=`<div class="top-bar"><h1>📦 Estoque</h1></div><div class="estoque-grid">${estoque.map(e=>`<div class="estoque-item"><div class="emoji">📦</div><h4>${sanitizar(e.nome)}</h4><div class="qtd">Qtd: ${e.quantidade||1}</div></div>`).join('')||'📦 Vazio'}</div>`;}
+function renderInventario(){document.getElementById('mainContent').innerHTML=`<div class="top-bar"><h1>📊 Inventário</h1></div><div class="inv-grid">${inventario.map(i=>`<div class="inv-card"><div class="inv-card-header"><h3>📍 ${sanitizar(i.setor)}</h3></div><div class="inv-card-stats"><div class="inv-stat"><div class="num">${i.computadores||0}</div><div class="lbl">💻</div></div><div class="inv-stat"><div class="num">${i.impressoras||0}</div><div class="lbl">🖨️</div></div></div></div>`).join('')||'Nenhum'}</div>`;}
+function renderIPs(){document.getElementById('mainContent').innerHTML=`<div class="top-bar"><h1>🌐 IPs & Rede</h1></div><div class="table-card"><table><thead><tr><th>Dispositivo</th><th>IP</th><th>Setor</th></tr></thead><tbody>${ipsRede.map(ip=>`<tr><td>${sanitizar(ip.dispositivo||'—')}</td><td><code>${sanitizar(ip.ip||'—')}</code></td><td>${sanitizar(ip.setor||'—')}</td></tr>`).join('')||'<tr><td colspan="3">Nenhum</td></tr>'}</tbody></table></div>`;}
+function renderEquipe(){document.getElementById('mainContent').innerHTML=`<div class="top-bar"><h1>👥 Equipe — ${sanitizar(nomeDepto)}</h1></div><div class="table-card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Cargo</th></tr></thead><tbody>${equipe.map(u=>`<tr><td>${sanitizar(u.nome||'—')}</td><td>@${sanitizar(u.usuario||'—')}</td><td>${sanitizar(u.cargo||'—')}</td></tr>`).join('')||'<tr><td colspan="3">Nenhum</td></tr>'}</tbody></table></div>`;}
+function renderArquivos(){document.getElementById('mainContent').innerHTML='<div class="top-bar"><h1>📁 Arquivos e Fotos</h1></div><p style="text-align:center;padding:40px;">📁 Arquivos</p>';}
+function renderAgenda(){document.getElementById('mainContent').innerHTML='<div class="top-bar"><h1>📅 Agenda</h1></div><p style="text-align:center;padding:40px;">📅 Agenda</p>';}
 async function renderConfig(){
-    const main=document.getElementById('mainContent');
-    main.innerHTML=`<div class="top-bar"><h1>⚙️ Configurações</h1></div><div style="max-width:600px;"><div class="config-section open"><div style="display:flex;justify-content:space-between;align-items:center;" onclick="this.parentElement.classList.toggle('open')"><h3>🔐 Alterar Senha</h3><i class="fas fa-chevron-down"></i></div><div class="config-body"><form onsubmit="alterarSenha(event)" style="display:grid;gap:10px;margin-top:10px;"><div class="form-group"><label>Senha Atual *</label><input type="password" id="senhaAtual" required></div><div class="form-group"><label>Nova Senha *</label><input type="password" id="senhaNova" required minlength="6"></div><div class="form-group"><label>Confirmar *</label><input type="password" id="senhaNovaConfirma" required minlength="6"></div><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Alterar</button></form></div></div></div>`;
+    document.getElementById('mainContent').innerHTML=`<div class="top-bar"><h1>⚙️ Configurações</h1></div><div style="max-width:600px;"><div class="config-section open"><div style="display:flex;justify-content:space-between;align-items:center;" onclick="this.parentElement.classList.toggle('open')"><h3>🔐 Alterar Senha</h3><i class="fas fa-chevron-down"></i></div><div class="config-body"><form onsubmit="alterarSenha(event)" style="display:grid;gap:10px;margin-top:10px;"><div class="form-group"><label>Senha Atual *</label><input type="password" id="senhaAtual" required></div><div class="form-group"><label>Nova Senha *</label><input type="password" id="senhaNova" required minlength="6"></div><div class="form-group"><label>Confirmar *</label><input type="password" id="senhaNovaConfirma" required minlength="6"></div><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Alterar</button></form></div></div></div>`;
 }
 async function alterarSenha(e){
     e.preventDefault();

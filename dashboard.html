@@ -205,6 +205,25 @@ function getSLAStatus(c){if(c.status==='Concluído')return'sla-ok';const sla={'C
 function getSLATexto(c){const s=getSLAStatus(c);if(s==='sla-critical')return'🔴 Atrasado';if(s==='sla-warning')return'🟡 Próximo';return'🟢 No prazo'}
 
 // ============================================
+// FILTRO POR DEPARTAMENTO
+// Cada técnico enxerga somente os chamados do seu departamento.
+// ============================================
+function normalizarDepartamento(v){
+    const s=(v||'').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(s.includes('MANUT'))return'MANUTENCAO';
+    if(s==='TI'||s.includes('TECNOLOGIA')||s.includes('INFORMATICA'))return'TI';
+    return s;
+}
+function departamentoAtual(){return normalizarDepartamento(depto||usuarioLogado?.departamento||'TI')}
+function ordenarChamadosPorData(lista){return lista.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura))}
+function montarListaChamados(snap){
+    const lista=[];
+    snap.forEach(d=>{const x=d.data();x.fid=d.id;lista.push(x);});
+    return ordenarChamadosPorData(lista);
+}
+
+
+// ============================================
 // AUTENTICAÇÃO
 // ============================================
 function checkAuth(){const u=localStorage.getItem('usuario_logado');if(!u){window.location.href='admin.html';return false}try{usuarioLogado=JSON.parse(u);if(usuarioLogado.expira&&Date.now()>usuarioLogado.expira){localStorage.removeItem('usuario_logado');window.location.href='admin.html';return false}depto=usuarioLogado.departamento||'TI';nomeDepto=depto==='TI'?'Tecnologia da Informação':'Manutenção';return true}catch(e){localStorage.removeItem('usuario_logado');window.location.href='admin.html';return false}}
@@ -251,8 +270,8 @@ function navegar(s,el){
 // ============================================
 // CARREGAR DADOS
 // ============================================
-async function carregarTodosDados(){try{const sc=await db.collection('chamados').orderBy('data_abertura','desc').get();chamados=[];sc.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});const si=await db.collection('inventario').get();inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});const se=await db.collection('estoque').get();estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});renderDashboard();escutarChamados();atualizarBadges();verificarAgenda();}catch(e){console.error(e);renderDashboard();}}
-function escutarChamados(){db.collection('chamados').orderBy('data_abertura','desc').onSnapshot(snap=>{chamados=[];snap.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});atualizarBadges();verificarAgenda();if(document.getElementById('infoTotal'))atualizarDashboard();if(document.getElementById('tabelaChamados'))filtrarChamadosUI();});}
+async function carregarTodosDados(){try{const dep=departamentoAtual();const sc=await db.collection('chamados').where('departamento','==',dep).get();chamados=montarListaChamados(sc);const si=await db.collection('inventario').get();inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});const se=await db.collection('estoque').get();estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});renderDashboard();escutarChamados();atualizarBadges();verificarAgenda();}catch(e){console.error(e);renderDashboard();}}
+function escutarChamados(){const dep=departamentoAtual();db.collection('chamados').where('departamento','==',dep).onSnapshot(snap=>{chamados=montarListaChamados(snap);atualizarBadges();verificarAgenda();if(document.getElementById('infoTotal'))atualizarDashboard();if(document.getElementById('tabelaChamados'))filtrarChamadosUI();});}
 function atualizarBadges(){const b1=document.getElementById('badgeChamados'),b2=document.getElementById('badgeSLA'),b3=document.getElementById('badgeGestHosp');if(b1){const n=chamados.filter(c=>c.tipo!=='gesthosp'&&c.status!=='Concluído').length;b1.style.display=n>0?'inline-block':'none';b1.textContent=n>99?'99+':n}if(b2){const n=chamados.filter(c=>getSLAStatus(c)==='sla-critical').length;b2.style.display=n>0?'inline-block':'none';b2.textContent=n}if(b3){const n=chamados.filter(c=>c.tipo==='gesthosp'&&c.status!=='Concluído').length;b3.style.display=n>0?'inline-block':'none';b3.textContent=n>99?'99+':n}}
 async function verificarAgenda(){try{const h=new Date();h.setHours(0,0,0,0);const s=await db.collection('agenda').where('data','>=',firebase.firestore.Timestamp.fromDate(h)).get();const b=document.getElementById('badgeAgenda');if(b){b.style.display=s.size>0?'inline-block':'none';b.textContent=s.size}}catch(e){}}
 

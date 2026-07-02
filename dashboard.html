@@ -206,7 +206,6 @@ function getSLATexto(c){const s=getSLAStatus(c);if(s==='sla-critical')return'�
 
 // ============================================
 // FILTRO POR DEPARTAMENTO
-// Cada técnico enxerga somente os chamados do seu departamento.
 // ============================================
 function normalizarDepartamento(v){
     const s=(v||'').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
@@ -221,7 +220,6 @@ function montarListaChamados(snap){
     snap.forEach(d=>{const x=d.data();x.fid=d.id;lista.push(x);});
     return ordenarChamadosPorData(lista);
 }
-
 
 // ============================================
 // AUTENTICAÇÃO

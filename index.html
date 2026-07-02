@@ -295,18 +295,20 @@ const CATEGORIAS_PADRAO = {
     MANUTENCAO: ['Problema elétrico','Tomada quebrada','Lâmpada queimada','Disjuntor desarmando','Vazamento de água','Torneira pingando','Descarga com problema','Pia entupida','Ar-condicionado não gela','Ar-condicionado pingando','Pintura danificada','Parede com infiltração','Móvel quebrado','Porta com problema','Janela quebrada','Telhado com goteira','Piso danificado','Fechadura com defeito','Gases medicinais','Outros - Manutenção']
 };
 
-// Prioridade automática definida pela equipe técnica.
-// O usuário não escolhe a prioridade; ela é gravada conforme o tipo de problema.
+// Prioridade automática definida pelo o técnico (Jacó/Bruno).
 const PRIORIDADE_POR_CATEGORIA = {
+    // TI - Crítica
     'Sistema fora do ar': 'Crítica',
     'Rede fora do ar': 'Crítica',
 
+    // TI - Alta
     'Computador não liga': 'Alta',
     'Impressora não funciona': 'Alta',
     'Sistema com erro': 'Alta',
     'Telefone com defeito': 'Alta',
     'Cabo de rede danificado': 'Alta',
 
+    // TI - Média
     'Computador lento/travando': 'Média',
     'Monitor com defeito': 'Média',
     'Teclado/Mouse quebrado': 'Média',
@@ -316,8 +318,37 @@ const PRIORIDADE_POR_CATEGORIA = {
     'Acesso ao sistema': 'Média',
     'Outros - TI': 'Média',
 
+    // TI - Baixa
     'Impressora sem toner': 'Baixa',
-    'Instalação de software': 'Baixa'
+    'Instalação de software': 'Baixa',
+
+    // MANUTENÇÃO - Crítica
+    'Gases medicinais': 'Crítica',
+    'Problema elétrico': 'Crítica',
+    'Disjuntor desarmando': 'Crítica',
+
+    // MANUTENÇÃO - Alta
+    'Vazamento de água': 'Alta',
+    'Tomada quebrada': 'Alta',
+    'Ar-condicionado não gela': 'Alta',
+    'Ar-condicionado pingando': 'Alta',
+    'Piso danificado': 'Alta',
+    'Fechadura com defeito': 'Alta',
+    'Telhado com goteira': 'Alta',
+
+    // MANUTENÇÃO - Média
+    'Pia entupida': 'Média',
+    'Porta com problema': 'Média',
+    'Janela quebrada': 'Média',
+    'Parede com infiltração': 'Média',
+    'Móvel quebrado': 'Média',
+    'Descarga com problema': 'Média',
+    'Outros - Manutenção': 'Média',
+
+    // MANUTENÇÃO - Baixa
+    'Lâmpada queimada': 'Baixa',
+    'Torneira pingando': 'Baixa',
+    'Pintura danificada': 'Baixa'
 };
 
 function getPrioridadePorCategoria(categoria) {

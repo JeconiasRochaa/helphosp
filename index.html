@@ -197,9 +197,9 @@
             </div>
             <div class="form-row">
                 <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option></select></div>
-                <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required><option value="">Selecione o departamento primeiro</option></select></div>
+                <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required onchange="atualizarPrioridadeAuto()"><option value="">Selecione o departamento primeiro</option></select></div>
             </div>
-            <div class="form-group"><label>Prioridade</label><select id="prioridade"><option value="Baixa">🔵 Baixa</option><option value="Média" selected>🟡 Média</option><option value="Alta">🟠 Alta</option><option value="Crítica">🔴 Crítica</option></select></div>
+            <input type="hidden" id="prioridade" value="Média">
             <div class="form-group"><label>Título *</label><input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras"></div>
             <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea></div>
             <button type="submit" class="btn-submit" id="btnSubmitChamado" style="background:var(--gradient);"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
@@ -295,6 +295,41 @@ const CATEGORIAS_PADRAO = {
     MANUTENCAO: ['Problema elétrico','Tomada quebrada','Lâmpada queimada','Disjuntor desarmando','Vazamento de água','Torneira pingando','Descarga com problema','Pia entupida','Ar-condicionado não gela','Ar-condicionado pingando','Pintura danificada','Parede com infiltração','Móvel quebrado','Porta com problema','Janela quebrada','Telhado com goteira','Piso danificado','Fechadura com defeito','Gases medicinais','Outros - Manutenção']
 };
 
+// Prioridade automática definida pela equipe técnica.
+// O usuário não escolhe a prioridade; ela é gravada conforme o tipo de problema.
+const PRIORIDADE_POR_CATEGORIA = {
+    'Sistema fora do ar': 'Crítica',
+    'Rede fora do ar': 'Crítica',
+
+    'Computador não liga': 'Alta',
+    'Impressora não funciona': 'Alta',
+    'Sistema com erro': 'Alta',
+    'Telefone com defeito': 'Alta',
+    'Cabo de rede danificado': 'Alta',
+
+    'Computador lento/travando': 'Média',
+    'Monitor com defeito': 'Média',
+    'Teclado/Mouse quebrado': 'Média',
+    'Internet lenta': 'Média',
+    'Wi-Fi não conecta': 'Média',
+    'Senha bloqueada': 'Média',
+    'Acesso ao sistema': 'Média',
+    'Outros - TI': 'Média',
+
+    'Impressora sem toner': 'Baixa',
+    'Instalação de software': 'Baixa'
+};
+
+function getPrioridadePorCategoria(categoria) {
+    return PRIORIDADE_POR_CATEGORIA[categoria] || 'Média';
+}
+
+function atualizarPrioridadeAuto() {
+    const cat = document.getElementById('categoria')?.value || '';
+    const campo = document.getElementById('prioridade');
+    if (campo) campo.value = getPrioridadePorCategoria(cat);
+}
+
 // ============================================
 // CONFIGURAÇÕES
 // ============================================
@@ -363,6 +398,7 @@ function abrirFormulario(dep) {
     else { ind.className = 'depto-indicator ti'; document.getElementById('deptoIndicatorText').textContent = `📋 Enviado para ${dep}`; }
     const cat = CATEGORIAS_PADRAO[dep] || ['Problema geral','Solicitação','Dúvida','Outros'];
     document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' + cat.map(c => `<option value="${c}">${c}</option>`).join('');
+    atualizarPrioridadeAuto();
     document.getElementById('solicitante').value = ''; document.getElementById('contato').value = ''; document.getElementById('setor').value = '';
     document.getElementById('prioridade').value = 'Média'; document.getElementById('titulo').value = ''; document.getElementById('descricao').value = '';
     document.getElementById('formChamado').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -386,8 +422,11 @@ function criarChamado(e) {
     const cat = document.getElementById('categoria').value, titulo = document.getElementById('titulo').value.trim();
     const solicitante = document.getElementById('solicitante').value.trim(), setor = document.getElementById('setor').value;
     if (!dep || !cat || !titulo || !solicitante || !setor) { toast('Preencha todos os campos obrigatórios', 'warning'); return; }
+    const prioridade = getPrioridadePorCategoria(cat);
+    const campoPrioridade = document.getElementById('prioridade');
+    if (campoPrioridade) campoPrioridade.value = prioridade;
     const btn = document.getElementById('btnSubmitChamado'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    const chamado = { protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8), departamento: dep, tipo: 'chamado', titulo, descricao: document.getElementById('descricao').value.trim(), solicitante, contato: document.getElementById('contato').value.trim(), setor, categoria: cat, prioridade: document.getElementById('prioridade').value, status: 'A Fazer', data_abertura: firebase.firestore.Timestamp.now(), timeline: [{ data: new Date().toISOString(), status: 'A Fazer', acao: `Chamado aberto por ${solicitante}` }] };
+    const chamado = { protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8), departamento: dep, tipo: 'chamado', titulo, descricao: document.getElementById('descricao').value.trim(), solicitante, contato: document.getElementById('contato').value.trim(), setor, categoria: cat, prioridade, status: 'A Fazer', data_abertura: firebase.firestore.Timestamp.now(), timeline: [{ data: new Date().toISOString(), status: 'A Fazer', acao: `Chamado aberto por ${solicitante}` }] };
     db.collection('chamados').add(chamado).then(() => { toast('✅ Chamado enviado! Protocolo: ' + chamado.protocolo, 'success'); document.getElementById('formChamado').querySelector('form').reset(); document.getElementById('departamento').value = dep; btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado'; fecharTudo(); }).catch(err => { toast('❌ Erro', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado'; });
 }
 

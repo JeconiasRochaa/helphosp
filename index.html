@@ -162,15 +162,25 @@
 <header class="header">
     <div class="logo">
         <div class="logo-icon"><i class="fas fa-hospital"></i><div class="logo-mini-ecg"></div></div>
-        <div><h1><span class="help">Help</span><span class="hosp">Hosp</span></h1><span>CENTRAL DE CHAMADOS</span></div>
+        <div>
+            <h1>
+                <span class="help">Help</span>
+                <span class="hosp">Hosp</span>
+            </h1>
+            <span>CENTRAL DE CHAMADOS</span>
+        </div>
     </div>
     <div class="header-right">
-        <a href="admin.html" class="btn-area-tecnica"><i class="fas fa-shield-alt"></i> Área Técnica</a>
+        <a href="admin.html" class="btn-area-tecnica">
+            <i class="fas fa-shield-alt"></i> Área Técnica</a>
     </div>
 </header>
 
 <main class="main-container">
-    <div class="welcome-banner"><h2>🏥 Central de Chamados</h2><p>Selecione o departamento desejado abaixo para abrir um chamado.</p></div>
+    <div class="welcome-banner">
+        <h2>🏥 Central de Chamados</h2>
+        <p>Selecione o departamento desejado abaixo para abrir um chamado.</p>
+    </div>
 
     <!-- SUPORTE -->
     <div class="suporte-container">
@@ -179,16 +189,27 @@
             <h3>Suporte Técnico</h3>
             <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
         </div>
-        <div class="suporte-contatos" id="contatosSuporte"><span style="color:var(--gray);font-size:12px;">Carregando contatos...</span></div>
+        <div class="suporte-contatos" id="contatosSuporte">
+            <span style="color:var(--gray);font-size:12px;">Carregando contatos...</span>
+        </div>
     </div>
 
     <!-- GRID DE DEPARTAMENTOS -->
-    <div class="action-grid" id="actionGrid"><div style="text-align:center;padding:20px;color:white;grid-column:1/-1;"><div class="spinner" style="border-top-color:white;"></div><p>Carregando departamentos...</p></div></div>
+    <div class="action-grid" id="actionGrid">
+        <div style="text-align:center;padding:20px;color:white;grid-column:1/-1;">
+            <div class="spinner" style="border-top-color:white;"></div>
+            <p>Carregando departamentos...</p>
+        </div>
+    </div>
 
     <!-- FORMULÁRIO CHAMADO -->
     <div class="form-container" id="formChamado">
-        <div class="form-header"><h2 id="formTitle">Novo Chamado</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <div class="depto-indicator" id="deptoIndicator" style="display:none;"><span id="deptoIndicatorText"></span></div>
+        <div class="form-header"><h2 id="formTitle">Novo Chamado</h2>
+            <button class="btn-close" onclick="fecharTudo()">&times;</button>
+        </div>
+        <div class="depto-indicator" id="deptoIndicator" style="display:none;">
+            <span id="deptoIndicatorText"></span>
+        </div>
         <form onsubmit="criarChamado(event)">
             <input type="hidden" id="departamento" value="">
             <div class="form-row">
@@ -196,52 +217,111 @@
                 <div class="form-group"><label>Contato</label><input type="text" id="contato" placeholder="WhatsApp/Ramal"></div>
             </div>
             <div class="form-row">
-                <div class="form-group"><label>Setor *</label><select id="setor" required><option value="">Selecione...</option></select></div>
-                <div class="form-group"><label>Tipo de Problema *</label><select id="categoria" required onchange="atualizarPrioridadeAuto()"><option value="">Selecione o departamento primeiro</option></select></div>
+                <div class="form-group"><label>Setor *</label>
+                    <select id="setor" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Problema *</label>
+                    <select id="categoria" required onchange="atualizarPrioridadeAuto()">
+                    <option value="">Selecione o departamento primeiro</option>
+                    </select>
+                </div>
             </div>
             <input type="hidden" id="prioridade" value="Média">
-            <div class="form-group"><label>Título *</label><input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea></div>
-            <button type="submit" class="btn-submit" id="btnSubmitChamado" style="background:var(--gradient);"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
+            <div class="form-group">
+                <label>Título *</label>
+                <input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmitChamado" style="background:var(--gradient);">
+                <i class="fas fa-paper-plane"></i> Enviar Chamado</button>
         </form>
     </div>
 
     <!-- FORMULÁRIO GESTHOSP -->
     <div class="form-container" id="formGestHosp">
-        <div class="form-header"><h2>🆕 Solicitar Cadastro - GestHosp</h2><button class="btn-close" onclick="fecharTudo()">&times;</button></div>
-        <div class="depto-indicator ti"><span>🖥️ Este chamado será enviado para a equipe de TI</span></div>
+        <div class="form-header">
+            <h2>🆕 Solicitar Cadastro - GestHosp</h2>
+            <button class="btn-close" onclick="fecharTudo()">&times;</button>
+        </div>
+        <div class="depto-indicator ti">
+            <span>🖥️ Este chamado será enviado para a equipe de TI</span>
+        </div>
         <form onsubmit="criarGestHosp(event)">
             <!-- DADOS PESSOAIS -->
             <div class="form-section"><h4>👤 Dados Pessoais</h4>
                 <div class="form-row">
-                    <div class="form-group"><label>Nome Completo *</label><input type="text" id="ghNome" required placeholder="Nome completo do profissional"></div>
-                    <div class="form-group"><label>CPF *</label><input type="text" id="ghCpf" required placeholder="000.000.000-00"></div>
+                    <div class="form-group"><label>Nome Completo *</label>
+                        <input type="text" id="ghNome" required placeholder="Nome completo do profissional">
+                    </div>
+                    <div class="form-group">
+                        <label>CPF *</label>
+                        <input type="text" id="ghCpf" required placeholder="000.000.000-00">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>RG</label><input type="text" id="ghRG" placeholder="00.000.000-0"></div>
-                    <div class="form-group"><label>Data de Nascimento</label><input type="date" id="ghDataNasc"></div>
+                    <div class="form-group">
+                        <label>RG</label>
+                        <input type="text" id="ghRG" placeholder="00.000.000-0">
+                    </div>
+                    <div class="form-group">
+                        <label>Data de Nascimento</label>
+                        <input type="date" id="ghDataNasc">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>E-mail *</label><input type="email" id="ghEmail" required placeholder="email@exemplo.com"></div>
-                    <div class="form-group"><label>Telefone *</label><input type="text" id="ghTel" required placeholder="(00) 00000-0000"></div>
+                    <div class="form-group">
+                        <label>E-mail *</label>
+                        <input type="email" id="ghEmail" required placeholder="email@exemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone *</label>
+                        <input type="text" id="ghTel" required placeholder="(00) 00000-0000">
+                    </div>
                 </div>
             </div>
             <!-- ENDEREÇO -->
             <div class="form-section"><h4>📍 Endereço</h4>
                 <div class="form-row">
-                    <div class="form-group"><label>CEP</label><input type="text" id="ghCEP" placeholder="00000-000" onblur="buscarCEP()"></div>
-                    <div class="form-group"><label>Logradouro</label><input type="text" id="ghLogradouro" placeholder="Rua, Avenida..."></div>
+                    <div class="form-group">
+                        <label>CEP</label>
+                        <input type="text" id="ghCEP" placeholder="00000-000" onblur="buscarCEP()">
+                    </div>
+                    <div class="form-group">
+                        <label>Logradouro</label>
+                        <input type="text" id="ghLogradouro" placeholder="Rua, Avenida...">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Número</label><input type="text" id="ghNumero" placeholder="Nº"></div>
-                    <div class="form-group"><label>Complemento</label><input type="text" id="ghComplemento" placeholder="Apto, Bloco..."></div>
+                    <div class="form-group">
+                        <label>Número</label>
+                        <input type="text" id="ghNumero" placeholder="Nº">
+                    </div>
+                    <div class="form-group">
+                        <label>Complemento</label>
+                        <input type="text" id="ghComplemento" placeholder="Apto, Bloco...">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Bairro</label><input type="text" id="ghBairro" placeholder="Bairro"></div>
-                    <div class="form-group"><label>Cidade *</label><input type="text" id="ghCidade" required placeholder="Cidade"></div>
+                    <div class="form-group">
+                        <label>Bairro</label>
+                        <input type="text" id="ghBairro" placeholder="Bairro">
+                    </div>
+                    <div class="form-group">
+                        <label>Cidade *</label>
+                        <input type="text" id="ghCidade" required placeholder="Cidade">
+                    </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label>Estado *</label><select id="ghEstado" required><option value="">Selecione...</option>
+                    <div class="form-group">
+                        <label>Estado *</label>
+                        <select id="ghEstado" required>
+                            <option value="">Selecione...</option>
                         <option value="AC">Acre</option>
                         <option value="AL">Alagoas</option>
                         <option value="AP">Amapá</option>
@@ -271,18 +351,31 @@
                         <option value="TO">Tocantins</option>
                     </select>
                     </div>
-                    <div class="form-group"><label>País</label><input type="text" id="ghPais" value="Brasil" readonly></div>
+                    <div class="form-group">
+                        <label>País</label>
+                        <input type="text" id="ghPais" value="Brasil" readonly>
+                    </div>
                 </div>
             </div>
             <!-- DADOS PROFISSIONAIS -->
             <div class="form-section"><h4>🏥 Dados Profissionais</h4>
                 <div class="form-row">
-                    <div class="form-group"><label>Profissão *</label><input type="text" id="ghProfissao" required placeholder="Médico, Enfermeiro..."></div>
-                    <div class="form-group"><label>Nº Conselho</label><input type="text" id="ghNumConselho" placeholder="CRM, COREN..."></div>
+                    <div class="form-group">
+                        <label>Profissão *</label>
+                        <input type="text" id="ghProfissao" required placeholder="Médico, Enfermeiro...">
+                    </div>
+                    <div class="form-group">
+                        <label>Nº Conselho</label>
+                        <input type="text" id="ghNumConselho" placeholder="CRM, COREN...">
+                    </div>
                 </div>
-                <div class="form-group"><label>Observações</label><textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea></div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea>
+                </div>
             </div>
-            <button type="submit" class="btn-submit btn-submit-gh" id="btnSubmitGestHosp"><i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
+            <button type="submit" class="btn-submit btn-submit-gh" id="btnSubmitGestHosp">
+                <i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
         </form>
     </div>
 
@@ -321,6 +414,7 @@ let departamentoSelecionado = '';
 
 const CATEGORIAS_PADRAO = {
     TI: ['Computador não liga','Computador lento/travando','Monitor com defeito','Teclado/Mouse quebrado','Impressora não funciona','Impressora sem toner','Sistema fora do ar','Sistema com erro','Rede fora do ar','Internet lenta','Wi-Fi não conecta','Senha bloqueada','Acesso ao sistema','Telefone com defeito','Instalação de software','Cabo de rede danificado','Outros - TI'],
+    
     MANUTENCAO: ['Problema elétrico','Tomada quebrada','Lâmpada queimada','Disjuntor desarmando','Vazamento de água','Torneira pingando','Descarga com problema','Pia entupida','Ar-condicionado não gela','Ar-condicionado pingando','Pintura danificada','Parede com infiltração','Móvel quebrado','Porta com problema','Janela quebrada','Telhado com goteira','Piso danificado','Fechadura com defeito','Gases medicinais','Outros - Manutenção']
 };
 
@@ -398,7 +492,48 @@ async function carregarConfiguracoes() {
         const dd = await db.collection('configuracoes').doc('departamentos_chamados').get();
         if (dd.exists && dd.data().departamentos) departamentosChamados = dd.data().departamentos;
         const ds = await db.collection('configuracoes').doc('setores').get();
-        if (ds.exists && ds.data().setores) { setores = ds.data().setores; } else { setores = ['Almoxarifado','CAF Principal','CAF CR','Centro Cirúrgico','Clínica Cirurgica','Clínica Médica I','Clínica Médica II','Comunicação','Direção Administrativa','Direção Enfermagem','Direção geral','Direção Medica','Emergência/Vermelha','Engenharia Clinica','Farmácia','Faturamento','Fisioterapia','Hotelaria','Juridico','Laboratório','Manutenção','NIR','Nutrição','Oncologia I','Oncologia II','Outros','Ouvidoria','Patrimonio','Pediatria','Psicologia','RH','Raio-X','Recepção CR','Recepção Geral','Recepção Nefrologia','Same','Serviço Social','Sesmt','Telemedicina','TI','Tomografia','UTI I','UTI II']; }
+        if (ds.exists && ds.data().setores) { setores = ds.data().setores; } else { setores = ['Almoxarifado',
+                                                                                               'CAF Principal',
+                                                                                               'CAF CR',
+                                                                                               'Centro Cirúrgico',
+                                                                                               'Clínica Cirurgica',
+                                                                                               'Clínica Médica I',
+                                                                                               'Clínica Médica II',
+                                                                                               'Comunicação',
+                                                                                               'Direção Administrativa',
+                                                                                               'Direção Enfermagem',
+                                                                                               'Direção geral',
+                                                                                               'Direção Medica',
+                                                                                               'Emergência/Vermelha',
+                                                                                               'Engenharia Clinica',
+                                                                                               'Farmácia',
+                                                                                               'Faturamento',
+                                                                                               'Fisioterapia',
+                                                                                               'Hotelaria',
+                                                                                               'Juridico',
+                                                                                               'Laboratório',
+                                                                                               'Manutenção',
+                                                                                               'NIR',
+                                                                                               'Nutrição',
+                                                                                               'Oncologia I',
+                                                                                               'Oncologia II',
+                                                                                               'Outros',
+                                                                                               'Ouvidoria',
+                                                                                               'Patrimonio',
+                                                                                               'Pediatria',
+                                                                                               'Psicologia',
+                                                                                               'RH',
+                                                                                               'Raio-X',
+                                                                                               'Recepção CR',
+                                                                                               'Recepção Geral',
+                                                                                               'Recepção Nefrologia',
+                                                                                               'Same',
+                                                                                               'Serviço Social',
+                                                                                               'Sesmt',
+                                                                                               'Telemedicina',
+                                                                                               'Tomografia',
+                                                                                               'UTI I',
+                                                                                               'UTI II']; }
         renderizarActionGrid(); preencherSetores(); carregarContatos();
     } catch (e) { renderizarActionGrid(); preencherSetores(); carregarContatos(); }
 }
@@ -414,10 +549,21 @@ function renderizarActionGrid() {
     const descricoes = { 'TI': 'Computadores, sistemas, rede, internet, e-mail, senhas', 'MANUTENCAO': 'Elétrica, hidráulica, ar-condicionado, estrutura, pintura' };
     let html = '';
     departamentosChamados.forEach((dep, i) => {
-        html += `<div class="action-card card-${cores[i % cores.length]}" onclick="abrirFormulario('${dep}')"><div class="card-icon"><i class="fas ${icones[dep] || 'fa-building'}"></i></div><h3>${titulos[dep] || `📋 ${dep}`}</h3><p>${descricoes[dep] || `Chamados para ${dep}`}</p></div>`;
+        html += `<div class="action-card card-${cores[i % cores.length]}" onclick="abrirFormulario('${dep}')">
+        <div class="card-icon"><i class="fas ${icones[dep] || 'fa-building'}"></i></div><h3>${titulos[dep] || `📋 ${dep}`}</h3><p>${descricoes[dep] || `Chamados para ${dep}`}</p></div>`;
     });
-    html += `<div class="action-card card-gesthosp" onclick="abrirGestHosp()"><div class="card-icon"><i class="fas fa-user-plus"></i></div><h3>Cadastro GestHosp</h3><p>Solicitar cadastro de profissional</p></div>`;
-    html += `<div class="action-card card-meus-chamados" onclick="mostrarMeusChamados()"><div class="card-icon"><i class="fas fa-clipboard-list"></i></div><h3>Meus Chamados</h3><p>Chamados de hoje e pendentes</p></div>`;
+    html += `<div class="action-card card-gesthosp" onclick="abrirGestHosp()">
+    <div class="card-icon">
+    <i class="fas fa-user-plus"></i>
+    </div>
+    <h3>Cadastro GestHosp</h3>
+    <p>Solicitar cadastro de profissional</p>
+    </div>`;
+    html += `<div class="action-card card-meus-chamados" onclick="mostrarMeusChamados()">
+    <div class="card-icon">
+    <i class="fas fa-clipboard-list"></i></div>
+    <h3>Meus Chamados</h3>
+    <p>Chamados de hoje e pendentes</p></div>`;
     grid.innerHTML = html;
 }
 
@@ -434,7 +580,10 @@ function carregarContatos() {
         snap.forEach(doc => {
             const u = doc.data(); if (!u.whatsapp) return;
             const w = u.whatsapp.replace(/\D/g, '');
-            h += `<a href="https://wa.me/55${w}" target="_blank" class="contato-card"><div class="contato-avatar">${u.departamento==='MANUTENCAO'?'🔧':'🖥️'}</div><div style="flex:1;"><strong>${u.nome||'Técnico'}</strong><small>${u.cargo||''}</small></div><span class="depto-tag ${u.departamento==='MANUTENCAO'?'depto-manutencao':'depto-ti'}">${u.departamento==='MANUTENCAO'?'MANUTENÇÃO':u.departamento||'TI'}</span></a>`;
+            h += `<a href="https://wa.me/55${w}" target="_blank" class="contato-card">
+            <div class="contato-avatar">${u.departamento==='MANUTENCAO'?'🔧':'🖥️'}</div><div style="flex:1;">
+            <strong>${u.nome||'Técnico'}</strong><small>${u.cargo||''}</small></div>
+            <span class="depto-tag ${u.departamento==='MANUTENCAO'?'depto-manutencao':'depto-ti'}">${u.departamento==='MANUTENCAO'?'MANUTENÇÃO':u.departamento||'TI'}</span></a>`;
         });
         c.innerHTML = h || '<span style="color:var(--gray);font-size:12px;">Nenhum contato</span>';
     });

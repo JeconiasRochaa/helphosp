@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelpHosp - Painel Técnico</title>
+    <title>HelpHosp - Painel Técnico </title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
@@ -91,9 +91,29 @@
         .menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:110;background:var(--primary);color:#fff;border:none;width:40px;height:40px;border-radius:10px;font-size:18px;cursor:pointer}
         .config-section{background:var(--card);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px;cursor:pointer}
         .config-section .config-body{display:none;margin-top:10px}.config-section.open .config-body{display:block}
-        .gh-field{background:white;padding:12px;border-radius:8px;border:1px solid #FDE68A}
-        .gh-field label{font-size:9px;color:#A0AEC0;text-transform:uppercase;font-weight:700;display:block}
-        .gh-field p{margin:4px 0 0;font-size:14px;font-weight:600;color:#1A202C}
+        .estoque-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+        .estoque-item{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--border);text-align:center;position:relative;cursor:pointer}
+        .estoque-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}.estoque-item .emoji{font-size:36px}
+        .estoque-item h4{font-size:13px;margin:6px 0}.estoque-item .qtd{font-size:18px;font-weight:700;color:var(--primary)}
+        .estoque-item .actions{position:absolute;top:6px;right:6px;display:flex;gap:3px}
+        .foto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+        .foto-card{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+        .foto-card img{width:100%;height:150px;object-fit:cover}.foto-card .foto-info{padding:10px;font-size:11px}
+        .agenda-item{background:var(--card);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:8px;border-left:4px solid #8B5CF6}
+        .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+        .inv-card{background:var(--card);border-radius:14px;padding:18px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+        .inv-card:hover{box-shadow:0 6px 16px rgba(0,0,0,0.1);border-color:#3182CE}
+        .inv-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+        .inv-card-header h3{font-size:15px;color:var(--primary)}
+        .inv-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .inv-stat{text-align:center;background:var(--bg);padding:10px 6px;border-radius:8px}
+        .inv-stat .num{font-size:18px;font-weight:700;color:var(--primary)}.inv-stat .lbl{font-size:8px;color:var(--text-secondary);text-transform:uppercase}
+        /* TV Panel - maior e independente */
+        .tv-panel{background:#000;color:#0f0;font-family:'Courier New',monospace;min-height:100vh;padding:40px;font-size:20px}
+        .tv-panel .tv-header{text-align:center;border-bottom:2px solid #0f0;padding-bottom:15px;margin-bottom:30px;font-size:28px}
+        .tv-panel .tv-chamado{background:#111;border:1px solid #0f0;padding:15px;margin:10px 0;border-radius:6px;font-size:18px}
+        .tv-panel .tv-critical{animation:tvPulse 1s infinite;border-color:#f00;color:#f00}
+        @keyframes tvPulse{0%,100%{opacity:1}50%{opacity:0.5}}
         @media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-toggle{display:flex;align-items:center;justify-content:center}.main-content{margin-left:0;padding:14px;padding-top:55px}.charts-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:640px){.form-row{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}}
     </style>
@@ -101,15 +121,21 @@
 <body>
 <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header"><div class="logo"><i class="fas fa-hospital"></i></div><h2><span class="help">Help</span><span class="hosp">Hosp</span></h2><div class="subtitle">Painel</div></div>
-    <div class="user-box"><div class="user-avatar" id="userAvatar">T</div><div class="user-details"><h4 id="userName">—</h4><small id="userRole">—</small></div></div>
+    <div class="sidebar-header"><div class="logo"><i class="fas fa-hospital"></i></div>
+        <h2><span class="help">Help</span>
+            <span class="hosp">Hosp</span></h2>
+        <div class="subtitle">Painel</div>
+    </div>
+    <div class="user-box"><div class="user-avatar" id="userAvatar">T</div>
+        <div class="user-details"><h4 id="userName">—</h4>
+            <small id="userRole">—</small></div></div>
     <nav id="sidebarNav"></nav>
     <div class="sidebar-footer">
         <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
         <button class="btn-theme-sidebar" onclick="toggleTheme()" title="Alternar tema"><i class="fas fa-moon" id="themeIcon"></i></button>
     </div>
 </aside>
-<main class="main-content" id="mainContent"><div style="text-align:center;padding:60px;"><h3>🔄 Carregando...</h3></div></main>
+<main class="main-content" id="mainContent"><div style="text-align:center;padding:60px;"><div style="font-size:40px;">🔄</div><h3>Carregando...</h3></div></main>
 
 <script>
 // ============================================
@@ -118,10 +144,51 @@
 const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
 firebase.initializeApp(fc);const db=firebase.firestore();const storage=firebase.storage();
 
-const SETORES_PADRAO=['Almoxarifado','Farmacia CAF','Centro Cirúrgico','Clínica Cirurgica','Clínica Médica I','Clínica Médica II','Comunicação','CME','Direção Administrativa','Direção Enfermagem','Direção geral','Direção Medica','Emergência/Vermelha','Engenharia Clinica','Farmácia','Faturamento','Fisioterapia','Hotelaria','Juridico','Laboratório','Manutenção','NIR','Nutrição','Oncologia I','Oncologia II','Outros','Ouvidoria','Patrimonio','Pediatria','Psicologia','RH','Raio-X','Recepção CR','Recepção Geral','Recepção Nefrologia','Same','Serviço Social','Sesmt','Telemedicina','Tomografia','UTI I','UTI II'];
+const SETORES_PADRAO=['Almoxarifado',
+                      'Farmacia CAF',
+                      'Centro Cirúrgico',
+                      'Clínica Cirurgica',
+                      'Clínica Médica I',
+                      'Clínica Médica II',
+                      'Comunicação',
+                      'CME',
+                      'Direção Administrativa',
+                      'Direção Enfermagem',
+                      'Direção geral',
+                      'Direção Medica',
+                      'Emergência/Vermelha',
+                      'Engenharia Clinica',
+                      'Farmácia',
+                      'Faturamento',
+                      'Fisioterapia',
+                      'Hotelaria',
+                      'Juridico',
+                      'Laboratório',
+                      'Manutenção',
+                      'NIR',
+                      'Nutrição',
+                      'Oncologia I',
+                      'Oncologia II',
+                      'Outros',
+                      'Ouvidoria',
+                      'Patrimonio',
+                      'Pediatria',
+                      'Psicologia',
+                      'RH',
+                      'Raio-X',
+                      'Recepção CR',
+                      'Recepção Geral',
+                      'Recepção Nefrologia',
+                      'Same','Serviço Social',
+                      'Sesmt',
+                      'Telemedicina',
+                      'Tomografia',
+                      'UTI I',
+                      'UTI II'];
+const SETORES_TONERS=['Administração','Faturamento','UTI I','UTI II','NIR','Oncologia I & II','Recepção Geral','Recepção CR','Farmácia CAF','Centro Cirúrgico'];
 let setores=[...SETORES_PADRAO],departamentosChamados=['TI','MANUTENCAO'];
 let usuarioLogado=null,depto='TI',nomeDepto='Tecnologia da Informação';
-let chamados=[],inventario=[],estoque=[],movimentacoes=[],charts={},comentarioChamadoId=null;
+let chamados=[],inventario=[],estoque=[],movimentacoes=[],charts={},comentarioChamadoId=null,logoHospital=null,logoGoverno=null;
 
 // ============================================
 // TEMA
@@ -144,6 +211,26 @@ function getSLAStatus(c){if(c.status==='Concluído')return'sla-ok';const sla={'C
 function getSLATexto(c){const s=getSLAStatus(c);if(s==='sla-critical')return'🔴 Atrasado';if(s==='sla-warning')return'🟡 Próximo';return'🟢 No prazo'}
 
 // ============================================
+// FILTRO POR DEPARTAMENTO
+// Cada usuário enxerga somente os chamados do seu departamento.
+// O index.html já grava o campo "departamento" como TI ou MANUTENCAO.
+// ============================================
+function normalizarDepartamento(v){
+    const s=(v||'').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(s.includes('MANUT'))return'MANUTENCAO';
+    if(s==='TI'||s.includes('TECNOLOGIA')||s.includes('INFORMATICA'))return'TI';
+    return s;
+}
+function departamentoAtual(){return normalizarDepartamento(depto||usuarioLogado?.departamento||'TI')}
+function ordenarChamadosPorData(lista){return lista.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura))}
+function montarListaChamados(snap){
+    const lista=[];
+    snap.forEach(d=>{const x=d.data();x.fid=d.id;lista.push(x);});
+    return ordenarChamadosPorData(lista);
+}
+
+
+// ============================================
 // AUTENTICAÇÃO
 // ============================================
 function checkAuth(){const u=localStorage.getItem('usuario_logado');if(!u){window.location.href='admin.html';return false}try{usuarioLogado=JSON.parse(u);if(usuarioLogado.expira&&Date.now()>usuarioLogado.expira){localStorage.removeItem('usuario_logado');window.location.href='admin.html';return false}depto=usuarioLogado.departamento||'TI';nomeDepto=depto==='TI'?'Tecnologia da Informação':'Manutenção';return true}catch(e){localStorage.removeItem('usuario_logado');window.location.href='admin.html';return false}}
@@ -151,24 +238,25 @@ function getPerms(){const isAdmin=usuarioLogado.tipo==='admin'||usuarioLogado.us
 function logout(){if(confirm('Sair?')){localStorage.removeItem('usuario_logado');window.location.href='admin.html'}}
 
 // ============================================
-// CONFIGURAÇÕES
+// CONFIGURAÇÕES E LOGOS
 // ============================================
-async function loadConfig(){try{const ds=await db.collection('configuracoes').doc('setores').get();if(ds.exists&&ds.data().setores)setores=ds.data().setores;const dd=await db.collection('configuracoes').doc('departamentos_chamados').get();if(dd.exists&&dd.data().departamentos)departamentosChamados=dd.data().departamentos}catch(e){}}
-
-function normalizarDepartamento(v){const s=(v||'').toString().trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(s.includes('MANUT'))return'MANUTENCAO';if(s==='TI'||s.includes('TECNOLOGIA')||s.includes('INFORMATICA'))return'TI';return s;}
-function departamentoAtual(){return normalizarDepartamento(depto||usuarioLogado?.departamento||'TI')}
+async function loadConfig(){try{const ds=await db.collection('configuracoes').doc('setores').get();if(ds.exists&&ds.data().setores)setores=ds.data().setores;const dd=await db.collection('configuracoes').doc('departamentos_chamados').get();if(dd.exists&&dd.data().departamentos)departamentosChamados=dd.data().departamentos;const dl=await db.collection('configuracoes').doc('logos').get();if(dl.exists){if(dl.data().hospital)logoHospital=dl.data().hospital;if(dl.data().governo)logoGoverno=dl.data().governo;}}catch(e){}}
 
 // ============================================
 // INTERFACE
 // ============================================
 function initUI(){document.getElementById('userName').textContent=usuarioLogado.nome;document.getElementById('userRole').textContent=`${usuarioLogado.cargo} · ${nomeDepto}`;document.getElementById('userAvatar').textContent=usuarioLogado.nome.charAt(0).toUpperCase();buildMenu();carregarTodosDados();}
-function buildMenu(){const p=getPerms();const nav=document.getElementById('sidebarNav');let h='<div class="nav-section"><div class="nav-title">Principal</div>';h+=navItem('dashboard','chart-pie','Dashboard',true);h+=navItem('tv','tv','Painel TV');h+=navItem('chamados','ticket-alt','Chamados',false,'badgeChamados');h+=navItem('sla','clock','Monitor SLA',false,'badgeSLA');h+=navItem('indicadores','chart-line','Indicadores');if(p.isTI||p.isAdmin)h+=navItem('gesthosp','hospital-user','GestHosp',false,'badgeGestHosp');h+='</div><div class="nav-section"><div class="nav-title">Gestão</div>';if(p.isTI||p.isAdmin){h+=navItem('toners','print','Toners');h+=navItem('estoque','box','Estoque');h+=navItem('inventario','clipboard-list','Inventário');h+=navItem('ips','network-wired','IPs & Rede');}if(p.podeEquipe)h+=navItem('equipe','users-cog','Equipe');h+='</div><div class="nav-section"><div class="nav-title">Recursos</div>';h+=navItem('arquivos','folder-open','Arquivos');h+=navItem('agenda','calendar-alt','Agenda',false,'badgeAgenda');h+=navItem('config','cog','Configurações');h+='</div>';nav.innerHTML=h;}
+function buildMenu(){const p=getPerms();const nav=document.getElementById('sidebarNav');let h='<div class="nav-section"><div class="nav-title">Principal</div>';h+=navItem('dashboard','chart-pie','Dashboard',true);h+=navItem('tv','tv','Painel TV (Nova Aba)');h+=navItem('chamados','ticket-alt','Chamados',false,'badgeChamados');h+=navItem('sla','clock','Monitor SLA',false,'badgeSLA');h+=navItem('indicadores','chart-line','Indicadores');if(p.isTI||p.isAdmin)h+=navItem('gesthosp','hospital-user','GestHosp',false,'badgeGestHosp');h+='</div><div class="nav-section"><div class="nav-title">Gestão</div>';if(p.isTI||p.isAdmin){h+=navItem('toners','print','Toners');h+=navItem('estoque','box','Estoque');h+=navItem('inventario','clipboard-list','Inventário');h+=navItem('ips','network-wired','IPs & Rede');}if(p.podeEquipe)h+=navItem('equipe','users-cog','Equipe');h+='</div><div class="nav-section"><div class="nav-title">Recursos</div>';h+=navItem('arquivos','folder-open','Arquivos');h+=navItem('agenda','calendar-alt','Agenda',false,'badgeAgenda');h+=navItem('config','cog','Configurações');h+='</div>';nav.innerHTML=h;}
 function navItem(s,ic,tx,at=false,bd=null){const badge=bd?`<span class="badge-notify" id="${bd}">0</span>`:'';return`<div class="nav-item${at?' active':''}" data-secao="${s}" onclick="navegar('${s}',this)"><i class="fas fa-${ic}"></i><span>${tx}</span>${badge}</div>`;}
 function navegar(s,el){
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     if(el)el.classList.add('active');
     if(window.innerWidth<1025)document.getElementById('sidebar').classList.remove('open');
-    if(s==='tv'){window.open('painel_tv.html','_blank');return;}
+    if(s==='tv'){
+        // Abre o painel TV em uma nova aba
+        window.open('painel_tv.html','_blank');
+        return;
+    }
     switch(s){
         case'dashboard':renderDashboard();break;
         case'chamados':renderChamados();break;
@@ -187,114 +275,23 @@ function navegar(s,el){
 }
 
 // ============================================
-// 🔥 CARREGAR DADOS - MOSTRA TODOS OS CHAMADOS
+// CARREGAR DADOS
 // ============================================
-async function carregarTodosDados(){
-    try{
-        console.log('📋 Carregando dados para:',depto);
-        
-        // 🔥 CARREGAR TODOS OS CHAMADOS (sem filtro de departamento)
-        const sc=await db.collection('chamados').orderBy('data_abertura','desc').get();
-        chamados=[];
-        sc.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});
-        
-        console.log(`✅ ${chamados.length} chamados carregados (TODOS)`);
-        
-        const si=await db.collection('inventario').get();inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});
-        const se=await db.collection('estoque').get();estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});
-        const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});
-        
-        renderDashboard();
-        escutarChamados();
-        atualizarBadges();
-        verificarAgenda();
-    }catch(e){console.error('❌ Erro:',e);renderDashboard();}
-}
-
-function escutarChamados(){
-    db.collection('chamados').orderBy('data_abertura','desc').onSnapshot(snap=>{
-        chamados=[];
-        snap.forEach(d=>{const x=d.data();x.fid=d.id;chamados.push(x);});
-        console.log(`🔄 Listener: ${chamados.length} chamados`);
-        atualizarBadges();verificarAgenda();
-        if(document.getElementById('infoTotal'))atualizarDashboard();
-        if(document.getElementById('tabelaChamados'))filtrarChamadosUI();
-    },error=>{console.error('Listener erro:',error);setTimeout(()=>escutarChamados(),3000);});
-}
-
+async function carregarTodosDados(){try{const dep=departamentoAtual();const sc=await db.collection('chamados').where('departamento','==',dep).get();chamados=montarListaChamados(sc);const si=await db.collection('inventario').get();inventario=[];si.forEach(d=>{const x=d.data();x.fid=d.id;inventario.push(x);});const se=await db.collection('estoque').get();estoque=[];se.forEach(d=>{const x=d.data();x.fid=d.id;estoque.push(x);});const sm=await db.collection('movimentacoes').orderBy('data','desc').limit(200).get();movimentacoes=[];sm.forEach(d=>{const x=d.data();x.fid=d.id;movimentacoes.push(x);});renderDashboard();escutarChamados();atualizarBadges();verificarAgenda();}catch(e){console.error(e);renderDashboard();}}
+function escutarChamados(){const dep=departamentoAtual();db.collection('chamados').where('departamento','==',dep).onSnapshot(snap=>{chamados=montarListaChamados(snap);atualizarBadges();verificarAgenda();if(document.getElementById('infoTotal'))atualizarDashboard();if(document.getElementById('tabelaChamados'))filtrarChamadosUI();});}
 function atualizarBadges(){const b1=document.getElementById('badgeChamados'),b2=document.getElementById('badgeSLA'),b3=document.getElementById('badgeGestHosp');if(b1){const n=chamados.filter(c=>c.tipo!=='gesthosp'&&c.status!=='Concluído').length;b1.style.display=n>0?'inline-block':'none';b1.textContent=n>99?'99+':n}if(b2){const n=chamados.filter(c=>getSLAStatus(c)==='sla-critical').length;b2.style.display=n>0?'inline-block':'none';b2.textContent=n}if(b3){const n=chamados.filter(c=>c.tipo==='gesthosp'&&c.status!=='Concluído').length;b3.style.display=n>0?'inline-block':'none';b3.textContent=n>99?'99+':n}}
 async function verificarAgenda(){try{const h=new Date();h.setHours(0,0,0,0);const s=await db.collection('agenda').where('data','>=',firebase.firestore.Timestamp.fromDate(h)).get();const b=document.getElementById('badgeAgenda');if(b){b.style.display=s.size>0?'inline-block':'none';b.textContent=s.size}}catch(e){}}
 
 // ============================================
 // DASHBOARD
 // ============================================
-function renderDashboard(){
-    const main=document.getElementById('mainContent'),p=getPerms();
-    let te=0,tc=0,ti=0,tEst=0;
-    inventario.forEach(i=>{tc+=parseInt(i.computadores)||0;ti+=parseInt(i.impressoras)||0;te+=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0)});
-    tEst=estoque.reduce((s,e)=>s+(parseInt(e.quantidade)||0),0);
-    
-    let statsHTML='';
-    if(p.isTI||p.isAdmin)statsHTML=`<div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-desktop"></i></div><div class="stat-info"><small>Equipamentos</small><strong>${te}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-laptop"></i></div><div class="stat-info"><small>Computadores</small><strong>${tc}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-print"></i></div><div class="stat-info"><small>Impressoras</small><strong>${ti}</strong></div></div>
-        <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-box"></i></div><div class="stat-info"><small>Estoque</small><strong>${tEst}</strong></div></div>
-    </div>`;
-    
-    const t=chamados.length,a=chamados.filter(c=>c.status!=='Concluído').length,co=chamados.filter(c=>c.status==='Concluído').length;
-    const cr=chamados.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
-    const tx=t>0?Math.round(co/t*100):0,sa=chamados.filter(c=>getSLAStatus(c)==='sla-critical').length;
-    
-    main.innerHTML=`
-        <div class="top-bar"><h1>📊 Dashboard — ${sanitizar(nomeDepto)}</h1>
-            <div style="display:flex;gap:6px;">
-                <select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select>
-                <button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button>
-            </div>
-        </div>
-        <div class="info-bar">
-            <div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total</div></div>
-            <div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div>
-            <div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div>
-            <div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div>
-            <div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div>
-            <div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div>
-        </div>
-        ${statsHTML}
-        <div class="charts-grid">
-            <div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div>
-            <div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div>
-        </div>
-        <div class="table-card"><h3>🚨 Últimos Chamados</h3>
-            <table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Contato</th><th>Setor</th><th>Status</th></tr></thead>
-            <tbody>${chamados.slice(0,10).map(c=>{
-                let contato=sanitizar(c.contato||'—');
-                if(c.contato&&c.contato.replace(/\D/g,'').length>=10){contato=`<a href="https://wa.me/55${c.contato.replace(/\D/g,'')}" target="_blank" style="color:#25D366;"><i class="fab fa-whatsapp"></i></a>`;}
-                return`<tr><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtDataCurta(c.data_abertura)}</td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.solicitante||'—')}</td><td>${contato}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td></tr>`;
-            }).join('')}</tbody></table>
-        </div>`;
-    atualizarDashboard();
-}
+function renderDashboard(){const main=document.getElementById('mainContent'),p=getPerms();let te=0,tc=0,ti=0,tEst=0;inventario.forEach(i=>{tc+=parseInt(i.computadores)||0;ti+=parseInt(i.impressoras)||0;te+=(parseInt(i.computadores)||0)+(parseInt(i.impressoras)||0)+(parseInt(i.ramais)||0)+(parseInt(i.tvs)||0)+(parseInt(i.redes)||0)+(parseInt(i.outros)||0);});tEst=estoque.reduce((s,e)=>s+(parseInt(e.quantidade)||0),0);let statsHTML='';if(p.isTI||p.isAdmin)statsHTML=`<div class="stats-grid"><div class="stat-card" onclick="navegar('inventario',document.querySelector('[data-secao=inventario]'))"><div class="stat-icon purple"><i class="fas fa-desktop"></i></div><div class="stat-info"><small>Equipamentos</small><strong>${te}</strong></div></div><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-laptop"></i></div><div class="stat-info"><small>Computadores</small><strong>${tc}</strong></div></div><div class="stat-card"><div class="stat-icon green"><i class="fas fa-print"></i></div><div class="stat-info"><small>Impressoras</small><strong>${ti}</strong></div></div><div class="stat-card" onclick="navegar('estoque',document.querySelector('[data-secao=estoque]'))"><div class="stat-icon amber"><i class="fas fa-box"></i></div><div class="stat-info"><small>Estoque</small><strong>${tEst}</strong></div></div></div>`;const t=chamados.length,a=chamados.filter(c=>c.status!=='Concluído').length,co=chamados.filter(c=>c.status==='Concluído').length,cr=chamados.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length,tx=t>0?Math.round(co/t*100):0,sa=chamados.filter(c=>getSLAStatus(c)==='sla-critical').length;main.innerHTML=`<div class="top-bar"><h1>📊 Dashboard Premium — ${sanitizar(nomeDepto)}</h1><div style="display:flex;gap:6px;"><select id="periodo" onchange="atualizarDashboard()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select><button class="btn btn-primary btn-sm" onclick="gerarRelatorioPDF()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div><div class="info-bar"><div class="info-item"><div class="info-val" id="infoTotal">${t}</div><div class="info-lbl">Total</div></div><div class="info-item"><div class="info-val" style="color:#FBD38D;" id="infoAbertos">${a}</div><div class="info-lbl">Abertos</div></div><div class="info-item"><div class="info-val" style="color:#68D391;" id="infoConcluidos">${co}</div><div class="info-lbl">Concluídos</div></div><div class="info-item"><div class="info-val" style="color:#FC8181;" id="infoCriticos">${cr}</div><div class="info-lbl">Críticos</div></div><div class="info-item"><div class="info-val" style="color:#63B3ED;" id="infoTaxa">${tx}%</div><div class="info-lbl">Resolução</div></div><div class="info-item"><div class="info-val" style="color:#F59E0B;" id="infoSLA">${sa}</div><div class="info-lbl">SLA Atrasado</div></div></div>${statsHTML}<div class="charts-grid"><div class="chart-card"><h3>📈 Por Setor</h3><canvas id="graficoSetor"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridade"></canvas></div></div><div class="table-card"><h3>🚨 Chamados com SLA</h3><table><thead><tr><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Aberto</th></tr></thead><tbody>${chamados.filter(c=>c.status!=='Concluído').sort((a,b)=>toDate(a.data_abertura)-toDate(b.data_abertura)).slice(0,10).map(c=>`<tr><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;atualizarDashboard();}
+function atualizarDashboard(){const p=parseInt(document.getElementById('periodo')?.value||30);const dl=new Date();dl.setDate(dl.getDate()-p);const f=chamados.filter(c=>{const d=toDate(c.data_abertura);return!isNaN(d.getTime())&&d>=dl});document.getElementById('infoTotal').textContent=f.length;document.getElementById('infoAbertos').textContent=f.filter(c=>c.status!=='Concluído').length;document.getElementById('infoConcluidos').textContent=f.filter(c=>c.status==='Concluído').length;document.getElementById('infoCriticos').textContent=f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;document.getElementById('infoTaxa').textContent=f.length>0?Math.round(f.filter(c=>c.status==='Concluído').length/f.length*100)+'%':'0%';document.getElementById('infoSLA').textContent=f.filter(c=>getSLAStatus(c)==='sla-critical').length;Object.values(charts).forEach(c=>{if(c)c.destroy()});charts={};const ds={};f.forEach(c=>{const s=c.setor||'Outros';ds[s]=(ds[s]||0)+1});const cores=['#3182CE','#38A169','#805AD5','#DD6B20','#E53E3E','#6366F1','#D69E2E','#EC4899'];const ctx1=document.getElementById('graficoSetor');if(ctx1)charts.setor=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(ds).slice(0,8),datasets:[{data:Object.values(ds).slice(0,8),backgroundColor:cores,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:15}}}}});const dp={};f.filter(c=>c.tipo!=='gesthosp').forEach(c=>{const pr=c.prioridade||'Média';dp[pr]=(dp[pr]||0)+1});const ctx2=document.getElementById('graficoPrioridade');if(ctx2)charts.prioridade=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(dp),datasets:[{data:Object.values(dp),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:15}}}}});}
 
-function atualizarDashboard(){
-    const p=parseInt(document.getElementById('periodo')?.value||30);const dl=new Date();dl.setDate(dl.getDate()-p);
-    const f=chamados.filter(c=>{const d=toDate(c.data_abertura);return!isNaN(d.getTime())&&d>=dl});
-    document.getElementById('infoTotal').textContent=f.length;
-    document.getElementById('infoAbertos').textContent=f.filter(c=>c.status!=='Concluído').length;
-    document.getElementById('infoConcluidos').textContent=f.filter(c=>c.status==='Concluído').length;
-    document.getElementById('infoCriticos').textContent=f.filter(c=>c.prioridade==='Crítica'&&c.status!=='Concluído').length;
-    document.getElementById('infoTaxa').textContent=f.length>0?Math.round(f.filter(c=>c.status==='Concluído').length/f.length*100)+'%':'0%';
-    document.getElementById('infoSLA').textContent=f.filter(c=>getSLAStatus(c)==='sla-critical').length;
-    Object.values(charts).forEach(c=>{if(c)c.destroy()});charts={};
-    const ds={};f.forEach(c=>{const s=c.setor||'Outros';ds[s]=(ds[s]||0)+1});
-    const cores=['#3182CE','#38A169','#805AD5','#DD6B20','#E53E3E','#6366F1','#D69E2E','#EC4899'];
-    const ctx1=document.getElementById('graficoSetor');if(ctx1)charts.setor=new Chart(ctx1,{type:'doughnut',data:{labels:Object.keys(ds).slice(0,8),datasets:[{data:Object.values(ds).slice(0,8),backgroundColor:cores,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{padding:15}}}}});
-    const dp={};f.filter(c=>c.tipo!=='gesthosp').forEach(c=>{const pr=c.prioridade||'Média';dp[pr]=(dp[pr]||0)+1});
-    const ctx2=document.getElementById('graficoPrioridade');if(ctx2)charts.prioridade=new Chart(ctx2,{type:'pie',data:{labels:Object.keys(dp),datasets:[{data:Object.values(dp),backgroundColor:['#38A169','#DD6B20','#E53E3E','#C53030'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:15}}}}});
-}
-
-async function gerarRelatorioPDF(){try{const t=chamados.length,co=chamados.filter(c=>c.status==='Concluído').length;const el=document.createElement('div');el.style.cssText='padding:30px;background:#fff;width:900px;position:absolute;left:-9999px;';el.innerHTML=`<h1>HelpHosp - ${sanitizar(nomeDepto)}</h1><p>Total: ${t} | Concluídos: ${co} | Taxa: ${t>0?Math.round(co/t*100):0}%</p>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,200,(cv.height*200)/cv.width);pdf.save('relatorio.pdf');toast('✅ PDF gerado!')}catch(e){toast('Erro')}}
+// ============================================
+// RELATÓRIO PDF COM LOGOS
+// ============================================
+async function gerarRelatorioPDF(){try{toast('📄 Gerando relatório...','info');const t=chamados.length,co=chamados.filter(c=>c.status==='Concluído').length,tx=t>0?Math.round(co/t*100):0;const el=document.createElement('div');el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';let logosHTML='';if(logoHospital||logoGoverno){logosHTML=`<div style="display:flex;justify-content:center;gap:40px;margin-bottom:20px;">${logoHospital?`<img src="${logoHospital}" style="max-height:60px;">`:''}${logoGoverno?`<img src="${logoGoverno}" style="max-height:60px;">`:''}</div>`;}el.innerHTML=`${logosHTML}<div style="text-align:center;border-bottom:3px solid #06224a;padding-bottom:20px;margin-bottom:20px;"><h1 style="color:#06224a;">HelpHosp Premium</h1><h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2><p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${t}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;">${tx}%</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">SLA ATRASADO</p><p style="font-size:32px;">${chamados.filter(c=>getSLAStatus(c)==='sla-critical').length}</p></div></div>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const iw=200,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,iw,ih);pdf.save('relatorio-premium.pdf');toast('✅ Relatório gerado!','success');}catch(e){console.error('Erro PDF:',e);toast('Erro ao gerar relatório','error');}}
 
 // ============================================
 // SLA
@@ -302,60 +299,10 @@ async function gerarRelatorioPDF(){try{const t=chamados.length,co=chamados.filte
 function renderSLA(){const main=document.getElementById('mainContent');const pendentes=chamados.filter(c=>c.status!=='Concluído').sort((a,b)=>toDate(a.data_abertura)-toDate(b.data_abertura));main.innerHTML=`<div class="top-bar"><h1>⏱️ Monitor SLA</h1></div><div class="stats-grid"><div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-circle"></i></div><div class="stat-info"><small>No Prazo</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-ok').length}</strong></div></div><div class="stat-card"><div class="stat-icon amber"><i class="fas fa-clock"></i></div><div class="stat-info"><small>Próximos</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-warning').length}</strong></div></div><div class="stat-card"><div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-info"><small>Atrasados</small><strong>${pendentes.filter(c=>getSLAStatus(c)==='sla-critical').length}</strong></div></div><div class="stat-card"><div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div><div class="stat-info"><small>Total Pendente</small><strong>${pendentes.length}</strong></div></div></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Título</th><th>Prioridade</th><th>Prazo SLA</th><th>Status SLA</th><th>Aberto há</th></tr></thead><tbody>${pendentes.map(c=>`<tr style="${getSLAStatus(c)==='sla-critical'?'background:rgba(254,226,226,0.3);':''}"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${sanitizar(c.titulo||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td>${c.prioridade==='Crítica'?'1 hora':c.prioridade==='Alta'?'4 horas':c.prioridade==='Média'?'24 horas':'48 horas'}</td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody></table></div>`;}
 
 // ============================================
-// 🔥 CHAMADOS - COM TODAS AS INFORMAÇÕES DO SOLICITANTE
+// CHAMADOS
 // ============================================
-function renderChamados(){
-    const main=document.getElementById('mainContent');
-    const f=chamados.filter(c=>c.tipo!=='gesthosp');
-    main.innerHTML=`
-        <div class="top-bar"><h1>📋 Chamados — ${sanitizar(nomeDepto)} (${f.length})</h1></div>
-        <div class="filtros-bar">
-            <select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
-            <select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select>
-            <input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()">
-        </div>
-        <div class="table-card">
-            <table>
-                <thead><tr>
-                    <th>Protocolo</th><th>Data</th><th>Título</th>
-                    <th>Solicitante</th><th>Contato</th><th>Setor</th>
-                    <th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th>
-                </tr></thead>
-                <tbody id="tabelaChamados">${renderLinhasChamados(f)}</tbody>
-            </table>
-        </div>`;
-}
-
-function renderLinhasChamados(l){
-    if(l.length===0)return'<tr><td colspan="10" style="text-align:center;padding:20px;">Nenhum chamado</td></tr>';
-    return l.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).map(c=>{
-        let ac=`<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus('${c.fid}')">▶</button>`;
-        if(depto==='MANUTENCAO')ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();atribuirExecutante('${c.fid}')">👷</button>`;
-        ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios('${c.fid}')">💬</button>`;
-        if(getPerms().isAdmin)ac+=`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado('${c.fid}')">🗑️</button>`;
-        
-        // 🔥 FORMATAR CONTATO COM LINK DO WHATSAPP
-        let contato = sanitizar(c.contato||'—');
-        if(c.contato && c.contato.replace(/\D/g,'').length >= 10){
-            const num = c.contato.replace(/\D/g,'');
-            contato = `<a href="https://wa.me/55${num}" target="_blank" style="color:#25D366;text-decoration:none;" title="Abrir WhatsApp"><i class="fab fa-whatsapp"></i> ${c.contato}</a>`;
-        }
-        
-        return`<tr onclick="verDetalhes('${c.fid}')">
-            <td><strong>${sanitizar(c.protocolo||'—')}</strong></td>
-            <td>${fmtDataCurta(c.data_abertura)}</td>
-            <td>${sanitizar(c.titulo||'—')}</td>
-            <td>${sanitizar(c.solicitante||'—')}</td>
-            <td>${contato}</td>
-            <td>${sanitizar(c.setor||'—')}</td>
-            <td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td>
-            <td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td>
-            <td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td>
-            <td onclick="event.stopPropagation();">${ac}</td>
-        </tr>`;
-    }).join('');
-}
-
+function renderChamados(){const main=document.getElementById('mainContent');const f=chamados.filter(c=>c.tipo!=='gesthosp');main.innerHTML=`<div class="top-bar"><h1>📋 Chamados — ${sanitizar(nomeDepto)}</h1></div><div class="filtros-bar"><select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select><select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select><input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()"></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Título</th><th>Solicitante</th><th>Setor</th><th>Prioridade</th><th>Status</th><th>SLA</th><th>Ações</th></tr></thead><tbody id="tabelaChamados">${renderLinhasChamados(f)}</tbody></table></div>`;}
+function renderLinhasChamados(l){if(l.length===0)return'<tr><td colspan="9" style="text-align:center;padding:20px;">Nenhum chamado</td></tr>';return l.sort((a,b)=>toDate(b.data_abertura)-toDate(a.data_abertura)).map(c=>{let ac=`<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();avancarStatus('${c.fid}')">▶</button>`;if(depto==='MANUTENCAO')ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();atribuirExecutante('${c.fid}')">👷</button>`;ac+=`<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();abrirComentarios('${c.fid}')">💬</button>`;if(getPerms().isAdmin)ac+=`<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();excluirChamado('${c.fid}')">🗑️</button>`;return`<tr onclick="verDetalhes('${c.fid}')"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtData(c.data_abertura)}</td><td>${sanitizar(c.titulo||'—')}</td><td>${sanitizar(c.solicitante||'—')}</td><td>${sanitizar(c.setor||'—')}</td><td><span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></td><td><span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></td><td><span class="sla-alert ${getSLAStatus(c)}">${getSLATexto(c)}</span></td><td onclick="event.stopPropagation();">${ac}</td></tr>`;}).join('');}
 function filtrarChamadosUI(){const sf=document.getElementById('filtroStatus')?.value||'',pf=document.getElementById('filtroPrioridade')?.value||'',bf=(document.getElementById('filtroBusca')?.value||'').toLowerCase();let l=chamados.filter(c=>c.tipo!=='gesthosp');if(sf)l=l.filter(c=>c.status===sf);if(pf)l=l.filter(c=>c.prioridade===pf);if(bf)l=l.filter(c=>(c.titulo||'').toLowerCase().includes(bf)||(c.protocolo||'').toLowerCase().includes(bf));const tb=document.getElementById('tabelaChamados');if(tb)tb.innerHTML=renderLinhasChamados(l);}
 async function avancarStatus(id){try{const doc=await db.collection('chamados').doc(id).get();if(!doc.exists){toast('Não encontrado','error');return}const d=doc.data();const fluxo={'A Fazer':'Em Andamento','Em Andamento':'Pendente','Pendente':'Concluído','Concluído':'A Fazer'};const ns=fluxo[d.status||'A Fazer']||'A Fazer';const upd={status:ns,data_atualizacao:firebase.firestore.Timestamp.now()};if(ns==='Em Andamento'||ns==='Concluído')upd.tecnico=usuarioLogado.nome;const h=d.historico||[];h.push({data:new Date().toISOString(),acao:`Status: ${ns} por ${usuarioLogado.nome}`});upd.historico=h;await doc.ref.update(upd);toast('✅ Atualizado!','success');}catch(e){toast('Erro','error');}}
 async function atribuirExecutante(id){try{const snap=await db.collection('usuarios').where('departamento','==','MANUTENCAO').where('status','==','ativo').get();const t=[];snap.forEach(d=>t.push(d.data()));abrirModal(`<div class="modal-header"><h3>👷 Atribuir Executante</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><form onsubmit="salvarExecutante(event,'${id}')" style="display:grid;gap:8px;"><div class="form-group"><label>Profissional *</label><select id="execSel" required><option value="">Selecione...</option>${t.map(x=>`<option value="${x.nome}">${x.nome} - ${x.cargo}</option>`).join('')}</select></div><div style="display:flex;gap:6px;"><button type="submit" class="btn btn-primary">Salvar</button><button type="button" class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button></div></form>`);}catch(e){toast('Erro','error');}}
@@ -363,70 +310,15 @@ async function salvarExecutante(e,id){e.preventDefault();const exec=document.get
 async function excluirChamado(id){if(!confirm('Excluir?'))return;try{await db.collection('chamados').doc(id).delete();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
 
 // ============================================
-// 🔥 DETALHES - MOSTRA TODAS AS INFORMAÇÕES
+// DETALHES (GESTHOSP COMPLETO)
 // ============================================
-function verDetalhes(id){
-    const c=chamados.find(x=>x.fid===id);
-    if(!c)return;
-    let cont='';
-    
-    if(c.tipo==='gesthosp'){
-        let d={};
-        try{if(c.descricao)d=typeof c.descricao==='string'?JSON.parse(c.descricao):c.descricao}catch(e){d={}}
-        cont=`<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:16px;"><h3>🏥 GestHosp</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong> | Status: ${sanitizar(c.status||'—')}</p></div>
-        <div style="background:#FEF3C7;padding:20px;border-radius:12px;border:2px solid #F59E0B;margin-bottom:16px;"><h4 style="color:#92400E;">👤 Dados Pessoais</h4>
-        <div style="display:grid;gap:8px;">${['nome','cpf','rg','dataNascimento','email','telefone'].map(k=>`<div class="gh-field"><label>${k.replace('dataNascimento','Nascimento').toUpperCase()}</label><p>${sanitizar(d[k]||d.tel||'—')}</p></div>`).join('')}</div></div>
-        <div style="background:#DBEAFE;padding:20px;border-radius:12px;border:2px solid #93C5FD;margin-bottom:16px;"><h4 style="color:#1E40AF;">📍 Endereço</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${['cep','logradouro','numero','complemento','bairro','cidade','estado','pais'].map(k=>`<div class="gh-field"><label>${k.toUpperCase()}</label><p>${sanitizar(d[k]||'—')}</p></div>`).join('')}</div></div>
-        <div style="background:#D1FAE5;padding:20px;border-radius:12px;border:2px solid #6EE7B7;margin-bottom:16px;"><h4 style="color:#065F46;">🏥 Dados Profissionais</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${['profissao','numConselho'].map(k=>`<div class="gh-field"><label>${k.replace('numConselho','Nº Conselho').toUpperCase()}</label><p>${sanitizar(d[k]||'—')}</p></div>`).join('')}</div>
-        ${d.observacoes?`<div class="gh-field"><label>OBSERVAÇÕES</label><p>${sanitizar(d.observacoes)}</p></div>`:''}</div>
-        <div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`;
-    }else{
-        // 🔥 FORMATAR CONTATO COM LINK DO WHATSAPP
-        let contatoInfo = sanitizar(c.contato||'—');
-        if(c.contato && c.contato.replace(/\D/g,'').length >= 10){
-            const num = c.contato.replace(/\D/g,'');
-            contatoInfo = `<a href="https://wa.me/55${num}" target="_blank" style="color:#25D366;"><i class="fab fa-whatsapp"></i> ${c.contato}</a>`;
-        }
-        
-        cont=`
-        <div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;">
-            <h3>${sanitizar(c.titulo||'Sem título')}</h3>
-            <p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p>
-        </div>
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>👤 Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>📱 Contato:</strong> ${contatoInfo}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>📍 Setor:</strong> ${sanitizar(c.setor||'—')}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>🏢 Departamento:</strong> ${sanitizar(c.departamento||'TI')}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>⚡ Prioridade:</strong> <span class="badge ${getPrioridadeClass(c.prioridade)}">${sanitizar(c.prioridade||'—')}</span></div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>📊 Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>📅 Aberto em:</strong> ${fmtData(c.data_abertura)}</div>
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>🔧 Técnico:</strong> ${sanitizar(c.tecnico||'Não atribuído')}</div>
-            ${c.executante?`<div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>👷 Executante:</strong> ${sanitizar(c.executante)}</div>`:''}
-            <div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>📋 Categoria:</strong> ${sanitizar(c.categoria||'—')}</div>
-        </div>
-        
-        ${c.descricao?`<div style="background:white;padding:12px;border-radius:8px;border:1px solid #E2E8F0;margin-bottom:14px;"><strong>📝 Descrição:</strong><p style="margin-top:5px;">${sanitizar(c.descricao)}</p></div>`:''}
-        
-        <div style="display:flex;gap:6px;justify-content:flex-end;">
-            <button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶ Avançar</button>
-            ${depto==='MANUTENCAO'?`<button class="btn btn-outline btn-sm" onclick="atribuirExecutante('${c.fid}');this.closest('.modal-overlay').remove();">👷 Atribuir</button>`:''}
-            <button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬 Comentários</button>
-            ${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️ Excluir</button>`:''}
-        </div>`;
-    }
-    abrirModal(`<div class="modal-header"><h3>📋 Detalhes do Chamado</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>${cont}`,'750px');
-}
-
+function verDetalhes(id){const c=chamados.find(x=>x.fid===id);if(!c)return;let cont='';if(c.tipo==='gesthosp'){let d={};try{if(c.descricao)d=typeof c.descricao==='string'?JSON.parse(c.descricao):c.descricao}catch(e){d={}}cont=`<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:16px;"><h3>🏥 GestHosp</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong> | Status: ${sanitizar(c.status||'—')}</p></div><div style="background:#FEF3C7;padding:20px;border-radius:12px;border:2px solid #F59E0B;margin-bottom:16px;"><h4 style="color:#92400E;">👤 Dados Pessoais</h4><div style="display:grid;gap:8px;">${['nome','cpf','rg','dataNascimento','email','telefone'].map(k=>`<div class="gh-field"><label>${k.replace('dataNascimento','Nascimento').toUpperCase()}</label><p>${sanitizar(d[k]||d.tel||'—')}</p></div>`).join('')}</div></div><div style="background:#DBEAFE;padding:20px;border-radius:12px;border:2px solid #93C5FD;margin-bottom:16px;"><h4 style="color:#1E40AF;">📍 Endereço</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${['cep','logradouro','numero','complemento','bairro','cidade','estado','pais'].map(k=>`<div class="gh-field"><label>${k.toUpperCase()}</label><p>${sanitizar(d[k]||'—')}</p></div>`).join('')}</div></div><div style="background:#D1FAE5;padding:20px;border-radius:12px;border:2px solid #6EE7B7;margin-bottom:16px;"><h4 style="color:#065F46;">🏥 Dados Profissionais</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${['profissao','numConselho'].map(k=>`<div class="gh-field"><label>${k.replace('numConselho','Nº Conselho').toUpperCase()}</label><p>${sanitizar(d[k]||'—')}</p></div>`).join('')}</div>${d.observacoes?`<div class="gh-field"><label>OBSERVAÇÕES</label><p>${sanitizar(d.observacoes)}</p></div>`:''}</div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`;}else{cont=`<div style="background:linear-gradient(135deg,var(--primary),#1a3a5c);color:white;padding:16px;border-radius:10px;margin-bottom:14px;"><h3>${sanitizar(c.titulo||'Sem título')}</h3><p>Protocolo: <strong>${sanitizar(c.protocolo||'—')}</strong></p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Status:</strong> <span class="badge ${getStatusClass(c.status)}">${sanitizar(c.status||'—')}</span></div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Prioridade:</strong> ${sanitizar(c.prioridade||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Solicitante:</strong> ${sanitizar(c.solicitante||'—')}</div><div style="background:#F7FAFC;padding:10px;border-radius:6px;"><strong>Setor:</strong> ${sanitizar(c.setor||'—')}</div></div><div style="display:flex;gap:6px;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="avancarStatus('${c.fid}');this.closest('.modal-overlay').remove();">▶</button>${depto==='MANUTENCAO'?`<button class="btn btn-outline btn-sm" onclick="atribuirExecutante('${c.fid}');this.closest('.modal-overlay').remove();">👷</button>`:''}<button class="btn btn-outline btn-sm" onclick="abrirComentarios('${c.fid}');this.closest('.modal-overlay').remove();">💬</button>${getPerms().isAdmin?`<button class="btn btn-danger btn-sm" onclick="excluirChamado('${c.fid}');this.closest('.modal-overlay').remove();">🗑️</button>`:''}</div>`;}abrirModal(`<div class="modal-header"><h3>📋 Detalhes</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>${cont}`,'750px');}
 function abrirComentarios(id){comentarioChamadoId=id;const c=chamados.find(x=>x.fid===id);if(!c)return;const cs=(c.comentarios||[]).map(co=>`<div style="background:#F7FAFC;padding:8px;border-radius:6px;margin-bottom:4px;"><strong>${sanitizar(co.autor)}</strong> <small>${fmtData(co.data)}</small><p>${sanitizar(co.texto)}</p></div>`).join('');abrirModal(`<div class="modal-header"><h3>💬 Comentários</h3><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div><p>${sanitizar(c.protocolo||'')}</p><div style="max-height:200px;overflow-y:auto;margin:10px 0;">${cs||'<p>Nenhum</p>'}</div><div style="display:flex;gap:6px;"><textarea id="textoComentario" placeholder="Digite..." style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;resize:none;height:38px;"></textarea><button class="btn btn-primary btn-sm" onclick="salvarComentario()">Enviar</button></div>`);}
 async function salvarComentario(){const t=document.getElementById('textoComentario')?.value.trim();if(!t)return;try{const d=await db.collection('chamados').doc(comentarioChamadoId).get();const cs=d.data().comentarios||[];cs.push({autor:`${usuarioLogado.nome} (${nomeDepto})`,data:new Date().toISOString(),texto:t});await d.ref.update({comentarios:cs});document.querySelector('.modal-overlay')?.remove();toast('✅ Adicionado!','success');}catch(e){toast('Erro','error');}}
-function renderGestHosp(){const main=document.getElementById('mainContent');const gh=chamados.filter(c=>c.tipo==='gesthosp');let l='<tr><td colspan="8" style="text-align:center;padding:20px;">📭 Nenhum</td></tr>';if(gh.length>0){l=gh.map(c=>{let d={};try{if(c.descricao)d=typeof c.descricao==='string'?JSON.parse(c.descricao):c.descricao}catch(e){d={}}return`<tr onclick="verDetalhes('${c.fid}')"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtDataCurta(c.data_abertura)}</td><td><strong>${sanitizar(d.nome||'—')}</strong></td><td>${sanitizar(d.cpf||'—')}</td><td>${sanitizar(d.profissao||d.cargo||'—')}</td><td>${sanitizar(d.setor||c.setor||'—')}</td><td><span class="badge ${c.status==='Concluído'?'badge-green':'badge-blue'}">${sanitizar(c.status||'—')}</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancarStatus('${c.fid}')">▶</button>${getPerms().isAdmin?`<button class="btn btn-sm btn-danger" onclick="excluirChamado('${c.fid}')">🗑️</button>`:''}</td></tr>`;}).join('');}main.innerHTML=`<div class="top-bar"><h1>🏥 GestHosp</h1></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Profissão</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${l}</tbody></table></div>`;}
+function renderGestHosp(){const main=document.getElementById('mainContent');const gh=chamados.filter(c=>c.tipo==='gesthosp');let l='<tr><td colspan="8" style="text-align:center;padding:20px;">📭 Nenhum</td></tr>';if(gh.length>0){l=gh.map(c=>{let d={};try{if(c.descricao)d=typeof c.descricao==='string'?JSON.parse(c.descricao):c.descricao}catch(e){d={}}return`<tr onclick="verDetalhes('${c.fid}')"><td><strong>${sanitizar(c.protocolo||'—')}</strong></td><td>${fmtData(c.data_abertura)}</td><td><strong>${sanitizar(d.nome||'—')}</strong></td><td>${sanitizar(d.cpf||'—')}</td><td>${sanitizar(d.profissao||d.cargo||'—')}</td><td>${sanitizar(d.setor||c.setor||'—')}</td><td><span class="badge ${c.status==='Concluído'?'badge-green':'badge-blue'}">${sanitizar(c.status||'—')}</span></td><td onclick="event.stopPropagation();"><button class="btn btn-sm btn-primary" onclick="avancarStatus('${c.fid}')">▶</button>${getPerms().isAdmin?`<button class="btn btn-sm btn-danger" onclick="excluirChamado('${c.fid}')">🗑️</button>`:''}</td></tr>`;}).join('');}main.innerHTML=`<div class="top-bar"><h1>🏥 GestHosp</h1></div><div class="table-card"><table><thead><tr><th>Protocolo</th><th>Data</th><th>Profissional</th><th>CPF</th><th>Profissão</th><th>Setor</th><th>Status</th><th>Ações</th></tr></thead><tbody>${l}</tbody></table></div>`;}
 
 // ============================================
-// INDICADORES
+// 🔥 INDICADORES (EVOLUÇÃO CORRIGIDA)
 // ============================================
 function renderIndicadores(){const main=document.getElementById('mainContent');main.innerHTML=`<div class="top-bar"><h1>📊 Indicadores</h1><div style="display:flex;gap:6px;"><select id="indTipo" onchange="atualizarIndicadoresUI()" style="padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;background:var(--card);color:var(--text);"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="mensal">Por Mês</option><option value="semanal">Por Semana</option></select><button class="btn btn-primary btn-sm" onclick="exportarIndicadoresPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button></div></div><div class="stats-grid" id="indicadorGrid"></div><div class="charts-grid"><div class="chart-card"><h3>📈 Evolução</h3><canvas id="graficoEvolucao"></canvas></div><div class="chart-card"><h3>🎯 Por Prioridade</h3><canvas id="graficoPrioridadeInd"></canvas></div></div><div class="table-card"><h3>📋 Detalhamento</h3><table><thead><tr><th>Status</th><th>Quantidade</th><th>Percentual</th></tr></thead><tbody id="tabelaStatusInd"></tbody></table></div>`;atualizarIndicadoresUI();}
 function atualizarIndicadoresUI(){
@@ -489,12 +381,6 @@ function atualizarIndicadoresUI(){
 async function exportarIndicadoresPDF(){try{toast('📄 Gerando PDF...','info');const el=document.createElement('div');el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';const t=chamados.length,ca=chamados.filter(c=>c.status==='Concluído').length,cr=chamados.filter(c=>c.prioridade==='Crítica').length;let logosHTML='';if(logoHospital||logoGoverno){logosHTML=`<div style="display:flex;justify-content:center;gap:40px;margin-bottom:20px;">${logoHospital?`<img src="${logoHospital}" style="max-height:60px;">`:''}${logoGoverno?`<img src="${logoGoverno}" style="max-height:60px;">`:''}</div>`;}el.innerHTML=`${logosHTML}<div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:30px;"><h1 style="color:#06224a;">HelpHosp - Indicadores</h1><h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2><p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p></div><h3>📊 Resumo Geral</h3><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#DBEAFE;padding:20px;border-radius:12px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;font-weight:700;">${t}</p></div><div style="background:#D1FAE5;padding:20px;border-radius:12px;text-align:center;"><p>CONCLUÍDOS</p><p style="font-size:32px;font-weight:700;">${ca}</p></div><div style="background:#FEF3C7;padding:20px;border-radius:12px;text-align:center;"><p>TAXA</p><p style="font-size:32px;font-weight:700;">${t>0?Math.round(ca/t*100):0}%</p></div><div style="background:#FEE2E2;padding:20px;border-radius:12px;text-align:center;"><p>CRÍTICOS</p><p style="font-size:32px;font-weight:700;">${cr}</p></div></div><h3>📋 Por Status</h3><table style="width:100%;border-collapse:collapse;margin-top:16px;"><thead><tr style="background:#06224a;color:white;"><th>Status</th><th>Quantidade</th><th>Percentual</th></tr></thead><tbody>${['A Fazer','Em Andamento','Pendente','Concluído'].map(s=>{const q=chamados.filter(c=>c.status===s).length;return`<tr><td>${s}</td><td style="font-weight:700;">${q}</td><td>${t>0?Math.round(q/t*100):0}%</td></tr>`;}).join('')}</tbody></table><h3 style="margin-top:20px;">🎯 Por Prioridade</h3><table style="width:100%;border-collapse:collapse;margin-top:16px;"><thead><tr style="background:#06224a;color:white;"><th>Prioridade</th><th>Quantidade</th><th>Percentual</th></tr></thead><tbody>${['Baixa','Média','Alta','Crítica'].map(p=>{const q=chamados.filter(c=>c.prioridade===p).length;return`<tr><td>${p}</td><td style="font-weight:700;">${q}</td><td>${t>0?Math.round(q/t*100):0}%</td></tr>`;}).join('')}</tbody></table><div style="text-align:center;margin-top:40px;padding-top:20px;border-top:2px solid #E2E8F0;color:#A0AEC0;font-size:10px;"><p>HelpHosp © ${new Date().getFullYear()} - Gerado por ${sanitizar(usuarioLogado.nome)}</p></div>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const iw=210,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',0,0,iw,ih);pdf.save(`indicadores-${new Date().toISOString().slice(0,10)}.pdf`);toast('✅ PDF gerado!','success');}catch(e){console.error('Erro PDF indicadores:',e);toast('Erro ao gerar PDF','error');}}
 
 // ============================================
-// RELATÓRIO PDF COM LOGOS
-// ============================================
-async function gerarRelatorioPDF(){try{toast('📄 Gerando relatório...','info');const t=chamados.length,co=chamados.filter(c=>c.status==='Concluído').length,tx=t>0?Math.round(co/t*100):0;const el=document.createElement('div');el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';let logosHTML='';if(logoHospital||logoGoverno){logosHTML=`<div style="display:flex;justify-content:center;gap:40px;margin-bottom:20px;">${logoHospital?`<img src="${logoHospital}" style="max-height:60px;">`:''}${logoGoverno?`<img src="${logoGoverno}" style="max-height:60px;">`:''}</div>`;}el.innerHTML=`${logosHTML}<div style="text-align:center;border-bottom:3px solid #06224a;padding-bottom:20px;margin-bottom:20px;"><h1 style="color:#06224a;">HelpHosp Premium</h1><h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2><p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0;"><div style="background:#F7FAFC;padding:16px;border-radius:8px;text-align:center;"><p>TOTAL</p><p style="font-size:32px;">${t}</p></div><div style="background:#F0FFF4;padding:16px;border-radius:8px;text-align:center;"><p style="color:#38A169;">CONCLUÍDOS</p><p style="font-size:32px;">${co}</p></div><div style="background:#FFFBEB;padding:16px;border-radius:8px;text-align:center;"><p style="color:#DD6B20;">TAXA</p><p style="font-size:32px;">${tx}%</p></div><div style="background:#FFF5F5;padding:16px;border-radius:8px;text-align:center;"><p style="color:#E53E3E;">SLA ATRASADO</p><p style="font-size:32px;">${chamados.filter(c=>getSLAStatus(c)==='sla-critical').length}</p></div></div>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const iw=200,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',5,5,iw,ih);pdf.save('relatorio-premium.pdf');toast('✅ Relatório gerado!','success');}catch(e){console.error('Erro PDF:',e);toast('Erro ao gerar relatório','error');}}
-
-    
-// ============================================
 // TONERS
 // ============================================
 function renderToners(){const main=document.getElementById('mainContent');const tonerChamados=chamados.filter(c=>c.tipo==='toner').sort((a,b)=>toDate(b.data_troca_toner||b.data_abertura)-toDate(a.data_troca_toner||a.data_abertura));const ultimasTrocas={};tonerChamados.forEach(t=>{const s=t.setor;if(!ultimasTrocas[s])ultimasTrocas[s]=t;});const l=SETORES_TONERS.map(s=>{const ult=ultimasTrocas[s];if(!ult)return`<tr><td><strong>${s}</strong></td><td colspan="7" style="text-align:center;">Nenhuma troca registrada</td></tr>`;const d=toDate(ult.data_troca_toner||ult.data_abertura);const dias=Math.floor((new Date()-d)/86400000);const st=dias>90?'crítico':dias>60?'atenção':'normal';const cd=st==='crítico'?'color:#E53E3E;':st==='atenção'?'color:#DD6B20;':'color:#38A169;';return`<tr style="${st==='crítico'?'background:#FFF5F5;':''}"><td><strong>${s}</strong></td><td>${fmtData(d)}</td><td>${sanitizar(ult.solicitante||ult.tecnico||'—')}</td><td>${ult.tipo_troca==='preventiva'?'🟢 Preventiva':'🔴 Necessária'}</td><td style="${cd}font-weight:600;">${dias} dias</td><td>${st==='crítico'?'🔴 Crítico':st==='atenção'?'🟡 Atenção':'🟢 Normal'}</td><td>${sanitizar(ult.observacao||'—')}</td><td><button class="btn btn-sm btn-outline" onclick="registrarTrocaTonerSetor('${s}')">🔄 Trocar</button></td></tr>`;}).join('');main.innerHTML=`<div class="top-bar"><h1>🖨️ Monitor de Toners</h1><div style="display:flex;gap:6px;"><button class="btn btn-primary btn-sm" onclick="abrirModalToner()"><i class="fas fa-plus"></i> Registrar Troca</button><button class="btn btn-outline btn-sm" onclick="gerarRelatorioToners()"><i class="fas fa-file-pdf"></i> Relatório</button></div></div><div class="table-card"><table><thead><tr><th>Setor</th><th>Última Troca</th><th>Técnico</th><th>Tipo</th><th>Dias no Setor</th><th>Status</th><th>Obs</th><th>Ação</th></tr></thead><tbody>${l}</tbody></table></div>`;}
@@ -503,7 +389,6 @@ function registrarTrocaTonerSetor(s){abrirModalToner(s);}
 async function registrarTrocaToner(e){e.preventDefault();const s=document.getElementById('tonerSetor')?.value,tipo=document.getElementById('tonerTipo')?.value,tec=document.getElementById('tonerTecnico')?.value.trim()||usuarioLogado.nome,obs=document.getElementById('tonerObs')?.value.trim();if(!s)return;try{await db.collection('chamados').add({protocolo:'TN-'+Date.now().toString(36).toUpperCase(),setor:s,tipo:'toner',isToner:true,status:'Concluído',solicitante:tec,tecnico:tec,departamento:depto,titulo:`Troca de toner — ${s}`,tipo_troca:tipo,observacao:obs,data_abertura:firebase.firestore.Timestamp.now(),data_troca_toner:firebase.firestore.Timestamp.now()});document.querySelector('.modal-overlay')?.remove();toast('✅ Troca registrada!','success');renderToners();}catch(e){toast('Erro','error');}}
 async function gerarRelatorioToners(){try{toast('📄 Gerando relatório de toners...','info');const tonerChamados=chamados.filter(c=>c.tipo==='toner').sort((a,b)=>toDate(b.data_troca_toner||b.data_abertura)-toDate(a.data_troca_toner||a.data_abertura));const el=document.createElement('div');el.style.cssText='padding:40px;background:#fff;width:1000px;position:absolute;left:-9999px;font-family:Arial;';let logosHTML='';if(logoHospital||logoGoverno){logosHTML=`<div style="display:flex;justify-content:center;gap:40px;margin-bottom:20px;">${logoHospital?`<img src="${logoHospital}" style="max-height:60px;">`:''}${logoGoverno?`<img src="${logoGoverno}" style="max-height:60px;">`:''}</div>`;}const ultimas={};tonerChamados.forEach(t=>{const s=t.setor;if(!ultimas[s])ultimas[s]=t;});el.innerHTML=`${logosHTML}<div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:30px;"><h1 style="color:#06224a;">HelpHosp - Relatório de Toners</h1><p>${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'})}</p></div><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="background:#06224a;color:white;"><th>Setor</th><th>Última Troca</th><th>Técnico</th><th>Tipo</th><th>Dias</th><th>Status</th></tr></thead><tbody>${SETORES_TONERS.map(s=>{const ult=ultimas[s];if(!ult)return`<tr><td>${s}</td><td colspan="5">Nenhuma troca</td></tr>`;const d=toDate(ult.data_troca_toner||ult.data_abertura);const dias=Math.floor((new Date()-d)/86400000);return`<tr><td>${s}</td><td>${d.toLocaleDateString('pt-BR')}</td><td>${ult.solicitante||ult.tecnico||'—'}</td><td>${ult.tipo_troca==='preventiva'?'Preventiva':'Necessária'}</td><td>${dias}</td><td>${dias>90?'Crítico':dias>60?'Atenção':'Normal'}</td></tr>`;}).join('')}</tbody></table><p style="margin-top:20px;"><strong>Total de trocas registradas:</strong> ${tonerChamados.length}</p><p><strong>Preventivas:</strong> ${tonerChamados.filter(t=>t.tipo_troca==='preventiva').length} | <strong>Necessárias:</strong> ${tonerChamados.filter(t=>t.tipo_troca==='necessaria').length}</p>`;document.body.appendChild(el);const cv=await html2canvas(el,{scale:2,useCORS:true,logging:false});document.body.removeChild(el);const{jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const iw=210,ih=(cv.height*iw)/cv.width;pdf.addImage(cv.toDataURL('image/png'),'PNG',0,0,iw,ih);pdf.save(`relatorio-toners-${new Date().toISOString().slice(0,10)}.pdf`);toast('✅ Relatório de toners gerado!','success');}catch(e){console.error(e);toast('Erro','error');}}
 
-    
 // ============================================
 // ESTOQUE
 // ============================================
@@ -581,7 +466,7 @@ async function alterarSenha(e){e.preventDefault();const sa=document.getElementBy
 // ============================================
 // INICIALIZAÇÃO
 // ============================================
-async function init(){console.log('🚀 HelpHosp iniciando...');if(!checkAuth())return;console.log('✅ Autenticado:',usuarioLogado.nome,'-',depto);await loadConfig();initUI();if(Notification.permission==='default')Notification.requestPermission();}
+async function init(){console.log('🚀 HelpHosp iniciando...');if(!checkAuth())return;console.log('✅ Autenticado:',usuarioLogado.nome,'-',depto);await loadConfig();console.log('✅ Configurações carregadas. Setores:',setores.length);initUI();if(Notification.permission==='default')Notification.requestPermission();}
 window.addEventListener('load',init);if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(init,100);
 </script>
 </body>

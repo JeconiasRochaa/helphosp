@@ -17,24 +17,45 @@
         .section{margin-bottom:30px}
         .section h2{font-size:24px;border-bottom:1px solid #0f0;padding-bottom:5px;margin-bottom:15px;text-shadow:0 0 10px #0f0}
         .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-        .card{background:#0a0a0a;border:1px solid #0f0;padding:15px;border-radius:6px;font-size:18px}
+        .card{background:#0a0a0a;border:1px solid #0f0;padding:15px;border-radius:6px;font-size:18px;transition:all 0.3s}
         .card.critico{border-color:#f00;box-shadow:0 0 20px rgba(255,0,0,0.5);animation:pulse 1s infinite}
-        .card.novo{animation:novoChamado 0.5s ease 3}
+        .card.novo{animation:novoChamado 0.8s ease 5}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
-        @keyframes novoChamado{0%,100%{background:#0a0a0a;border-color:#0f0}50%{background:#003300;border-color:#0f0;box-shadow:0 0 30px rgba(0,255,0,0.8)}}
+        @keyframes novoChamado{0%,100%{background:#0a0a0a;border-color:#0f0}50%{background:#003300;border-color:#00ff00;box-shadow:0 0 40px rgba(0,255,0,0.9);transform:scale(1.02)}}
         .card .proto{color:#0ff;font-size:14px}
         .card .titulo{font-weight:bold;font-size:20px;margin:5px 0}
         .card .info{display:flex;justify-content:space-between;font-size:16px;margin-top:5px}
         .card .setor{color:#ff0}
-        .card .atraso{color:#f00}
         .empty{text-align:center;padding:30px;border:1px dashed #0f0;border-radius:8px;grid-column:1/-1;font-size:20px}
         .footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid rgba(0,255,0,0.3);font-size:14px;color:rgba(0,255,0,0.5);letter-spacing:2px}
-        .notification-flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;background:rgba(0,255,0,0.05);animation:flash 0.5s ease-out}
-        @keyframes flash{0%{opacity:1}100%{opacity:0}}
+        
+        /* ALERTA VISUAL */
+        .alerta-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;align-items:center;justify-content:center}
+        .alerta-overlay.ativo{display:flex}
+        .alerta-box{background:rgba(0,0,0,0.9);border:3px solid #0f0;padding:30px 50px;border-radius:10px;text-align:center;animation:alertaPulse 0.5s ease 6}
+        @keyframes alertaPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(0,255,0,0.5)}50%{transform:scale(1.1);box-shadow:0 0 80px rgba(0,255,0,1)}}
+        .alerta-box .icone{font-size:60px}
+        .alerta-box .msg{font-size:28px;font-weight:bold;margin-top:10px;text-shadow:0 0 20px #0f0}
+        
+        /* BOTÃO DE TESTE */
+        .btn-teste-som{position:fixed;bottom:20px;right:20px;z-index:1000;background:rgba(0,255,0,0.1);color:#0f0;border:1px solid #0f0;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px}
+        .btn-teste-som:hover{background:rgba(0,255,0,0.2)}
+        
         @media(max-width:900px){.grid{grid-template-columns:1fr}.container{padding:20px}}
     </style>
 </head>
 <body>
+
+<!-- ALERTA VISUAL -->
+<div class="alerta-overlay" id="alertaOverlay">
+    <div class="alerta-box">
+        <div class="icone">🔔</div>
+        <div class="msg">NOVO CHAMADO!</div>
+    </div>
+</div>
+
+<button class="btn-teste-som" onclick="testarSom()" title="Testar som de notificação">🔊 Testar Som</button>
+
 <div class="scanlines"></div>
 <div class="container">
     <div class="header"><h1>🏥 HelpHosp</h1><div id="dataAtual" style="font-size:18px;color:#0ff;"></div></div>
@@ -44,6 +65,7 @@
     <div class="footer">SISTEMA ATIVO | HelpHosp © <span id="anoAtual"></span></div>
 </div>
 
+<!-- ÁUDIO EMBUTIDO (Beep via AudioContext) -->
 <script>
 const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
 firebase.initializeApp(fc);const db=firebase.firestore();
@@ -55,31 +77,89 @@ function fmtData(d){if(!d)return'—';try{const dt=toDate(d);return dt.toLocaleT
 let ultimoContadorDia=0;
 let ultimoContadorAtrasados=0;
 let listenersAtivos=[];
+let audioContext=null;
 
 // ============================================
-// SOM DE NOTIFICAÇÃO
+// 🔔 SOM DE NOTIFICAÇÃO (CORRIGIDO)
 // ============================================
-function tocarAlerta(){
+function tocarBeep(){
     try{
-        const ctx=new(window.AudioContext||window.webkitAudioContext)();
-        const osc=ctx.createOscillator();
-        const gain=ctx.createGain();
-        osc.connect(gain);gain.connect(ctx.destination);
-        osc.type='square';
-        osc.frequency.setValueAtTime(800,ctx.currentTime);
-        osc.frequency.setValueAtTime(1000,ctx.currentTime+0.1);
-        osc.frequency.setValueAtTime(800,ctx.currentTime+0.2);
-        gain.gain.setValueAtTime(0.3,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);
-    }catch(e){}
+        // Criar AudioContext (precisa ser após interação do usuário ou usar um já existente)
+        if(!audioContext){
+            audioContext=new(window.AudioContext||window.webkitAudioContext)();
+        }
+        
+        // Resumir o contexto se estiver suspenso
+        if(audioContext.state==='suspended'){
+            audioContext.resume();
+        }
+        
+        const now=audioContext.currentTime;
+        
+        // Beep 1
+        const osc1=audioContext.createOscillator();
+        const gain1=audioContext.createGain();
+        osc1.connect(gain1);gain1.connect(audioContext.destination);
+        osc1.type='square';
+        osc1.frequency.setValueAtTime(800,now);
+        gain1.gain.setValueAtTime(0.3,now);
+        gain1.gain.exponentialRampToValueAtTime(0.01,now+0.15);
+        osc1.start(now);osc1.stop(now+0.15);
+        
+        // Beep 2 (após 0.2s)
+        const osc2=audioContext.createOscillator();
+        const gain2=audioContext.createGain();
+        osc2.connect(gain2);gain2.connect(audioContext.destination);
+        osc2.type='square';
+        osc2.frequency.setValueAtTime(1000,now+0.2);
+        gain2.gain.setValueAtTime(0.3,now+0.2);
+        gain2.gain.exponentialRampToValueAtTime(0.01,now+0.35);
+        osc2.start(now+0.2);osc2.stop(now+0.35);
+        
+        // Beep 3
+        const osc3=audioContext.createOscillator();
+        const gain3=audioContext.createGain();
+        osc3.connect(gain3);gain3.connect(audioContext.destination);
+        osc3.type='square';
+        osc3.frequency.setValueAtTime(800,now+0.4);
+        gain3.gain.setValueAtTime(0.3,now+0.4);
+        gain3.gain.exponentialRampToValueAtTime(0.01,now+0.55);
+        osc3.start(now+0.4);osc3.stop(now+0.55);
+        
+        console.log('🔔 Beep tocado!');
+    }catch(e){
+        console.error('Erro ao tocar som:',e);
+    }
 }
 
-function mostrarFlash(){
-    const flash=document.createElement('div');
-    flash.className='notification-flash';
-    document.body.appendChild(flash);
-    setTimeout(()=>flash.remove(),500);
+// ============================================
+// 🎯 TESTAR SOM (botão)
+// ============================================
+function testarSom(){
+    tocarBeep();
+    mostrarAlertaVisual();
+}
+
+// ============================================
+// 📺 ALERTA VISUAL
+// ============================================
+function mostrarAlertaVisual(){
+    const overlay=document.getElementById('alertaOverlay');
+    overlay.classList.add('ativo');
+    
+    // Remover após 3 segundos
+    setTimeout(()=>{
+        overlay.classList.remove('ativo');
+    },3000);
+}
+
+// ============================================
+// NOTIFICAR NOVO CHAMADO
+// ============================================
+function notificarNovoChamado(){
+    tocarBeep();
+    mostrarAlertaVisual();
+    console.log('🔔 NOVO CHAMADO DETECTADO!');
 }
 
 // ============================================
@@ -95,7 +175,7 @@ function atualizarRelogio(){
 // ============================================
 // RENDERIZAR LISTAS
 // ============================================
-function renderizarLista(lista,containerId,contadorId){
+function renderizarLista(lista,containerId,contadorId,novosIds){
     const container=document.getElementById(containerId);
     const contador=document.getElementById(contadorId);
     contador.textContent=lista.length;
@@ -105,7 +185,6 @@ function renderizarLista(lista,containerId,contadorId){
         return;
     }
     
-    // Ordenar: críticos primeiro, depois por data
     const ordenada=[...lista].sort((a,b)=>{
         if(a.prioridade==='Crítica'&&b.prioridade!=='Crítica')return-1;
         if(a.prioridade!=='Crítica'&&b.prioridade==='Crítica')return 1;
@@ -115,9 +194,9 @@ function renderizarLista(lista,containerId,contadorId){
     container.innerHTML=ordenada.map(c=>{
         const d=toDate(c.data_abertura);
         const isCritico=c.prioridade==='Crítica';
-        const isNovo=(new Date()-d)<60000; // Menos de 1 minuto = novo
+        const isNovo=novosIds&&novosIds.has(c.fid);
         
-        return`<div class="card${isCritico?' critico':''}${isNovo?' novo':''}">
+        return`<div class="card${isCritico?' critico':''}${isNovo?' novo':''}" id="card-${c.fid}">
             <div class="proto">📋 ${sanitizar(c.protocolo||'—')}</div>
             <div class="titulo">${sanitizar(c.titulo||'Sem título')}</div>
             <div class="info">
@@ -134,7 +213,7 @@ function renderizarLista(lista,containerId,contadorId){
 }
 
 // ============================================
-// 🔥 ESCUTAR EM TEMPO REAL (CORRIGIDO)
+// 🔥 ESCUTAR EM TEMPO REAL
 // ============================================
 function escutarChamadosEmTempoReal(){
     // Remover listeners anteriores
@@ -144,27 +223,42 @@ function escutarChamadosEmTempoReal(){
     const hoje=new Date();hoje.setHours(0,0,0,0);
     const amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
     
+    // Conjunto para rastrear IDs já vistos (para detectar novos)
+    const idsConhecidos=new Set();
+    
     // Listener para chamados do DIA
     const unsubDia=db.collection('chamados')
         .where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje))
         .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha))
         .onSnapshot(snap=>{
             const dia=[];
+            const novosIds=new Set();
+            
+            snap.docChanges().forEach(change=>{
+                if(change.type==='added'){
+                    const id=change.doc.id;
+                    // Se o ID não era conhecido antes, é NOVO
+                    if(!idsConhecidos.has(id)&&ultimoContadorDia>0){
+                        novosIds.add(id);
+                    }
+                    idsConhecidos.add(id);
+                }
+            });
+            
             snap.forEach(d=>{const x=d.data();x.fid=d.id;dia.push(x)});
             
-            // Verificar se é um novo chamado
-            if(dia.length>ultimoContadorDia){
-                tocarAlerta();
-                mostrarFlash();
-                console.log('🔔 NOVO CHAMADO! Total do dia:',dia.length);
+            // Verificar se há novos chamados
+            if(novosIds.size>0){
+                console.log(`🔔 ${novosIds.size} novo(s) chamado(s)!`);
+                notificarNovoChamado();
             }
-            ultimoContadorDia=dia.length;
             
-            renderizarLista(dia,'listaDia','contadorDia');
+            ultimoContadorDia=dia.length;
+            renderizarLista(dia,'listaDia','contadorDia',novosIds);
         });
     listenersAtivos.push(unsubDia);
     
-    // Listener para chamados ATRASADOS (todos os não concluídos antes de hoje)
+    // Listener para chamados ATRASADOS
     const unsubAtrasados=db.collection('chamados')
         .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(hoje))
         .onSnapshot(snap=>{
@@ -173,13 +267,7 @@ function escutarChamadosEmTempoReal(){
                 const x=d.data();x.fid=d.id;
                 if(x.status!=='Concluído')atrasados.push(x);
             });
-            
-            // Verificar se aumentou
-            if(atrasados.length>ultimoContadorAtrasados){
-                console.log('⚠️ Chamado atrasado detectado! Total:',atrasados.length);
-            }
             ultimoContadorAtrasados=atrasados.length;
-            
             renderizarLista(atrasados,'listaAtrasados','contadorAtrasados');
         });
     listenersAtivos.push(unsubAtrasados);
@@ -188,23 +276,48 @@ function escutarChamadosEmTempoReal(){
 }
 
 // ============================================
+// INICIALIZAR AUDIOCONTEXT (precisa de interação)
+// ============================================
+function initAudioContext(){
+    document.addEventListener('click',function initAudio(){
+        if(!audioContext){
+            audioContext=new(window.AudioContext||window.webkitAudioContext)();
+            console.log('🔊 AudioContext inicializado');
+        }
+        if(audioContext.state==='suspended'){
+            audioContext.resume();
+        }
+        document.removeEventListener('click',initAudio);
+    },{once:false});
+}
+
+// ============================================
 // INICIALIZAÇÃO
 // ============================================
 function init(){
     const u=localStorage.getItem('usuario_logado');
     if(!u){
-        document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN</div>';
+        document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN<br><br><a href="admin.html" style="color:#0f0;">FAZER LOGIN</a></div>';
         return;
     }
+    
+    // Inicializar áudio
+    initAudioContext();
     
     atualizarRelogio();
     setInterval(atualizarRelogio,1000);
     
-    // 🔥 INICIAR LISTENERS EM TEMPO REAL
+    // Iniciar listeners em tempo real
     escutarChamadosEmTempoReal();
+    
+    // Tocar um beep de teste após 2 segundos
+    setTimeout(()=>{
+        console.log('🔊 Teste de som em 2 segundos...');
+        tocarBeep();
+    },2000);
 }
 
-// Reiniciar listeners ao voltar para a aba
+// Reiniciar ao voltar para a aba
 document.addEventListener('visibilitychange',()=>{
     if(!document.hidden){
         escutarChamadosEmTempoReal();

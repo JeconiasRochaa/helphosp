@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpHosp - Painel TV</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#000;color:#0f0;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;font-size:20px;line-height:1.4}
+        .scanlines{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.015) 2px,rgba(0,255,0,0.015) 4px)}
+        .container{position:relative;z-index:1;padding:30px 40px;max-width:1400px;margin:0 auto}
+        .header{text-align:center;padding:20px 0;border-bottom:2px solid #0f0;margin-bottom:25px}
+        .header h1{font-size:34px;letter-spacing:4px;text-shadow:0 0 20px #0f0}
+        .clock{font-size:48px;text-align:center;margin:15px 0;color:#0ff;text-shadow:0 0 30px #0ff}
+        .section{margin-bottom:30px}
+        .section h2{font-size:24px;border-bottom:1px solid #0f0;padding-bottom:5px;margin-bottom:15px;text-shadow:0 0 10px #0f0}
+        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+        .card{background:#0a0a0a;border:1px solid #0f0;padding:15px;border-radius:6px;font-size:18px}
+        .card.critico{border-color:#f00;box-shadow:0 0 20px rgba(255,0,0,0.5);animation:pulse 1s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+        .card .proto{color:#0ff;font-size:14px}
+        .card .titulo{font-weight:bold;font-size:20px;margin:5px 0}
+        .card .info{display:flex;justify-content:space-between;font-size:16px;margin-top:5px}
+        .card .setor{color:#ff0}
+        .card .atraso{color:#f00}
+        .empty{text-align:center;padding:30px;border:1px dashed #0f0;border-radius:8px;grid-column:1/-1;font-size:20px}
+        .footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid rgba(0,255,0,0.3);font-size:14px;color:rgba(0,255,0,0.5);letter-spacing:2px}
+        @media(max-width:900px){.grid{grid-template-columns:1fr}.container{padding:20px}}
+    </style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="container">
+    <div class="header"><h1>🏥 HelpHosp</h1><div id="dataAtual" style="font-size:18px;color:#0ff;"></div></div>
+    <div class="clock" id="relogio"></div>
+    <div class="section"><h2>📅 Chamados do Dia (<span id="contadorDia">0</span>)</h2><div class="grid" id="listaDia"></div></div>
+    <div class="section"><h2>⚠️ Chamados Atrasados (<span id="contadorAtrasados">0</span>)</h2><div class="grid" id="listaAtrasados"></div></div>
+    <div class="footer">SISTEMA ATIVO | HelpHosp © <span id="anoAtual"></span></div>
+</div>
+
+<script>
+const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
+firebase.initializeApp(fc);const db=firebase.firestore();
+
+function sanitizar(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function toDate(d){if(!d)return new Date(0);return d?.toDate?d.toDate():new Date(d)}
+function fmtData(d){if(!d)return'—';try{const dt=toDate(d);return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch(e){return'—'}}
+
+let ultimoContadorDia=0;
+
+// ============================================
+// SOM DE NOTIFICAÇÃO (Web Audio API)
+// ============================================
+function tocarAlerta(){
+    try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.type='square';
+        osc.frequency.setValueAtTime(800,ctx.currentTime);
+        osc.frequency.setValueAtTime(1000,ctx.currentTime+0.1);
+        gain.gain.setValueAtTime(0.3,ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);
+        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.3);
+    }catch(e){}
+}
+
+function atualizarRelogio(){
+    const a=new Date();
+    document.getElementById('relogio').textContent=a.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('dataAtual').textContent=a.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+    document.getElementById('anoAtual').textContent=a.getFullYear();
+}
+
+async function carregarDados(){
+    const hoje=new Date();hoje.setHours(0,0,0,0);const amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
+    const snapDia=await db.collection('chamados').where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje)).where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha)).get();
+    const dia=[];snapDia.forEach(d=>{const x=d.data();x.fid=d.id;dia.push(x)});
+    const snapAtrasados=await db.collection('chamados').where('data_abertura','<',firebase.firestore.Timestamp.fromDate(hoje)).get();
+    const atrasados=[];snapAtrasados.forEach(d=>{const x=d.data();x.fid=d.id;if(x.status!=='Concluído')atrasados.push(x)});
+    
+    // Verificar se houve novo chamado do dia
+    if(dia.length>ultimoContadorDia){
+        tocarAlerta();
+        console.log('🔔 Novo chamado detectado!');
+    }
+    ultimoContadorDia=dia.length;
+    
+    document.getElementById('contadorDia').textContent=dia.length;
+    document.getElementById('contadorAtrasados').textContent=atrasados.length;
+    
+    function renderLista(lista,containerId){
+        const container=document.getElementById(containerId);
+        if(lista.length===0){container.innerHTML='<div class="empty">✅ Nenhum</div>';return}
+        container.innerHTML=lista.map(c=>{
+            const d=toDate(c.data_abertura);
+            return`<div class="card${c.prioridade==='Crítica'?' critico':''}">
+                <div class="proto">📋 ${sanitizar(c.protocolo||'—')}</div>
+                <div class="titulo">${sanitizar(c.titulo||'Sem título')}</div>
+                <div class="info"><span class="setor">📍 ${sanitizar(c.setor||'—')}</span><span>⚡ ${sanitizar(c.prioridade||'—')}</span></div>
+                <div class="info" style="margin-top:5px;"><span>🕐 ${fmtData(c.data_abertura)}</span><span>📊 ${sanitizar(c.status||'—')}</span></div>
+            </div>`;
+        }).join('');
+    }
+    renderLista(dia,'listaDia');
+    renderLista(atrasados,'listaAtrasados');
+}
+
+function init(){
+    const u=localStorage.getItem('usuario_logado');
+    if(!u){document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN</div>';return}
+    atualizarRelogio();setInterval(atualizarRelogio,1000);
+    carregarDados();setInterval(carregarDados,30000);
+}
+window.addEventListener('load',init);
+</script>
+</body>
+</html>

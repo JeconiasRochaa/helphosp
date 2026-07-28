@@ -19,7 +19,9 @@
         .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
         .card{background:#0a0a0a;border:1px solid #0f0;padding:15px;border-radius:6px;font-size:18px}
         .card.critico{border-color:#f00;box-shadow:0 0 20px rgba(255,0,0,0.5);animation:pulse 1s infinite}
+        .card.novo{animation:novoChamado 0.5s ease 3}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+        @keyframes novoChamado{0%,100%{background:#0a0a0a;border-color:#0f0}50%{background:#003300;border-color:#0f0;box-shadow:0 0 30px rgba(0,255,0,0.8)}}
         .card .proto{color:#0ff;font-size:14px}
         .card .titulo{font-weight:bold;font-size:20px;margin:5px 0}
         .card .info{display:flex;justify-content:space-between;font-size:16px;margin-top:5px}
@@ -27,6 +29,8 @@
         .card .atraso{color:#f00}
         .empty{text-align:center;padding:30px;border:1px dashed #0f0;border-radius:8px;grid-column:1/-1;font-size:20px}
         .footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid rgba(0,255,0,0.3);font-size:14px;color:rgba(0,255,0,0.5);letter-spacing:2px}
+        .notification-flash{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;background:rgba(0,255,0,0.05);animation:flash 0.5s ease-out}
+        @keyframes flash{0%{opacity:1}100%{opacity:0}}
         @media(max-width:900px){.grid{grid-template-columns:1fr}.container{padding:20px}}
     </style>
 </head>
@@ -49,9 +53,11 @@ function toDate(d){if(!d)return new Date(0);return d?.toDate?d.toDate():new Date
 function fmtData(d){if(!d)return'—';try{const dt=toDate(d);return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch(e){return'—'}}
 
 let ultimoContadorDia=0;
+let ultimoContadorAtrasados=0;
+let listenersAtivos=[];
 
 // ============================================
-// SOM DE NOTIFICAÇÃO (Web Audio API)
+// SOM DE NOTIFICAÇÃO
 // ============================================
 function tocarAlerta(){
     try{
@@ -62,12 +68,23 @@ function tocarAlerta(){
         osc.type='square';
         osc.frequency.setValueAtTime(800,ctx.currentTime);
         osc.frequency.setValueAtTime(1000,ctx.currentTime+0.1);
+        osc.frequency.setValueAtTime(800,ctx.currentTime+0.2);
         gain.gain.setValueAtTime(0.3,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.3);
+        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);
+        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);
     }catch(e){}
 }
 
+function mostrarFlash(){
+    const flash=document.createElement('div');
+    flash.className='notification-flash';
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(),500);
+}
+
+// ============================================
+// ATUALIZAR RELÓGIO
+// ============================================
 function atualizarRelogio(){
     const a=new Date();
     document.getElementById('relogio').textContent=a.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -75,46 +92,125 @@ function atualizarRelogio(){
     document.getElementById('anoAtual').textContent=a.getFullYear();
 }
 
-async function carregarDados(){
-    const hoje=new Date();hoje.setHours(0,0,0,0);const amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
-    const snapDia=await db.collection('chamados').where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje)).where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha)).get();
-    const dia=[];snapDia.forEach(d=>{const x=d.data();x.fid=d.id;dia.push(x)});
-    const snapAtrasados=await db.collection('chamados').where('data_abertura','<',firebase.firestore.Timestamp.fromDate(hoje)).get();
-    const atrasados=[];snapAtrasados.forEach(d=>{const x=d.data();x.fid=d.id;if(x.status!=='Concluído')atrasados.push(x)});
+// ============================================
+// RENDERIZAR LISTAS
+// ============================================
+function renderizarLista(lista,containerId,contadorId){
+    const container=document.getElementById(containerId);
+    const contador=document.getElementById(contadorId);
+    contador.textContent=lista.length;
     
-    // Verificar se houve novo chamado do dia
-    if(dia.length>ultimoContadorDia){
-        tocarAlerta();
-        console.log('🔔 Novo chamado detectado!');
+    if(lista.length===0){
+        container.innerHTML='<div class="empty">✅ Nenhum</div>';
+        return;
     }
-    ultimoContadorDia=dia.length;
     
-    document.getElementById('contadorDia').textContent=dia.length;
-    document.getElementById('contadorAtrasados').textContent=atrasados.length;
+    // Ordenar: críticos primeiro, depois por data
+    const ordenada=[...lista].sort((a,b)=>{
+        if(a.prioridade==='Crítica'&&b.prioridade!=='Crítica')return-1;
+        if(a.prioridade!=='Crítica'&&b.prioridade==='Crítica')return 1;
+        return toDate(b.data_abertura)-toDate(a.data_abertura);
+    });
     
-    function renderLista(lista,containerId){
-        const container=document.getElementById(containerId);
-        if(lista.length===0){container.innerHTML='<div class="empty">✅ Nenhum</div>';return}
-        container.innerHTML=lista.map(c=>{
-            const d=toDate(c.data_abertura);
-            return`<div class="card${c.prioridade==='Crítica'?' critico':''}">
-                <div class="proto">📋 ${sanitizar(c.protocolo||'—')}</div>
-                <div class="titulo">${sanitizar(c.titulo||'Sem título')}</div>
-                <div class="info"><span class="setor">📍 ${sanitizar(c.setor||'—')}</span><span>⚡ ${sanitizar(c.prioridade||'—')}</span></div>
-                <div class="info" style="margin-top:5px;"><span>🕐 ${fmtData(c.data_abertura)}</span><span>📊 ${sanitizar(c.status||'—')}</span></div>
-            </div>`;
-        }).join('');
-    }
-    renderLista(dia,'listaDia');
-    renderLista(atrasados,'listaAtrasados');
+    container.innerHTML=ordenada.map(c=>{
+        const d=toDate(c.data_abertura);
+        const isCritico=c.prioridade==='Crítica';
+        const isNovo=(new Date()-d)<60000; // Menos de 1 minuto = novo
+        
+        return`<div class="card${isCritico?' critico':''}${isNovo?' novo':''}">
+            <div class="proto">📋 ${sanitizar(c.protocolo||'—')}</div>
+            <div class="titulo">${sanitizar(c.titulo||'Sem título')}</div>
+            <div class="info">
+                <span class="setor">📍 ${sanitizar(c.setor||'—')}</span>
+                <span>⚡ ${sanitizar(c.prioridade||'—')}</span>
+            </div>
+            <div class="info" style="margin-top:5px;">
+                <span>🕐 ${fmtData(c.data_abertura)}</span>
+                <span>📊 ${sanitizar(c.status||'—')}</span>
+            </div>
+            ${c.solicitante?`<div style="font-size:14px;margin-top:5px;color:#aaa;">👤 ${sanitizar(c.solicitante)}</div>`:''}
+        </div>`;
+    }).join('');
 }
 
+// ============================================
+// 🔥 ESCUTAR EM TEMPO REAL (CORRIGIDO)
+// ============================================
+function escutarChamadosEmTempoReal(){
+    // Remover listeners anteriores
+    listenersAtivos.forEach(unsub=>{if(typeof unsub==='function')unsub()});
+    listenersAtivos=[];
+    
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
+    
+    // Listener para chamados do DIA
+    const unsubDia=db.collection('chamados')
+        .where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje))
+        .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha))
+        .onSnapshot(snap=>{
+            const dia=[];
+            snap.forEach(d=>{const x=d.data();x.fid=d.id;dia.push(x)});
+            
+            // Verificar se é um novo chamado
+            if(dia.length>ultimoContadorDia){
+                tocarAlerta();
+                mostrarFlash();
+                console.log('🔔 NOVO CHAMADO! Total do dia:',dia.length);
+            }
+            ultimoContadorDia=dia.length;
+            
+            renderizarLista(dia,'listaDia','contadorDia');
+        });
+    listenersAtivos.push(unsubDia);
+    
+    // Listener para chamados ATRASADOS (todos os não concluídos antes de hoje)
+    const unsubAtrasados=db.collection('chamados')
+        .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(hoje))
+        .onSnapshot(snap=>{
+            const atrasados=[];
+            snap.forEach(d=>{
+                const x=d.data();x.fid=d.id;
+                if(x.status!=='Concluído')atrasados.push(x);
+            });
+            
+            // Verificar se aumentou
+            if(atrasados.length>ultimoContadorAtrasados){
+                console.log('⚠️ Chamado atrasado detectado! Total:',atrasados.length);
+            }
+            ultimoContadorAtrasados=atrasados.length;
+            
+            renderizarLista(atrasados,'listaAtrasados','contadorAtrasados');
+        });
+    listenersAtivos.push(unsubAtrasados);
+    
+    console.log('✅ Listeners ativos - Atualização em TEMPO REAL');
+}
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
 function init(){
     const u=localStorage.getItem('usuario_logado');
-    if(!u){document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN</div>';return}
-    atualizarRelogio();setInterval(atualizarRelogio,1000);
-    carregarDados();setInterval(carregarDados,30000);
+    if(!u){
+        document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN</div>';
+        return;
+    }
+    
+    atualizarRelogio();
+    setInterval(atualizarRelogio,1000);
+    
+    // 🔥 INICIAR LISTENERS EM TEMPO REAL
+    escutarChamadosEmTempoReal();
 }
+
+// Reiniciar listeners ao voltar para a aba
+document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden){
+        escutarChamadosEmTempoReal();
+    }
+});
+
 window.addEventListener('load',init);
 </script>
 </body>

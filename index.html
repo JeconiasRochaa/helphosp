@@ -3,735 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#06224a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HelpHosp">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+
     <title>HelpHosp - Central de Chamados</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#06224a">
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0B3B5C; --primary-light: #1E4F6E; --secondary: #2F9B8F;
-            --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6;
-            --dark: #0F172A; --gray: #64748B; --light: #F8FAFC; --white: #FFFFFF;
-            --gradient: linear-gradient(135deg, #0B3B5C 0%, #1E4F6E 100%);
-            --azul-escuro: #06224a; --dourado: #c8a94a; --cinza-claro: #c9d2df;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-
-        body { background: var(--azul-escuro); min-height: 100vh; position: relative; overflow-x: hidden; }
-
-        .bg-grid { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
-        .bg-glow { position: fixed; top: -50%; right: -20%; width: 700px; height: 700px; background: radial-gradient(circle, rgba(200,169,74,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0; animation: glowPulse 8s ease-in-out infinite; }
-        @keyframes glowPulse { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
-
-        .ecg-container { position: fixed; bottom: 0; left: 0; width: 100%; height: 100px; z-index: 0; pointer-events: none; opacity: 0.6; }
-        .ecg-container svg { width: 100%; height: 100%; }
-        .ecg-path { fill: none; stroke: var(--dourado); stroke-width: 2; stroke-dasharray: 1200; animation: ecgAnimate 3s linear infinite; }
-        .ecg-path:nth-child(2) { animation-delay: 0.75s; stroke-width: 1.5; opacity: 0.7; }
-        .ecg-path:nth-child(3) { animation-delay: 1.5s; stroke-width: 1; opacity: 0.5; }
-        @keyframes ecgAnimate { 0% { stroke-dashoffset: 1200; } 100% { stroke-dashoffset: 0; } }
-
-        .header { background: var(--gradient); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 20px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid rgba(200,169,74,0.2); flex-wrap: wrap; gap: 10px; }
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { position: relative; width: 44px; height: 44px; border: 2px solid var(--dourado); border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(200,169,74,0.08); }
-        .logo-icon i { font-size: 22px; color: var(--dourado); position: relative; z-index: 1; }
-        .logo-mini-ecg { position: absolute; bottom: 7px; left: 8px; right: 8px; height: 2px; background: var(--dourado); border-radius: 1px; animation: miniEcg 1.5s ease-in-out infinite; }
-        @keyframes miniEcg { 0%,100% { clip-path: inset(0 70% 0 0); opacity: 0.4; } 40% { clip-path: inset(0 20% 0 0); opacity: 0.8; } 60% { clip-path: inset(0 0 0 0); opacity: 1; } 80% { clip-path: inset(0 30% 0 0); opacity: 0.6; } }
-        .logo h1 { font-size: 20px; letter-spacing: -0.3px; line-height: 1.1; }
-        .logo h1 .help { color: var(--cinza-claro); font-weight: 300; }
-        .logo h1 .hosp { color: white; font-weight: 700; }
-        .logo span { display: block; font-size: 9px; color: var(--dourado); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .btn-area-tecnica { background: rgba(255,255,255,0.08); color: white; padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 500; border: 1px solid rgba(200,169,74,0.3); display: flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
-        .btn-area-tecnica:hover { background: rgba(200,169,74,0.15); border-color: var(--dourado); transform: translateY(-1px); }
-
-        .main-container { max-width: 900px; margin: 20px auto; padding: 0 16px; position: relative; z-index: 1; }
-        .welcome-banner { background: var(--gradient); border-radius: 20px; padding: 24px; margin-bottom: 20px; color: white; border: 1px solid rgba(200,169,74,0.2); position: relative; overflow: hidden; }
-        .welcome-banner h2 { font-size: 20px; position: relative; }
-        .welcome-banner p { font-size: 13px; opacity: 0.9; position: relative; }
-
-        .suporte-container { background: white; border-radius: 16px; padding: 18px; margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        .suporte-header { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
-        .suporte-icon-wrapper { width: 40px; height: 40px; background: linear-gradient(135deg, #1a3a5c, #2c5282); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
-        .suporte-header h3 { color: var(--dark); font-size: 15px; }
-        .suporte-header .seta { margin-left: auto; transition: 0.3s; color: var(--gray); }
-        .suporte-header .seta.open { transform: rotate(180deg); }
-        .suporte-contatos { display: none; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-        .suporte-contatos.open { display: flex; }
-        .contato-card { display: flex; align-items: center; gap: 10px; background: #f9fafb; padding: 10px 14px; border-radius: 10px; text-decoration: none; color: var(--dark); border: 1px solid #e5e7eb; transition: 0.3s; flex: 1 1 200px; min-width: 180px; }
-        .contato-card:hover { background: #f0fdf4; border-color: #bbf7d0; transform: translateY(-2px); }
-        .contato-avatar { width: 34px; height: 34px; background: #F0F4F8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-        .contato-card strong { font-size: 12px; display: block; }
-        .contato-card small { font-size: 9px; color: var(--gray); }
-        .depto-tag { font-size: 9px; padding: 2px 7px; border-radius: 5px; font-weight: 600; margin-left: auto; white-space: nowrap; }
-        .depto-ti { background: #dbeafe; color: #1e40af; }
-        .depto-manutencao { background: #fef3c7; color: #92400e; }
-
-        .action-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-bottom: 20px; }
-        .action-card { background: white; border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent; position: relative; overflow: hidden; }
-        .action-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient); transform: scaleX(0); transition: transform 0.3s; }
-        .action-card:hover { transform: translateY(-3px); border-color: var(--secondary); }
-        .action-card:hover::after { transform: scaleX(1); }
-        .card-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; border: 1px solid rgba(200,169,74,0.3); }
-        .card-icon i { font-size: 22px; color: white; }
-        .action-card h3 { font-size: 15px; color: var(--primary); margin-bottom: 4px; }
-        .action-card p { color: var(--gray); font-size: 11px; }
-        .card-ti { border-left: 3px solid #3B82F6; } .card-ti .card-icon { background: linear-gradient(135deg, #1e40af, #3B82F6); }
-        .card-manutencao { border-left: 3px solid #F59E0B; } .card-manutencao .card-icon { background: linear-gradient(135deg, #92400e, #F59E0B); }
-        .card-gesthosp { border-left: 3px solid #8B5CF6; } .card-gesthosp .card-icon { background: linear-gradient(135deg, #5B21B6, #8B5CF6); }
-        .card-meus-chamados { border-left: 3px solid #10B981; } .card-meus-chamados .card-icon { background: linear-gradient(135deg, #065F46, #10B981); }
-        .card-dep-0 { border-left-color: #3B82F6; } .card-dep-0 .card-icon { background: linear-gradient(135deg, #1e40af, #3B82F6); }
-        .card-dep-1 { border-left-color: #F59E0B; } .card-dep-1 .card-icon { background: linear-gradient(135deg, #92400e, #F59E0B); }
-        .card-dep-2 { border-left-color: #8B5CF6; } .card-dep-2 .card-icon { background: linear-gradient(135deg, #5B21B6, #8B5CF6); }
-        .card-dep-3 { border-left-color: #10B981; } .card-dep-3 .card-icon { background: linear-gradient(135deg, #065F46, #10B981); }
-        .card-dep-4 { border-left-color: #EF4444; } .card-dep-4 .card-icon { background: linear-gradient(135deg, #991B1B, #EF4444); }
-        .card-dep-5 { border-left-color: #EC4899; } .card-dep-5 .card-icon { background: linear-gradient(135deg, #9D174D, #EC4899); }
-        .card-dep-6 { border-left-color: #6366F1; } .card-dep-6 .card-icon { background: linear-gradient(135deg, #3730A3, #6366F1); }
-        .card-dep-7 { border-left-color: #14B8A6; } .card-dep-7 .card-icon { background: linear-gradient(135deg, #0F766E, #14B8A6); }
-
-        .form-container { background: white; border-radius: 18px; padding: 24px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .form-container.active { display: block; animation: slideDown 0.3s; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb; }
-        .form-header h2 { color: var(--primary); font-size: 18px; }
-        .btn-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: #f1f5f9; color: var(--gray); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .btn-close:hover { background: #fee2e2; color: #ef4444; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-weight: 600; font-size: 11px; margin-bottom: 3px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: inherit; background: #f8fafc; transition: all 0.2s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--secondary); background: white; }
-        .form-section { background: #f0fdf4; padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid #10B981; }
-        .form-section h4 { color: #065f46; margin-bottom: 8px; font-size: 13px; }
-        .depto-indicator { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 12px; font-weight: 600; }
-        .depto-indicator.ti { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
-        .depto-indicator.manutencao { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
-        .btn-submit { width: 100%; padding: 12px; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .btn-submit:hover { transform: translateY(-1px); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-submit-gh { background: linear-gradient(135deg,#059669,#10b981); }
-
-        .chamados-container { background: white; border-radius: 18px; padding: 24px; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-        .chamados-container.active { display: block; }
-        .chamado-card { background: #f8fafc; border-radius: 10px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-left: 4px solid var(--info); cursor: pointer; transition: all 0.2s; flex-wrap: wrap; gap: 8px; }
-        .chamado-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .chamado-card.concluido { border-left-color: #10B981; opacity: 0.8; }
-        .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; white-space: nowrap; }
-        .status-afazer { background: #fef3c7; color: #92400e; }
-        .status-emandamento { background: #dbeafe; color: #1e40af; }
-        .status-concluido { background: #d1fae5; color: #065f46; }
-        .status-pendente { background: #fee2e2; color: #991b1b; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; padding: 16px; }
-        .modal-overlay.ativo { display: flex; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-box { background: white; border-radius: 16px; padding: 22px; width: 100%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .modal-box h3 { color: var(--primary); margin-bottom: 10px; font-size: 16px; }
-        .modal-box .fecha { float: right; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--gray); padding: 4px 8px; }
-
-        .toast-notification { position: fixed; top: 16px; right: 16px; background: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; max-width: 340px; animation: toastSlideIn 0.4s ease, toastSlideOut 0.4s ease 3.5s forwards; border-left: 4px solid var(--success); font-size: 13px; }
-        @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes toastSlideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
-        .spinner { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: var(--secondary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 16px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 768px) {
-            .header { padding: 10px 14px; } .logo h1 { font-size: 17px; } .logo-icon { width: 38px; height: 38px; } .logo-icon i { font-size: 18px; }
-            .action-grid { grid-template-columns: 1fr 1fr; gap: 10px; } .action-card { padding: 18px; } .action-card h3 { font-size: 13px; } .card-icon { width: 40px; height: 40px; } .card-icon i { font-size: 18px; }
-            .form-row { grid-template-columns: 1fr; } .form-container { padding: 18px; } .welcome-banner { padding: 18px; } .welcome-banner h2 { font-size: 17px; }
-        }
-        @media (max-width: 480px) {
-            .main-container { padding: 0 10px; margin: 12px auto; } .action-grid { grid-template-columns: 1fr; gap: 8px; } .action-card { padding: 16px; }
-            .header { flex-direction: column; gap: 8px; text-align: center; } .header-right { width: 100%; justify-content: center; } .btn-area-tecnica { width: 100%; justify-content: center; }
-            .suporte-contatos { flex-direction: column; } .contato-card { min-width: 100%; } .form-container { padding: 14px; border-radius: 14px; } .modal-box { padding: 16px; max-width: 95%; } .chamado-card { flex-direction: column; align-items: flex-start; }
-        }
-    </style>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-<div class="bg-grid"></div>
-<div class="bg-glow"></div>
-<div class="ecg-container">
-    <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
-        <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50"/>
-        <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50"/>
-        <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50"/>
-    </svg>
-</div>
-
-<header class="header">
-    <div class="logo">
-        <div class="logo-icon"><i class="fas fa-hospital"></i><div class="logo-mini-ecg"></div></div>
-        <div>
-            <h1>
-                <span class="help">Help</span>
-                <span class="hosp">Hosp</span>
-            </h1>
-            <span>CENTRAL DE CHAMADOS</span>
-        </div>
-    </div>
-    <div class="header-right">
-        <a href="admin.html" class="btn-area-tecnica">
-            <i class="fas fa-shield-alt"></i> Área Técnica</a>
-    </div>
-</header>
-
-<main class="main-container">
-    <div class="welcome-banner">
-        <h2>🏥 Central de Chamados</h2>
-        <p>Selecione o departamento desejado abaixo para abrir um chamado.</p>
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="ecg-container">
+        <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+            <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50"/>
+            <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50"/>
+            <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50"/>
+        </svg>
     </div>
 
-    <!-- SUPORTE -->
-    <div class="suporte-container">
-        <div class="suporte-header" onclick="toggleSuporte()">
-            <div class="suporte-icon-wrapper"><i class="fas fa-headset"></i></div>
-            <h3>Suporte Técnico</h3>
-            <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
-        </div>
-        <div class="suporte-contatos" id="contatosSuporte">
-            <span style="color:var(--gray);font-size:12px;">Carregando contatos...</span>
-        </div>
-    </div>
-
-    <!-- GRID DE DEPARTAMENTOS -->
-    <div class="action-grid" id="actionGrid">
-        <div style="text-align:center;padding:20px;color:white;grid-column:1/-1;">
-            <div class="spinner" style="border-top-color:white;"></div>
-            <p>Carregando departamentos...</p>
-        </div>
-    </div>
-
-    <!-- FORMULÁRIO CHAMADO -->
-    <div class="form-container" id="formChamado">
-        <div class="form-header"><h2 id="formTitle">Novo Chamado</h2>
-            <button class="btn-close" onclick="fecharTudo()">&times;</button>
-        </div>
-        <div class="depto-indicator" id="deptoIndicator" style="display:none;">
-            <span id="deptoIndicatorText"></span>
-        </div>
-        <form onsubmit="criarChamado(event)">
-            <input type="hidden" id="departamento" value="">
-            <div class="form-row">
-                <div class="form-group"><label>Seu Nome *</label><input type="text" id="solicitante" required></div>
-                <div class="form-group"><label>Contato</label><input type="text" id="contato" placeholder="WhatsApp/Ramal"></div>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-hospital"></i>
+                <div class="logo-mini-ecg"></div>
             </div>
-            <div class="form-row">
-                <div class="form-group"><label>Setor *</label>
-                    <select id="setor" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Problema *</label>
-                    <select id="categoria" required onchange="atualizarPrioridadeAuto()">
-                    <option value="">Selecione o departamento primeiro</option>
-                    </select>
-                </div>
+            <div>
+                <h1>
+                    <span class="help">Help</span>
+                    <span class="hosp">Hosp</span>
+                </h1>
+                <span>CENTRAL DE CHAMADOS</span>
             </div>
-            <input type="hidden" id="prioridade" value="Média">
-            <div class="form-group">
-                <label>Título *</label>
-                <input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras">
-            </div>
-            <div class="form-group">
-                <label>Descrição</label>
-                <textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea>
-            </div>
-            <button type="submit" class="btn-submit" id="btnSubmitChamado" style="background:var(--gradient);">
-                <i class="fas fa-paper-plane"></i> Enviar Chamado</button>
-        </form>
-    </div>
-
-    <!-- FORMULÁRIO GESTHOSP -->
-    <div class="form-container" id="formGestHosp">
-        <div class="form-header">
-            <h2>🆕 Solicitar Cadastro - GestHosp</h2>
-            <button class="btn-close" onclick="fecharTudo()">&times;</button>
         </div>
-        <div class="depto-indicator ti">
-            <span>🖥️ Este chamado será enviado para a equipe de TI</span>
+        <div class="header-right">
+            <a href="login.html" class="btn-area-tecnica">
+                <i class="fas fa-shield-alt"></i> Área Técnica
+            </a>
         </div>
-        <form onsubmit="criarGestHosp(event)">
-            <!-- DADOS PESSOAIS -->
-            <div class="form-section"><h4>👤 Dados Pessoais</h4>
-                <div class="form-row">
-                    <div class="form-group"><label>Nome Completo *</label>
-                        <input type="text" id="ghNome" required placeholder="Nome completo do profissional">
-                    </div>
-                    <div class="form-group">
-                        <label>CPF *</label>
-                        <input type="text" id="ghCpf" required placeholder="000.000.000-00">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>RG</label>
-                        <input type="text" id="ghRG" placeholder="00.000.000-0">
-                    </div>
-                    <div class="form-group">
-                        <label>Data de Nascimento</label>
-                        <input type="date" id="ghDataNasc">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>E-mail *</label>
-                        <input type="email" id="ghEmail" required placeholder="email@exemplo.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Telefone *</label>
-                        <input type="text" id="ghTel" required placeholder="(00) 00000-0000">
-                    </div>
-                </div>
-            </div>
-            <!-- ENDEREÇO -->
-            <div class="form-section"><h4>📍 Endereço</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>CEP</label>
-                        <input type="text" id="ghCEP" placeholder="00000-000" onblur="buscarCEP()">
-                    </div>
-                    <div class="form-group">
-                        <label>Logradouro</label>
-                        <input type="text" id="ghLogradouro" placeholder="Rua, Avenida...">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Número</label>
-                        <input type="text" id="ghNumero" placeholder="Nº">
-                    </div>
-                    <div class="form-group">
-                        <label>Complemento</label>
-                        <input type="text" id="ghComplemento" placeholder="Apto, Bloco...">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Bairro</label>
-                        <input type="text" id="ghBairro" placeholder="Bairro">
-                    </div>
-                    <div class="form-group">
-                        <label>Cidade *</label>
-                        <input type="text" id="ghCidade" required placeholder="Cidade">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Estado *</label>
-                        <select id="ghEstado" required>
-                            <option value="">Selecione...</option>
-                        <option value="AC">Acre</option>
-                        <option value="AL">Alagoas</option>
-                        <option value="AP">Amapá</option>
-                        <option value="AM">Amazonas</option>
-                        <option value="BA">Bahia</option>
-                        <option value="CE">Ceará</option>
-                        <option value="DF">Distrito Federal</option>
-                        <option value="ES">Espírito Santo</option>
-                        <option value="GO">Goiás</option>
-                        <option value="MA">Maranhão</option>
-                        <option value="MT">Mato Grosso</option>
-                        <option value="MS">Mato Grosso do Sul</option>
-                        <option value="MG">Minas Gerais</option>
-                        <option value="PA">Pará</option>
-                        <option value="PB">Paraíba</option>
-                        <option value="PR">Paraná</option>
-                        <option value="PE">Pernambuco</option>
-                        <option value="PI">Piauí</option>
-                        <option value="RJ">Rio de Janeiro</option>
-                        <option value="RN">Rio Grande do Norte</option>
-                        <option value="RS">Rio Grande do Sul</option>
-                        <option value="RO">Rondônia</option>
-                        <option value="RR">Roraima</option>
-                        <option value="SC">Santa Catarina</option>
-                        <option value="SP">São Paulo</option>
-                        <option value="SE">Sergipe</option>
-                        <option value="TO">Tocantins</option>
-                    </select>
-                    </div>
-                    <div class="form-group">
-                        <label>País</label>
-                        <input type="text" id="ghPais" value="Brasil" readonly>
-                    </div>
-                </div>
-            </div>
-            <!-- DADOS PROFISSIONAIS -->
-            <div class="form-section"><h4>🏥 Dados Profissionais</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Profissão *</label>
-                        <input type="text" id="ghProfissao" required placeholder="Médico, Enfermeiro...">
-                    </div>
-                    <div class="form-group">
-                        <label>Nº Conselho</label>
-                        <input type="text" id="ghNumConselho" placeholder="CRM, COREN...">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Observações</label>
-                    <textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea>
-                </div>
-            </div>
-            <button type="submit" class="btn-submit btn-submit-gh" id="btnSubmitGestHosp">
-                <i class="fas fa-user-plus"></i> Solicitar Cadastro</button>
-        </form>
-    </div>
+    </header>
 
-    <!-- MEUS CHAMADOS -->
-    <div class="chamados-container" id="chamadosContainer">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-            <h2 style="color:var(--primary);font-size:16px;">📋 Meus Chamados de Hoje</h2>
-            <button class="btn-close" onclick="fecharTudo()" style="padding:6px 12px;font-size:11px;">← Voltar</button>
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <h2>🏥 Central de Chamados</h2>
+            <p>Selecione o departamento desejado abaixo para abrir um chamado.</p>
         </div>
-        <div id="listaChamados"></div>
+
+        <!-- Suporte Técnico -->
+        <div class="suporte-container">
+            <div class="suporte-header" onclick="toggleSuporte()">
+                <div class="suporte-icon-wrapper">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>Suporte Técnico</h3>
+                <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+            </div>
+            <div class="suporte-contatos" id="contatosSuporte">
+                <span class="loading-text">Carregando contatos...</span>
+            </div>
+        </div>
+
+        <!-- Grid de Departamentos -->
+        <div class="action-grid" id="actionGrid">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p>Carregando departamentos...</p>
+            </div>
+        </div>
+
+        <!-- Formulário de Chamado -->
+        <div class="form-container" id="formChamado">
+            <div class="form-header">
+                <h2 id="formTitle">Novo Chamado</h2>
+                <button class="btn-close" onclick="fecharTudo()">&times;</button>
+            </div>
+            <div class="depto-indicator" id="deptoIndicator" style="display:none;">
+                <span id="deptoIndicatorText"></span>
+            </div>
+            <form id="chamadoForm" onsubmit="return false;">
+    <input type="hidden" id="departamento" value="">
+    <div class="form-row">
+        <div class="form-group">
+            <label>Seu Nome *</label>
+            <input type="text" id="solicitante" required>
+        </div>
+        <div class="form-group">
+            <label>Contato</label>
+            <input type="text" id="contato" placeholder="WhatsApp/Ramal">
+        </div>
     </div>
-</main>
-
-<!-- MODAL DETALHES -->
-<div class="modal-overlay" id="modalDetalhes">
-    <div class="modal-box">
-        <button class="fecha" onclick="document.getElementById('modalDetalhes').classList.remove('ativo')">&times;</button>
-        <div id="detalhesConteudo"></div>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Setor *</label>
+            <select id="setor" required>
+                <option value="">Selecione...</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Tipo de Problema *</label>
+            <select id="categoria" required onchange="atualizarPrioridadeAuto()">
+                <option value="">Selecione o departamento primeiro</option>
+            </select>
+        </div>
     </div>
-</div>
-
-<script>
-// ============================================
-// FIREBASE
-// ============================================
-const fc = { apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE", authDomain: "helphosp.firebaseapp.com", projectId: "helphosp", storageBucket: "helphosp.firebasestorage.app", messagingSenderId: "1075623193163", appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce" };
-firebase.initializeApp(fc);
-const db = firebase.firestore();
-
-// ============================================
-// VARIÁVEIS GLOBAIS
-// ============================================
-let departamentosChamados = ['TI', 'MANUTENCAO'];
-let setores = [];
-let departamentoSelecionado = '';
-
-const CATEGORIAS_PADRAO = {
-    TI: ['Computador não liga','Computador lento/travando','Monitor com defeito','Teclado/Mouse quebrado','Impressora não funciona','Impressora sem toner','Sistema fora do ar','Sistema com erro','Rede fora do ar','Internet lenta','Wi-Fi não conecta','Senha bloqueada','Acesso ao sistema','Telefone com defeito','Instalação de software','Cabo de rede danificado','Outros - TI'],
-    
-    MANUTENCAO: ['Problema elétrico','Tomada quebrada','Lâmpada queimada','Disjuntor desarmando','Vazamento de água','Torneira pingando','Descarga com problema','Pia entupida','Ar-condicionado não gela','Ar-condicionado pingando','Pintura danificada','Parede com infiltração','Móvel quebrado','Porta com problema','Janela quebrada','Telhado com goteira','Piso danificado','Fechadura com defeito','Gases medicinais','Temperatura do ar-condicionado','Vaso sanitário entupido','Cilíndro de oxigênio','Vácuo','Fluxômetro','Outros - Manutenção']
-};
-
-// Prioridade automática definida pelo o técnico (Jacó/Bruno).
-const PRIORIDADE_POR_CATEGORIA = {
-    // TI - Crítica
-    'Sistema fora do ar': 'Crítica',
-    'Rede fora do ar': 'Crítica',
-
-    // TI - Alta
-    'Computador não liga': 'Alta',
-    'Impressora não funciona': 'Alta',
-    'Sistema com erro': 'Alta',
-    'Telefone com defeito': 'Alta',
-    'Cabo de rede danificado': 'Alta',
-
-    // TI - Média
-    'Computador lento/travando': 'Média',
-    'Monitor com defeito': 'Média',
-    'Teclado/Mouse quebrado': 'Média',
-    'Internet lenta': 'Média',
-    'Wi-Fi não conecta': 'Média',
-    'Senha bloqueada': 'Média',
-    'Acesso ao sistema': 'Média',
-    'Outros - TI': 'Média',
-
-    // TI - Baixa
-    'Impressora sem toner': 'Baixa',
-    'Instalação de software': 'Baixa',
-
-    // MANUTENÇÃO - Crítica
-    'Gases medicinais': 'Crítica',
-    'Problema elétrico': 'Crítica',
-    'Disjuntor desarmando': 'Crítica',
-
-    // MANUTENÇÃO - Alta
-    'Vazamento de água': 'Alta',
-    'Tomada quebrada': 'Alta',
-    'Ar-condicionado não gela': 'Alta',
-    'Ar-condicionado pingando': 'Alta',
-    'Piso danificado': 'Alta',
-    'Fechadura com defeito': 'Alta',
-    'Telhado com goteira': 'Alta',
-    'Fluxômetro': 'Alta',
-    'Vácuo': 'Alta',
-    'Cilíndro de oxigênio': 'Alta',
-
-    // MANUTENÇÃO - Média
-    'Pia entupida': 'Média',
-    'Porta com problema': 'Média',
-    'Janela quebrada': 'Média',
-    'Parede com infiltração': 'Média',
-    'Móvel quebrado': 'Média',
-    'Descarga com problema': 'Média',
-    'Vaso sanitário entupido': 'Média',
-    'Outros - Manutenção': 'Média',
-    
-
-    // MANUTENÇÃO - Baixa
-    'Lâmpada queimada': 'Baixa',
-    'Torneira pingando': 'Baixa',
-    'Pintura danificada': 'Baixa',
-    'Temperatura do ar-condicionado': 'Baixa'
-};
-
-function getPrioridadePorCategoria(categoria) {
-    return PRIORIDADE_POR_CATEGORIA[categoria] || 'Média';
-}
-
-function atualizarPrioridadeAuto() {
-    const cat = document.getElementById('categoria')?.value || '';
-    const campo = document.getElementById('prioridade');
-    if (campo) campo.value = getPrioridadePorCategoria(cat);
-}
-
-// ============================================
-// CONFIGURAÇÕES
-// ============================================
-async function carregarConfiguracoes() {
-    try {
-        const dd = await db.collection('configuracoes').doc('departamentos_chamados').get();
-        if (dd.exists && dd.data().departamentos) departamentosChamados = dd.data().departamentos;
-        const ds = await db.collection('configuracoes').doc('setores').get();
-        if (ds.exists && ds.data().setores) { setores = ds.data().setores; } else { setores = ['Almoxarifado',
-                                                                                               'CAF Principal',
-                                                                                               'CAF CR',
-                                                                                               'Centro Cirúrgico',
-                                                                                               'Clínica Cirurgica',
-                                                                                               'Clínica Médica I',
-                                                                                               'Clínica Médica II',
-                                                                                               'Comunicação',
-                                                                                               'Direção Administrativa',
-                                                                                               'Direção Enfermagem',
-                                                                                               'Direção geral',
-                                                                                               'Direção Medica',
-                                                                                               'Emergência/Vermelha',
-                                                                                               'Engenharia Clinica',
-                                                                                               'Farmácia',
-                                                                                               'Faturamento',
-                                                                                               'Fisioterapia',
-                                                                                               'Hotelaria',
-                                                                                               'Juridico',
-                                                                                               'Laboratório',
-                                                                                               'Manutenção',
-                                                                                               'NIR',
-                                                                                               'Nutrição',
-                                                                                               'Oncologia I',
-                                                                                               'Oncologia II',
-                                                                                               'Outros',
-                                                                                               'Ouvidoria',
-                                                                                               'Patrimonio',
-                                                                                               'Pediatria',
-                                                                                               'Psicologia',
-                                                                                               'RH',
-                                                                                               'Raio-X',
-                                                                                               'Recepção CR',
-                                                                                               'Recepção Geral',
-                                                                                               'Recepção Nefrologia',
-                                                                                               'Same',
-                                                                                               'Serviço Social',
-                                                                                               'Sesmt',
-                                                                                               'Telemedicina',
-                                                                                               'Tomografia',
-                                                                                               'UTI I',
-                                                                                               'UTI II']; }
-        renderizarActionGrid(); preencherSetores(); carregarContatos();
-    } catch (e) { renderizarActionGrid(); preencherSetores(); carregarContatos(); }
-}
-
-// ============================================
-// RENDERIZAR GRID
-// ============================================
-function renderizarActionGrid() {
-    const grid = document.getElementById('actionGrid'); if (!grid) return;
-    const cores = ['dep-0','dep-1','dep-2','dep-3','dep-4','dep-5','dep-6','dep-7'];
-    const icones = { 'TI': 'fa-desktop', 'MANUTENCAO': 'fa-tools' };
-    const titulos = { 'TI': '🖥️ Tecnologia da Informação', 'MANUTENCAO': '🔧 Manutenção' };
-    const descricoes = { 'TI': 'Computadores, sistemas, rede, internet, e-mail, senhas', 'MANUTENCAO': 'Elétrica, hidráulica, ar-condicionado, estrutura, pintura' };
-    let html = '';
-    departamentosChamados.forEach((dep, i) => {
-        html += `<div class="action-card card-${cores[i % cores.length]}" onclick="abrirFormulario('${dep}')">
-        <div class="card-icon"><i class="fas ${icones[dep] || 'fa-building'}"></i></div><h3>${titulos[dep] || `📋 ${dep}`}</h3><p>${descricoes[dep] || `Chamados para ${dep}`}</p></div>`;
-    });
-    html += `<div class="action-card card-gesthosp" onclick="abrirGestHosp()">
-    <div class="card-icon">
-    <i class="fas fa-user-plus"></i>
+    <input type="hidden" id="prioridade" value="Média">
+    <div class="form-group">
+        <label>Título *</label>
+        <input type="text" id="titulo" required placeholder="Descreva o problema em poucas palavras">
     </div>
-    <h3>Cadastro GestHosp</h3>
-    <p>Solicitar cadastro de profissional</p>
-    </div>`;
-    html += `<div class="action-card card-meus-chamados" onclick="mostrarMeusChamados()">
-    <div class="card-icon">
-    <i class="fas fa-clipboard-list"></i></div>
-    <h3>Meus Chamados</h3>
-    <p>Chamados de hoje e pendentes</p></div>`;
-    grid.innerHTML = html;
-}
+    <div class="form-group">
+        <label>Descrição</label>
+        <textarea id="descricao" rows="3" placeholder="Detalhe o problema, local, equipamento..."></textarea>
+    </div>
+    <button type="button" class="btn-submit" id="btnSubmitChamado" style="background:var(--gradient);">
+        <i class="fas fa-paper-plane"></i> Enviar Chamado
+    </button>
+</form>
+        </div>
 
-function preencherSetores() {
-    const s = document.getElementById('setor'); if (!s) return;
-    s.innerHTML = '<option value="">Selecione o setor...</option>' + setores.map(x => `<option value="${x}">${x}</option>`).join('');
-}
+        <!-- Formulário GestHosp -->
+        <div class="form-container" id="formGestHosp">
+            <div class="form-header">
+                <h2>🆕 Solicitar Cadastro - GestHosp</h2>
+                <button class="btn-close" onclick="fecharTudo()">&times;</button>
+            </div>
+            <div class="depto-indicator ti">
+                <span>🖥️ Este chamado será enviado para a equipe de TI</span>
+            </div>
+            <form id="gestHospForm" onsubmit="return false;">
+                <!-- Dados Pessoais -->
+                <div class="form-section">
+                    <h4>👤 Dados Pessoais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome Completo *</label>
+                            <input type="text" id="ghNome" required placeholder="Nome completo do profissional">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF *</label>
+                            <input type="text" id="ghCpf" required placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>RG</label>
+                            <input type="text" id="ghRG" placeholder="00.000.000-0">
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Nascimento</label>
+                            <input type="date" id="ghDataNasc">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-mail *</label>
+                            <input type="email" id="ghEmail" required placeholder="email@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone *</label>
+                            <input type="text" id="ghTel" required placeholder="(00) 00000-0000">
+                        </div>
+                    </div>
+                </div>
 
-function carregarContatos() {
-    db.collection('usuarios').where('status', '==', 'ativo').get().then(snap => {
-        const c = document.getElementById('contatosSuporte');
-        if (snap.empty) { c.innerHTML = '<span style="color:var(--gray);font-size:12px;">Nenhum técnico disponível</span>'; return; }
-        let h = '';
-        snap.forEach(doc => {
-            const u = doc.data(); if (!u.whatsapp) return;
-            const w = u.whatsapp.replace(/\D/g, '');
-            h += `<a href="https://wa.me/55${w}" target="_blank" class="contato-card">
-            <div class="contato-avatar">${u.departamento==='MANUTENCAO'?'🔧':'🖥️'}</div><div style="flex:1;">
-            <strong>${u.nome||'Técnico'}</strong><small>${u.cargo||''}</small></div>
-            <span class="depto-tag ${u.departamento==='MANUTENCAO'?'depto-manutencao':'depto-ti'}">${u.departamento==='MANUTENCAO'?'MANUTENÇÃO':u.departamento||'TI'}</span></a>`;
-        });
-        c.innerHTML = h || '<span style="color:var(--gray);font-size:12px;">Nenhum contato</span>';
-    });
-}
+                <!-- Endereço -->
+                <div class="form-section">
+                    <h4>📍 Endereço</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>CEP</label>
+                            <input type="text" id="ghCEP" placeholder="00000-000" onblur="buscarCEP()">
+                        </div>
+                        <div class="form-group">
+                            <label>Logradouro</label>
+                            <input type="text" id="ghLogradouro" placeholder="Rua, Avenida...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Número</label>
+                            <input type="text" id="ghNumero" placeholder="Nº">
+                        </div>
+                        <div class="form-group">
+                            <label>Complemento</label>
+                            <input type="text" id="ghComplemento" placeholder="Apto, Bloco...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Bairro</label>
+                            <input type="text" id="ghBairro" placeholder="Bairro">
+                        </div>
+                        <div class="form-group">
+                            <label>Cidade *</label>
+                            <input type="text" id="ghCidade" required placeholder="Cidade">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Estado *</label>
+                            <select id="ghEstado" required>
+                                <option value="">Selecione...</option>
+                                <!-- Estados serão preenchidos via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>País</label>
+                            <input type="text" id="ghPais" value="Brasil" readonly>
+                        </div>
+                    </div>
+                </div>
 
-function toggleSuporte() { document.getElementById('contatosSuporte').classList.toggle('open'); document.getElementById('setaSuporte').classList.toggle('open'); }
+                <!-- Dados Profissionais -->
+                <div class="form-section">
+                    <h4>🏥 Dados Profissionais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Profissão *</label>
+                            <input type="text" id="ghProfissao" required placeholder="Médico, Enfermeiro...">
+                        </div>
+                        <div class="form-group">
+                            <label>Nº Conselho</label>
+                            <input type="text" id="ghNumConselho" placeholder="CRM, COREN...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Observações</label>
+                        <textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea>
+                    </div>
+                </div>
+                <button type="button" class="btn-submit btn-submit-gh" id="btnSubmitGestHosp">
+        <i class="fas fa-user-plus"></i> Solicitar Cadastro
+    </button>
+</form>
+        </div>
 
-// ============================================
-// FORMULÁRIOS
-// ============================================
-function abrirFormulario(dep) {
-    document.getElementById('formChamado').classList.add('active');
-    document.getElementById('formGestHosp').classList.remove('active');
-    document.getElementById('chamadosContainer').classList.remove('active');
-    departamentoSelecionado = dep;
-    document.getElementById('departamento').value = dep;
-    document.getElementById('formTitle').textContent = dep === 'TI' ? '🖥️ Chamado - TI' : dep === 'MANUTENCAO' ? '🔧 Chamado - Manutenção' : `📋 Chamado - ${dep}`;
-    const ind = document.getElementById('deptoIndicator'); ind.style.display = 'flex';
-    if (dep === 'TI') { ind.className = 'depto-indicator ti'; document.getElementById('deptoIndicatorText').textContent = '🖥️ Enviado para TECNOLOGIA DA INFORMAÇÃO'; }
-    else if (dep === 'MANUTENCAO') { ind.className = 'depto-indicator manutencao'; document.getElementById('deptoIndicatorText').textContent = '🔧 Enviado para MANUTENÇÃO'; }
-    else { ind.className = 'depto-indicator ti'; document.getElementById('deptoIndicatorText').textContent = `📋 Enviado para ${dep}`; }
-    const cat = CATEGORIAS_PADRAO[dep] || ['Problema geral','Solicitação','Dúvida','Outros'];
-    document.getElementById('categoria').innerHTML = '<option value="">Selecione...</option>' + cat.map(c => `<option value="${c}">${c}</option>`).join('');
-    atualizarPrioridadeAuto();
-    document.getElementById('solicitante').value = ''; document.getElementById('contato').value = ''; document.getElementById('setor').value = '';
-    document.getElementById('prioridade').value = 'Média'; document.getElementById('titulo').value = ''; document.getElementById('descricao').value = '';
-    document.getElementById('formChamado').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+        <!-- Meus Chamados -->
+        <div class="chamados-container" id="chamadosContainer">
+            <div class="chamados-header">
+                <h2>📋 Meus Chamados de Hoje</h2>
+                <button class="btn-close" onclick="fecharTudo()">← Voltar</button>
+            </div>
+            <div id="listaChamados"></div>
+        </div>
+    </main>
 
-function abrirGestHosp() {
-    document.getElementById('formGestHosp').classList.add('active');
-    document.getElementById('formChamado').classList.remove('active');
-    document.getElementById('chamadosContainer').classList.remove('active');
-    document.getElementById('formGestHosp').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+    <!-- Modal de Detalhes -->
+    <div class="modal-overlay" id="modalDetalhes">
+        <div class="modal-box">
+            <button class="fecha" onclick="fecharModal()">&times;</button>
+            <div id="detalhesConteudo"></div>
+        </div>
+    </div>
 
-function fecharTudo() { document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active'); document.getElementById('chamadosContainer').classList.remove('active'); }
-
-// ============================================
-// CRIAR CHAMADO
-// ============================================
-function criarChamado(e) {
-    e.preventDefault();
-    const dep = document.getElementById('departamento').value || departamentoSelecionado;
-    const cat = document.getElementById('categoria').value, titulo = document.getElementById('titulo').value.trim();
-    const solicitante = document.getElementById('solicitante').value.trim(), setor = document.getElementById('setor').value;
-    if (!dep || !cat || !titulo || !solicitante || !setor) { toast('Preencha todos os campos obrigatórios', 'warning'); return; }
-    const prioridade = getPrioridadePorCategoria(cat);
-    const campoPrioridade = document.getElementById('prioridade');
-    if (campoPrioridade) campoPrioridade.value = prioridade;
-    const btn = document.getElementById('btnSubmitChamado'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    const chamado = { protocolo: 'CH-' + Date.now().toString(36).toUpperCase().slice(-8), departamento: dep, tipo: 'chamado', titulo, descricao: document.getElementById('descricao').value.trim(), solicitante, contato: document.getElementById('contato').value.trim(), setor, categoria: cat, prioridade, status: 'A Fazer', data_abertura: firebase.firestore.Timestamp.now(), timeline: [{ data: new Date().toISOString(), status: 'A Fazer', acao: `Chamado aberto por ${solicitante}` }] };
-    db.collection('chamados').add(chamado).then(() => { toast('✅ Chamado enviado! Protocolo: ' + chamado.protocolo, 'success'); document.getElementById('formChamado').querySelector('form').reset(); document.getElementById('departamento').value = dep; btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado'; fecharTudo(); }).catch(err => { toast('❌ Erro', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Chamado'; });
-}
-
-// ============================================
-// CRIAR GESTHOSP
-// ============================================
-function criarGestHosp(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnSubmitGestHosp'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    const nome = document.getElementById('ghNome').value.trim(), cpf = document.getElementById('ghCpf').value.trim();
-    const email = document.getElementById('ghEmail').value.trim(), telefone = document.getElementById('ghTel').value.trim();
-    const profissao = document.getElementById('ghProfissao').value.trim(), cidade = document.getElementById('ghCidade').value.trim(), estado = document.getElementById('ghEstado').value;
-    if (!nome || !cpf || !email || !telefone || !profissao || !cidade || !estado) { toast('⚠️ Preencha todos os campos obrigatórios (*)', 'warning'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro'; return; }
-    const dados = { nome, cpf, rg: document.getElementById('ghRG').value.trim(), dataNascimento: document.getElementById('ghDataNasc').value, email, telefone, cep: document.getElementById('ghCEP').value.trim(), logradouro: document.getElementById('ghLogradouro').value.trim(), numero: document.getElementById('ghNumero').value.trim(), complemento: document.getElementById('ghComplemento').value.trim(), bairro: document.getElementById('ghBairro').value.trim(), cidade, estado, pais: document.getElementById('ghPais').value || 'Brasil', profissao, numConselho: document.getElementById('ghNumConselho').value.trim(), observacoes: document.getElementById('ghObs').value.trim() };
-    const chamado = { protocolo: 'GH-' + Date.now().toString(36).toUpperCase().slice(-6), departamento: 'TI', tipo: 'gesthosp', titulo: 'Cadastro GestHosp - ' + dados.nome, descricao: JSON.stringify(dados), solicitante: dados.nome || 'Portal', setor: 'GestHosp', categoria: 'Cadastro', prioridade: 'Média', status: 'A Fazer', data_abertura: firebase.firestore.Timestamp.now(), timeline: [{ data: new Date().toISOString(), status: 'A Fazer', acao: 'Solicitação enviada' }] };
-    db.collection('chamados').add(chamado).then(() => { toast('✅ Solicitação enviada! Protocolo: ' + chamado.protocolo, 'success'); document.getElementById('formGestHosp').querySelector('form').reset(); btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro'; fecharTudo(); }).catch(err => { toast('❌ Erro', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-user-plus"></i> Solicitar Cadastro'; });
-}
-
-// ============================================
-// BUSCAR CEP
-// ============================================
-async function buscarCEP() {
-    const cep = document.getElementById('ghCEP').value.replace(/\D/g, ''); if (cep.length !== 8) return;
-    try {
-        const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await r.json();
-        if (!d.erro) { document.getElementById('ghLogradouro').value = d.logradouro || ''; document.getElementById('ghBairro').value = d.bairro || ''; document.getElementById('ghCidade').value = d.localidade || ''; document.getElementById('ghComplemento').value = d.complemento || ''; const es = document.getElementById('ghEstado'); if (d.uf) { for (let i = 0; i < es.options.length; i++) { if (es.options[i].value === d.uf) { es.selectedIndex = i; break; } } } document.getElementById('ghNumero').focus(); toast('✅ CEP encontrado!', 'success'); }
-        else { toast('⚠️ CEP não encontrado', 'warning'); }
-    } catch (e) { toast('⚠️ Erro ao buscar CEP', 'warning'); }
-}
-
-// ============================================
-// MEUS CHAMADOS
-// ============================================
-function mostrarMeusChamados() {
-    document.getElementById('chamadosContainer').classList.add('active'); document.getElementById('formChamado').classList.remove('active'); document.getElementById('formGestHosp').classList.remove('active');
-    document.getElementById('chamadosContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    const lista = document.getElementById('listaChamados'); lista.innerHTML = '<div class="spinner"></div><p style="text-align:center;color:var(--gray);">Carregando...</p>';
-    const hoje = new Date(); hoje.setHours(0,0,0,0); const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
-    db.collection('chamados').where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje)).where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha)).orderBy('data_abertura','desc').limit(50).get().then(snap => {
-        if (snap.empty) { lista.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);"><div style="font-size:40px;">📭</div><h3>Nenhum chamado hoje</h3></div>'; return; }
-        const ch = []; snap.forEach(d => { const c = d.data(); c.fid = d.id; ch.push(c); });
-        ch.sort((a,b) => { if (a.status==='Concluído'&&b.status!=='Concluído') return 1; if (a.status!=='Concluído'&&b.status==='Concluído') return -1; return 0; });
-        lista.innerHTML = '<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">📋 ' + ch.length + ' chamado(s)</p>' + ch.map(c => {
-            const d = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
-            const sc = 'status-' + (c.status||'A Fazer').toLowerCase().replace(/ /g,'');
-            const icon = c.tipo==='gesthosp'?'🏥':c.departamento==='MANUTENCAO'?'🔧':'🖥️';
-            return `<div class="chamado-card${c.status==='Concluído'?' concluido':''}" onclick="verDetalhes('${c.fid}')"><div style="flex:1;min-width:200px;"><strong>${icon} ${c.titulo||'Sem título'}${c.status==='Concluído'?' ✓':''}</strong><br><small>📋 ${c.protocolo||'—'} | 📍 ${c.setor||'—'} | 🕐 ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})} | 🏢 ${c.departamento||'TI'}</small></div><span class="status-badge ${sc}">${c.status||'A Fazer'}</span></div>`;
-        }).join('');
-    }).catch(() => { lista.innerHTML = '<p style="text-align:center;color:var(--gray);">Erro ao carregar</p>'; });
-}
-
-// ============================================
-// VER DETALHES
-// ============================================
-function verDetalhes(id) {
-    db.collection('chamados').doc(id).get().then(doc => {
-        if (!doc.exists) return;
-        const c = doc.data(); const d = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
-        const tl = (c.timeline||[]).map(t => `<div style="padding:5px 0;border-bottom:1px solid #eee;font-size:10px;"><strong>${new Date(t.data).toLocaleString('pt-BR')}</strong><br>${t.acao||''}</div>`).join('');
-        if (c.tipo==='gesthosp') {
-            document.getElementById('detalhesConteudo').innerHTML = '<h3>🏥 Solicitação de Cadastro</h3><span class="status-badge status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'')+'">'+(c.status||'—')+'</span><p style="margin-top:10px;"><strong>📋 Protocolo:</strong> '+(c.protocolo||'—')+'</p><p><strong>📅 Data:</strong> '+d.toLocaleString('pt-BR')+'</p><div style="background:#FFF5F5;padding:10px;border-radius:8px;margin-top:10px;"><p style="color:#E53E3E;font-size:11px;">🔒 Dados protegidos</p></div><hr><h4>📜 Andamento</h4>'+(tl||'<p>Nenhum evento</p>');
-        } else {
-            document.getElementById('detalhesConteudo').innerHTML = '<h3>'+(c.titulo||'Sem título')+'</h3><span class="status-badge status-'+(c.status||'A Fazer').toLowerCase().replace(/ /g,'')+'">'+(c.status||'—')+'</span><div style="display:grid;gap:4px;margin-top:10px;font-size:11px;"><p><strong>📋 Protocolo:</strong> '+(c.protocolo||'—')+'</p><p><strong>👤 Solicitante:</strong> '+(c.solicitante||'—')+'</p><p><strong>📍 Setor:</strong> '+(c.setor||'—')+'</p><p><strong>⚡ Prioridade:</strong> '+(c.prioridade||'—')+'</p><p><strong>📅 Data:</strong> '+d.toLocaleString('pt-BR')+'</p><p><strong>🏢 Depto:</strong> '+(c.departamento||'TI')+'</p></div><hr><h4>📜 Andamento</h4>'+(tl||'<p>Nenhum evento</p>');
-        }
-        document.getElementById('modalDetalhes').classList.add('ativo');
-    });
-}
-
-// ============================================
-// TOAST
-// ============================================
-function toast(msg, tipo) {
-    const t = document.createElement('div'); t.className = 'toast-notification';
-    const cores = { success: 'var(--success)', warning: 'var(--warning)', error: 'var(--danger)' };
-    const icones = { success: '✅', warning: '⚠️', error: '❌' };
-    t.style.borderLeftColor = cores[tipo] || cores.success;
-    t.innerHTML = '<span>' + (icones[tipo]||'✅') + '</span> <strong>' + (tipo==='success'?'Sucesso':tipo==='warning'?'Atenção':'Erro') + '</strong><br><span style="font-size:11px;color:var(--gray);">' + msg + '</span>';
-    document.body.appendChild(t); setTimeout(() => { if (t.parentElement) t.remove(); }, 4000);
-}
-
-// ============================================
-// EVENTOS
-// ============================================
-document.getElementById('modalDetalhes').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('ativo'); });
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { document.getElementById('modalDetalhes').classList.remove('ativo'); fecharTudo(); } });
-
-// ============================================
-// INICIALIZAÇÃO
-// ============================================
-window.onload = function() { carregarConfiguracoes(); };
-</script>
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/chamados.js"></script>
+    <script src="js/main.js"></script>
+    <!-- Scripts adicionais -->
+    <script src="js/pwa.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/whatsapp.js"></script>
 </body>
 </html>

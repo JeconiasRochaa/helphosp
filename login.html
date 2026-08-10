@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpHosp - Acesso Técnico</title>
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#06224a">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --azul-escuro: #06224a;
+            --azul-medio: #0d3d75;
+            --dourado: #c8a94a;
+            --dourado-claro: #d4bc6e;
+            --branco: #ffffff;
+            --cinza-claro: #c9d2df;
+            --cinza-medio: #94a3b8;
+            --erro: #e74c3c;
+            --sucesso: #2ecc71;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--azul-escuro);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none; z-index: 0;
+        }
+
+        .glow-central {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(200,169,74,0.08) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none; z-index: 0;
+            animation: glowBreath 4s ease-in-out infinite;
+        }
+        @keyframes glowBreath {
+            0%,100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); }
+        }
+
+        .login-wrapper {
+            position: relative; z-index: 1; text-align: center;
+            width: 100%; max-width: 460px; padding: 0 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+
+        .logo-container {
+            position: relative; width: 84px; height: 84px; margin: 0 auto 14px;
+            border: 2px solid rgba(200,169,74,0.5); border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(200,169,74,0.06); overflow: hidden;
+        }
+        .logo-container i { font-size: 38px; color: var(--dourado); position: relative; z-index: 1; }
+        .logo-container .cross-h, .logo-container .cross-v {
+            position: absolute; background: rgba(200,169,74,0.2);
+        }
+        .logo-container .cross-h { width: 22px; height: 2px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-container .cross-v { width: 2px; height: 22px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+        .logo-mini-ecg {
+            position: absolute; bottom: 12px; left: 14px; right: 14px; height: 2px;
+            background: var(--dourado); border-radius: 1px;
+            animation: miniEcg 1.6s ease-in-out infinite;
+        }
+        @keyframes miniEcg {
+            0%,100% { clip-path: inset(0 65% 0 0); opacity: 0.3; }
+            40% { clip-path: inset(0 20% 0 0); opacity: 0.8; }
+            60% { clip-path: inset(0 0 0 0); opacity: 1; }
+            80% { clip-path: inset(0 30% 0 0); opacity: 0.6; }
+        }
+
+        .system-name { font-size: 48px; letter-spacing: 2px; margin-bottom: 4px; }
+        .system-name .help { color: var(--cinza-claro); font-weight: 300; }
+        .system-name .hosp { color: var(--branco); font-weight: 700; }
+        .system-subtitle {
+            color: var(--dourado); font-size: 10px; letter-spacing: 5px;
+            text-transform: uppercase; margin-bottom: 18px; font-weight: 600;
+        }
+        .golden-line {
+            width: 80px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--dourado), var(--dourado-claro), var(--dourado), transparent);
+            margin: 0 auto 20px; border-radius: 2px;
+        }
+        .slogan { color: var(--cinza-medio); font-size: 14px; font-style: italic; margin-bottom: 30px; }
+
+        .login-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px; padding: 32px 30px; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .login-card h3 { color: var(--cinza-claro); font-size: 15px; margin-bottom: 20px; font-weight: 400; }
+        .card-avatar {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(200,169,74,0.2), rgba(200,169,74,0.05));
+            border: 2px solid rgba(200,169,74,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .card-avatar i { font-size: 22px; color: var(--dourado); }
+
+        .erro {
+            background: rgba(231,76,60,0.1); color: #fca5a5;
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
+            font-size: 12px; display: none; text-align: center;
+            border: 1px solid rgba(231,76,60,0.2);
+        }
+        .erro.show { display: block; animation: shake 0.5s ease; }
+        .sucesso {
+            background: rgba(46,204,113,0.1); color: #6ee7b7;
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 18px;
+            font-size: 12px; display: none; text-align: center;
+            border: 1px solid rgba(46,204,113,0.2);
+        }
+        .sucesso.show { display: block; }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label {
+            display: block; font-size: 11px; color: var(--cinza-medio);
+            margin-bottom: 6px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .input-wrapper { position: relative; }
+        .input-wrapper .input-icon {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: var(--dourado); font-size: 14px; opacity: 0.5; transition: all 0.3s; z-index: 1;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px 14px 14px 44px;
+            background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: var(--branco); font-size: 14px;
+            font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s; outline: none;
+        }
+        .form-group select {
+            padding-left: 14px; cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c8a94a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center;
+            padding-right: 35px;
+        }
+        .form-group select option { background: #0a2d4d; color: var(--branco); }
+        .form-group input::placeholder { color: rgba(201,210,223,0.3); }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--dourado); background: rgba(255,255,255,0.06);
+            box-shadow: 0 0 20px rgba(200,169,74,0.08);
+        }
+        .form-group input:focus ~ .input-icon { opacity: 1; }
+
+        .btn-login {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #0d3d75, #06224a);
+            color: var(--branco); border: 1px solid rgba(200,169,74,0.3);
+            border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s;
+            letter-spacing: 1px; margin-top: 8px;
+        }
+        .btn-login:hover {
+            background: linear-gradient(135deg, #0f4d8a, #0a3055);
+            border-color: var(--dourado); box-shadow: 0 8px 30px rgba(200,169,74,0.2);
+            transform: translateY(-2px);
+        }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-spinner {
+            display: inline-block; width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .login-footer { text-align: center; margin-top: 24px; }
+        .login-footer a {
+            color: var(--cinza-medio); text-decoration: none; font-size: 12px;
+            opacity: 0.7; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .login-footer a:hover { opacity: 1; color: var(--dourado); }
+
+        @media (max-width: 480px) {
+            .system-name { font-size: 38px; }
+            .system-subtitle { font-size: 8px; letter-spacing: 4px; }
+            .login-card { padding: 24px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow-central"></div>
+
+<div class="login-wrapper">
+    <div class="logo-container">
+        <i class="fas fa-hospital"></i>
+        <div class="cross-h"></div><div class="cross-v"></div>
+        <div class="logo-mini-ecg"></div>
+    </div>
+    <div class="system-name"><span class="help">Help</span><span class="hosp">Hosp</span></div>
+    <div class="system-subtitle">Sistema de Chamados Hospitalar</div>
+    <div class="golden-line"></div>
+    <div class="slogan">Área Técnica</div>
+
+    <div class="login-card">
+        <div class="card-avatar"><i class="fas fa-user-shield"></i></div>
+        <h3>Acesso Restrito — Informe suas credenciais</h3>
+        
+        <div class="erro" id="erroLogin"></div>
+        <div class="sucesso" id="sucessoLogin"></div>
+        
+        <form id="loginForm" onsubmit="return false;">
+            <div class="form-group">
+                <label>Departamento</label>
+                <select id="departamento">
+                    <option value="">Selecione o departamento...</option>
+                    <option value="TI">🖥️ Tecnologia da Informação</option>
+                    <option value="MANUTENCAO">🔧 Manutenção</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Usuário</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                </div>
+            </div>
+            <button type="submit" class="btn-login" id="btnLogin" onclick="fazerLogin()">
+                <i class="fas fa-sign-in-alt"></i> &nbsp;Entrar
+            </button>
+        </form>
+    </div>
+    <div class="login-footer">
+        <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar para Central de Chamados</a>
+    </div>
+</div>
+
+<script>
+// ============================================
+// CONFIGURAÇÃO FIREBASE
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+    authDomain: "helphosp.firebaseapp.com",
+    projectId: "helphosp",
+    storageBucket: "helphosp.firebasestorage.app",
+    messagingSenderId: "1075623193163",
+    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ============================================
+// VARIÁVEIS DE CONTROLE
+// ============================================
+let tentativas = 0;
+let loginBloqueado = false;
+let timerBloqueio = null;
+
+// ============================================
+// FUNÇÕES DE INTERFACE
+// ============================================
+function mostrarErro(msg) {
+    const erroDiv = document.getElementById('erroLogin');
+    const sucessoDiv = document.getElementById('sucessoLogin');
+    
+    sucessoDiv.classList.remove('show');
+    erroDiv.textContent = '⚠️ ' + msg;
+    erroDiv.classList.add('show');
+    
+    // Resetar animação
+    erroDiv.style.animation = 'none';
+    erroDiv.offsetHeight; // Trigger reflow
+    erroDiv.style.animation = 'shake 0.5s ease';
+}
+
+function mostrarSucesso(msg) {
+    const sucessoDiv = document.getElementById('sucessoLogin');
+    const erroDiv = document.getElementById('erroLogin');
+    
+    erroDiv.classList.remove('show');
+    sucessoDiv.textContent = '✅ ' + msg;
+    sucessoDiv.classList.add('show');
+}
+
+function limparMensagens() {
+    document.getElementById('erroLogin').classList.remove('show');
+    document.getElementById('sucessoLogin').classList.remove('show');
+}
+
+function setLoading(loading) {
+    const btn = document.getElementById('btnLogin');
+    if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="btn-spinner"></span> Autenticando...';
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> &nbsp;Entrar';
+    }
+}
+
+// ============================================
+// VERIFICAÇÃO DE BLOQUEIO
+// ============================================
+function verificarTentativas() {
+    if (tentativas >= 5) {
+        loginBloqueado = true;
+        const tempoBloqueio = 30; // segundos
+        
+        mostrarErro(`Muitas tentativas! Aguarde ${tempoBloqueio} segundos.`);
+        
+        let segundosRestantes = tempoBloqueio;
+        timerBloqueio = setInterval(() => {
+            segundosRestantes--;
+            if (segundosRestantes <= 0) {
+                clearInterval(timerBloqueio);
+                loginBloqueado = false;
+                tentativas = 0;
+                limparMensagens();
+                mostrarSucesso('Você já pode tentar novamente.');
+                setTimeout(limparMensagens, 3000);
+            } else {
+                mostrarErro(`Muitas tentativas! Aguarde ${segundosRestantes} segundos.`);
+            }
+        }, 1000);
+    }
+}
+
+// ============================================
+// FUNÇÃO PRINCIPAL DE LOGIN
+// ============================================
+async function fazerLogin() {
+    // Verificar bloqueio
+    if (loginBloqueado) {
+        mostrarErro('Aguarde o tempo de bloqueio antes de tentar novamente.');
+        return;
+    }
+    
+    // Obter valores
+    const departamento = document.getElementById('departamento').value;
+    const usuario = document.getElementById('usuario').value.toLowerCase().trim();
+    const senha = document.getElementById('senha').value;
+    
+    // Validações
+    if (!departamento) {
+        mostrarErro('Selecione o departamento!');
+        return;
+    }
+    
+    if (!usuario) {
+        mostrarErro('Digite seu usuário!');
+        return;
+    }
+    
+    if (!senha) {
+        mostrarErro('Digite sua senha!');
+        return;
+    }
+    
+    limparMensagens();
+    setLoading(true);
+    
+    try {
+        // Buscar usuário no Firestore
+        const snapshot = await db.collection('usuarios')
+            .where('usuario', '==', usuario)
+            .get();
+        
+        if (snapshot.empty) {
+            tentativas++;
+            mostrarErro('Usuário não encontrado! Verifique suas credenciais.');
+            verificarTentativas();
+            setLoading(false);
+            return;
+        }
+        
+        const doc = snapshot.docs[0];
+        const user = doc.data();
+        
+        // Verificar senha
+        if (user.senha !== senha) {
+            tentativas++;
+            mostrarErro('Senha incorreta! Tente novamente.');
+            verificarTentativas();
+            setLoading(false);
+            return;
+        }
+        
+        // Verificar status
+        if (user.status && user.status !== 'ativo') {
+            mostrarErro('Usuário inativo! Contate o administrador do sistema.');
+            setLoading(false);
+            return;
+        }
+        
+        // Verificar departamento (admin pode acessar qualquer)
+        if (user.tipo !== 'admin' && user.departamento !== departamento) {
+            const nomeDepto = user.departamento === 'TI' ? 'Tecnologia da Informação' : 'Manutenção';
+            mostrarErro(`Este usuário pertence ao departamento: ${nomeDepto}`);
+            setLoading(false);
+            return;
+        }
+        
+        // ============================================
+        // LOGIN BEM-SUCEDIDO
+        // ============================================
+        tentativas = 0;
+        
+        // Preparar dados da sessão
+        const dadosSessao = {
+            id: doc.id,
+            nome: user.nome || 'Técnico',
+            usuario: user.usuario,
+            cargo: user.cargo || 'Técnico',
+            departamento: user.departamento || departamento,
+            tipo: user.tipo || 'tecnico',
+            whatsapp: user.whatsapp || '',
+            mostrarContato: user.mostrarContato !== false,
+            primeiro_acesso: user.primeiro_acesso || false,
+            expira: Date.now() + (8 * 60 * 60 * 1000) // 8 horas de sessão
+        };
+        
+        // Salvar no localStorage
+        localStorage.setItem('usuario_logado', JSON.stringify(dadosSessao));
+        
+        // Mostrar mensagem de sucesso
+        mostrarSucesso('Login realizado com sucesso! Redirecionando...');
+        
+        // Redirecionar após breve delay
+        setTimeout(() => {
+            if (user.primeiro_acesso) {
+                // Se for primeiro acesso, pode ir para troca de senha
+                window.location.href = 'admin.html?primeiro_acesso=1';
+            } else {
+                // Redirecionar para o painel técnico
+                window.location.href = 'admin.html';
+            }
+        }, 800);
+        
+    } catch (error) {
+        console.error('Erro no login:', error);
+        mostrarErro('Erro de conexão! Verifique sua internet e tente novamente.');
+        setLoading(false);
+    }
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+// Limpar mensagens ao digitar
+document.getElementById('usuario').addEventListener('input', limparMensagens);
+document.getElementById('senha').addEventListener('input', limparMensagens);
+document.getElementById('departamento').addEventListener('change', limparMensagens);
+
+// Permitir login com Enter
+document.getElementById('senha').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        fazerLogin();
+    }
+});
+
+document.getElementById('usuario').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('senha').focus();
+    }
+});
+
+// ============================================
+// VERIFICAÇÃO INICIAL
+// ============================================
+(function verificarSessaoExistente() {
+    const sessao = localStorage.getItem('usuario_logado');
+    
+    if (sessao) {
+        try {
+            const dados = JSON.parse(sessao);
+            
+            // Verificar se a sessão ainda é válida
+            if (dados.expira && Date.now() < dados.expira) {
+                // Sessão válida - perguntar se deseja continuar
+                mostrarSucesso('Sessão ativa encontrada! Redirecionando...');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } else {
+                // Sessão expirada - limpar
+                localStorage.removeItem('usuario_logado');
+            }
+        } catch (e) {
+            localStorage.removeItem('usuario_logado');
+        }
+    }
+})();
+</script>
+</body>
+</html>

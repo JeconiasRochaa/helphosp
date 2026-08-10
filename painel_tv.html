@@ -6,325 +6,310 @@
     <title>HelpHosp - Painel TV</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#000;color:#0f0;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden;font-size:20px;line-height:1.4}
-        .scanlines{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,0,0.015) 2px,rgba(0,255,0,0.015) 4px)}
-        .container{position:relative;z-index:1;padding:30px 40px;max-width:1400px;margin:0 auto}
-        .header{text-align:center;padding:20px 0;border-bottom:2px solid #0f0;margin-bottom:25px}
-        .header h1{font-size:34px;letter-spacing:4px;text-shadow:0 0 20px #0f0}
-        .clock{font-size:48px;text-align:center;margin:15px 0;color:#0ff;text-shadow:0 0 30px #0ff}
-        .section{margin-bottom:30px}
-        .section h2{font-size:24px;border-bottom:1px solid #0f0;padding-bottom:5px;margin-bottom:15px;text-shadow:0 0 10px #0f0}
-        .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-        .card{background:#0a0a0a;border:1px solid #0f0;padding:15px;border-radius:6px;font-size:18px;transition:all 0.3s}
-        .card.critico{border-color:#f00;box-shadow:0 0 20px rgba(255,0,0,0.5);animation:pulse 1s infinite}
-        .card.novo{animation:novoChamado 0.8s ease 5}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
-        @keyframes novoChamado{0%,100%{background:#0a0a0a;border-color:#0f0}50%{background:#003300;border-color:#00ff00;box-shadow:0 0 40px rgba(0,255,0,0.9);transform:scale(1.02)}}
-        .card .proto{color:#0ff;font-size:14px}
-        .card .titulo{font-weight:bold;font-size:20px;margin:5px 0}
-        .card .info{display:flex;justify-content:space-between;font-size:16px;margin-top:5px}
-        .card .setor{color:#ff0}
-        .empty{text-align:center;padding:30px;border:1px dashed #0f0;border-radius:8px;grid-column:1/-1;font-size:20px}
-        .footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid rgba(0,255,0,0.3);font-size:14px;color:rgba(0,255,0,0.5);letter-spacing:2px}
-        
-        /* ALERTA VISUAL */
-        .alerta-overlay{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;align-items:center;justify-content:center}
-        .alerta-overlay.ativo{display:flex}
-        .alerta-box{background:rgba(0,0,0,0.9);border:3px solid #0f0;padding:30px 50px;border-radius:10px;text-align:center;animation:alertaPulse 0.5s ease 6}
-        @keyframes alertaPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(0,255,0,0.5)}50%{transform:scale(1.1);box-shadow:0 0 80px rgba(0,255,0,1)}}
-        .alerta-box .icone{font-size:60px}
-        .alerta-box .msg{font-size:28px;font-weight:bold;margin-top:10px;text-shadow:0 0 20px #0f0}
-        
-        /* BOTÃO DE TESTE */
-        .btn-teste-som{position:fixed;bottom:20px;right:20px;z-index:1000;background:rgba(0,255,0,0.1);color:#0f0;border:1px solid #0f0;padding:10px 20px;border-radius:8px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px}
-        .btn-teste-som:hover{background:rgba(0,255,0,0.2)}
-        
-        @media(max-width:900px){.grid{grid-template-columns:1fr}.container{padding:20px}}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; min-height: 100vh; overflow: hidden; font-size: 18px; }
+        .tv-header { background: #111; padding: 20px 25px; text-align: center; border-bottom: 3px solid #0f0; }
+        .tv-header h1 { font-size: 38px; letter-spacing: 5px; }
+        .tv-header .depto-badge { display: inline-block; background: #0f0; color: #000; padding: 6px 20px; border-radius: 20px; font-size: 16px; font-weight: bold; margin-top: 8px; }
+        .tv-header .hora-atual { color: #0f0; font-size: 20px; margin-top: 6px; letter-spacing: 2px; }
+        .tv-header .voz-status { font-size: 10px; margin-top: 4px; }
+        .tv-header .voz-status.on { color: #0f0; }
+        .tv-header .voz-status.off { color: #f00; }
+        .tv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; height: calc(100vh - 180px); }
+        .tv-column { background: #0a0a0a; border: 2px solid #1a1a1a; border-radius: 10px; padding: 16px; overflow-y: auto; }
+        .tv-column h2 { font-size: 22px; border-bottom: 2px solid #1a3a1a; padding-bottom: 10px; margin-bottom: 12px; text-align: center; letter-spacing: 2px; }
+        .tv-chamado { background: #111; border: 2px solid #0f0; padding: 14px; margin-bottom: 10px; border-radius: 8px; font-size: 15px; transition: all 0.3s; }
+        .tv-chamado.critical { border-color: #f00; color: #f00; animation: pulse 1s infinite; background: #1a0000; border-width: 3px; }
+        .tv-chamado.high { border-color: #ff0; color: #ff0; background: #1a1a00; border-width: 3px; }
+        .tv-chamado.atrasado { border-color: #f00; animation: piscaAtraso 0.8s infinite; border-width: 3px; }
+        @keyframes piscaAtraso { 0%,100% { background: #1a0000; box-shadow: 0 0 8px rgba(255,0,0,0.4); } 50% { background: #2a0000; box-shadow: 0 0 25px rgba(255,0,0,0.8); } }
+        .badge-atraso { display: inline-block; background: #f00; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; animation: piscaBadge 0.6s infinite; margin-left: 8px; }
+        @keyframes piscaBadge { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.1); } }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .tv-chamado .protocolo { font-size: 11px; color: #666; }
+        .tv-chamado .titulo { font-size: 18px; font-weight: bold; margin: 4px 0; }
+        .tv-chamado .info { font-size: 11px; color: #888; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .tv-chamado .setor { display: inline-block; background: #1a3a1a; padding: 3px 8px; border-radius: 5px; font-size: 10px; }
+        .tv-empty { text-align: center; padding: 40px; color: #333; font-size: 18px; }
+        .contador { font-size: 13px; color: #666; text-align: center; margin-bottom: 10px; }
+        .contador.atrasados { color: #f00; font-weight: bold; animation: piscaBadge 0.6s infinite; display: none; font-size: 16px; }
+        .btn-voz { position: fixed; bottom: 15px; right: 15px; z-index: 100; background: #111; border: 1px solid #0f0; color: #0f0; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 12px; }
+        .btn-voz:hover { background: #0f0; color: #000; }
+        .btn-voz.muted { border-color: #f00; color: #f00; }
+        .tv-column::-webkit-scrollbar { width: 6px; }
+        .tv-column::-webkit-scrollbar-track { background: #000; }
+        .tv-column::-webkit-scrollbar-thumb { background: #0f0; border-radius: 3px; }
+        @media (max-width: 1024px) { .tv-grid { grid-template-columns: 1fr; } .tv-header h1 { font-size: 28px; } }
     </style>
 </head>
 <body>
 
-<!-- ALERTA VISUAL -->
-<div class="alerta-overlay" id="alertaOverlay">
-    <div class="alerta-box">
-        <div class="icone">🔔</div>
-        <div class="msg">NOVO CHAMADO!</div>
+<div class="tv-header">
+    <h1>🏥 HelpHosp TV</h1>
+    <div class="depto-badge" id="deptoBadge">CARREGANDO...</div>
+    <div class="hora-atual" id="horaAtual"></div>
+    <div class="voz-status on" id="vozStatus">🔊 Voz ativada - Clique na tela para liberar áudio</div>
+</div>
+
+<div class="tv-grid">
+    <div class="tv-column">
+        <h2>⏳ PENDENTES</h2>
+        <div class="contador" id="contadorPendentes">0 chamado(s)</div>
+        <div class="contador atrasados" id="contadorAtrasados"></div>
+        <div id="listaPendentes"><div class="tv-empty"><i class="fas fa-spinner fa-spin"></i>Carregando...</div></div>
+    </div>
+    <div class="tv-column">
+        <h2>✅ CONCLUÍDOS HOJE</h2>
+        <div class="contador" id="contadorConcluidos">0 chamado(s)</div>
+        <div id="listaConcluidos"><div class="tv-empty"><i class="fas fa-spinner fa-spin"></i>Carregando...</div></div>
     </div>
 </div>
 
-<button class="btn-teste-som" onclick="testarSom()" title="Testar som de notificação">🔊 Testar Som</button>
+<button class="btn-voz" id="btnVoz" onclick="toggleVoz()">🔊 Voz</button>
 
-<div class="scanlines"></div>
-<div class="container">
-    <div class="header"><h1>🏥 HelpHosp</h1><div id="dataAtual" style="font-size:18px;color:#0ff;"></div></div>
-    <div class="clock" id="relogio"></div>
-    <div class="section"><h2>📅 Chamados do Dia (<span id="contadorDia">0</span>)</h2><div class="grid" id="listaDia"></div></div>
-    <div class="section"><h2>⚠️ Chamados Atrasados (<span id="contadorAtrasados">0</span>)</h2><div class="grid" id="listaAtrasados"></div></div>
-    <div class="footer">SISTEMA ATIVO | HelpHosp © <span id="anoAtual"></span></div>
-</div>
-
-<!-- ÁUDIO EMBUTIDO (Beep via AudioContext) -->
 <script>
-const fc={apiKey:"AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",authDomain:"helphosp.firebaseapp.com",projectId:"helphosp",storageBucket:"helphosp.firebasestorage.app",messagingSenderId:"1075623193163",appId:"1:1075623193163:web:cf54ee082d1c97a9aa7bce"};
-firebase.initializeApp(fc);const db=firebase.firestore();
-
-function sanitizar(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-function toDate(d){if(!d)return new Date(0);return d?.toDate?d.toDate():new Date(d)}
-function fmtData(d){if(!d)return'—';try{const dt=toDate(d);return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}catch(e){return'—'}}
-
-let ultimoContadorDia=0;
-let ultimoContadorAtrasados=0;
-let listenersAtivos=[];
-let audioContext=null;
+// ============================================
+// FIREBASE
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+    authDomain: "helphosp.firebaseapp.com",
+    projectId: "helphosp",
+    storageBucket: "helphosp.firebasestorage.app",
+    messagingSenderId: "1075623193163",
+    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 // ============================================
-// 🔔 SOM DE NOTIFICAÇÃO (CORRIGIDO)
+// CONFIGURAÇÕES
 // ============================================
-function tocarBeep(){
-    try{
-        // Criar AudioContext (precisa ser após interação do usuário ou usar um já existente)
-        if(!audioContext){
-            audioContext=new(window.AudioContext||window.webkitAudioContext)();
-        }
-        
-        // Resumir o contexto se estiver suspenso
-        if(audioContext.state==='suspended'){
-            audioContext.resume();
-        }
-        
-        const now=audioContext.currentTime;
-        
-        // Beep 1
-        const osc1=audioContext.createOscillator();
-        const gain1=audioContext.createGain();
-        osc1.connect(gain1);gain1.connect(audioContext.destination);
-        osc1.type='square';
-        osc1.frequency.setValueAtTime(800,now);
-        gain1.gain.setValueAtTime(0.3,now);
-        gain1.gain.exponentialRampToValueAtTime(0.01,now+0.15);
-        osc1.start(now);osc1.stop(now+0.15);
-        
-        // Beep 2 (após 0.2s)
-        const osc2=audioContext.createOscillator();
-        const gain2=audioContext.createGain();
-        osc2.connect(gain2);gain2.connect(audioContext.destination);
-        osc2.type='square';
-        osc2.frequency.setValueAtTime(1000,now+0.2);
-        gain2.gain.setValueAtTime(0.3,now+0.2);
-        gain2.gain.exponentialRampToValueAtTime(0.01,now+0.35);
-        osc2.start(now+0.2);osc2.stop(now+0.35);
-        
-        // Beep 3
-        const osc3=audioContext.createOscillator();
-        const gain3=audioContext.createGain();
-        osc3.connect(gain3);gain3.connect(audioContext.destination);
-        osc3.type='square';
-        osc3.frequency.setValueAtTime(800,now+0.4);
-        gain3.gain.setValueAtTime(0.3,now+0.4);
-        gain3.gain.exponentialRampToValueAtTime(0.01,now+0.55);
-        osc3.start(now+0.4);osc3.stop(now+0.55);
-        
-        console.log('🔔 Beep tocado!');
-    }catch(e){
-        console.error('Erro ao tocar som:',e);
+const urlParams = new URLSearchParams(window.location.search);
+const departamentoTV = urlParams.get('dep') || 'TI';
+const nomeDepartamento = departamentoTV === 'TI' ? 'TECNOLOGIA DA INFORMAÇÃO' : 
+                         departamentoTV === 'MANUTENCAO' ? 'MANUTENÇÃO' : departamentoTV;
+document.getElementById('deptoBadge').textContent = '📺 ' + nomeDepartamento;
+document.title = 'TV - ' + nomeDepartamento;
+
+// ============================================
+// VOZ (SpeechSynthesis)
+// ============================================
+let vozAtivada = true;
+const sintese = window.speechSynthesis;
+
+// Carregar vozes
+let vozesDisponiveis = [];
+sintese.onvoiceschanged = () => {
+    vozesDisponiveis = sintese.getVoices();
+};
+
+function toggleVoz() {
+    vozAtivada = !vozAtivada;
+    const btn = document.getElementById('btnVoz');
+    const status = document.getElementById('vozStatus');
+    if (vozAtivada) {
+        btn.textContent = '🔊 Voz'; btn.classList.remove('muted');
+        status.textContent = '🔊 Voz ativada'; status.className = 'voz-status on';
+    } else {
+        btn.textContent = '🔇 Mudo'; btn.classList.add('muted');
+        status.textContent = '🔇 Voz desativada'; status.className = 'voz-status off';
+        sintese.cancel();
     }
 }
 
-// ============================================
-// 🎯 TESTAR SOM (botão)
-// ============================================
-function testarSom(){
-    tocarBeep();
-    mostrarAlertaVisual();
-}
-
-// ============================================
-// 📺 ALERTA VISUAL
-// ============================================
-function mostrarAlertaVisual(){
-    const overlay=document.getElementById('alertaOverlay');
-    overlay.classList.add('ativo');
+function falar(texto) {
+    if (!vozAtivada) return;
     
-    // Remover após 3 segundos
-    setTimeout(()=>{
-        overlay.classList.remove('ativo');
-    },3000);
-}
-
-// ============================================
-// NOTIFICAR NOVO CHAMADO
-// ============================================
-function notificarNovoChamado(){
-    tocarBeep();
-    mostrarAlertaVisual();
-    console.log('🔔 NOVO CHAMADO DETECTADO!');
-}
-
-// ============================================
-// ATUALIZAR RELÓGIO
-// ============================================
-function atualizarRelogio(){
-    const a=new Date();
-    document.getElementById('relogio').textContent=a.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    document.getElementById('dataAtual').textContent=a.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
-    document.getElementById('anoAtual').textContent=a.getFullYear();
-}
-
-// ============================================
-// RENDERIZAR LISTAS
-// ============================================
-function renderizarLista(lista,containerId,contadorId,novosIds){
-    const container=document.getElementById(containerId);
-    const contador=document.getElementById(contadorId);
-    contador.textContent=lista.length;
+    // Cancelar fala anterior
+    sintese.cancel();
     
-    if(lista.length===0){
-        container.innerHTML='<div class="empty">✅ Nenhum</div>';
-        return;
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 0.85;  // Um pouco mais lento para clareza
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    // Tentar usar voz feminina em português
+    const vozPt = vozesDisponiveis.find(v => v.lang.includes('pt-BR'));
+    if (vozPt) utterance.voice = vozPt;
+    
+    sintese.speak(utterance);
+}
+
+function anunciarNovoChamado(chamado) {
+    const p = chamado.prioridade || 'Normal';
+    let texto;
+    
+    if (p === 'Crítica') {
+        texto = `Atenção! Chamado crítico! ${chamado.titulo}. Setor ${chamado.setor}. Solicitante ${chamado.solicitante}.`;
+    } else if (p === 'Alta') {
+        texto = `Novo chamado de alta prioridade. ${chamado.titulo}. Setor ${chamado.setor}.`;
+    } else {
+        texto = `Novo chamado. ${chamado.titulo}. Setor ${chamado.setor}.`;
     }
     
-    const ordenada=[...lista].sort((a,b)=>{
-        if(a.prioridade==='Crítica'&&b.prioridade!=='Crítica')return-1;
-        if(a.prioridade!=='Crítica'&&b.prioridade==='Crítica')return 1;
-        return toDate(b.data_abertura)-toDate(a.data_abertura);
+    falar(texto);
+}
+
+// ============================================
+// SOM DE ALERTA (bip)
+// ============================================
+let audioContext = null;
+function initAudio() {
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') audioContext.resume();
+}
+document.addEventListener('click', initAudio, { once: true });
+
+function tocarBip(tipo) {
+    if (!audioContext) initAudio();
+    if (!audioContext || audioContext.state === 'suspended') return;
+    try {
+        const now = audioContext.currentTime;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain); gain.connect(audioContext.destination);
+        if (tipo === 'critico') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.setValueAtTime(900, now + 0.15);
+            gain.gain.setValueAtTime(0.4, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+            osc.start(now); osc.stop(now + 0.6);
+        } else if (tipo === 'atrasado') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.setValueAtTime(600, now + 0.2);
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+            osc.start(now); osc.stop(now + 0.7);
+        } else {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.start(now); osc.stop(now + 0.25);
+        }
+    } catch(e) {}
+}
+
+// ============================================
+// SLA
+// ============================================
+const SLA_TEMPOS = { 'Crítica': 3600000, 'Alta': 14400000, 'Média': 86400000, 'Baixa': 172800000 };
+function getSLAStatus(c) {
+    if (c.status === 'Concluído') return 'ok';
+    const abertura = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
+    if (isNaN(abertura.getTime())) return 'ok';
+    return (new Date() - abertura) > (SLA_TEMPOS[c.prioridade] || 86400000) ? 'atrasado' : 'ok';
+}
+function getTempoAtraso(c) {
+    const abertura = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
+    const atraso = (new Date() - abertura) - (SLA_TEMPOS[c.prioridade] || 86400000);
+    if (atraso <= 0) return '';
+    const h = Math.floor(atraso / 3600000), m = Math.floor((atraso % 3600000) / 60000);
+    if (h > 24) { const d = Math.floor(h / 24); return `⚠️ ${d}d ${h % 24}h`; }
+    return h > 0 ? `⚠️ ${h}h ${m}min` : `⚠️ ${m}min`;
+}
+
+// ============================================
+// RELÓGIO
+// ============================================
+function atualizarRelogio() {
+    document.getElementById('horaAtual').textContent = new Date().toLocaleString('pt-BR', { 
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit' 
     });
-    
-    container.innerHTML=ordenada.map(c=>{
-        const d=toDate(c.data_abertura);
-        const isCritico=c.prioridade==='Crítica';
-        const isNovo=novosIds&&novosIds.has(c.fid);
+}
+setInterval(atualizarRelogio, 1000);
+atualizarRelogio();
+
+// ============================================
+// FUNÇÕES
+// ============================================
+function fmtHora(d) {
+    if (!d) return '--:--';
+    try { return (d?.toDate ? d.toDate() : new Date(d)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+    catch(e) { return '--:--'; }
+}
+function getClassePrioridade(p) { if (p === 'Crítica') return 'critical'; if (p === 'Alta') return 'high'; return ''; }
+
+function renderCard(c, concluido = false) {
+    if (concluido) {
+        return `<div class="tv-chamado" style="border-color:#0a0;color:#0a0;background:#0a0a0a;">
+            <div class="protocolo">📋 ${c.protocolo||'—'}</div><div class="titulo">✅ ${c.titulo||'Sem título'}</div>
+            <div class="info"><span class="setor">📍 ${c.setor||'—'}</span><span>🕐 ${fmtHora(c.data_abertura)}</span><span>👤 ${c.solicitante||'—'}</span>${c.tecnico?`<span>🔧 ${c.tecnico}</span>`:''}</div></div>`;
+    }
+    const atraso = getTempoAtraso(c), sla = getSLAStatus(c);
+    return `<div class="tv-chamado ${getClassePrioridade(c.prioridade)} ${sla==='atrasado'?'atrasado':''}">
+        <div class="protocolo">📋 ${c.protocolo||'—'}</div>
+        <div class="titulo">${sla==='atrasado'?'🚨 ':''}${c.titulo||'Sem título'}${atraso?`<span class="badge-atraso">${atraso}</span>`:''}</div>
+        <div class="info"><span class="setor">📍 ${c.setor||'—'}</span><span>⚡ ${c.prioridade||'—'}</span><span>🕐 ${fmtHora(c.data_abertura)}</span><span>👤 ${c.solicitante||'—'}</span>${c.tecnico?`<span>🔧 ${c.tecnico}</span>`:''}</div></div>`;
+}
+
+// ============================================
+// CARREGAR CHAMADOS
+// ============================================
+let chamadosAnteriores = new Set();
+let primeiraCarga = true;
+
+function carregarChamados() {
+    console.log('🔄 Buscando...');
+    db.collection('chamados').onSnapshot(snap => {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const pendentes = [], concluidos = [];
+        const idsAtuais = new Set(); let atrasados = 0;
         
-        return`<div class="card${isCritico?' critico':''}${isNovo?' novo':''}" id="card-${c.fid}">
-            <div class="proto">📋 ${sanitizar(c.protocolo||'—')}</div>
-            <div class="titulo">${sanitizar(c.titulo||'Sem título')}</div>
-            <div class="info">
-                <span class="setor">📍 ${sanitizar(c.setor||'—')}</span>
-                <span>⚡ ${sanitizar(c.prioridade||'—')}</span>
-            </div>
-            <div class="info" style="margin-top:5px;">
-                <span>🕐 ${fmtData(c.data_abertura)}</span>
-                <span>📊 ${sanitizar(c.status||'—')}</span>
-            </div>
-            ${c.solicitante?`<div style="font-size:14px;margin-top:5px;color:#aaa;">👤 ${sanitizar(c.solicitante)}</div>`:''}
-        </div>`;
-    }).join('');
-}
-
-// ============================================
-// 🔥 ESCUTAR EM TEMPO REAL
-// ============================================
-function escutarChamadosEmTempoReal(){
-    // Remover listeners anteriores
-    listenersAtivos.forEach(unsub=>{if(typeof unsub==='function')unsub()});
-    listenersAtivos=[];
-    
-    const hoje=new Date();hoje.setHours(0,0,0,0);
-    const amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
-    
-    // Conjunto para rastrear IDs já vistos (para detectar novos)
-    const idsConhecidos=new Set();
-    
-    // Listener para chamados do DIA
-    const unsubDia=db.collection('chamados')
-        .where('data_abertura','>=',firebase.firestore.Timestamp.fromDate(hoje))
-        .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(amanha))
-        .onSnapshot(snap=>{
-            const dia=[];
-            const novosIds=new Set();
+        snap.forEach(doc => {
+            const c = doc.data(); c.id = doc.id;
+            if (c.departamento !== departamentoTV) return;
+            idsAtuais.add(c.id);
+            const dc = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date(c.data_abertura);
             
-            snap.docChanges().forEach(change=>{
-                if(change.type==='added'){
-                    const id=change.doc.id;
-                    // Se o ID não era conhecido antes, é NOVO
-                    if(!idsConhecidos.has(id)&&ultimoContadorDia>0){
-                        novosIds.add(id);
-                    }
-                    idsConhecidos.add(id);
+            if (c.status === 'Concluído') { if (dc >= hoje) concluidos.push(c); }
+            else {
+                pendentes.push(c);
+                if (getSLAStatus(c) === 'atrasado') atrasados++;
+                
+                // 🔥 NOVO CHAMADO: Bip + Voz
+                if (!primeiraCarga && !chamadosAnteriores.has(c.id)) {
+                    console.log('🆕 Novo:', c.titulo);
+                    tocarBip(c.prioridade === 'Crítica' ? 'critico' : c.prioridade === 'Alta' ? 'critico' : 'normal');
+                    // Voz após 500ms
+                    setTimeout(() => anunciarNovoChamado(c), 500);
                 }
-            });
-            
-            snap.forEach(d=>{const x=d.data();x.fid=d.id;dia.push(x)});
-            
-            // Verificar se há novos chamados
-            if(novosIds.size>0){
-                console.log(`🔔 ${novosIds.size} novo(s) chamado(s)!`);
-                notificarNovoChamado();
             }
-            
-            ultimoContadorDia=dia.length;
-            renderizarLista(dia,'listaDia','contadorDia',novosIds);
         });
-    listenersAtivos.push(unsubDia);
-    
-    // Listener para chamados ATRASADOS
-    const unsubAtrasados=db.collection('chamados')
-        .where('data_abertura','<',firebase.firestore.Timestamp.fromDate(hoje))
-        .onSnapshot(snap=>{
-            const atrasados=[];
-            snap.forEach(d=>{
-                const x=d.data();x.fid=d.id;
-                if(x.status!=='Concluído')atrasados.push(x);
-            });
-            ultimoContadorAtrasados=atrasados.length;
-            renderizarLista(atrasados,'listaAtrasados','contadorAtrasados');
+        
+        if (atrasados > 0 && !primeiraCarga) tocarBip('atrasado');
+        
+        chamadosAnteriores = idsAtuais; primeiraCarga = false;
+        
+        pendentes.sort((a, b) => {
+            const sa = getSLAStatus(a)==='atrasado'?-1:0, sb = getSLAStatus(b)==='atrasado'?-1:0;
+            if (sa !== sb) return sa - sb;
+            return ({'Crítica':0,'Alta':1,'Média':2,'Baixa':3}[a.prioridade]||2) - ({'Crítica':0,'Alta':1,'Média':2,'Baixa':3}[b.prioridade]||2);
         });
-    listenersAtivos.push(unsubAtrasados);
-    
-    console.log('✅ Listeners ativos - Atualização em TEMPO REAL');
+        
+        document.getElementById('contadorPendentes').textContent = pendentes.length + ' pendente(s)';
+        const ca = document.getElementById('contadorAtrasados');
+        ca.style.display = atrasados > 0 ? 'block' : 'none';
+        if (atrasados > 0) ca.textContent = '🚨 ' + atrasados + ' ATRASADO(S)!';
+        document.getElementById('contadorConcluidos').textContent = concluidos.length + ' concluído(s) hoje';
+        
+        document.getElementById('listaPendentes').innerHTML = pendentes.length === 0 ? '<div class="tv-empty">✅ Nenhum pendente!</div>' : pendentes.map(c => renderCard(c)).join('');
+        document.getElementById('listaConcluidos').innerHTML = concluidos.length === 0 ? '<div class="tv-empty">📭 Nenhum concluído</div>' : concluidos.map(c => renderCard(c, true)).join('');
+    });
 }
 
 // ============================================
-// INICIALIZAR AUDIOCONTEXT (precisa de interação)
+// INICIAR
 // ============================================
-function initAudioContext(){
-    document.addEventListener('click',function initAudio(){
-        if(!audioContext){
-            audioContext=new(window.AudioContext||window.webkitAudioContext)();
-            console.log('🔊 AudioContext inicializado');
-        }
-        if(audioContext.state==='suspended'){
-            audioContext.resume();
-        }
-        document.removeEventListener('click',initAudio);
-    },{once:false});
-}
-
-// ============================================
-// INICIALIZAÇÃO
-// ============================================
-function init(){
-    const u=localStorage.getItem('usuario_logado');
-    if(!u){
-        document.body.innerHTML='<div style="color:#f00;text-align:center;padding:100px;font-size:24px;">🔒 ACESSO NEGADO - FAÇA LOGIN<br><br><a href="admin.html" style="color:#0f0;">FAZER LOGIN</a></div>';
-        return;
-    }
-    
-    // Inicializar áudio
-    initAudioContext();
-    
-    atualizarRelogio();
-    setInterval(atualizarRelogio,1000);
-    
-    // Iniciar listeners em tempo real
-    escutarChamadosEmTempoReal();
-    
-    // Tocar um beep de teste após 2 segundos
-    setTimeout(()=>{
-        console.log('🔊 Teste de som em 2 segundos...');
-        tocarBeep();
-    },2000);
-}
-
-// Reiniciar ao voltar para a aba
-document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden){
-        escutarChamadosEmTempoReal();
-    }
-});
-
-window.addEventListener('load',init);
+console.log('🚀 TV iniciada');
+carregarChamados();
 </script>
 </body>
 </html>

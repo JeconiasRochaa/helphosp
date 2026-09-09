@@ -36,12 +36,13 @@ const ESTADOS_BRASIL = [
 // Categorias de chamados por departamento
 const CATEGORIAS_PADRAO = {
     TI: [
+        'Computador sem internet',
         'Computador não liga',
         'Computador lento/travando',
-        'Monitor com defeito',
+        'Monitor não liga',
         'Teclado/Mouse quebrado',
         'Impressora não funciona',
-        'Impressora sem toner',
+        'Impressora sem tinta',
         'Sistema fora do ar',
         'Sistema com erro',
         'Rede fora do ar',
@@ -49,8 +50,8 @@ const CATEGORIAS_PADRAO = {
         'Wi-Fi não conecta',
         'Senha bloqueada',
         'Acesso ao sistema',
-        'Telefone com defeito',
-        'Instalação de software',
+        'Ramal sem fncionar',
+        'Instalação de programas',
         'Cabo de rede danificado',
         'Outros - TI'
     ],

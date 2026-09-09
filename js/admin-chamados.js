@@ -14,8 +14,18 @@ function renderChamados() {
         </button>
     </div>
     <div class="filtros-bar">
-        <select id="filtroStatus" onchange="filtrarChamadosUI()"><option value="">Todos</option><option>A Fazer</option><option>Em Andamento</option><option>Pendente</option><option>Concluído</option></select>
-        <select id="filtroPrioridade" onchange="filtrarChamadosUI()"><option value="">Todas</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Crítica</option></select>
+        <select id="filtroStatus" onchange="filtrarChamadosUI()">
+        <option value="">Todos</option>
+        <option>A Fazer</option>
+        <option>Em Andamento</option>
+        <option>Pendente</option>
+        <option>Concluído</option></select>
+        <select id="filtroPrioridade" onchange="filtrarChamadosUI()">
+        <option value="">Todas</option>
+        <option>Baixa</option>
+        <option>Média</option>
+        <option>Alta</option>
+        <option>Crítica</option></select>
         <input type="text" id="filtroBusca" placeholder="🔍 Buscar..." onkeyup="filtrarChamadosUI()">
     </div>
     <div class="table-card"><table>
@@ -118,7 +128,7 @@ async function mudarStatusChamado(id) {
 // ============================================
 function abrirNovoChamadoAdmin() {
     const categorias = depto === 'TI' ? 
-        ['Computador não liga','Computador lento','Monitor com defeito','Teclado/Mouse quebrado','Impressora não funciona','Impressora sem toner','Sistema fora do ar','Sistema com erro','Rede fora do ar','Internet lenta','Wi-Fi não conecta','Senha bloqueada','Acesso ao sistema','Telefone com defeito','Instalação de software','Cabo de rede danificado','Outros - TI'] :
+        ['Computador sem internet','Computador não liga','Computador lento','Monitor com defeito','Teclado/Mouse quebrado','Impressora não funciona','Impressora sem tinta','Sistema fora do ar','Sistema com erro','Rede fora do ar','Internet lenta','Wi-Fi não conecta','Senha bloqueada','Acesso ao sistema','Ramal sem funcionar','Instalação de programas','Cabo de rede danificado','Outros - TI'] :
         ['Problema elétrico','Tomada quebrada','Lâmpada queimada','Disjuntor desarmando','Vazamento de água','Torneira pingando','Descarga com problema','Pia entupida','Ar-condicionado não gela','Ar-condicionado pingando','Pintura danificada','Parede com infiltração','Móvel quebrado','Porta com problema','Janela quebrada','Telhado com goteira','Piso danificado','Fechadura com defeito','Outros - Manutenção'];
     
     const setorOptions = setores.map(s => `<option value="${s}">${s}</option>`).join('');

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerar Ícones HelpHosp</title>
+    <style>
+        body { text-align:center; padding:40px; font-family:Arial; background:#06224a; color:white; }
+        .container { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:30px; }
+        .icon-item { background:#0d3d75; padding:20px; border-radius:15px; }
+        canvas { border:2px solid #c8a94a; border-radius:10px; }
+        button { background:#c8a94a; color:#06224a; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; }
+        button:hover { background:#d4bc6e; }
+    </style>
+</head>
+<body>
+    <h1>🏥 Gerador de Ícones HelpHosp</h1>
+    <p>Clique em cada botão para baixar o ícone</p>
+    <div class="container" id="container"></div>
+
+    <script>
+        const tamanhos = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+        
+        function desenharIcone(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fundo azul escuro
+            ctx.fillStyle = '#06224a';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.15);
+            ctx.fill();
+            
+            // Cruz médica dourada
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const barWidth = size * 0.2;
+            const barHeight = size * 0.55;
+            
+            ctx.fillStyle = '#c8a94a';
+            // Barra horizontal
+            ctx.fillRect(centerX - barHeight/2, centerY - barWidth/2, barHeight, barWidth);
+            // Barra vertical
+            ctx.fillRect(centerX - barWidth/2, centerY - barHeight/2, barWidth, barHeight);
+            
+            // ECG mini linha na parte inferior
+            ctx.strokeStyle = '#c8a94a';
+            ctx.lineWidth = size * 0.03;
+            ctx.beginPath();
+            const baseY = size * 0.85;
+            ctx.moveTo(size * 0.1, baseY);
+            ctx.lineTo(size * 0.35, baseY);
+            ctx.lineTo(size * 0.4, baseY - size * 0.1);
+            ctx.lineTo(size * 0.45, baseY + size * 0.05);
+            ctx.lineTo(size * 0.5, baseY);
+            ctx.lineTo(size * 0.55, baseY - size * 0.08);
+            ctx.lineTo(size * 0.6, baseY + size * 0.03);
+            ctx.lineTo(size * 0.65, baseY);
+            ctx.lineTo(size * 0.9, baseY);
+            ctx.stroke();
+            
+            return canvas;
+        }
+        
+        const container = document.getElementById('container');
+        
+        tamanhos.forEach(size => {
+            const div = document.createElement('div');
+            div.className = 'icon-item';
+            
+            const canvas = desenharIcone(size);
+            div.appendChild(canvas);
+            
+            const info = document.createElement('p');
+            info.textContent = `${size}x${size}px`;
+            info.style.marginTop = '5px';
+            div.appendChild(info);
+            
+            const btn = document.createElement('button');
+            btn.textContent = `💾 Baixar ${size}px`;
+            btn.onclick = () => {
+                const link = document.createElement('a');
+                link.download = `icon-${size}x${size}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+            div.appendChild(btn);
+            
+            container.appendChild(div);
+        });
+
+        // Criar também o favicon.ico (16x16 e 32x32 combinados)
+        const faviconDiv = document.createElement('div');
+        faviconDiv.className = 'icon-item';
+        faviconDiv.style.width = '100%';
+        faviconDiv.innerHTML = '<h3>🎯 Favicon Principal</h3>';
+        
+        const faviconBtn = document.createElement('button');
+        faviconBtn.textContent = '💾 Baixar favicon.png (32x32)';
+        faviconBtn.onclick = () => {
+            const canvas = desenharIcone(32);
+            const link = document.createElement('a');
+            link.download = 'favicon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+        faviconDiv.appendChild(faviconBtn);
+        container.appendChild(faviconDiv);
+    </script>
+</body>
+</html>

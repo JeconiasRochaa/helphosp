@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+    <title>HelpHosp — Central de Chamados</title>
+    <meta name="description" content="Central de chamados técnicos hospitalares — TI e Manutenção.">
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#0b2340">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HelpHosp">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+    <link rel="mask-icon" href="icons/favicon.svg" color="#2f6fed">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Fundo -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="ecg-container">
+        <svg viewBox="0 0 1200 100" preserveAspectRatio="none" aria-hidden="true">
+            <path class="ecg-path" d="M0,50 L80,50 L100,50 L110,10 L120,90 L130,50 L140,10 L150,90 L160,50 L300,50"/>
+            <path class="ecg-path" d="M300,50 L380,50 L400,50 L410,10 L420,90 L430,50 L440,10 L450,90 L460,50 L600,50"/>
+            <path class="ecg-path" d="M600,50 L680,50 L700,50 L710,10 L720,90 L730,50 L740,10 L750,90 L760,50 L900,50"/>
+        </svg>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-hospital"></i>
+                <div class="logo-mini-ecg"></div>
+            </div>
+            <div>
+                <h1><span class="help">Help</span><span class="hosp">Hosp</span></h1>
+                <span>Central de Chamados</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="btn-area-tecnica">
+                <i class="fas fa-shield-halved"></i> Área Técnica
+            </a>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Banner -->
+        <div class="welcome-banner">
+            <h2>Precisa de suporte técnico?</h2>
+            <p>Escolha o departamento abaixo, descreva o problema e, se possível, anexe uma foto. A equipe já chega sabendo o que encontrar.</p>
+        </div>
+
+        <!-- Suporte -->
+        <div class="suporte-container">
+            <div class="suporte-header" onclick="toggleSuporte()" role="button" tabindex="0">
+                <div class="suporte-icon-wrapper"><i class="fas fa-headset"></i></div>
+                <h3>Falar com um técnico agora</h3>
+                <i class="fas fa-chevron-down seta" id="setaSuporte"></i>
+            </div>
+            <div class="suporte-contatos" id="contatosSuporte">
+                <span class="loading-text">Carregando contatos...</span>
+            </div>
+        </div>
+
+        <!-- Departamentos -->
+        <div class="action-grid" id="actionGrid">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p>Carregando departamentos...</p>
+            </div>
+        </div>
+
+        <!-- ============ FORMULÁRIO DE CHAMADO ============ -->
+        <div class="form-container" id="formChamado">
+            <div class="form-header">
+                <h2 id="formTitle">Novo Chamado</h2>
+                <button class="btn-close" onclick="fecharTudo()" aria-label="Fechar">&times;</button>
+            </div>
+
+            <div class="depto-indicator" id="deptoIndicator" style="display:none;">
+                <i class="fas fa-circle-arrow-right"></i>
+                <span id="deptoIndicatorText"></span>
+            </div>
+
+            <form id="chamadoForm" onsubmit="return false;" novalidate>
+                <input type="hidden" id="departamento" value="">
+                <input type="hidden" id="prioridade" value="Média">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="solicitante">Seu nome *</label>
+                        <input type="text" id="solicitante" required autocomplete="name" placeholder="Nome e sobrenome">
+                    </div>
+                    <div class="form-group">
+                        <label for="contato">Contato</label>
+                        <input type="text" id="contato" placeholder="WhatsApp ou ramal" inputmode="tel">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="setor">Setor *</label>
+                        <select id="setor" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Tipo de problema *</label>
+                        <select id="categoria" required>
+                            <option value="">Selecione o departamento primeiro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="titulo">Título *</label>
+                    <input type="text" id="titulo" required maxlength="120" placeholder="Resuma o problema em poucas palavras">
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" rows="3" maxlength="1500" placeholder="Detalhe o problema, o local exato e o equipamento envolvido..."></textarea>
+                </div>
+
+                <!-- ====== Anexo de fotos ====== -->
+                <div class="form-group">
+                    <label>Fotos do problema (opcional · até 3)</label>
+                    <div class="foto-drop" id="fotoDrop" role="button" tabindex="0">
+                        <div class="foto-drop__icon"><i class="fas fa-camera"></i></div>
+                        <div class="foto-drop__title">Tirar foto ou escolher da galeria</div>
+                        <div class="foto-drop__hint">A equipe visualiza a imagem antes de se deslocar · JPG/PNG · até 8&nbsp;MB cada</div>
+                        <input type="file" id="fotoInput" accept="image/*" capture="environment" multiple>
+                    </div>
+                    <div class="foto-preview-grid" id="fotoPreview"></div>
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="upload-progress__bar" id="uploadProgressBar"></div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit" id="btnSubmitChamado">
+                    <i class="fas fa-paper-plane"></i> Enviar Chamado
+                </button>
+            </form>
+        </div>
+
+        <!-- ============ FORMULÁRIO GESTHOSP ============ -->
+        <div class="form-container" id="formGestHosp">
+            <div class="form-header">
+                <h2>Solicitar Cadastro — GestHosp</h2>
+                <button class="btn-close" onclick="fecharTudo()" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="depto-indicator ti">
+                <i class="fas fa-desktop"></i>
+                <span>Esta solicitação será enviada para a equipe de TI</span>
+            </div>
+
+            <form id="gestHospForm" onsubmit="return false;" novalidate>
+                <div class="form-section">
+                    <h4><i class="fas fa-user"></i> Dados Pessoais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghNome">Nome completo *</label>
+                            <input type="text" id="ghNome" required placeholder="Nome completo do profissional">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghCpf">CPF *</label>
+                            <input type="text" id="ghCpf" required placeholder="000.000.000-00" inputmode="numeric" maxlength="14">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghRG">RG</label>
+                            <input type="text" id="ghRG" placeholder="00.000.000-0">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghDataNasc">Data de nascimento</label>
+                            <input type="date" id="ghDataNasc">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghEmail">E-mail *</label>
+                            <input type="email" id="ghEmail" required placeholder="email@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghTel">Telefone *</label>
+                            <input type="text" id="ghTel" required placeholder="(00) 00000-0000" inputmode="tel" maxlength="15">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="fas fa-location-dot"></i> Endereço</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghCEP">CEP</label>
+                            <input type="text" id="ghCEP" placeholder="00000-000" inputmode="numeric" maxlength="9">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghLogradouro">Logradouro</label>
+                            <input type="text" id="ghLogradouro" placeholder="Rua, avenida...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghNumero">Número</label>
+                            <input type="text" id="ghNumero" placeholder="Nº">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghComplemento">Complemento</label>
+                            <input type="text" id="ghComplemento" placeholder="Apto, bloco...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghBairro">Bairro</label>
+                            <input type="text" id="ghBairro" placeholder="Bairro">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghCidade">Cidade *</label>
+                            <input type="text" id="ghCidade" required placeholder="Cidade">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghEstado">Estado *</label>
+                            <select id="ghEstado" required><option value="">Selecione...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ghPais">País</label>
+                            <input type="text" id="ghPais" value="Brasil" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4><i class="fas fa-user-doctor"></i> Dados Profissionais</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ghProfissao">Profissão *</label>
+                            <input type="text" id="ghProfissao" required placeholder="Médico, enfermeiro...">
+                        </div>
+                        <div class="form-group">
+                            <label for="ghNumConselho">Nº do conselho</label>
+                            <input type="text" id="ghNumConselho" placeholder="CRM, COREN...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ghObs">Observações</label>
+                        <textarea id="ghObs" rows="2" placeholder="Informações adicionais..."></textarea>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-submit btn-submit-gh" id="btnSubmitGestHosp">
+                    <i class="fas fa-user-plus"></i> Solicitar Cadastro
+                </button>
+            </form>
+        </div>
+
+        <!-- ============ MEUS CHAMADOS ============ -->
+        <div class="chamados-container" id="chamadosContainer">
+            <div class="chamados-header">
+                <h2>Chamados de hoje</h2>
+                <button class="btn-close" onclick="fecharTudo()">← Voltar</button>
+            </div>
+            <div id="listaChamados"></div>
+        </div>
+    </main>
+
+    <!-- Modal de detalhes -->
+    <div class="modal-overlay" id="modalDetalhes">
+        <div class="modal-box">
+            <button class="fecha" onclick="fecharModal()" aria-label="Fechar">&times;</button>
+            <div id="detalhesConteudo"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/notify.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/chamados.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/pwa.js"></script>
+    <script src="js/whatsapp.js"></script>
+</body>
+</html>

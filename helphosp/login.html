@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpHosp — Acesso Técnico</title>
+
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180x180.png">
+    <meta name="theme-color" content="#0b2340">
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            background: #081a30;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           PAINEL ESQUERDO — vitrine tecnológica
+           ============================================ */
+        .showcase {
+            position: relative;
+            background: linear-gradient(160deg, #0b2340 0%, #081a30 60%, #051220 100%);
+            padding: 52px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            color: #fff;
+        }
+        .showcase::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(47,111,237,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(47,111,237,0.07) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: radial-gradient(ellipse 90% 80% at 20% 20%, #000 40%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse 90% 80% at 20% 20%, #000 40%, transparent 85%);
+        }
+        .showcase-glow {
+            position: absolute; top: -20%; left: -10%;
+            width: 620px; height: 620px;
+            background: radial-gradient(circle, rgba(47,111,237,0.28) 0%, transparent 65%);
+            animation: glowBreath 8s ease-in-out infinite;
+        }
+        @keyframes glowBreath {
+            0%,100% { opacity: 0.55; transform: scale(1); }
+            50%     { opacity: 1; transform: scale(1.12); }
+        }
+        .showcase-glow2 {
+            position: absolute; bottom: -25%; right: -10%;
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(15,181,176,0.16) 0%, transparent 65%);
+            animation: glowBreath 10s ease-in-out infinite reverse;
+        }
+
+        .showcase-top, .showcase-mid, .showcase-bottom { position: relative; z-index: 1; }
+
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-mark {
+            width: 44px; height: 44px; border-radius: 13px;
+            display: grid; place-items: center;
+            background: linear-gradient(135deg, rgba(47,111,237,0.3), rgba(47,111,237,0.06));
+            border: 1.5px solid rgba(47,111,237,0.5);
+            box-shadow: inset 0 0 18px rgba(47,111,237,0.2);
+        }
+        .brand-mark i { font-size: 19px; color: #7fa8ff; }
+        .brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+        .brand .help { color: #9fc0f5; font-weight: 300; }
+        .brand span.tag {
+            display: block; font-size: 9px; letter-spacing: 2.6px;
+            color: #7fa8ff; text-transform: uppercase; font-weight: 700; margin-top: 2px;
+        }
+
+        .showcase-mid { max-width: 420px; }
+        .showcase-mid h2 {
+            font-size: 34px; line-height: 1.2; font-weight: 800; letter-spacing: -0.8px;
+            margin-bottom: 14px;
+        }
+        .showcase-mid h2 span { color: #7fa8ff; }
+        .showcase-mid p { font-size: 14px; color: #a9bdd9; line-height: 1.6; margin-bottom: 26px; }
+
+        .feature-list { display: grid; gap: 12px; }
+        .feature-item {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(47,111,237,0.18);
+            border-radius: 12px; padding: 12px 14px;
+        }
+        .feature-item i {
+            width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+            display: grid; place-items: center;
+            background: rgba(47,111,237,0.18); color: #7fa8ff; font-size: 13px;
+        }
+        .feature-item span { font-size: 12.5px; color: #d3ddf0; }
+
+        .showcase-bottom { display: flex; align-items: center; gap: 10px; font-size: 11px; color: #6f88ad; }
+        .live-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--success);
+            box-shadow: 0 0 0 0 rgba(22,163,74,0.6);
+            animation: pulsoLive 2s ease-out infinite;
+        }
+        @keyframes pulsoLive {
+            0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.6); }
+            70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+            100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+        }
+
+        /* ============================================
+           PAINEL DIREITO — formulário
+           ============================================ */
+        .auth-panel {
+            background: var(--bg, #f3f6fb);
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px 28px;
+        }
+        .auth-box { width: 100%; max-width: 380px; animation: fadeInUp 0.6s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        .auth-box .mobile-brand { display: none; text-align: center; margin-bottom: 22px; }
+        .auth-box .mobile-brand .brand-mark { margin: 0 auto 10px; background: linear-gradient(135deg, rgba(47,111,237,0.16), rgba(47,111,237,0.04)); border-color: rgba(47,111,237,0.35); }
+        .auth-box .mobile-brand .brand-mark i { color: var(--blue); }
+        .auth-box .mobile-brand h1 { color: var(--navy); }
+        .auth-box .mobile-brand .help { color: var(--text-2); }
+
+        .auth-head { margin-bottom: 24px; }
+        .auth-head span.eyebrow {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+            color: var(--blue); margin-bottom: 8px;
+        }
+        .auth-head h2 { font-size: 24px; font-weight: 800; color: var(--navy); letter-spacing: -0.5px; }
+        .auth-head p { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+
+        .msg-box {
+            padding: 11px 14px; border-radius: var(--radius-sm); margin-bottom: 16px;
+            font-size: 12.5px; display: none; align-items: center; gap: 9px;
+        }
+        .msg-box.show { display: flex; animation: shake 0.4s ease; }
+        .msg-box.erro { background: rgba(229,72,77,0.08); color: #b3282d; border: 1px solid rgba(229,72,77,0.25); }
+        .msg-box.sucesso { background: rgba(22,163,74,0.08); color: #0d6b31; border: 1px solid rgba(22,163,74,0.25); }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); } 40% { transform: translateX(6px); }
+            60% { transform: translateX(-3px); } 80% { transform: translateX(3px); }
+        }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label {
+            display: block; font-size: 10.5px; font-weight: 700; color: var(--text-2);
+            margin-bottom: 6px; letter-spacing: 0.6px; text-transform: uppercase;
+        }
+        .input-wrapper { position: relative; }
+        .input-wrapper .input-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--muted); font-size: 13px; transition: var(--t); pointer-events: none;
+        }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 14px 12px 40px;
+            background: var(--card); border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); color: var(--text); font-size: 13.5px;
+            font-family: var(--font); transition: var(--t); outline: none;
+        }
+        .form-group select {
+            padding-left: 14px; cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c8797' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 34px;
+        }
+        .form-group input::placeholder { color: var(--muted); }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--blue); box-shadow: var(--ring);
+        }
+        .form-group input:focus ~ .input-icon { color: var(--blue); }
+
+        .btn-login {
+            width: 100%; padding: 13.5px;
+            background: var(--gradient-blue); color: #fff; border: none;
+            border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer;
+            font-family: var(--font); transition: var(--t); letter-spacing: 0.3px; margin-top: 6px;
+            box-shadow: 0 6px 20px rgba(47,111,237,0.28);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-login:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--blue-hover), var(--blue-active));
+            transform: translateY(-2px); box-shadow: 0 10px 28px rgba(47,111,237,0.4);
+        }
+        .btn-login:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+        .btn-spinner {
+            display: inline-block; width: 15px; height: 15px;
+            border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+            border-radius: 50%; animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .auth-footer { text-align: center; margin-top: 22px; }
+        .auth-footer a {
+            color: var(--text-2); text-decoration: none; font-size: 12px;
+            transition: var(--t); display: inline-flex; align-items: center; gap: 6px;
+        }
+        .auth-footer a:hover { color: var(--blue); }
+
+        [data-theme="dark"] .auth-panel { background: var(--bg); }
+
+        @media (max-width: 900px) {
+            body { grid-template-columns: 1fr; }
+            .showcase { display: none; }
+            .auth-box .mobile-brand { display: block; }
+        }
+        @media (max-width: 420px) {
+            .auth-head h2 { font-size: 21px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Painel esquerdo — vitrine -->
+<div class="showcase">
+    <div class="showcase-glow"></div>
+    <div class="showcase-glow2"></div>
+
+    <div class="showcase-top brand">
+        <div class="brand-mark"><i class="fas fa-headset"></i></div>
+        <div>
+            <h1><span class="help">Help</span>Hosp</h1>
+            <span class="tag">Central de Chamados</span>
+        </div>
+    </div>
+
+    <div class="showcase-mid">
+        <h2>Suporte técnico <span>rápido, rastreável</span> e sem retrabalho.</h2>
+        <p>Um único lugar para abrir, acompanhar e resolver chamados de TI e Manutenção — com fotos, SLA em tempo real e posse clara de cada atendimento.</p>
+
+        <div class="feature-list">
+            <div class="feature-item"><i class="fas fa-camera"></i><span>Fotos anexadas direto no chamado, antes mesmo da equipe chegar</span></div>
+            <div class="feature-item"><i class="fas fa-user-lock"></i><span>Cada chamado pertence a um técnico — sem dois atendimentos simultâneos</span></div>
+            <div class="feature-item"><i class="fas fa-gauge-high"></i><span>SLA e prioridade calculados automaticamente por categoria</span></div>
+            <div class="feature-item"><i class="fas fa-tv"></i><span>Painel de TV com atualização e alertas em tempo real</span></div>
+        </div>
+    </div>
+
+    <div class="showcase-bottom">
+        <span class="live-dot"></span> Ambiente monitorado em tempo real
+    </div>
+</div>
+
+<!-- Painel direito — formulário -->
+<div class="auth-panel">
+    <div class="auth-box">
+        <div class="mobile-brand">
+            <div class="brand-mark" style="width:56px;height:56px;border-radius:16px;margin-bottom:10px;"><i class="fas fa-headset" style="font-size:22px;"></i></div>
+            <h1 style="font-size:22px;"><span class="help">Help</span>Hosp</h1>
+        </div>
+
+        <div class="auth-head">
+            <span class="eyebrow"><i class="fas fa-shield-halved"></i> Área técnica</span>
+            <h2>Entrar no painel</h2>
+            <p>Acesso restrito às equipes de TI e Manutenção.</p>
+        </div>
+
+        <div class="msg-box erro" id="erroLogin"></div>
+        <div class="msg-box sucesso" id="sucessoLogin"></div>
+
+        <form id="loginForm" onsubmit="return false;">
+            <div class="form-group">
+                <label>Departamento</label>
+                <select id="departamento">
+                    <option value="">Selecione o departamento...</option>
+                    <option value="TI">Tecnologia da Informação</option>
+                    <option value="MANUTENCAO">Manutenção</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Usuário</label>
+                <div class="input-wrapper">
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
+                    <i class="fas fa-user input-icon"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <div class="input-wrapper">
+                    <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+            </div>
+            <button type="submit" class="btn-login" id="btnLogin" onclick="fazerLogin()">
+                <i class="fas fa-arrow-right-to-bracket"></i> Entrar
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar para a Central de Chamados</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// CONFIGURAÇÃO FIREBASE
+// ============================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBXeV-uxTIzF7rCgLTFTCz5zE9WCq2gQgE",
+    authDomain: "helphosp.firebaseapp.com",
+    projectId: "helphosp",
+    storageBucket: "helphosp.firebasestorage.app",
+    messagingSenderId: "1075623193163",
+    appId: "1:1075623193163:web:cf54ee082d1c97a9aa7bce"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ============================================
+// VARIÁVEIS DE CONTROLE
+// ============================================
+let tentativas = 0;
+let loginBloqueado = false;
+let timerBloqueio = null;
+
+// ============================================
+// FUNÇÕES DE INTERFACE
+// ============================================
+function mostrarErro(msg) {
+    const erroDiv = document.getElementById('erroLogin');
+    const sucessoDiv = document.getElementById('sucessoLogin');
+
+    sucessoDiv.classList.remove('show');
+    erroDiv.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + msg;
+    erroDiv.classList.remove('show');
+    erroDiv.offsetHeight; // reflow para reiniciar a animação
+    erroDiv.classList.add('show');
+}
+
+function mostrarSucesso(msg) {
+    const sucessoDiv = document.getElementById('sucessoLogin');
+    const erroDiv = document.getElementById('erroLogin');
+
+    erroDiv.classList.remove('show');
+    sucessoDiv.innerHTML = '<i class="fas fa-circle-check"></i> ' + msg;
+    sucessoDiv.classList.add('show');
+}
+
+function limparMensagens() {
+    document.getElementById('erroLogin').classList.remove('show');
+    document.getElementById('sucessoLogin').classList.remove('show');
+}
+
+function setLoading(loading) {
+    const btn = document.getElementById('btnLogin');
+    if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="btn-spinner"></span> Autenticando...';
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Entrar';
+    }
+}
+
+// ============================================
+// VERIFICAÇÃO DE BLOQUEIO
+// ============================================
+function verificarTentativas() {
+    if (tentativas >= 5) {
+        loginBloqueado = true;
+        const tempoBloqueio = 30;
+
+        mostrarErro(`Muitas tentativas! Aguarde ${tempoBloqueio} segundos.`);
+
+        let segundosRestantes = tempoBloqueio;
+        timerBloqueio = setInterval(() => {
+            segundosRestantes--;
+            if (segundosRestantes <= 0) {
+                clearInterval(timerBloqueio);
+                loginBloqueado = false;
+                tentativas = 0;
+                limparMensagens();
+                mostrarSucesso('Você já pode tentar novamente.');
+                setTimeout(limparMensagens, 3000);
+            } else {
+                mostrarErro(`Muitas tentativas! Aguarde ${segundosRestantes} segundos.`);
+            }
+        }, 1000);
+    }
+}
+
+// ============================================
+// FUNÇÃO PRINCIPAL DE LOGIN
+// ============================================
+async function fazerLogin() {
+    if (loginBloqueado) {
+        mostrarErro('Aguarde o tempo de bloqueio antes de tentar novamente.');
+        return;
+    }
+
+    const departamento = document.getElementById('departamento').value;
+    const usuario = document.getElementById('usuario').value.toLowerCase().trim();
+    const senha = document.getElementById('senha').value;
+
+    if (!departamento) { mostrarErro('Selecione o departamento!'); return; }
+    if (!usuario) { mostrarErro('Digite seu usuário!'); return; }
+    if (!senha) { mostrarErro('Digite sua senha!'); return; }
+
+    limparMensagens();
+    setLoading(true);
+
+    try {
+        const snapshot = await db.collection('usuarios').where('usuario', '==', usuario).get();
+
+        if (snapshot.empty) {
+            tentativas++;
+            mostrarErro('Usuário não encontrado! Verifique suas credenciais.');
+            verificarTentativas();
+            setLoading(false);
+            return;
+        }
+
+        const doc = snapshot.docs[0];
+        const user = doc.data();
+
+        if (user.senha !== senha) {
+            tentativas++;
+            mostrarErro('Senha incorreta! Tente novamente.');
+            verificarTentativas();
+            setLoading(false);
+            return;
+        }
+
+        if (user.status && user.status !== 'ativo') {
+            mostrarErro('Usuário inativo! Contate o administrador do sistema.');
+            setLoading(false);
+            return;
+        }
+
+        if (user.tipo !== 'admin' && user.departamento !== departamento) {
+            const nomeDep = user.departamento === 'TI' ? 'Tecnologia da Informação' : 'Manutenção';
+            mostrarErro(`Este usuário pertence ao departamento: ${nomeDep}`);
+            setLoading(false);
+            return;
+        }
+
+        tentativas = 0;
+
+        const dadosSessao = {
+            id: doc.id,
+            nome: user.nome || 'Técnico',
+            usuario: user.usuario,
+            cargo: user.cargo || 'Técnico',
+            departamento: user.departamento || departamento,
+            tipo: user.tipo || 'tecnico',
+            whatsapp: user.whatsapp || '',
+            mostrarContato: user.mostrarContato !== false,
+            primeiro_acesso: user.primeiro_acesso || false,
+            expira: Date.now() + (8 * 60 * 60 * 1000)
+        };
+
+        localStorage.setItem('usuario_logado', JSON.stringify(dadosSessao));
+        mostrarSucesso('Login realizado com sucesso! Redirecionando...');
+
+        setTimeout(() => {
+            window.location.href = user.primeiro_acesso ? 'admin.html?primeiro_acesso=1' : 'admin.html';
+        }, 700);
+
+    } catch (error) {
+        console.error('Erro no login:', error);
+        mostrarErro('Erro de conexão! Verifique sua internet e tente novamente.');
+        setLoading(false);
+    }
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+document.getElementById('usuario').addEventListener('input', limparMensagens);
+document.getElementById('senha').addEventListener('input', limparMensagens);
+document.getElementById('departamento').addEventListener('change', limparMensagens);
+
+document.getElementById('senha').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); fazerLogin(); }
+});
+document.getElementById('usuario').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('senha').focus(); }
+});
+
+// ============================================
+// VERIFICAÇÃO DE SESSÃO EXISTENTE
+// ============================================
+(function verificarSessaoExistente() {
+    const sessao = localStorage.getItem('usuario_logado');
+    if (!sessao) return;
+
+    try {
+        const dados = JSON.parse(sessao);
+        if (dados.expira && Date.now() < dados.expira) {
+            mostrarSucesso('Sessão ativa encontrada! Redirecionando...');
+            setTimeout(() => { window.location.href = 'admin.html'; }, 900);
+        } else {
+            localStorage.removeItem('usuario_logado');
+        }
+    } catch (e) {
+        localStorage.removeItem('usuario_logado');
+    }
+})();
+</script>
+</body>
+</html>

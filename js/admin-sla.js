@@ -112,8 +112,8 @@ async function exportarSLAPDF() {
         }
         
         el.innerHTML = `${logosHTML}
-        <div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:30px;">
-            <h1 style="color:#06224a;">HelpHosp - Relatório SLA</h1>
+        <div style="text-align:center;border-bottom:4px solid #0b2340;padding-bottom:20px;margin-bottom:30px;">
+            <h1 style="color:#0b2340;">HelpHosp - Relatório SLA</h1>
             <h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2>
             <p>${new Date().toLocaleDateString('pt-BR', {day:'numeric', month:'long', year:'numeric'})}</p>
         </div>
@@ -124,7 +124,7 @@ async function exportarSLAPDF() {
         </div>
         <h3 style="color:#E53E3E;">🚨 Chamados Atrasados (${atrasados.length})</h3>
         <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Aberto há</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Protocolo</th><th>Título</th><th>Setor</th><th>Prioridade</th><th>Aberto há</th></tr></thead>
             <tbody>${atrasados.map(c => `<tr><td>${c.protocolo || '—'}</td><td>${c.titulo || '—'}</td><td>${c.setor || '—'}</td><td>${c.prioridade || '—'}</td><td>${fmtDataCurta(c.data_abertura)}</td></tr>`).join('')}</tbody>
         </table>`;
         

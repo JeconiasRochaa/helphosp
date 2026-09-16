@@ -14,9 +14,9 @@ function buildMenu() {
     const p = getPerms();
     const nav = document.getElementById('sidebarNav');
     const dep = departamentoAtual();
-    
+
     let h = '';
-    
+
     // ============================================
     // MENU PRINCIPAL (COMUM A TODOS)
     // ============================================
@@ -27,12 +27,14 @@ function buildMenu() {
     h += navItem('sla', 'clock', 'Monitor SLA', false, 'badgeSLA');
     h += navItem('indicadores', 'chart-line', 'Indicadores');
     h += '</div>';
-    
+
     // ============================================
-    // MENU GESTÃO (APENAS TI E ADMIN)
+    // MENU GESTÃO — exclusivo do setor de TI.
+    // Cada departamento só enxerga as ferramentas que fazem parte
+    // da sua própria rotina de trabalho.
     // ============================================
-    if (dep === 'TI' || p.isAdmin) {
-        h += '<div class="nav-section"><div class="nav-title">Gestão</div>';
+    if (dep === 'TI') {
+        h += '<div class="nav-section"><div class="nav-title">Gestão · TI</div>';
         h += navItem('gesthosp', 'hospital-user', 'GestHosp', false, 'badgeGestHosp');
         h += navItem('toners', 'print', 'Toners');
         h += navItem('estoque', 'box', 'Estoque');
@@ -40,7 +42,7 @@ function buildMenu() {
         h += navItem('ips', 'network-wired', 'IPs & Rede');
         h += '</div>';
     }
-    
+
     // ============================================
     // MENU EQUIPE (APENAS ADMIN E SUPERVISORES)
     // ============================================
@@ -49,19 +51,19 @@ function buildMenu() {
         h += navItem('equipe', 'users-cog', 'Equipe');
         h += '</div>';
     }
-    
+
     // ============================================
-    // MENU RECURSOS (COMUM A TODOS)
+    // MENU RECURSOS (COMUM A TODOS — dados já filtrados por setor)
     // ============================================
     h += '<div class="nav-section"><div class="nav-title">Recursos</div>';
     h += navItem('arquivos', 'folder-open', 'Arquivos');
     h += navItem('agenda', 'calendar-alt', 'Agenda', false, 'badgeAgenda');
-    h += navItem('config', 'cog', 'Configurações');
+    h += navItem('config', p.isAdmin ? 'cog' : 'user-cog', p.isAdmin ? 'Configurações' : 'Minha Conta');
     h += '</div>';
-    
+
     nav.innerHTML = h;
-    
-    console.log('📋 Menu construído para:', nomeDepto, '| Permissões:', p);
+
+    console.log('Menu construído para:', nomeDepto, '| Permissões:', p);
 }
 
 function navItem(s, ic, tx, at = false, bd = null) {
@@ -75,13 +77,25 @@ function navegar(s, el) {
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     if (el) el.classList.add('active');
     if (window.innerWidth < 1025) document.getElementById('sidebar').classList.remove('open');
-    
+
     if (s === 'tv') {
         const dep = departamentoAtual();
         window.open('painel_tv.html?dep=' + dep, '_blank');
         return;
     }
-    
+
+    // Ferramentas exclusivas de TI — bloqueadas para quem não é do setor,
+    // mesmo que a seção seja acionada fora do menu (ex.: pelo console).
+    const rotasTI = ['gesthosp', 'toners', 'estoque', 'inventario', 'ips'];
+    if (rotasTI.includes(s) && departamentoAtual() !== 'TI') {
+        HH.aviso('Esta ferramenta é exclusiva do setor de Tecnologia da Informação.', { titulo: 'Acesso restrito' });
+        return;
+    }
+    if (s === 'equipe' && !getPerms().podeEquipe) {
+        HH.aviso('Esta área é restrita a administradores e supervisores.', { titulo: 'Acesso restrito' });
+        return;
+    }
+
     switch (s) {
         case 'dashboard': renderDashboard(); break;
         case 'chamados': renderChamados(); break;
@@ -97,7 +111,7 @@ function navegar(s, el) {
         case 'agenda': renderAgenda(); break;
         case 'config': renderConfig(); break;
         default:
-            console.warn('⚠️ Seção não encontrada:', s);
+            console.warn('Seção não encontrada:', s);
     }
 }
 

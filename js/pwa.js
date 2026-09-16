@@ -94,7 +94,7 @@ class HelpHospPWA {
             bottom: 20px;
             right: 20px;
             z-index: 9999;
-            background: var(--primary, #06224a);
+            background: var(--primary, #0b2340);
             color: white;
             border: none;
             padding: 12px 20px;

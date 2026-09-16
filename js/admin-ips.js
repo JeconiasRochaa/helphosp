@@ -680,7 +680,7 @@ function editarIP(id) {
 }
 
 async function excluirIP(id) {
-    if (!confirm('Excluir este dispositivo permanentemente?')) return;
+    if (!await HH.confirmar('Este dispositivo de rede será excluído permanentemente.', { titulo: 'Excluir dispositivo', confirmar: 'Excluir' })) return;
     
     try {
         await db.collection('ips_rede').doc(id).delete();
@@ -712,8 +712,8 @@ async function gerarRelatorioIPs() {
         }
         
         el.innerHTML = `${logosHTML}
-        <div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:20px;">
-            <h1 style="color:#06224a;">HelpHosp - Relatório de Rede</h1>
+        <div style="text-align:center;border-bottom:4px solid #0b2340;padding-bottom:20px;margin-bottom:20px;">
+            <h1 style="color:#0b2340;">HelpHosp - Relatório de Rede</h1>
             <h2 style="color:#3182CE;">${sanitizar(nomeDepto)}</h2>
             <p>${new Date().toLocaleDateString('pt-BR')} • ${ips.length} dispositivos • ${setoresUnicos} setores</p>
         </div>
@@ -725,7 +725,7 @@ async function gerarRelatorioIPs() {
         </div>
         
         <table style="width:100%;border-collapse:collapse;font-size:10px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>MAC</th><th>Local</th><th>Setor</th><th>Status</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Dispositivo</th><th>Tipo</th><th>IP</th><th>MAC</th><th>Local</th><th>Setor</th><th>Status</th></tr></thead>
             <tbody>${ips.map(ip => `<tr><td>${ip.dispositivo||'—'}</td><td>${ip.tipo||'—'}</td><td>${ip.ip||'—'}</td><td>${ip.mac||'—'}</td><td>${ip.localizacao||'—'}</td><td>${ip.setor||'—'}</td><td>${ip.status||'Ativo'}</td></tr>`).join('')}</tbody>
         </table>`;
         

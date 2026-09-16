@@ -1,274 +1,241 @@
-// ============================================
+// ============================================================
 // INTERFACE DO PORTAL PÚBLICO
-// ============================================
+// ============================================================
 
-/**
- * Renderiza o grid de departamentos
- */
+const esc = s => HH.esc(s);
+
+// ============================================================
+// GRID DE DEPARTAMENTOS
+// ============================================================
+
 function renderizarActionGrid(departamentos) {
     const grid = document.getElementById('actionGrid');
     if (!grid) return;
-    
+
     let html = '';
-    
+
     departamentos.forEach((dep, index) => {
         const info = DEPARTAMENTO_INFO[dep] || {
             icone: 'fa-building',
-            titulo: `📋 ${dep}`,
-            descricao: `Chamados para ${dep}`
+            titulo: dep,
+            descricao: `Abrir chamado para ${dep}`
         };
-        const corClasse = CORES_DEPARTAMENTO[index % CORES_DEPARTAMENTO.length];
-        
+        const cor = CORES_DEPARTAMENTO[index % CORES_DEPARTAMENTO.length];
+
         html += `
-        <div class="action-card card-${corClasse}" onclick="window.app.abrirFormulario('${dep}')">
-            <div class="card-icon">
-                <i class="fas ${info.icone}"></i>
-            </div>
-            <h3>${info.titulo}</h3>
-            <p>${info.descricao}</p>
+        <div class="action-card card-${cor}" onclick="window.app.abrirFormulario('${esc(dep)}')" role="button" tabindex="0">
+            <div class="card-icon"><i class="fas ${esc(info.icone)}"></i></div>
+            <h3>${esc(info.titulo)}</h3>
+            <p>${esc(info.descricao)}</p>
         </div>`;
     });
-    
-    // Card GestHosp
+
     html += `
-    <div class="action-card card-gesthosp" onclick="window.app.abrirGestHosp()">
-        <div class="card-icon">
-            <i class="fas fa-user-plus"></i>
-        </div>
+    <div class="action-card card-gesthosp" onclick="window.app.abrirGestHosp()" role="button" tabindex="0">
+        <div class="card-icon"><i class="fas fa-user-plus"></i></div>
         <h3>Cadastro GestHosp</h3>
-        <p>Solicitar cadastro de profissional</p>
+        <p>Solicitar cadastro de profissional no sistema</p>
+    </div>
+    <div class="action-card card-meus-chamados" onclick="window.app.mostrarMeusChamados()" role="button" tabindex="0">
+        <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+        <h3>Acompanhar Chamados</h3>
+        <p>Veja o andamento dos chamados abertos hoje</p>
     </div>`;
-    
-    // Card Meus Chamados
-    html += `
-    <div class="action-card card-meus-chamados" onclick="window.app.mostrarMeusChamados()">
-        <div class="card-icon">
-            <i class="fas fa-clipboard-list"></i>
-        </div>
-        <h3>Meus Chamados</h3>
-        <p>Chamados de hoje e pendentes</p>
-    </div>`;
-    
+
     grid.innerHTML = html;
 }
 
-/**
- * Preenche o select de setores
- */
-function preencherSetores(setoresLista) {
-    const selectSetor = document.getElementById('setor');
-    if (!selectSetor) return;
-    
-    selectSetor.innerHTML = '<option value="">Selecione o setor...</option>';
-    setoresLista.forEach(setor => {
-        selectSetor.innerHTML += `<option value="${setor}">${setor}</option>`;
-    });
+// ============================================================
+// SELECTS
+// ============================================================
+
+function preencherSetores(lista) {
+    const select = document.getElementById('setor');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione o setor...</option>' +
+        lista.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
 }
 
-/**
- * Preenche estados brasileiros
- */
 function preencherEstados() {
-    const selectEstado = document.getElementById('ghEstado');
-    if (!selectEstado) return;
-    
-    selectEstado.innerHTML = '<option value="">Selecione...</option>';
-    ESTADOS_BRASIL.forEach(estado => {
-        selectEstado.innerHTML += `<option value="${estado.sigla}">${estado.nome}</option>`;
-    });
+    const select = document.getElementById('ghEstado');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione...</option>' +
+        ESTADOS_BRASIL.map(e => `<option value="${e.sigla}">${esc(e.nome)}</option>`).join('');
 }
 
-/**
- * Renderiza contatos de suporte
- */
+// ============================================================
+// CONTATOS DE SUPORTE
+// ============================================================
+
 function renderizarContatos(contatos) {
     const container = document.getElementById('contatosSuporte');
     if (!container) return;
-    
-    if (!contatos || contatos.length === 0) {
-        container.innerHTML = '<span style="color:var(--gray);font-size:12px;">Nenhum técnico disponível no momento</span>';
+
+    if (!contatos || !contatos.length) {
+        container.innerHTML = '<span class="loading-text">Nenhum técnico disponível para contato no momento.</span>';
         return;
     }
-    
-    let html = '';
-    contatos.forEach(contato => {
-        const deptoTipo = contato.departamento === 'MANUTENCAO' ? 'manutencao' : 'ti';
-        const deptoNome = contato.departamento === 'MANUTENCAO' ? 'MANUTENÇÃO' : 'TI';
-        const avatarIcon = contato.departamento === 'MANUTENCAO' ? '🔧' : '🖥️';
-        
-        html += `
-        <a href="https://wa.me/55${contato.whatsapp}" target="_blank" class="contato-card">
-            <div class="contato-avatar">${avatarIcon}</div>
-            <div style="flex:1;">
-                <strong>${contato.nome}</strong>
-                <small>${contato.cargo}</small>
+
+    container.innerHTML = contatos.map(c => {
+        const manut = c.departamento === 'MANUTENCAO';
+        return `
+        <a href="https://wa.me/55${esc(c.whatsapp)}" target="_blank" rel="noopener" class="contato-card">
+            <div class="contato-avatar"><i class="fas ${manut ? 'fa-screwdriver-wrench' : 'fa-desktop'}"></i></div>
+            <div style="flex:1;min-width:0;">
+                <strong>${esc(c.nome)}</strong>
+                <small>${esc(c.cargo || 'Técnico')}</small>
             </div>
-            <span class="depto-tag depto-${deptoTipo}">${deptoNome}</span>
+            <span class="depto-tag depto-${manut ? 'manutencao' : 'ti'}">${manut ? 'MANUTENÇÃO' : 'TI'}</span>
         </a>`;
-    });
-    
-    container.innerHTML = html;
+    }).join('');
 }
 
-/**
- * Renderiza lista de chamados
- */
+// ============================================================
+// LISTA DE CHAMADOS
+// ============================================================
+
+function statusClasse(status) {
+    return 'status-' + String(status || 'A Fazer')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s/g, '');
+}
+
 function renderizarListaChamados(chamados) {
     const lista = document.getElementById('listaChamados');
     if (!lista) return;
-    
-    if (!chamados || chamados.length === 0) {
+
+    if (!chamados || !chamados.length) {
         lista.innerHTML = `
-        <div style="text-align:center;padding:40px;color:var(--gray);">
-            <div style="font-size:40px;">📭</div>
+        <div class="vazio-estado">
+            <div class="emoji"><i class="fas fa-inbox"></i></div>
             <h3>Nenhum chamado hoje</h3>
-            <p>Os chamados abertos aparecerão aqui</p>
+            <p>Os chamados abertos aparecerão aqui automaticamente.</p>
         </div>`;
         return;
     }
-    
-    let html = `<p style="font-size:11px;color:var(--gray);margin-bottom:10px;">📋 ${chamados.length} chamado(s) encontrado(s)</p>`;
-    
-    chamados.forEach(chamado => {
-        const data = chamado.data_abertura?.toDate ? chamado.data_abertura.toDate() : new Date();
-        const statusClass = 'status-' + (chamado.status || 'A Fazer').toLowerCase().replace(/ /g, '');
-        const icon = chamado.tipo === 'gesthosp' ? '🏥' : chamado.departamento === 'MANUTENCAO' ? '🔧' : '🖥️';
-        const concluidoClass = chamado.status === 'Concluído' ? ' concluido' : '';
-        
-        html += `
-        <div class="chamado-card${concluidoClass}" onclick="window.app.verDetalhes('${chamado.id}')">
-            <div style="flex:1;min-width:200px;">
-                <strong>${icon} ${chamado.titulo || 'Sem título'}${chamado.status === 'Concluído' ? ' ✓' : ''}</strong>
-                <br>
-                <small>
-                    📋 ${chamado.protocolo || '—'} | 
-                    📍 ${chamado.setor || '—'} | 
-                    🕐 ${data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})} | 
-                    🏢 ${chamado.departamento || 'TI'}
-                </small>
-            </div>
-            <span class="status-badge ${statusClass}">${chamado.status || 'A Fazer'}</span>
-        </div>`;
-    });
-    
-    lista.innerHTML = html;
+
+    const abertos = chamados.filter(c => c.status !== 'Concluído').length;
+
+    lista.innerHTML = `
+        <p style="font-size:11.5px;color:var(--text-2);margin-bottom:12px;">
+            ${chamados.length} chamado(s) hoje · ${abertos} em aberto
+        </p>` +
+        chamados.map(c => {
+            const data = c.data_abertura?.toDate ? c.data_abertura.toDate() : new Date();
+            const manut = c.departamento === 'MANUTENCAO';
+            const icone = c.tipo === 'gesthosp' ? 'fa-hospital-user' : manut ? 'fa-screwdriver-wrench' : 'fa-desktop';
+            const thumb = (c.fotos && c.fotos.length)
+                ? `<img class="chamado-card__thumb" src="${esc(c.fotos[0])}" alt="Foto do chamado" loading="lazy">`
+                : '';
+
+            return `
+            <div class="chamado-card${c.status === 'Concluído' ? ' concluido' : ''}" onclick="window.app.verDetalhes('${esc(c.id)}')">
+                ${thumb}
+                <div style="flex:1;min-width:190px;">
+                    <strong><i class="fas ${icone}" style="color:var(--blue);margin-right:6px;"></i>${esc(c.titulo || 'Sem título')}</strong>
+                    <small>
+                        ${esc(c.protocolo || '—')} &nbsp;·&nbsp;
+                        ${esc(c.setor || '—')} &nbsp;·&nbsp;
+                        ${data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} &nbsp;·&nbsp;
+                        ${manut ? 'Manutenção' : esc(c.departamento || 'TI')}
+                        ${c.fotos && c.fotos.length ? `&nbsp;·&nbsp;<i class="fas fa-camera"></i> ${c.fotos.length}` : ''}
+                    </small>
+                </div>
+                <span class="status-badge ${statusClasse(c.status)}">${esc(c.status || 'A Fazer')}</span>
+            </div>`;
+        }).join('');
 }
 
-/**
- * Renderiza detalhes no modal
- */
+// ============================================================
+// DETALHES DO CHAMADO
+// ============================================================
+
 function renderizarDetalhesChamado(chamado) {
     const conteudo = document.getElementById('detalhesConteudo');
     if (!conteudo) return;
-    
+
     const data = chamado.data_abertura?.toDate ? chamado.data_abertura.toDate() : new Date();
-    const statusClass = 'status-' + (chamado.status || 'A Fazer').toLowerCase().replace(/ /g, '');
-    
-    const timeline = (chamado.timeline || []).map(t => `
-        <div style="padding:5px 0;border-bottom:1px solid #eee;font-size:10px;">
-            <strong>${new Date(t.data).toLocaleString('pt-BR')}</strong>
-            <br>${t.acao || ''}
-        </div>
-    `).join('');
-    
+
+    const timeline = (chamado.timeline || []).slice().reverse().map(t => {
+        let quando = '—';
+        try { quando = new Date(t.data).toLocaleString('pt-BR'); } catch (e) {}
+        return `
+        <div class="timeline-item">
+            <strong>${esc(quando)}</strong>
+            <p>${esc(t.acao || t.status || '')}</p>
+        </div>`;
+    }).join('');
+
+    const fotos = (chamado.fotos || []).map(url =>
+        `<img src="${esc(url)}" alt="Foto do chamado" loading="lazy" onclick="HH.lightbox('${esc(url)}')">`
+    ).join('');
+
+    const blocoFotos = fotos
+        ? `<h4><i class="fas fa-camera"></i> Fotos anexadas</h4><div class="fotos-chamado">${fotos}</div>`
+        : '';
+
     if (chamado.tipo === 'gesthosp') {
         conteudo.innerHTML = `
-        <h3>🏥 Solicitação de Cadastro</h3>
-        <span class="status-badge ${statusClass}">${chamado.status || '—'}</span>
-        <p style="margin-top:10px;"><strong>📋 Protocolo:</strong> ${chamado.protocolo || '—'}</p>
-        <p><strong>📅 Data:</strong> ${data.toLocaleString('pt-BR')}</p>
-        <div style="background:#FFF5F5;padding:10px;border-radius:8px;margin-top:10px;">
-            <p style="color:#E53E3E;font-size:11px;">🔒 Dados protegidos pela LGPD</p>
+        <h3>Solicitação de cadastro — GestHosp</h3>
+        <span class="status-badge ${statusClasse(chamado.status)}">${esc(chamado.status || '—')}</span>
+        <div class="detalhe-grid">
+            <div class="detalhe-item"><span>Protocolo</span><strong>${esc(chamado.protocolo || '—')}</strong></div>
+            <div class="detalhe-item"><span>Aberto em</span><strong>${data.toLocaleString('pt-BR')}</strong></div>
+        </div>
+        <div class="lgpd-box">
+            <i class="fas fa-lock"></i> Os dados pessoais desta solicitação ficam visíveis apenas para a equipe de TI, conforme a LGPD.
         </div>
         <hr>
-        <h4>📜 Andamento</h4>
-        ${timeline || '<p style="color:var(--gray);">Nenhum evento registrado</p>'}`;
+        <h4>Andamento</h4>
+        ${timeline || '<p style="color:var(--text-2);">Nenhum evento registrado.</p>'}`;
     } else {
         conteudo.innerHTML = `
-        <h3>${chamado.titulo || 'Sem título'}</h3>
-        <span class="status-badge ${statusClass}">${chamado.status || '—'}</span>
-        <div style="display:grid;gap:4px;margin-top:10px;font-size:11px;">
-            <p><strong>📋 Protocolo:</strong> ${chamado.protocolo || '—'}</p>
-            <p><strong>👤 Solicitante:</strong> ${chamado.solicitante || '—'}</p>
-            <p><strong>📍 Setor:</strong> ${chamado.setor || '—'}</p>
-            <p><strong>⚡ Prioridade:</strong> ${chamado.prioridade || '—'}</p>
-            <p><strong>📅 Data:</strong> ${data.toLocaleString('pt-BR')}</p>
-            <p><strong>🏢 Departamento:</strong> ${chamado.departamento || 'TI'}</p>
+        <h3>${esc(chamado.titulo || 'Sem título')}</h3>
+        <span class="status-badge ${statusClasse(chamado.status)}">${esc(chamado.status || '—')}</span>
+        <div class="detalhe-grid">
+            <div class="detalhe-item"><span>Protocolo</span><strong>${esc(chamado.protocolo || '—')}</strong></div>
+            <div class="detalhe-item"><span>Solicitante</span><strong>${esc(chamado.solicitante || '—')}</strong></div>
+            <div class="detalhe-item"><span>Setor</span><strong>${esc(chamado.setor || '—')}</strong></div>
+            <div class="detalhe-item"><span>Prioridade</span><strong>${esc(chamado.prioridade || '—')}</strong></div>
+            <div class="detalhe-item"><span>Departamento</span><strong>${chamado.departamento === 'MANUTENCAO' ? 'Manutenção' : esc(chamado.departamento || 'TI')}</strong></div>
+            <div class="detalhe-item"><span>Aberto em</span><strong>${data.toLocaleString('pt-BR')}</strong></div>
+            ${chamado.tecnico ? `<div class="detalhe-item"><span>Técnico</span><strong>${esc(chamado.tecnico)}</strong></div>` : ''}
+            ${chamado.executante ? `<div class="detalhe-item"><span>Executante</span><strong>${esc(chamado.executante)}</strong></div>` : ''}
         </div>
-        ${chamado.descricao ? `<hr><h4>📝 Descrição</h4><p style="white-space:pre-wrap;font-size:12px;">${chamado.descricao}</p>` : ''}
+        ${chamado.descricao ? `<hr><h4>Descrição</h4><p style="white-space:pre-wrap;">${esc(chamado.descricao)}</p>` : ''}
+        ${blocoFotos ? '<hr>' + blocoFotos : ''}
         <hr>
-        <h4>📜 Andamento</h4>
-        ${timeline || '<p style="color:var(--gray);">Nenhum evento registrado</p>'}`;
+        <h4>Andamento</h4>
+        ${timeline || '<p style="color:var(--text-2);">Nenhum evento registrado.</p>'}`;
     }
-    
+
     document.getElementById('modalDetalhes').classList.add('ativo');
 }
 
-/**
- * Mostra notificação toast
- */
-function mostrarToast(mensagem, tipo = 'success') {
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    
-    const cores = {
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        error: 'var(--danger)'
-    };
-    
-    const icones = {
-        success: '✅',
-        warning: '⚠️',
-        error: '❌'
-    };
-    
-    toast.style.borderLeftColor = cores[tipo] || cores.success;
-    toast.innerHTML = `
-        <span>${icones[tipo] || '✅'}</span> 
-        <strong>${tipo === 'success' ? 'Sucesso' : tipo === 'warning' ? 'Atenção' : 'Erro'}</strong>
-        <br>
-        <span style="font-size:11px;color:var(--gray);">${mensagem}</span>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentElement) toast.remove();
-    }, 4000);
-}
+// ============================================================
+// AUXILIARES DE INTERFACE
+// ============================================================
 
-/**
- * Alterna suporte
- */
 function toggleSuporte() {
     const contatos = document.getElementById('contatosSuporte');
     const seta = document.getElementById('setaSuporte');
-    
-    if (contatos && seta) {
-        contatos.classList.toggle('open');
-        seta.classList.toggle('open');
-    }
+    if (contatos) contatos.classList.toggle('open');
+    if (seta) seta.classList.toggle('open');
 }
 
-/**
- * Fecha modal
- */
 function fecharModal() {
-    document.getElementById('modalDetalhes').classList.remove('ativo');
+    document.getElementById('modalDetalhes')?.classList.remove('ativo');
 }
 
-/**
- * Toggle loading do botão
- */
-function toggleBotaoLoading(id, loading, textoOriginal = '') {
+function toggleBotaoLoading(id, carregando, textoOriginal = '', textoCarregando = 'Enviando...') {
     const botao = document.getElementById(id);
     if (!botao) return;
-    
-    if (loading) {
+
+    if (carregando) {
         botao.disabled = true;
-        botao.dataset.textoOriginal = botao.innerHTML;
-        botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        if (!botao.dataset.textoOriginal) botao.dataset.textoOriginal = botao.innerHTML;
+        botao.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${esc(textoCarregando)}`;
     } else {
         botao.disabled = false;
         botao.innerHTML = textoOriginal || botao.dataset.textoOriginal || botao.innerHTML;

@@ -5,6 +5,7 @@
 async function renderConfig() {
     const main = document.getElementById('mainContent');
     await loadConfig();
+    const podeConfigSistema = getPerms().isAdmin;
     
     main.innerHTML = `
     <style>
@@ -79,7 +80,7 @@ async function renderConfig() {
         }
         
         .config-panel h3 i {
-            color: var(--gold, #c8a94a);
+            color: var(--gold, #2f6fed);
         }
         
         .config-card {
@@ -208,12 +209,13 @@ async function renderConfig() {
     
     <div class="top-bar">
         <div>
-            <h1>⚙️ Configurações</h1>
-            <p style="font-size:11px;color:var(--text-secondary);">Gerencie as preferências do sistema</p>
+            <h1><i class="fas fa-gear"></i> Configurações</h1>
+            <p style="font-size:11px;color:var(--text-secondary);">${podeConfigSistema ? 'Gerencie as preferências do sistema' : 'Sua conta no HelpHosp'}</p>
         </div>
     </div>
     
     <div class="config-container">
+        ${podeConfigSistema ? `
         <!-- Abas -->
         <div class="config-tabs">
             <button class="config-tab active" onclick="switchConfigTab('conta', this)">
@@ -234,7 +236,11 @@ async function renderConfig() {
             <button class="config-tab" onclick="switchConfigTab('info', this)">
                 <i class="fas fa-info-circle"></i> Info
             </button>
-        </div>
+        </div>` : `
+        <div class="box-info" style="margin-bottom:16px;">
+            <h4><i class="fas fa-circle-info"></i> Acesso restrito</h4>
+            <p style="font-size:12px;margin:0;">As configurações gerais do sistema (setores, departamentos, backup, SLA) são gerenciadas apenas por administradores. Aqui você pode atualizar sua senha e ver seus dados.</p>
+        </div>`}
         
         <!-- Painel: Conta -->
         <div class="config-panel active" id="panel-conta">
@@ -305,6 +311,7 @@ async function renderConfig() {
             </div>
         </div>
         
+        ${podeConfigSistema ? `
         <!-- Painel: Notificações -->
         <div class="config-panel" id="panel-notificacoes">
             <h3><i class="fas fa-bell"></i> Preferências de Notificação</h3>
@@ -586,7 +593,7 @@ async function renderConfig() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>` : ''}
     </div>`;
 }
 
@@ -609,6 +616,7 @@ function switchConfigTab(tabName, btn) {
 // ============================================
 
 async function salvarLogos() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const hf = document.getElementById('logoHospitalFile')?.files[0];
     const gf = document.getElementById('logoGovernoFile')?.files[0];
     const updates = {};
@@ -637,6 +645,7 @@ async function salvarLogos() {
 }
 
 async function adicionarSetor() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const i = document.getElementById('novoSetor');
     const n = i?.value.trim();
     if (!n) { toast('Digite um nome', 'error'); return; }
@@ -652,7 +661,8 @@ async function adicionarSetor() {
 }
 
 async function removerSetor(i) {
-    if (!confirm(`Remover "${setores[i]}"?`)) return;
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
+    if (!await HH.confirmar(`O setor "${setores[i]}" deixará de aparecer nos formulários.`, { titulo: 'Remover setor', confirmar: 'Remover' })) return;
     setores.splice(i, 1);
     try {
         await db.collection('configuracoes').doc('setores').set({ setores });
@@ -662,6 +672,7 @@ async function removerSetor(i) {
 }
 
 async function adicionarDepto() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const i = document.getElementById('novoDepto');
     const n = i?.value.trim().toUpperCase();
     if (!n) { toast('Digite um nome', 'error'); return; }
@@ -676,7 +687,8 @@ async function adicionarDepto() {
 }
 
 async function removerDepto(i) {
-    if (!confirm(`Remover "${departamentosChamados[i]}"?`)) return;
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
+    if (!await HH.confirmar(`O departamento "${departamentosChamados[i]}" deixará de receber novos chamados.`, { titulo: 'Remover departamento', confirmar: 'Remover' })) return;
     departamentosChamados.splice(i, 1);
     try {
         await db.collection('configuracoes').doc('departamentos_chamados').set({ departamentos: departamentosChamados });
@@ -706,6 +718,7 @@ async function alterarSenha(e) {
 }
 
 async function salvarConfigNotificacoes() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const config = {
         notificarNovoChamado: document.getElementById('cfgNotifChamado')?.checked || false,
         notificarSLA: document.getElementById('cfgNotifSLA')?.checked || false,
@@ -720,6 +733,7 @@ async function salvarConfigNotificacoes() {
 }
 
 async function salvarConfigSLA() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const config = {
         slaCritico: parseInt(document.getElementById('cfgSLACritico')?.value) || 60,
         slaAlta: parseInt(document.getElementById('cfgSLAAlta')?.value) || 240,
@@ -734,6 +748,7 @@ async function salvarConfigSLA() {
 }
 
 async function exportarBackup() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     try {
         toast('📦 Gerando backup...', 'info');
         const backup = { data: new Date().toISOString(), departamento: depto, exportadoPor: usuarioLogado.nome };
@@ -758,10 +773,11 @@ async function exportarBackup() {
 }
 
 function importarBackup() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
     input.onchange = async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        if (!confirm('⚠️ Importar backup irá SOBRESCREVER dados atuais. Continuar?')) return;
+        if (!await HH.confirmar('A importação sobrescreve configurações e usuários já existentes. Esta ação não pode ser desfeita.', { titulo: 'Importar backup', confirmar: 'Importar' })) return;
         try {
             toast('📥 Importando...', 'info');
             const text = await file.text(); const backup = JSON.parse(text);
@@ -775,11 +791,12 @@ function importarBackup() {
 }
 
 async function limparDadosAntigos() {
+    if (!getPerms().isAdmin) { toast('Acesso restrito a administradores.', 'error'); return; }
     const dias = prompt('Remover chamados com mais de quantos dias?', '365');
     if (!dias) return;
     const d = parseInt(dias);
     if (isNaN(d) || d < 30) { toast('Mínimo 30 dias', 'error'); return; }
-    if (!confirm(`⚠️ Remover chamados com mais de ${d} dias?`)) return;
+    if (!await HH.confirmar(`Todos os chamados com mais de ${d} dias serão excluídos definitivamente.`, { titulo: 'Limpar histórico', confirmar: 'Limpar' })) return;
     try {
         toast('🧹 Limpando...', 'info');
         const dl = new Date(); dl.setDate(dl.getDate() - d);

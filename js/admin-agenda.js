@@ -9,12 +9,12 @@ function renderAgenda() {
         .agenda-grid { display: grid; gap: 12px; margin-top: 16px; }
         .agenda-card {
             background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-            padding: 16px; border-left: 4px solid #8B5CF6; transition: all 0.3s; cursor: pointer;
+            padding: 16px; border-left: 4px solid var(--purple); transition: all 0.3s; cursor: pointer;
         }
         .agenda-card:hover { transform: translateX(4px); box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .agenda-card.hoje { border-left-color: #EF4444; background: #FFF5F5; }
+        .agenda-card.hoje { border-left-color: var(--danger); background: rgba(229,72,77,0.07); }
         .agenda-data { font-size: 12px; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; }
-        .agenda-card h4 { font-size: 14px; color: var(--primary); }
+        .agenda-card h4 { font-size: 14px; color: var(--text); font-weight: 700; }
     </style>
     <div class="top-bar"><div><h1>📅 Agenda</h1><p style="font-size:11px;color:var(--text-secondary);">Compromissos e agendamentos</p></div><button class="btn btn-primary btn-sm" onclick="abrirModalAgenda()"><i class="fas fa-plus"></i> Novo</button></div>
     <div id="agendaContent"><div style="text-align:center;padding:40px;"><div class="spinner"></div></div></div>`;
@@ -23,7 +23,9 @@ function renderAgenda() {
 
 async function carregarAgenda() {
     try {
-        const s = await db.collection('agenda').orderBy('data','asc').get();
+        let q = db.collection('agenda').orderBy('data','asc');
+        if (!getPerms().isAdmin) q = q.where('departamento', '==', depto);
+        const s = await q.get();
         const itens=[]; s.forEach(d=>{const x=d.data();x.fid=d.id;itens.push(x);});
         const c=document.getElementById('agendaContent');
         if(!c)return;
@@ -41,7 +43,7 @@ async function carregarAgenda() {
         let html='';
         Object.entries(agrupado).forEach(([dataKey,trocas])=>{
             const isHoje = dataKey === hoje;
-            html+=`<div style="margin-bottom:20px;"><h3 style="color:${isHoje?'#EF4444':'var(--primary)'};font-size:14px;">${isHoje?'🔴 HOJE - ':''}${dataKey}</h3>`;
+            html+=`<div style="margin-bottom:20px;"><h3 style="color:${isHoje?'var(--danger)':'var(--text)'};font-size:14px;">${isHoje?'🔴 HOJE - ':''}${dataKey}</h3>`;
             trocas.forEach(a=>{
                 const d=toDate(a.data);
                 html+=`<div class="agenda-card ${isHoje?'hoje':''}">
@@ -76,4 +78,4 @@ function mostrarFormAgenda(id,d){
 }
 async function salvarAgenda(e,id){e.preventDefault();const d={titulo:document.getElementById('agTitulo')?.value.trim(),data:firebase.firestore.Timestamp.fromDate(new Date(document.getElementById('agData')?.value)),local:document.getElementById('agLocal')?.value.trim(),responsavel:document.getElementById('agResp')?.value.trim(),descricao:document.getElementById('agDesc')?.value.trim(),criadoPor:usuarioLogado.nome,departamento:depto};if(!d.titulo)return;try{if(id)await db.collection('agenda').doc(id).update(d);else await db.collection('agenda').add(d);document.querySelector('.modal-overlay')?.remove();carregarAgenda();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}}
 function editarAgenda(id){abrirModalAgenda(id);}
-async function excluirAgenda(id){if(!confirm('Excluir?'))return;try{await db.collection('agenda').doc(id).delete();carregarAgenda();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
+async function excluirAgenda(id){if(!await HH.confirmar('Remover este compromisso da agenda?',{titulo:'Excluir compromisso',confirmar:'Excluir'}))return;try{await db.collection('agenda').doc(id).delete();carregarAgenda();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}

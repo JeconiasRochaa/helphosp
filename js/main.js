@@ -1,8 +1,7 @@
-// ============================================
+// ============================================================
 // INICIALIZAÇÃO DO PORTAL PÚBLICO
-// ============================================
+// ============================================================
 
-// Expor funções globalmente para os onclick do HTML
 window.app = {
     toggleSuporte,
     fecharTudo,
@@ -15,105 +14,120 @@ window.app = {
 
 window.departamentoSelecionado = '';
 
-/**
- * Configura os event listeners
- */
+// ============================================================
+// EVENTOS
+// ============================================================
+
 function setupEventListeners() {
-    // Botão enviar chamado
-    const btnChamado = document.getElementById('btnSubmitChamado');
-    if (btnChamado) {
-        btnChamado.addEventListener('click', function(e) {
-            e.preventDefault();
-            criarChamado();
+    // Envio do chamado
+    document.getElementById('btnSubmitChamado')?.addEventListener('click', e => {
+        e.preventDefault();
+        criarChamado();
+    });
+
+    // Envio GestHosp
+    document.getElementById('btnSubmitGestHosp')?.addEventListener('click', e => {
+        e.preventDefault();
+        criarGestHosp();
+    });
+
+    // Prioridade automática pela categoria
+    document.getElementById('categoria')?.addEventListener('change', atualizarPrioridadeAuto);
+
+    // ---------- Anexo de fotos ----------
+    const drop = document.getElementById('fotoDrop');
+    const input = document.getElementById('fotoInput');
+
+    if (drop && input) {
+        drop.addEventListener('click', () => input.click());
+        drop.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+        });
+        input.addEventListener('change', () => adicionarFotos(input.files));
+
+        ['dragenter', 'dragover'].forEach(ev =>
+            drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragover'); }));
+        ['dragleave', 'drop'].forEach(ev =>
+            drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragover'); }));
+        drop.addEventListener('drop', e => {
+            if (e.dataTransfer?.files?.length) adicionarFotos(e.dataTransfer.files);
         });
     }
-    
-    // Botão enviar GestHosp
-    const btnGestHosp = document.getElementById('btnSubmitGestHosp');
-    if (btnGestHosp) {
-        btnGestHosp.addEventListener('click', function(e) {
-            e.preventDefault();
-            criarGestHosp();
-        });
-    }
-    
-    // Mudança de categoria
-    const selectCategoria = document.getElementById('categoria');
-    if (selectCategoria) {
-        selectCategoria.addEventListener('change', atualizarPrioridadeAuto);
-    }
-    
-    // Busca CEP
-    const inputCEP = document.getElementById('ghCEP');
-    if (inputCEP) {
-        inputCEP.addEventListener('blur', buscarCEP);
-    }
-    
-    // Fechar modal ao clicar fora
-    const modal = document.getElementById('modalDetalhes');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) fecharModal();
-        });
-    }
-    
-    // Tecla ESC
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            fecharModal();
-            fecharTudo();
+
+    // Colar imagem da área de transferência (print de erro, por exemplo)
+    document.addEventListener('paste', e => {
+        if (!document.getElementById('formChamado')?.classList.contains('active')) return;
+        const itens = Array.from(e.clipboardData?.items || []).filter(i => i.type.startsWith('image/'));
+        if (!itens.length) return;
+        adicionarFotos(itens.map(i => i.getAsFile()).filter(Boolean));
+    });
+
+    // ---------- Máscaras ----------
+    document.getElementById('ghCpf')?.addEventListener('input', e => mascaraCPF(e.target));
+    document.getElementById('ghTel')?.addEventListener('input', e => mascaraTelefone(e.target));
+    document.getElementById('contato')?.addEventListener('input', e => {
+        if (/^[\d\s()\-+]*$/.test(e.target.value) && e.target.value.replace(/\D/g, '').length > 6) {
+            mascaraTelefone(e.target);
         }
+    });
+
+    const cep = document.getElementById('ghCEP');
+    if (cep) {
+        cep.addEventListener('input', e => mascaraCEP(e.target));
+        cep.addEventListener('blur', buscarCEP);
+    }
+
+    // ---------- Modal ----------
+    const modal = document.getElementById('modalDetalhes');
+    modal?.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
+
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        if (document.querySelector('.hh-lightbox') || document.querySelector('.hh-dialog-backdrop')) return;
+        if (modal?.classList.contains('ativo')) { fecharModal(); return; }
+        fecharTudo();
     });
 }
 
-/**
- * Função principal de inicialização
- */
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+
 async function inicializarPortal() {
+    console.log('HelpHosp Portal v3.0 — iniciando');
+
+    preencherEstados();
+    setupEventListeners();
+
     try {
-        console.log('🚀 HelpHosp Portal iniciando...');
-        
-        // Preencher estados
-        preencherEstados();
-        
-        // Carregar configurações
         const [departamentos, setoresData, contatos] = await Promise.all([
             carregarDepartamentos(),
             carregarSetores(),
             carregarContatosSuporte()
         ]);
-        
-        // Atualizar variáveis globais
+
         departamentosChamados = departamentos;
         setores = setoresData;
-        
-        // Renderizar interface
+
         renderizarActionGrid(departamentos);
         preencherSetores(setoresData);
         renderizarContatos(contatos);
-        
-        // Configurar eventos
-        setupEventListeners();
-        
-        console.log('✅ HelpHosp Portal inicializado com sucesso!');
-        
+
+        console.log('Portal pronto.');
     } catch (error) {
-        console.error('❌ Erro na inicialização:', error);
-        
-        // Fallback para dados padrão
+        console.error('Erro na inicialização:', error);
+
+        // Modo degradado: o usuário ainda consegue abrir chamados
         renderizarActionGrid(['TI', 'MANUTENCAO']);
         preencherSetores(SETORES_PADRAO);
-        
-        const containerContatos = document.getElementById('contatosSuporte');
-        if (containerContatos) {
-            containerContatos.innerHTML = '<span class="loading-text">Erro ao carregar contatos</span>';
-        }
-        
-        setupEventListeners();
+
+        const box = document.getElementById('contatosSuporte');
+        if (box) box.innerHTML = '<span class="loading-text">Não foi possível carregar os contatos.</span>';
+
+        HH.aviso('Conexão instável. Alguns dados podem estar desatualizados.');
     }
 }
 
-// Inicializar quando a página carregar
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', inicializarPortal);
 } else {

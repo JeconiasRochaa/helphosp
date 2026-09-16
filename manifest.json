@@ -4,10 +4,16 @@
     "description": "Sistema de Gerenciamento de Chamados Hospitalar",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#06224a",
-    "theme_color": "#06224a",
+    "background_color": "#0b2340",
+    "theme_color": "#0b2340",
     "orientation": "portrait-primary",
     "icons": [
+        {
+            "src": "icons/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
         {
             "src": "icons/icon-72x72.png",
             "sizes": "72x72",
@@ -31,6 +37,11 @@
         {
             "src": "icons/icon-152x152.png",
             "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-180x180.png",
+            "sizes": "180x180",
             "type": "image/png"
         },
         {

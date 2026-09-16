@@ -2,8 +2,8 @@
 // SERVICE WORKER - HELPHOSP PWA
 // ============================================
 
-const CACHE_NAME = 'helphosp-v1.0.0';
-const DYNAMIC_CACHE = 'helphosp-dynamic-v1';
+const CACHE_NAME = 'helphosp-v3.0.0';
+const DYNAMIC_CACHE = 'helphosp-dynamic-v3';
 
 // Recursos para cache inicial
 const STATIC_ASSETS = [
@@ -12,14 +12,19 @@ const STATIC_ASSETS = [
     '/login.html',
     '/admin.html',
     '/painel_tv.html',
+    '/trocar-senha.html',
+    '/css/theme.css',
     '/css/styles.css',
     '/css/admin.css',
+    '/js/notify.js',
     '/js/config.js',
     '/js/firebase.js',
     '/js/ui.js',
     '/js/forms.js',
     '/js/chamados.js',
     '/js/main.js',
+    '/js/pwa.js',
+    '/js/whatsapp.js',
     '/js/admin-config.js',
     '/js/admin-firebase.js',
     '/js/admin-auth.js',
@@ -27,11 +32,24 @@ const STATIC_ASSETS = [
     '/js/admin-ui.js',
     '/js/admin-dashboard.js',
     '/js/admin-chamados.js',
+    '/js/admin-gesthosp.js',
+    '/js/admin-sla.js',
+    '/js/admin-indicadores.js',
+    '/js/admin-toners.js',
+    '/js/admin-estoque.js',
+    '/js/admin-inventario.js',
+    '/js/admin-ips.js',
+    '/js/admin-equipe.js',
+    '/js/admin-arquivos.js',
+    '/js/admin-agenda.js',
+    '/js/admin-configuracoes.js',
     '/js/admin-main.js',
     '/manifest.json',
+    '/icons/favicon.svg',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
     'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
+    'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js',
     'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
 ];
 

@@ -132,4 +132,4 @@ async function salvarInv(e, id) {
     catch(e){toast('Erro','error');}
 }
 function editarInv(id){abrirModalInv(id);}
-async function excluirInv(id){if(!confirm('Excluir?'))return;try{await db.collection('inventario').doc(id).delete();carregarInventario();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}
+async function excluirInv(id){if(!await HH.confirmar('Remover este equipamento do inventário?',{titulo:'Excluir equipamento',confirmar:'Excluir'}))return;try{await db.collection('inventario').doc(id).delete();carregarInventario();toast('🗑️ Excluído!','success');}catch(e){toast('Erro','error');}}

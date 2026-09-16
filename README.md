@@ -1,11 +1,21 @@
 # 🏥 HelpHosp - Sistema de Chamados Hospitalar
 
-![Versão](https://img.shields.io/badge/versão-2.0.0-blue)
+![Versão](https://img.shields.io/badge/versão-3.0.0-blue)
 ![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Storage-orange)
 ![Licença](https://img.shields.io/badge/licença-MIT-green)
 ![Status](https://img.shields.io/badge/status-Produção-brightgreen)
 
 Sistema completo para gerenciamento de chamados técnicos hospitalares, separado por departamentos (TI e Manutenção), com portal público, painel administrativo e painel TV para monitoramento.
+
+## 🆕 Novidades da v3.0
+
+- **Identidade visual renovada**: paleta azul-marinho + azul-elétrico, tema tecnológico, com suporte completo a modo claro/escuro (`css/theme.css` centraliza todos os tokens).
+- **Favicon e ícones novos**: escudo com cruz médica e pulso de ECG, gerado em todos os tamanhos (16px a 512px) mais `.ico` multi-resolução.
+- **Central de notificações (`js/notify.js`)**: popups (toast) profissionais com ícone, barra de progresso e som; diálogos de confirmação substituindo os `alert()`/`confirm()` nativos do navegador; lightbox de fotos; e toques sonoros próprios para novo chamado, crítico, atraso e conclusão.
+- **Fotos no chamado**: o solicitante pode anexar até 3 fotos (câmera, galeria, arrastar-e-soltar ou colar print) direto no portal público. As imagens são comprimidas no navegador antes do envio e aparecem nas miniaturas do painel, no modal de detalhes e no Painel TV.
+- **Painel TV redesenhado**: KPIs em tempo real (fila, em andamento, atrasados, concluídos), cards com foto do problema, ordenação atrasados-primeiro, aviso de liberação de áudio e anúncio por voz revisado.
+- **Catálogo único de categorias/SLA**: `js/config.js` agora é a única fonte de verdade para categorias, prioridades e tempos de SLA — eliminando divergências que existiam entre listas.
+- **Correções**: listener de chamados em tempo real duplicado no admin foi unificado; inicialização do painel não roda mais duas vezes.
 
 ---
 

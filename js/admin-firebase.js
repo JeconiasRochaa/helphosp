@@ -101,54 +101,66 @@ async function carregarTodosDados() {
 }
 
 /**
- * Escuta mudanças em tempo real nos chamados
+ * Escuta mudanças em tempo real nos chamados do departamento.
+ * Uma única implementação: detecta novos chamados, dispara o popup
+ * de notificação e mantém a tela atual sincronizada.
  */
+let unsubscribeChamados = null;
+
 function escutarChamados() {
     const dep = departamentoAtual();
-    db.collection('chamados')
+
+    // Evita listeners duplicados ao trocar de seção
+    if (unsubscribeChamados) {
+        unsubscribeChamados();
+        unsubscribeChamados = null;
+    }
+
+    unsubscribeChamados = db.collection('chamados')
         .where('departamento', '==', dep)
         .onSnapshot(snap => {
-            chamados = montarListaChamados(snap);
+            const anteriores = new Set(chamados.map(c => c.fid));
+            const atuais = montarListaChamados(snap);
+            const primeiraCarga = chamados.length === 0 && !window.__hhJaCarregou;
+
+            if (!primeiraCarga) {
+                atuais
+                    .filter(c => !anteriores.has(c.fid) && c.status === 'A Fazer')
+                    .forEach(c => {
+                        // Popup na tela
+                        HH.novoChamado(c, {
+                            acao: {
+                                texto: 'Abrir chamado',
+                                onClick: () => { navegar('chamados'); setTimeout(() => verDetalhes(c.fid), 350); }
+                            }
+                        });
+
+                        // Notificação do navegador (funciona com a aba em segundo plano)
+                        HH.push(`${c.prioridade === 'Crítica' ? 'Chamado crítico' : 'Novo chamado'} — ${c.prioridade || 'Média'}`, {
+                            body: `${c.titulo || 'Sem título'}\nSetor: ${c.setor || '—'} · ${c.solicitante || '—'}`,
+                            tag: 'chamado-' + c.fid,
+                            requireInteraction: c.prioridade === 'Crítica',
+                            data: { url: 'admin.html' }
+                        });
+                    });
+            }
+
+            window.__hhJaCarregou = true;
+            chamados = atuais;
+
             atualizarBadges();
             verificarAgenda();
-            
+
+            // Atualiza somente a tela que está aberta
             if (document.getElementById('infoTotal')) atualizarDashboard();
             if (document.getElementById('tabelaChamados')) filtrarChamadosUI();
+            if (document.getElementById('tabelaSLA') && typeof renderSLA === 'function') renderSLA();
+        }, erro => {
+            console.error('Erro ao escutar chamados:', erro);
+            HH.erro('Conexão com o servidor instável. Os dados podem estar desatualizados.');
         });
 }
-// Adicionar na função escutarChamados
-function escutarChamados() {
-    const dep = departamentoAtual();
-    
-    db.collection('chamados')
-        .where('departamento', '==', dep)
-        .onSnapshot(snap => {
-            const chamadosAtuais = montarListaChamados(snap);
-            
-            // Detectar novos chamados
-            chamadosAtuais.forEach(c => {
-                const existente = chamados.find(ch => ch.fid === c.fid);
-                if (!existente && c.status === 'A Fazer') {
-                    // NOVO CHAMADO!
-                    console.log('🆕 Novo chamado detectado:', c.titulo);
-                    
-                    // Push notification
-                    if (typeof notifications !== 'undefined') {
-                        notifications.notificarNovoChamado(c);
-                    }
-                    
-                    // WhatsApp (se configurado)
-                    if (c.prioridade === 'Crítica' && typeof whatsapp !== 'undefined') {
-                        whatsapp.notificarTecnico(c, usuarioLogado);
-                    }
-                }
-            });
-            
-            chamados = chamadosAtuais;
-            atualizarBadges();
-            verificarAgenda();
-        });
-}
+
 /**
  * Monta lista de chamados a partir de um snapshot
  */

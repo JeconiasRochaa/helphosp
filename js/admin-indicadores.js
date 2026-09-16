@@ -441,8 +441,8 @@ async function exportarIndicadoresPowerPoint() {
         const pptx = new PptxGenJS();
         pptx.layout = 'LAYOUT_WIDE';
         
-        const COR_PRIMARIA = '06224a';
-        const COR_DOURADO = 'c8a94a';
+        const COR_PRIMARIA = '0b2340';
+        const COR_DOURADO = '2f6fed';
         const COR_BRANCO = 'FFFFFF';
         
         // SLIDE 1 - CAPA
@@ -586,8 +586,8 @@ async function exportarIndicadoresPDF() {
         }
         
         el.innerHTML = `${logosHTML}
-        <div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:30px;">
-            <h1 style="color:#06224a;font-size:28px;">HelpHosp - Relatório de Indicadores</h1>
+        <div style="text-align:center;border-bottom:4px solid #0b2340;padding-bottom:20px;margin-bottom:30px;">
+            <h1 style="color:#0b2340;font-size:28px;">HelpHosp - Relatório de Indicadores</h1>
             <h2 style="color:#3182CE;font-size:16px;">${sanitizar(nomeDepto)}</h2>
             <p style="color:#64748B;font-size:11px;">Período: ${inicio.toLocaleDateString('pt-BR')} a ${fim.toLocaleDateString('pt-BR')} • Gerado em ${new Date().toLocaleString('pt-BR')}</p>
         </div>
@@ -603,7 +603,7 @@ async function exportarIndicadoresPDF() {
         
         <h3 style="margin-top:30px;">📋 Status dos Chamados</h3>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Status</th><th>Qtd</th><th>%</th><th>Barra</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Status</th><th>Qtd</th><th>%</th><th>Barra</th></tr></thead>
             <tbody>
                 <tr><td><span style="background:#DBEAFE;color:#1D4ED8;padding:4px 10px;border-radius:12px;">A Fazer</span></td><td style="font-weight:700;">${aFazer}</td><td>${pct(aFazer, total)}%</td><td><div style="background:#E2E8F0;border-radius:8px;height:16px;"><div style="background:#3B82F6;height:100%;width:${pct(aFazer, total)}%;border-radius:8px;"></div></div></td></tr>
                 <tr><td><span style="background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:12px;">Em Andamento</span></td><td style="font-weight:700;">${emAndamento}</td><td>${pct(emAndamento, total)}%</td><td><div style="background:#E2E8F0;border-radius:8px;height:16px;"><div style="background:#F59E0B;height:100%;width:${pct(emAndamento, total)}%;border-radius:8px;"></div></div></td></tr>
@@ -614,7 +614,7 @@ async function exportarIndicadoresPDF() {
         
         <h3 style="margin-top:30px;">⚡ Por Prioridade</h3>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Prioridade</th><th>Qtd</th><th>%</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Prioridade</th><th>Qtd</th><th>%</th></tr></thead>
             <tbody>
                 <tr><td>🔴 Crítica</td><td style="font-weight:700;">${criticos}</td><td>${pct(criticos, total)}%</td></tr>
                 <tr><td>🟠 Alta</td><td style="font-weight:700;">${alta}</td><td>${pct(alta, total)}%</td></tr>
@@ -625,13 +625,13 @@ async function exportarIndicadoresPDF() {
         
         <h3 style="margin-top:30px;">🏢 Top 10 Setores</h3>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>#</th><th>Setor</th><th>Qtd</th><th>%</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>#</th><th>Setor</th><th>Qtd</th><th>%</th></tr></thead>
             <tbody>${setoresOrdenados.slice(0, 10).map(([s, q], i) => `<tr><td>${i + 1}º</td><td>${sanitizar(s)}</td><td style="font-weight:700;">${q}</td><td>${pct(q, total)}%</td></tr>`).join('')}</tbody>
         </table>
         
         <h3 style="margin-top:30px;">🔧 Top 10 Categorias</h3>
         <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>#</th><th>Categoria</th><th>Qtd</th><th>%</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>#</th><th>Categoria</th><th>Qtd</th><th>%</th></tr></thead>
             <tbody>${categoriasOrdenadas.slice(0, 10).map(([cat, q], i) => `<tr><td>${i + 1}º</td><td>${sanitizar(cat)}</td><td style="font-weight:700;">${q}</td><td>${pct(q, total)}%</td></tr>`).join('')}</tbody>
         </table>
         

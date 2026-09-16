@@ -42,9 +42,13 @@ function getPerms() {
     };
 }
 
-function logout() {
-    if (confirm('Deseja realmente sair do sistema?')) {
-        localStorage.removeItem('usuario_logado');
-        window.location.href = 'login.html';
-    }
+async function logout() {
+    const ok = await HH.confirmar('Sua sessão será encerrada neste dispositivo.', {
+        titulo: 'Sair do sistema',
+        confirmar: 'Sair',
+        variante: 'warning'
+    });
+    if (!ok) return;
+    localStorage.removeItem('usuario_logado');
+    window.location.href = 'login.html';
 }

@@ -2,13 +2,9 @@
 // FUNÇÕES UTILITÁRIAS
 // ============================================
 
-function toast(m, t = 'info') {
-    const e = document.createElement('div');
-    e.className = `toast ${t}`;
-    e.innerHTML = `<i class="fas fa-${t === 'success' ? 'check-circle' : t === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${m}`;
-    document.body.appendChild(e);
-    setTimeout(() => e.remove(), 4000);
-}
+// O sistema de popups de notificação vive em js/notify.js.
+// `toast()` e `mostrarToast()` são expostos globalmente por lá,
+// portanto não há nada a redefinir aqui.
 
 function fmtData(d) {
     if (!d) return '—';
@@ -77,7 +73,8 @@ function departamentoAtual() {
 
 function getSLAStatus(c) {
     if (c.status === 'Concluído') return 'sla-ok';
-    const sla = { 'Crítica': 3600000, 'Alta': 14400000, 'Média': 86400000, 'Baixa': 172800000 };
+    const sla = (typeof SLA_TEMPOS !== 'undefined') ? SLA_TEMPOS
+        : { 'Crítica': 3600000, 'Alta': 14400000, 'Média': 86400000, 'Baixa': 172800000 };
     const ab = toDate(c.data_abertura), ag = new Date(), pr = sla[c.prioridade] || 86400000, tr = pr - (ag - ab);
     if (tr <= 0) return 'sla-critical';
     if (tr < pr * 0.3) return 'sla-warning';
@@ -110,4 +107,76 @@ function initTheme() {
         const icon = document.getElementById('themeIcon');
         if (icon) icon.className = 'fas fa-sun';
     }
+}
+// ============================================
+// FOTOS — compressão e upload compartilhados
+// ============================================
+
+const HH_FOTO_MAX_LADO = 1600;
+const HH_FOTO_QUALIDADE = 0.82;
+
+/**
+ * Reduz a imagem no navegador antes do upload (mesmo comportamento do
+ * portal público), evitando fotos gigantes vindas de celulares/câmeras.
+ */
+function comprimirImagemAdmin(file) {
+    return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) { reject(new Error('Arquivo não é imagem')); return; }
+
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            try {
+                let { width, height } = img;
+                const escala = Math.min(1, HH_FOTO_MAX_LADO / Math.max(width, height));
+                width = Math.round(width * escala);
+                height = Math.round(height * escala);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(blob => {
+                    if (!blob) { reject(new Error('Falha ao processar imagem')); return; }
+                    resolve(blob);
+                }, 'image/jpeg', HH_FOTO_QUALIDADE);
+            } catch (e) { reject(e); }
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Não foi possível ler a imagem')); };
+        img.src = url;
+    });
+}
+
+/**
+ * Envia um conjunto de arquivos de imagem para uma pasta do Storage e
+ * devolve as URLs públicas. Usa compressão automática.
+ */
+async function enviarFotosAdmin(arquivos, pastaBase, onProgress) {
+    const urls = [];
+    const total = arquivos.length;
+
+    for (let i = 0; i < total; i++) {
+        const file = arquivos[i];
+        if (!file.type.startsWith('image/')) continue;
+        if (file.size > 10 * 1024 * 1024) { toast(`"${file.name}" passa de 10 MB.`, 'error'); continue; }
+
+        const blob = await comprimirImagemAdmin(file);
+        const nome = `${pastaBase}/${Date.now()}_${i + 1}.jpg`;
+        const ref = storage.ref(nome);
+
+        await new Promise((resolve, reject) => {
+            const task = ref.put(blob, { contentType: 'image/jpeg' });
+            task.on('state_changed',
+                snap => { if (onProgress) onProgress(Math.round(((i + (snap.bytesTransferred / (snap.totalBytes||1))) / total) * 100)); },
+                reject,
+                async () => { try { urls.push(await task.snapshot.ref.getDownloadURL()); resolve(); } catch (e) { reject(e); } }
+            );
+        });
+    }
+
+    if (onProgress) onProgress(100);
+    return urls;
 }

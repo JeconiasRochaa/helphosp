@@ -48,7 +48,7 @@ async function carregarEquipe() {
             ${membros.length === 0 ? '<div style="text-align:center;padding:40px;grid-column:1/-1;">Nenhum membro</div>' :
             membros.map(m => `
             <div class="membro-card">
-                <div class="membro-avatar" style="background:${m.usuario===usuarioLogado.usuario?'linear-gradient(135deg,#c8a94a,#b8861e)':'linear-gradient(135deg,var(--primary),#1a3a5c)'}">${(m.nome||'?').charAt(0).toUpperCase()}</div>
+                <div class="membro-avatar" style="background:${m.usuario===usuarioLogado.usuario?'linear-gradient(135deg,#2f6fed,#1b4f9c)':'linear-gradient(135deg,var(--primary),#1a3a5c)'}">${(m.nome||'?').charAt(0).toUpperCase()}</div>
                 <h4>${sanitizar(m.nome||'—')}</h4>
                 <small>@${sanitizar(m.usuario||'—')}</small>
                 <small>${sanitizar(m.cargo||'—')}</small>
@@ -86,4 +86,4 @@ function mostrarFormTecnico(id, u) {
 
 async function salvarTecnico(e,id){e.preventDefault();const n=document.getElementById('tecNome')?.value.trim(),u=document.getElementById('tecUsuario')?.value.toLowerCase().trim(),w=document.getElementById('tecWhatsApp')?.value.trim(),c=document.getElementById('tecCargo')?.value,m=document.getElementById('tecMostrar')?.value==='true';if(!n||!u||!w||!c){toast('Preencha todos','error');return;}try{if(id){await db.collection('usuarios').doc(id).update({nome:n,cargo:c,whatsapp:w,mostrarContato:m});}else{const ex=await db.collection('usuarios').where('usuario','==',u).get();if(!ex.empty){toast('Usuário já existe','error');return;}await db.collection('usuarios').add({nome:n,usuario:u,senha:'12345',cargo:c,tipo:'tecnico',whatsapp:w,mostrarContato:m,status:'ativo',primeiro_acesso:true,departamento:depto});}document.querySelector('.modal-overlay')?.remove();carregarEquipe();toast('✅ Salvo!','success');}catch(e){toast('Erro','error');}}
 function editarTecnico(id){abrirModalTecnico(id);}
-async function removerTecnico(id){if(!confirm('Remover?'))return;try{await db.collection('usuarios').doc(id).delete();carregarEquipe();toast('🗑️ Removido!','success');}catch(e){toast('Erro','error');}}
+async function removerTecnico(id){if(!await HH.confirmar('O acesso deste profissional ao sistema será removido.',{titulo:'Remover da equipe',confirmar:'Remover'}))return;try{await db.collection('usuarios').doc(id).delete();carregarEquipe();toast('🗑️ Removido!','success');}catch(e){toast('Erro','error');}}

@@ -181,7 +181,7 @@ async function salvarEstoqueItem(e, id) {
 function editarEstoqueItem(id) { abrirModalEstoqueItem(id); }
 
 async function excluirEstoqueItem(id) {
-    if (!confirm('Excluir este item?')) return;
+    if (!await HH.confirmar('Este item e seu saldo serão removidos do estoque.', { titulo: 'Excluir item', confirmar: 'Excluir' })) return;
     try { await db.collection('estoque').doc(id).delete(); carregarEstoque(); toast('🗑️ Excluído!', 'success'); }
     catch (e) { toast('Erro', 'error'); }
 }

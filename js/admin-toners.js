@@ -452,13 +452,13 @@ async function gerarRelatorioToners() {
         }
         
         el.innerHTML = `${logosHTML}
-        <div style="text-align:center;border-bottom:4px solid #06224a;padding-bottom:20px;margin-bottom:30px;">
-            <h1 style="color:#06224a;font-size:28px;">HelpHosp</h1>
+        <div style="text-align:center;border-bottom:4px solid #0b2340;padding-bottom:20px;margin-bottom:30px;">
+            <h1 style="color:#0b2340;font-size:28px;">HelpHosp</h1>
             <h2 style="color:#3182CE;font-size:18px;">Relatório de Monitoramento de Toners</h2>
             <p style="color:#64748B;">Gerado em ${new Date().toLocaleString('pt-BR')} • ${sanitizar(nomeDepto)}</p>
         </div>
         
-        <h3 style="color:#06224a;border-bottom:2px solid #E2E8F0;padding-bottom:8px;">📊 Resumo</h3>
+        <h3 style="color:#0b2340;border-bottom:2px solid #E2E8F0;padding-bottom:8px;">📊 Resumo</h3>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;">
             <div style="background:#F8FAFC;padding:16px;border-radius:10px;text-align:center;border:2px solid #E2E8F0;">
                 <p style="color:#64748B;font-size:10px;">Total de Trocas</p>
@@ -474,9 +474,9 @@ async function gerarRelatorioToners() {
             </div>
         </div>
         
-        <h3 style="color:#06224a;border-bottom:2px solid #E2E8F0;padding-bottom:8px;margin-top:30px;">📋 Status Atual dos Setores</h3>
+        <h3 style="color:#0b2340;border-bottom:2px solid #E2E8F0;padding-bottom:8px;margin-top:30px;">📋 Status Atual dos Setores</h3>
         <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Setor</th><th>Última Troca</th><th>Técnico</th><th>Tipo</th><th>Dias</th><th>Status</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Setor</th><th>Última Troca</th><th>Técnico</th><th>Tipo</th><th>Dias</th><th>Status</th></tr></thead>
             <tbody>${SETORES_TONERS.map(s => {
                 const ult = ultimas[s];
                 if (!ult) return `<tr><td>${s}</td><td colspan="5" style="color:#E53E3E;">⚠️ Nunca trocado</td></tr>`;
@@ -486,9 +486,9 @@ async function gerarRelatorioToners() {
             }).join('')}</tbody>
         </table>
         
-        <h3 style="color:#06224a;border-bottom:2px solid #E2E8F0;padding-bottom:8px;margin-top:30px;">👤 Por Técnico</h3>
+        <h3 style="color:#0b2340;border-bottom:2px solid #E2E8F0;padding-bottom:8px;margin-top:30px;">👤 Por Técnico</h3>
         <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:12px;">
-            <thead><tr style="background:#06224a;color:white;"><th>Técnico</th><th>Total</th><th>Preventivas</th><th>Necessárias</th></tr></thead>
+            <thead><tr style="background:#0b2340;color:white;"><th>Técnico</th><th>Total</th><th>Preventivas</th><th>Necessárias</th></tr></thead>
             <tbody>${Object.entries(porTecnico).sort((a,b) => b[1].total - a[1].total).map(([nome, d]) => `<tr><td>${nome}</td><td>${d.total}</td><td>${d.preventivas}</td><td>${d.necessarias}</td></tr>`).join('')}</tbody>
         </table>`;
         

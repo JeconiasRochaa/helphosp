@@ -1,0 +1,30 @@
+{
+  "name": "helphosp",
+  "private": true,
+  "version": "4.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage",
+    "admin": "node scripts/criar-admin.mjs"
+  },
+  "dependencies": {
+    "chart.js": "^4.6.1",
+    "firebase": "^13.4.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.77.0",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.3.1",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8",
+    "firebase-admin": "^13.0.0"
+  }
+}

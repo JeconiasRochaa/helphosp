@@ -1,363 +1,70 @@
-# 🏥 HelpHosp - Sistema de Chamados Hospitalar
-
-![Versão](https://img.shields.io/badge/versão-3.0.0-blue)
-![Firebase](https://img.shields.io/badge/Firebase-Firestore%20%2B%20Storage-orange)
-![Licença](https://img.shields.io/badge/licença-MIT-green)
-![Status](https://img.shields.io/badge/status-Produção-brightgreen)
-
-Sistema completo para gerenciamento de chamados técnicos hospitalares, separado por departamentos (TI e Manutenção), com portal público, painel administrativo e painel TV para monitoramento.
-
-## 🆕 Novidades da v3.0
-
-- **Identidade visual renovada**: paleta azul-marinho + azul-elétrico, tema tecnológico, com suporte completo a modo claro/escuro (`css/theme.css` centraliza todos os tokens).
-- **Favicon e ícones novos**: escudo com cruz médica e pulso de ECG, gerado em todos os tamanhos (16px a 512px) mais `.ico` multi-resolução.
-- **Central de notificações (`js/notify.js`)**: popups (toast) profissionais com ícone, barra de progresso e som; diálogos de confirmação substituindo os `alert()`/`confirm()` nativos do navegador; lightbox de fotos; e toques sonoros próprios para novo chamado, crítico, atraso e conclusão.
-- **Fotos no chamado**: o solicitante pode anexar até 3 fotos (câmera, galeria, arrastar-e-soltar ou colar print) direto no portal público. As imagens são comprimidas no navegador antes do envio e aparecem nas miniaturas do painel, no modal de detalhes e no Painel TV.
-- **Painel TV redesenhado**: KPIs em tempo real (fila, em andamento, atrasados, concluídos), cards com foto do problema, ordenação atrasados-primeiro, aviso de liberação de áudio e anúncio por voz revisado.
-- **Catálogo único de categorias/SLA**: `js/config.js` agora é a única fonte de verdade para categorias, prioridades e tempos de SLA — eliminando divergências que existiam entre listas.
-- **Correções**: listener de chamados em tempo real duplicado no admin foi unificado; inicialização do painel não roda mais duas vezes.
-
----
-
-## 📋 **Funcionalidades**
-
-### 🌐 **Portal Público**
-- Abertura de chamados por departamento (TI e Manutenção)
-- Formulário de cadastro de profissionais (GestHosp)
-- Visualização de chamados do dia
-- Contatos de suporte via WhatsApp
-- Interface responsiva e intuitiva
-
-### 🔐 **Área Técnica (Login)**
-- Autenticação por departamento
-- Controle de tentativas (bloqueio após 5 erros)
-- Sessão de 8 horas
-- Design moderno com animações
-
-### 📊 **Painel Administrativo**
-- **Dashboard**: Visão geral com cards, gráficos e últimos serviços
-- **Chamados**: Lista completa com filtros, avanço de status e comentários
-- **Monitor SLA**: Controle de prazos por prioridade
-- **Indicadores**: 8 gráficos, filtro por período, exportação PDF e PowerPoint
-- **GestHosp**: Gerenciamento de cadastros de profissionais
-- **Toners**: Monitor de trocas com histórico e relatórios
-- **Estoque**: Controle de equipamentos e movimentação
-- **Inventário**: Equipamentos por setor
-- **IPs & Rede**: Cadastro de dispositivos de rede
-- **Equipe**: Gerenciamento de técnicos
-- **Arquivos**: Upload de fotos com barra de progresso
-- **Agenda**: Compromissos e agendamentos
-- **Configurações**: Senha, logos, setores, backup, notificações
-
-### 📺 **Painel TV**
-- Monitoramento em tempo real
-- Alertas visuais para chamados atrasados
-- Notificação sonora (bip + voz)
-- Design estilo Matrix para telas grandes
-- Filtro por departamento via URL
-
-### 🔔 **Notificações**
-- Push notifications no navegador
-- Integração com WhatsApp
-- Alertas sonoros no painel TV
-
-### 📱 **PWA**
-- Instalável como aplicativo
-- Funcionamento offline básico
-- Service Worker para cache
-
----
-
-## 🚀 **Tecnologias Utilizadas**
-
-| Tecnologia | Uso |
-|------------|-----|
-| **Firebase Firestore** | Banco de dados principal |
-| **Firebase Storage** | Armazenamento de arquivos e logos |
-| **Chart.js** | Gráficos e dashboards |
-| **html2canvas** | Captura de telas para PDF |
-| **jsPDF** | Geração de relatórios PDF |
-| **PptxGenJS** | Geração de apresentações PowerPoint |
-| **Font Awesome** | Ícones |
-| **SpeechSynthesis API** | Voz no painel TV |
-| **Web Audio API** | Sons de alerta |
-| **Service Worker** | PWA e cache offline |
-
----
-
-## 📁 **Estrutura do Projeto**
-helphosp/
-├── index.html # Portal público
-├── login.html # Tela de login
-├── admin.html # Painel administrativo
-├── painel_tv.html # Painel TV
-├── manifest.json # Configuração PWA
-├── service-worker.js # Service Worker
-├── README.md # Documentação
-├── css/
-│ ├── styles.css # Estilos do portal
-│ └── admin.css # Estilos do painel admin
-├── js/
-│ ├── config.js # Configurações do portal
-│ ├── firebase.js # Firebase do portal
-│ ├── ui.js # Interface do portal
-│ ├── forms.js # Formulários do portal
-│ ├── chamados.js # Chamados do portal
-│ ├── main.js # Inicialização do portal
-│ ├── admin-config.js # Configurações admin
-│ ├── admin-firebase.js # Firebase admin
-│ ├── admin-auth.js # Autenticação
-│ ├── admin-utils.js # Utilitários
-│ ├── admin-ui.js # Interface admin
-│ ├── admin-dashboard.js # Dashboard
-│ ├── admin-chamados.js # Chamados
-│ ├── admin-gesthosp.js # GestHosp
-│ ├── admin-sla.js # Monitor SLA
-│ ├── admin-indicadores.js # Indicadores
-│ ├── admin-toners.js # Toners
-│ ├── admin-estoque.js # Estoque
-│ ├── admin-inventario.js # Inventário
-│ ├── admin-ips.js # IPs & Rede
-│ ├── admin-equipe.js # Equipe
-│ ├── admin-arquivos.js # Arquivos
-│ ├── admin-agenda.js # Agenda
-│ ├── admin-configuracoes.js # Configurações
-│ └── admin-main.js # Inicialização admin
-└── icons/ # Ícones PWA e favicon
-├── favicon.png
-├── icon-72x72.png
-├── icon-96x96.png
-├── icon-128x128.png
-├── icon-144x144.png
-├── icon-152x152.png
-├── icon-192x192.png
-├── icon-384x384.png
-└── icon-512x512.png
-
-text
-
----
-
-## ⚙️ **Configuração**
-
-### 1. **Firebase**
-O sistema usa Firebase como backend. Configure no arquivo `js/firebase.js` e `js/admin-firebase.js`:
-
-```javascript
-const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_DOMINIO.firebaseapp.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_BUCKET.appspot.com",
-    messagingSenderId: "SEU_SENDER_ID",
-    appId: "SEU_APP_ID"
-};
-2. Regras do Firestore
-javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true; // Ajuste para produção
-    }
-  }
-}
-3. Regras do Storage
-javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if true; // Ajuste para produção
-    }
-  }
-}
-4. Criar primeiro usuário admin
-Execute no console do navegador (F12):
-
-javascript
-db.collection('usuarios').add({
-    nome: "Administrador",
-    usuario: "admin",
-    senha: "12345",
-    cargo: "Coordenador",
-    tipo: "admin",
-    departamento: "TI",
-    whatsapp: "11999999999",
-    mostrarContato: true,
-    status: "ativo",
-    primeiro_acesso: false
-});
-🚀 Instalação
-Clone ou faça download do projeto
-
-bash
-git clone https://github.com/seu-usuario/helphosp.git
-Configure o Firebase
-
-Crie um projeto no Firebase Console
-
-Ative Firestore Database e Storage
-
-Copie as credenciais para os arquivos de configuração
-
-Hospede os arquivos
-
-Pode usar Firebase Hosting, Netlify, Vercel ou qualquer servidor web
-
-Para Firebase Hosting:
-
-bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting
-firebase deploy
-Acesse o sistema
-
-Portal público: https://seu-dominio.com/index.html
-
-Área técnica: https://seu-dominio.com/login.html
-
-Painel TV TI: https://seu-dominio.com/painel_tv.html?dep=TI
-
-Painel TV Manutenção: https://seu-dominio.com/painel_tv.html?dep=MANUTENCAO
-
-👥 Tipos de Usuários
-Tipo	Descrição	Permissões
-admin	Administrador	Acesso total, gestão de equipe, backup
-tecnico	Técnico	Chamados do seu departamento
-supervisor	Supervisor	Gestão de equipe do departamento
-📊 Fluxo de Chamados
-text
-1. Usuário abre chamado no portal
-       ↓
-2. Chamado aparece no painel do departamento
-       ↓
-3. Técnico altera status: A Fazer → Em Andamento
-       ↓
-4. Técnico trabalha no chamado
-       ↓
-5. Status avança: Em Andamento → Pendente → Concluído
-       ↓
-6. Opcional: Notificação WhatsApp para solicitante
-🎨 Temas
-O sistema suporta tema claro e escuro:
+# HelpHosp 4 — React
 
-Alternar no botão 🌙 na sidebar
+Central de chamados de TI e Manutenção hospitalar, migrada do HTML/JS legado para **React 19 + Vite + Firebase**.
 
-Preferência salva no localStorage
+## O que mudou
 
-Padrão: tema claro
+**Portal público**
+- Cada aparelho recebe uma identidade anônima (Firebase Anonymous Auth). O chamado grava o `deviceUid` e **"Meus chamados" mostra só os chamados daquele aparelho**. A restrição está nas regras do Firestore, não só na tela.
+- Fotos anexadas: galeria com visualização ampliada (lightbox) para o solicitante e para a equipe.
+- Comentários: o solicitante conversa com a equipe; a equipe também pode fazer **notas internas** (invisíveis ao solicitante).
 
-📱 PWA
-O sistema é instalável como aplicativo:
+**Painel da equipe**
+- Menu lateral em **accordion / navegação aninhada** (com filtros de chamados), gaveta no celular e paleta de comandos (Ctrl+K).
+- **IPs & Rede**: sub-redes (CIDR), mapa /24, bloqueio de IP/MAC duplicado, sugestão do próximo IP livre, importação/exportação CSV e histórico. (O "ping" falso foi removido: o navegador não consegue fazer ICMP.)
+- Dashboard, Chamados, SLA, Indicadores (PDF/PPT), Toners, Estoque, Inventário, GestHosp, Arquivos (banco de fotos), Agenda, Equipe, Auditoria, Configurações e Painel TV.
+- **Notificações profissionais**: toasts, central/sino com histórico, som, push do navegador, alertas de SLA, novo chamado e nova mensagem, diálogos de confirmação.
 
-Clique em "Instalar" no navegador
+**Segurança**
+- Login com Firebase Auth (e-mail/senha), perfis `admin | supervisor | tecnico`, bloqueio após 5 tentativas (5 min), sessão de 8 h, logout por inatividade (30 min), troca de senha obrigatória no primeiro acesso, política de senha (8+ com letras e números).
+- Senhas em texto puro do sistema antigo **não existem mais**. Admins fixos no código (`edson`, `bruno`, `benicio`) foram removidos; use o perfil *supervisor*.
+- Regras do Firestore/Storage (`firestore.rules`, `storage.rules`), auditoria imutável, backup que **não** inclui usuários.
+- **Painéis separados**: o login pede para escolher TI ou Manutenção; cada usuário só entra no painel do próprio departamento (administradores entram em qualquer um e alternam pelo seletor "Painel" no menu lateral). Manutenção não vê as ferramentas de TI (IPs, toners, estoque, inventário, GestHosp).
+- Painel TV exige login da equipe e não exibe dados pessoais.
 
-Ou use o botão flutuante "Instalar App"
+## Como colocar no ar
 
-Funciona offline para recursos básicos
+1. `npm install`
+2. `.env` já vem com o projeto atual (`.env.example` mostra as variáveis). Troque se usar outro projeto Firebase.
+3. No **Console do Firebase**: Authentication → habilite **E-mail/senha** e **Anônimo**; adicione seu domínio em *Domínios autorizados*.
+4. Publique regras e índices: `npx firebase deploy --only firestore:rules,firestore:indexes,storage`
+5. **Logo após publicar as regras**, abra `/setup` e crie o primeiro administrador (a tela se bloqueia sozinha depois).
+6. Em **Equipe**, recrie os técnicos (o sistema antigo guardava senhas em texto puro; contas antigas aparecem como "Cadastro antigo" para você apagar/recriar).
+7. `npm run build` e hospede `dist/` (Vercel e Firebase Hosting já configurados: `vercel.json`, `firebase.json`).
 
-🔒 Segurança
-Senhas armazenadas no Firestore (recomenda-se hash em produção)
+Desenvolvimento: `npm run dev`.
 
-Sessão expira após 8 horas
+## Criar / recuperar o administrador por script
+Se o `/setup` estiver bloqueado ou você esqueceu a senha: baixe a chave em *Firebase → Configurações do projeto → Contas de serviço → Gerar nova chave privada*, salve como `serviceAccount.json` na raiz e rode:
+`npm install` e depois `npm run admin -- admin MinhaSenha123 "Seu Nome" TI`
+(cria a conta no Authentication, o perfil no Firestore e trava o `/setup`; se o usuário já existir, redefine a senha).
 
-Bloqueio após 5 tentativas de login erradas
+## Segurança: regras do banco
 
-Separação por departamento
+> **O HelpHosp usa o Cloud Firestore** (o sistema antigo também usava), não o Realtime Database. As regras que protegem os dados estão em `firestore.rules` (e `storage.rules` para as fotos).
+> O arquivo `database.rules.json` existe só para o caso de você ter um Realtime Database no projeto: ele nega tudo por padrão e já traz a mesma lógica (aparelho dono do chamado, equipe por departamento, admin).
 
-Sanitização de inputs contra XSS
+Publicar tudo de uma vez: `npx firebase deploy --only firestore:rules,firestore:indexes,storage,database`
 
-📈 Exportação de Dados
-PDF: Relatórios gerenciais e indicadores
+- **TI e Manutenção são isolados** nas regras: um usuário de um departamento não lê chamados, agenda, arquivos nem auditoria do outro; ferramentas de TI (IPs, inventário, estoque, toners, GestHosp) só para o TI. Só o administrador enxerga os dois (alternando o painel).
+- O sistema antigo gravou o departamento de formas variadas ("Manutenção", "MANUTENCAO"…). As consultas e as regras aceitam essas variações; os novos registros usam `TI` / `MANUTENCAO`.
+- Se alguma tela ficar vazia: aparece o aviso **"Dados bloqueados"** (regras não publicadas) ou **"Índice ausente"** (rode o deploy dos índices).
 
-PowerPoint: Apresentações com gráficos
+## Instalar como aplicativo (PWA)
+Em produção (HTTPS) o navegador oferece instalar. Há botão **Instalar app** no portal, no login e no menu do usuário. No iPhone: Safari → Compartilhar → *Adicionar à Tela de Início*.
 
-JSON: Backup completo do sistema
+## Limitações conhecidas
+- O cliente Firebase não redefine a senha de outro usuário: use o Console do Firebase ou recrie o membro.
+- Links das fotos no Storage são URLs com token (qualquer pessoa com o link consegue abrir).
+- Os dados antigos (chamados etc.) continuam compatíveis; chamados sem `deviceUid` só ficam visíveis para a equipe.
+- Não foi possível testar contra um Firebase real durante o desenvolvimento; faça um teste ponta a ponta (abrir chamado → ver no painel → comentar) antes de ir à produção.
 
-🐛 Solução de Problemas
-Painel TV não carrega
-Verifique se o Firestore tem chamados com campo departamento
+## Novidades (v4.1)
 
-Acesse com ?dep=TI ou ?dep=MANUTENCAO
+- **Serviços da equipe** (`/admin/servicos`): registro de serviços feitos fora de chamados (ajustes, melhorias, observações), por departamento, com fotos, filtros, KPIs, gráficos e CSV. Coleção `servicos` (regras já incluídas em `firestore.rules`).
+- **Indicadores por técnico**: aba "Por técnico" em Indicadores (chamados + serviços).
+- **Fotos**: solicitantes e equipe podem anexar (também em Arquivos). Se o Storage não estiver ativo, usa "modo compatível" (imagens comprimidas salvas no Firestore).
+- **Sem índices compostos**: consultas ordenadas no cliente; o erro "Índice ausente" não ocorre mais.
+- **Sidebar** modernizada (cores por módulo, chip do painel, recolher menu).
 
-Abra o console (F12) para ver erros
-
-Upload de fotos não funciona
-Verifique as regras do Firebase Storage
-
-Tamanho máximo: 10MB
-
-Apenas imagens são aceitas
-
-Login não funciona
-Verifique se o usuário existe na coleção usuarios
-
-Status deve ser ativo
-
-Departamento deve corresponder ao selecionado
-
-📝 Changelog
-v2.0.0 (Atual)
-✅ Interface de configurações renovada com abas
-
-✅ Cards modernos em todos os módulos
-
-✅ Painel TV com alertas de atraso e voz
-
-✅ Exportação PowerPoint
-
-✅ Integração WhatsApp
-
-✅ PWA instalável
-
-✅ Push notifications
-
-✅ Backup e restauração
-
-v1.0.0
-✅ Portal público funcional
-
-✅ Painel administrativo
-
-✅ Gestão de chamados
-
-✅ Dashboard com gráficos
-
-🤝 Contribuição
-Contribuições são bem-vindas! Para contribuir:
-
-Faça um fork do projeto
-
-Crie uma branch: git checkout -b feature/nova-funcionalidade
-
-Commit: git commit -m 'Adiciona nova funcionalidade'
-
-Push: git push origin feature/nova-funcionalidade
-
-Abra um Pull Request
-
-📄 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
-
-👨‍💻 Desenvolvido por
-HelpHosp - Sistema de Chamados Hospitalar
-
-📞 Suporte
-Para suporte, abra uma issue no GitHub ou entre em contato pelo WhatsApp dos técnicos cadastrados no sistema.
-
-🏥 HelpHosp - Tecnologia a serviço da saúde!
-
-text
-
-## 📝 **Para usar:**
-
-1. Crie um arquivo chamado `README.md` na raiz do projeto
-2. Cole o conteúdo acima
-3. Ajuste as informações:
-   - Links do GitHub (se tiver)
-   - Nome do desenvolvedor
-   - Dados de contato
-
-O README ficará visível automaticamente se você hospedar no GitHub! 📄✨
+Publicar regras: `firebase deploy --only firestore:rules,storage`

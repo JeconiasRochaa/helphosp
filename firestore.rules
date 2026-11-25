@@ -1,0 +1,147 @@
+rules_version = '2';
+// ============================================================================
+// HELPHOSP — Regras do Firestore (v4)
+//  • Visitantes do portal = usuários ANÔNIMOS do Firebase Auth (1 identidade por aparelho).
+//  • Equipe = e-mail/senha + documento usuarios/{uid} com status 'ativo'.
+//  • Um aparelho só lê os chamados em que deviceUid == seu uid.
+// ============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function perfilDoc(uid) { return get(/databases/$(database)/documents/usuarios/$(uid)); }
+    function isStaff() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && perfilDoc(request.auth.uid).data.status == 'ativo';
+    }
+    function me() { return perfilDoc(request.auth.uid).data; }
+    function isAdmin() { return isStaff() && me().tipo == 'admin'; }
+    function isSupervisor() { return isStaff() && me().tipo in ['admin', 'supervisor']; }
+    function isTI() { return isStaff() && (me().tipo == 'admin' || ehTI(me().departamento)); }
+    function str(v, max) { return v is string && v.size() <= max; }
+
+    // ---- Separação TI x Manutenção (aceita as variações gravadas pelo sistema antigo)
+    function ehTI(v)    { return v in ['TI', 'ti', 'Ti', 'T.I.', 'T.I', 'Tecnologia da Informação', 'TECNOLOGIA DA INFORMAÇÃO', 'Tecnologia da Informacao', 'TECNOLOGIA', 'Informática', 'INFORMÁTICA']; }
+    function ehManut(v) { return v in ['MANUTENCAO', 'MANUTENÇÃO', 'Manutenção', 'Manutencao', 'manutencao', 'manutenção', 'Manutenção Predial', 'MANUTENÇÃO PREDIAL']; }
+    // o departamento `v` (de um documento) é o mesmo do usuário logado?
+    function mesmaDep(v) { return (ehTI(v) && ehTI(me().departamento)) || (ehManut(v) && ehManut(me().departamento)); }
+    // acesso a um documento de departamento `v`: administrador (todos) ou equipe do mesmo departamento
+    function daMinhaDep(v) { return isStaff() && (me().tipo == 'admin' || mesmaDep(v)); }
+
+    // ---------------------------------------------------------------- usuários
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+      // 1º administrador (instalação): só enquanto configuracoes/bootstrap não existe
+      allow create: if (signedIn() && request.auth.uid == uid
+                        && !exists(/databases/$(database)/documents/configuracoes/bootstrap)
+                        && request.resource.data.tipo == 'admin')
+                    || isAdmin()
+                    || (isSupervisor() && mesmaDep(request.resource.data.departamento)
+                        && request.resource.data.tipo in ['tecnico', 'supervisor']);
+      allow update: if isAdmin()
+                    || (isSupervisor() && mesmaDep(resource.data.departamento)
+                        && resource.data.tipo != 'admin' && request.resource.data.tipo != 'admin'
+                        && mesmaDep(request.resource.data.departamento))
+                    || (request.auth.uid == uid && isStaff()
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['primeiro_acesso', 'senhaAlteradaEm', 'nome', 'cargo', 'whatsapp', 'mostrarContato']));
+      allow delete: if isAdmin()
+                    || (isSupervisor() && mesmaDep(resource.data.departamento) && resource.data.tipo != 'admin');
+    }
+
+    // Contatos exibidos no portal (sem dados sensíveis)
+    match /contatos_publicos/{uid} {
+      allow read: if signedIn();
+      allow write: if isSupervisor();
+    }
+
+    // ---------------------------------------------------------------- chamados
+    match /chamados/{id} {
+      allow read: if signedIn() && (
+        resource.data.deviceUid == request.auth.uid
+        || daMinhaDep(resource.data.departamento));
+
+      allow create: if signedIn() && (
+        isStaff()
+        || (request.resource.data.deviceUid == request.auth.uid
+            && request.resource.data.status == 'A Fazer'
+            && request.resource.data.origem == 'portal'
+            && str(request.resource.data.titulo, 200)
+            && request.resource.data.departamento in ['TI', 'MANUTENCAO']
+            && (!('fotos' in request.resource.data) || request.resource.data.fotos.size() <= 3)));
+
+      allow update: if daMinhaDep(resource.data.departamento)
+                    // o solicitante só atualiza o resumo de mensagens (via batch de comentário)
+                    || (signedIn() && resource.data.deviceUid == request.auth.uid
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['ultimo_comentario_em', 'ultimo_comentario_por', 'qtd_comentarios_publicos']));
+      allow delete: if isAdmin();
+
+      // ------------------------------------------------------------ comentários
+      match /comentarios/{cid} {
+        allow read: if signedIn() && (
+          daMinhaDep(get(/databases/$(database)/documents/chamados/$(id)).data.departamento)
+          || (resource.data.visibilidade == 'publico'
+              && get(/databases/$(database)/documents/chamados/$(id)).data.deviceUid == request.auth.uid));
+        allow create: if signedIn() && request.resource.data.autorUid == request.auth.uid
+                      && str(request.resource.data.texto, 2000)
+                      && ((isStaff() && request.resource.data.autorTipo == 'equipe')
+                          || (request.resource.data.autorTipo == 'solicitante'
+                              && request.resource.data.visibilidade == 'publico'
+                              && get(/databases/$(database)/documents/chamados/$(id)).data.deviceUid == request.auth.uid));
+        allow update: if false;
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ---------------------------------------------------------------- configurações
+    match /configuracoes/{doc} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+      // trava da instalação inicial
+      allow create: if doc == 'bootstrap' && signedIn() && !exists(/databases/$(database)/documents/configuracoes/bootstrap)
+                    && existsAfter(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    // ---------------------------------------------------------------- auditoria (imutável)
+    match /auditoria/{id} {
+      allow read: if isSupervisor() && (me().tipo == 'admin' || mesmaDep(resource.data.departamento));
+      allow create: if signedIn() && (isStaff() || request.resource.data.acao == 'auth.login_falha');
+      allow update, delete: if false;
+    }
+
+    // ---------------------------------------------------------------- ferramentas de TI
+    match /ips_rede/{id}      { allow read, write: if isTI(); }
+    match /ip_redes/{id}      { allow read, write: if isTI(); }
+    match /ip_historico/{id}  { allow read: if isTI(); allow create: if isTI(); allow update, delete: if false; }
+    match /inventario/{id}    { allow read, write: if isTI(); }
+    match /estoque/{id}       { allow read, write: if isTI(); }
+    match /movimentacoes/{id} { allow read: if isTI(); allow create: if isTI(); allow update, delete: if isAdmin(); }
+
+    // ---------------------------------------------------------------- recursos comuns
+    // Serviços registrados pela equipe (fora dos chamados): por departamento
+    match /servicos/{id} {
+      allow read: if daMinhaDep(resource.data.departamento);
+      allow create: if daMinhaDep(request.resource.data.departamento)
+                    && request.resource.data.tecnicoUid == request.auth.uid
+                    && str(request.resource.data.titulo, 200);
+      allow update: if daMinhaDep(resource.data.departamento)
+                    && (isSupervisor() || resource.data.tecnicoUid == request.auth.uid);
+      allow delete: if daMinhaDep(resource.data.departamento)
+                    && (isSupervisor() || resource.data.tecnicoUid == request.auth.uid);
+    }
+
+    // Agenda e Arquivos: cada departamento só enxerga os seus (administrador vê todos)
+    match /agenda/{id} {
+      allow read, update, delete: if daMinhaDep(resource.data.departamento);
+      allow create: if daMinhaDep(request.resource.data.departamento);
+    }
+    match /arquivos/{id} {
+      allow read, update, delete: if daMinhaDep(resource.data.departamento);
+      allow create: if daMinhaDep(request.resource.data.departamento);
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "_comentario": "Exemplo do documento que fica em Firestore: usuarios/<UID da conta do Authentication>. O Firestore do console não importa JSON; use 'npm run admin' ou crie os campos à mão.",
+  "nome": "Seu Nome",
+  "usuario": "admin",
+  "cargo": "Administrador",
+  "tipo": "admin",
+  "departamento": "TI",
+  "status": "ativo",
+  "primeiro_acesso": false,
+  "mostrarContato": false,
+  "whatsapp": ""
+}

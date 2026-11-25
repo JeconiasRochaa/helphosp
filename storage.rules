@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function isStaff() {
+      return signedIn() && firestore.exists(/databases/(default)/documents/usuarios/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.status == 'ativo';
+    }
+    function imagemOk() { return request.resource.contentType.matches('image/.*') && request.resource.size < 10 * 1024 * 1024; }
+
+    // Fotos de chamados e comentários (portal anônimo e equipe)
+    match /chamados/{pasta}/{allPaths=**} {
+      allow read: if signedIn();
+      allow create: if signedIn() && imagemOk();
+      allow update, delete: if isStaff();
+    }
+    // Arquivos internos e logos: só equipe
+    match /{area}/{allPaths=**} {
+      allow read: if isStaff() || (area == 'logos' && signedIn());
+      allow write: if isStaff() && request.resource.size < 20 * 1024 * 1024;
+    }
+  }
+}

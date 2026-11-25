@@ -1,0 +1,50 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null && !auth.token.firebase.sign_in_provider.matches(/anonymous/) && (auth.uid === $uid || root.child('usuarios').child(auth.uid).child('status').val() === 'ativo')",
+        ".write": "auth != null && root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin'",
+        ".validate": "newData.hasChildren(['nome', 'usuario', 'tipo', 'departamento', 'status'])",
+        "tipo":         { ".validate": "newData.val() === 'admin' || newData.val() === 'supervisor' || newData.val() === 'tecnico'" },
+        "departamento": { ".validate": "newData.val() === 'TI' || newData.val() === 'MANUTENCAO'" },
+        "status":       { ".validate": "newData.val() === 'ativo' || newData.val() === 'inativo'" },
+        "$outro": { ".validate": true }
+      }
+    },
+
+    "chamados": {
+      ".indexOn": ["departamento", "deviceUid", "data_abertura"],
+      "$id": {
+        ".read": "auth != null && (data.child('deviceUid').val() === auth.uid || (root.child('usuarios').child(auth.uid).child('status').val() === 'ativo' && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === data.child('departamento').val())))",
+        ".write": "auth != null && ((!data.exists() && newData.child('deviceUid').val() === auth.uid && newData.child('status').val() === 'A Fazer') || (root.child('usuarios').child(auth.uid).child('status').val() === 'ativo' && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === data.child('departamento').val())))",
+        ".validate": "newData.hasChildren(['titulo', 'departamento', 'status', 'deviceUid']) && newData.child('titulo').isString() && newData.child('titulo').val().length <= 200 && (newData.child('departamento').val() === 'TI' || newData.child('departamento').val() === 'MANUTENCAO')",
+        "$campo": { ".validate": true }
+      }
+    },
+
+    "configuracoes": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin'"
+    },
+
+    "auditoria": {
+      ".indexOn": ["departamento", "criadoEm"],
+      "$id": {
+        ".read": "auth != null && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('tipo').val() === 'supervisor')",
+        ".write": "auth != null && !data.exists()"
+      }
+    },
+
+    "ti": {
+      ".read": "auth != null && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === 'TI')",
+      ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === 'TI')"
+    },
+    "manutencao": {
+      ".read": "auth != null && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === 'MANUTENCAO')",
+      ".write": "auth != null && (root.child('usuarios').child(auth.uid).child('tipo').val() === 'admin' || root.child('usuarios').child(auth.uid).child('departamento').val() === 'MANUTENCAO')"
+    }
+  }
+}

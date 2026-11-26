@@ -4,7 +4,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Plus, Trash2, UserCheck } from
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, Button, Card, EmptyState, Field, Modal, PageHeader, Spinner } from '@/components/ui';
-import { TURNOS, daISO, isoDia, isoMes, turnoDe, useEscalaMes, useProfissionais } from '@/lib/escala';
+import { TURNOS, daISO, isoDia, isoMes, turnoDe, useEscalaMes, usePessoas } from '@/lib/escala';
 import { audit } from '@/lib/audit';
 import { notify } from '@/lib/notify';
 
@@ -18,7 +18,7 @@ export default function Escala() {
   const [novo, setNovo] = useState(null);
   const mes = isoMes(ref);
   const { data: itens, loading } = useEscalaMes(perms.dep, mes);
-  const { data: profs } = useProfissionais(perms.dep);
+  const { data: profs } = usePessoas(perms.dep);
   const hoje = isoDia();
   const hojeMes = isoMes();
   const { data: itensHoje } = useEscalaMes(perms.dep, hojeMes);
@@ -77,7 +77,7 @@ export default function Escala() {
           </div>
         </div>
       </div>
-      {novo && <NovoModal inicial={novo} profs={profs.filter((p) => p.ativo !== false)} dep={perms.dep} onClose={() => setNovo(null)} />}
+      {novo && <NovoModal inicial={novo} profs={profs} dep={perms.dep} onClose={() => setNovo(null)} />}
     </>
   );
 }

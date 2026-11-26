@@ -26,3 +26,15 @@ export function useProfissionais(dep) {
 export function useEscalaMes(dep, mes) {
   return useCollection(() => (dep ? query(collection(db, 'escala'), where('departamento', 'in', depVariantes(dep)), where('mes', '==', mes)) : null), [dep, mes]);
 }
+
+const norm = (t) => String(t || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+/** Pessoas disponíveis para executar serviço / entrar na escala: profissionais cadastrados + membros da equipe (usuários) do departamento. */
+export function usePessoas(dep) {
+  const prof = useProfissionais(dep);
+  const us = useCollection(() => (dep ? query(collection(db, 'usuarios'), where('departamento', 'in', depVariantes(dep))) : null), [dep]);
+  const vistos = new Set(); const data = [];
+  prof.data.filter((p) => p.ativo !== false).forEach((p) => { vistos.add(norm(p.nome)); data.push({ id: p.id, nome: p.nome, funcao: p.funcao || 'Profissional', origem: 'profissional' }); });
+  us.data.filter((u) => u.status !== 'inativo' && u.nome && !vistos.has(norm(u.nome))).forEach((u) => { vistos.add(norm(u.nome)); data.push({ id: 'u-' + (u.uid || u.id), nome: u.nome, funcao: u.cargo || 'Equipe', origem: 'equipe' }); });
+  data.sort((a, b) => String(a.nome).localeCompare(String(b.nome), 'pt-BR'));
+  return { data, loading: prof.loading && us.loading };
+}

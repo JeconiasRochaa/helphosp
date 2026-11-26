@@ -12,7 +12,9 @@ export default function Login() {
   const { login, isStaff, perfil, user } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
-  const [usuario, setUsuario] = useState('');
+  const lembrado = () => { try { return localStorage.getItem('hh_login_usuario') || ''; } catch { return ''; } };
+  const [usuario, setUsuario] = useState(lembrado);
+  const [lembrar, setLembrar] = useState(() => !!lembrado());
   const [senha, setSenha] = useState('');
   const [ver, setVer] = useState(false);
   const [erro, setErro] = useState('');
@@ -31,7 +33,12 @@ export default function Login() {
     e.preventDefault();
     if (!usuario.trim() || !senha) { setErro('Informe usuário e senha.'); return; }
     setBusy(true); setErro('');
-    try { await login(usuario, senha, painel); notify.success('Bem-vindo de volta!', { som: false }); nav(loc.state?.de || '/admin', { replace: true }); }
+    try {
+      await login(usuario, senha, painel);
+      try { if (lembrar) localStorage.setItem('hh_login_usuario', usuario.trim()); else localStorage.removeItem('hh_login_usuario'); } catch { /* */ }
+      // pede ao navegador para guardar usuário + senha (gerenciador de senhas) — a senha nunca é guardada pelo sistema
+      try { if (lembrar && window.PasswordCredential) await navigator.credentials.store(new window.PasswordCredential({ id: usuario.trim(), password: senha, name: usuario.trim() })); } catch { /* */ } notify.success('Bem-vindo de volta!', { som: false }); nav(loc.state?.de || '/admin', { replace: true });
+    }
     catch (err) { setErro(err.message); setSenha(''); }
     finally { setBusy(false); }
   }
@@ -47,6 +54,9 @@ export default function Login() {
           <h1 style={{ fontSize: 38, lineHeight: 1.15, letterSpacing: '-.03em', fontWeight: 800 }}>Tecnologia e manutenção<br />a serviço de quem cuida.</h1>
           <p style={{ opacity: .7, marginTop: 14, maxWidth: 420 }}>Acompanhe chamados em tempo real, controle prazos de SLA e mantenha a rede e os equipamentos do hospital sob controle.</p>
         </div>
+        <div className="auth-collage" aria-hidden="true">
+          <img className="c1" src="/img/ti.jpg" alt="" /><img className="c2" src="/img/manutencao.jpg" alt="" /><img className="c3" src="/img/chamados.jpg" alt="" />
+        </div>
         <div className="row" style={{ opacity: .65, fontSize: 12.5 }}><ShieldCheck size={16} /> Acesso protegido por autenticação, sessão com expiração e registro de auditoria.</div>
       </div>
       <div className="auth-form-side">
@@ -57,13 +67,14 @@ export default function Login() {
             <button type="button" role="radio" aria-checked={painel === 'MANUTENCAO'} className={`painel-opcao manut${painel === 'MANUTENCAO' ? ' ativo' : ''}`} onClick={() => escolher('MANUTENCAO')}><Wrench size={22} color="#d97706" />Manutenção<small>Elétrica, hidráulica, predial</small></button>
           </div>
           {erro && <div role="alert" className="badge badge-red" style={{ padding: '10px 12px', borderRadius: 10, whiteSpace: 'normal', fontSize: 12.5 }}>{erro}</div>}
-          <Field label="Usuário"><div className="search"><User size={16} /><input className="input" autoFocus style={{ paddingLeft: 38 }} autoComplete="username" autoCapitalize="none" value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="seu.usuario" /></div></Field>
+          <Field label="Usuário"><div className="search"><User size={16} /><input className="input" name="username" id="usuario" autoFocus={!usuario} style={{ paddingLeft: 38 }} autoComplete="username" autoCapitalize="none" value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="seu.usuario" /></div></Field>
           <Field label="Senha">
             <div className="search"><Lock size={16} />
-              <input className="input" type={ver ? 'text' : 'password'} autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Sua senha" style={{ paddingLeft: 38, paddingRight: 40 }} />
+              <input className="input" name="password" id="senha" autoFocus={!!usuario} type={ver ? 'text' : 'password'} autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Sua senha" style={{ paddingLeft: 38, paddingRight: 40 }} />
               <button type="button" className="btn btn-ghost btn-icon" aria-label={ver ? 'Ocultar senha' : 'Mostrar senha'} onClick={() => setVer((v) => !v)} style={{ position: 'absolute', right: 3, top: 3 }}>{ver ? <EyeOff size={16} /> : <Eye size={16} />}</button>
             </div>
           </Field>
+          <label className="row text-sm" style={{ gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={lembrar} onChange={(e) => setLembrar(e.target.checked)} /> Salvar meu login neste computador</label>
           <Button type="submit" size="lg" block loading={busy}>Entrar</Button>
           {semAdmin && <Link to="/setup" className="badge badge-amber" style={{ padding: '10px 12px', borderRadius: 10, whiteSpace: 'normal', justifyContent: 'center', textDecoration: 'none' }}>Primeira instalação? Criar o administrador</Link>}
           <InstallButton className="link-claro" />

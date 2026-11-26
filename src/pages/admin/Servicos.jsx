@@ -9,6 +9,7 @@ import PeriodoFiltro, { usePeriodo } from '@/components/PeriodoFiltro';
 import { enviarImagens } from '@/lib/images';
 import { baixarArquivo, fmtData, fmtDia, paraCSV, toDate } from '@/lib/format';
 import { CATEGORIAS, NATUREZAS, STATUS_SERVICO, naturezaDe } from '@/lib/servicos';
+import SeletorExecutores from '@/components/SeletorExecutores';
 import { audit } from '@/lib/audit';
 import { notify } from '@/lib/notify';
 import { Barras, GraficoCard, Rosca } from './dashboard/Graficos';
@@ -83,7 +84,7 @@ export default function Servicos() {
           footer={pode(ver) ? <><Button variant="danger" icon={Trash2} onClick={() => excluir(ver)}>Excluir</Button><Button icon={Pencil} onClick={() => { setEdit(ver); setVer(null); }}>Editar</Button></> : null}>
           <div className="stack">
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}><Badge tone="gray" style={{ background: naturezaDe(ver.natureza).cor + '22', color: naturezaDe(ver.natureza).cor }}>{naturezaDe(ver.natureza).label}</Badge><Badge tone={TOM_STATUS[ver.status] || 'gray'}>{ver.status}</Badge>{ver.categoria && <Badge tone="blue">{ver.categoria}</Badge>}</div>
-            <div className="text-sm muted">{fmtData(ver.data)} · {ver.tecnico}{ver.local ? ` · ${ver.local}` : ''} · tempo gasto: {horas(ver.minutos)}</div>
+            <div className="text-sm muted">{fmtData(ver.data)} · {ver.tecnico}{ver.executores?.length ? ` · Executores: ${ver.executores.map((x) => x.nome).join(', ')}` : ''}{ver.local ? ` · ${ver.local}` : ''} · tempo gasto: {horas(ver.minutos)}</div>
             {ver.descricao && <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{ver.descricao}</p>}
             {ver.fotos?.length > 0 && <PhotoGallery urls={ver.fotos} titulo="Fotos do serviço" />}
           </div>
@@ -96,7 +97,7 @@ function ServicoModal({ item, onClose }) {
   const { perfil, perms } = useAuth(); const novo = !item.id;
   const hoje = new Date(); const z = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60000);
   const dataIni = item.data ? new Date(toDate(item.data).getTime() - hoje.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : z.toISOString().slice(0, 16);
-  const [f, setF] = useState({ titulo: item.titulo || '', natureza: item.natureza || 'ajuste', categoria: item.categoria || '', local: item.local || '', descricao: item.descricao || '', status: item.status || 'Concluído', horas: item.minutos ? Math.floor(item.minutos / 60) : '', min: item.minutos ? item.minutos % 60 : '', data: dataIni });
+  const [f, setF] = useState({ titulo: item.titulo || '', natureza: item.natureza || 'ajuste', categoria: item.categoria || '', local: item.local || '', descricao: item.descricao || '', status: item.status || 'Concluído', executores: item.executores || [], horas: item.minutos ? Math.floor(item.minutos / 60) : '', min: item.minutos ? item.minutos % 60 : '', data: dataIni });
   const [fotos, setFotos] = useState([]); const [pct, setPct] = useState(0); const [busy, setBusy] = useState(false); const [erro, setErro] = useState('');
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }));
   const jaTem = item.fotos?.length || 0;
@@ -105,7 +106,7 @@ function ServicoModal({ item, onClose }) {
     setBusy(true); setErro('');
     try {
       let novas = []; if (fotos.length) novas = await enviarImagens(fotos, 'servicos', setPct);
-      const d = { titulo: f.titulo.trim(), natureza: f.natureza, categoria: f.categoria, local: f.local.trim(), descricao: f.descricao.trim(), status: f.status, minutos: (parseInt(f.horas) || 0) * 60 + (parseInt(f.min) || 0), data: Timestamp.fromDate(new Date(f.data)), fotos: [...(item.fotos || []), ...novas] };
+      const d = { titulo: f.titulo.trim(), natureza: f.natureza, categoria: f.categoria, local: f.local.trim(), descricao: f.descricao.trim(), status: f.status, minutos: (parseInt(f.horas) || 0) * 60 + (parseInt(f.min) || 0), data: Timestamp.fromDate(new Date(f.data)), fotos: [...(item.fotos || []), ...novas], ...(perms.isManut ? { executores: f.executores || [] } : {}) };
       if (novo) await addDoc(collection(db, 'servicos'), { ...d, departamento: perms.dep, tecnico: perfil.nome, tecnicoUid: perfil.uid, criadoEm: Timestamp.now() });
       else await updateDoc(doc(db, 'servicos', item.id), d);
       audit(novo ? 'servico.criar' : 'servico.editar', { titulo: d.titulo, natureza: d.natureza }); notify.success('Serviço registrado.'); onClose();
@@ -129,6 +130,7 @@ function ServicoModal({ item, onClose }) {
           <Field label="Data e hora"><input className="input" type="datetime-local" value={f.data} onChange={set('data')} /></Field>
           <Field label="Tempo gasto"><div style={{ display: 'flex', gap: 8 }}><input className="input" type="number" min="0" placeholder="h" value={f.horas} onChange={set('horas')} /><input className="input" type="number" min="0" max="59" placeholder="min" value={f.min} onChange={set('min')} /></div></Field>
         </div>
+        {perms.isManut && <Field label="Quem vai executar / executou" hint="Quem está na escala de hoje aparece primeiro (ícone de calendário)."><SeletorExecutores dep={perms.dep} value={f.executores || []} onChange={(v) => setF((s) => ({ ...s, executores: v }))} /></Field>}
         <Field label="Detalhes"><textarea className="textarea" rows={3} value={f.descricao} onChange={set('descricao')} placeholder="O que foi observado, o que foi feito, o que ainda precisa melhorar…" /></Field>
         <Field label={`Fotos (até ${FOTO_MAX - jaTem})`}><PhotoPicker value={fotos} onChange={setFotos} max={Math.max(FOTO_MAX - jaTem, 0) || 1} /></Field>
         {jaTem > 0 && <PhotoGallery urls={item.fotos} titulo="Fotos já anexadas" />}

@@ -9,6 +9,7 @@ import { criarChamadoPortal } from '@/lib/chamadosApi';
 import { mascaraTelefone } from '@/lib/format';
 import { notify } from '@/lib/notify';
 
+const tituloDe = (t) => { const l = String(t).trim().split(/\n/)[0].replace(/\s+/g, ' '); return l.length > 80 ? l.slice(0, 77).trimEnd() + '…' : l; };
 const PRIO_TOM = { Baixa: 'blue', Média: 'amber', Alta: 'red', Crítica: 'red' };
 
 export default function AbrirChamado() {
@@ -17,7 +18,7 @@ export default function AbrirChamado() {
   const { setores, departamentos } = useConfig();
   const { deviceUid } = useAuth();
   const nav = useNavigate();
-  const [f, setF] = useState({ solicitante: '', contato: '', setor: '', categoria: '', titulo: '', descricao: '' });
+  const [f, setF] = useState({ solicitante: '', contato: '', setor: '', categoria: '', descricao: '' });
   const [fotos, setFotos] = useState([]);
   const [prog, setProg] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -35,13 +36,13 @@ export default function AbrirChamado() {
     if (!f.solicitante.trim()) er.solicitante = 'Informe seu nome.';
     if (!f.setor) er.setor = 'Selecione o setor.';
     if (!f.categoria) er.categoria = 'Selecione o tipo de problema.';
-    if (f.titulo.trim().length < 4) er.titulo = 'Descreva o título com um pouco mais de detalhe.';
+    if (f.descricao.trim().length < 6) er.descricao = 'Descreva o problema com um pouco mais de detalhe.';
     setErros(er);
     if (Object.keys(er).length) return notify.warning('Confira os campos destacados.');
     if (!deviceUid) return notify.error('Aguarde a identificação do aparelho e tente de novo.');
     setBusy(true);
     try {
-      const r = await criarChamadoPortal({ ...f, solicitante: f.solicitante.trim(), titulo: f.titulo.trim(), descricao: f.descricao.trim(), departamento: dep, prioridade }, fotos, setProg);
+      const r = await criarChamadoPortal({ ...f, solicitante: f.solicitante.trim(), titulo: tituloDe(f.descricao), descricao: f.descricao.trim(), departamento: dep, prioridade }, fotos, setProg);
       notify.success(`Protocolo ${r.protocolo} · prioridade ${prioridade}`, { titulo: 'Chamado registrado', duracao: 9000 });
       if (r.falhaFotos) notify.warning('As fotos não puderam ser anexadas, mas o chamado foi aberto.');
       nav(`/meus-chamados/${r.id}`, { replace: true });
@@ -65,8 +66,7 @@ export default function AbrirChamado() {
             <Field label="Tipo de problema" required error={erros.categoria}><select className="select" value={f.categoria} onChange={set('categoria')}><option value="">Selecione…</option>{cats.map((c) => <option key={c}>{c}</option>)}</select></Field>
           </div>
           {f.categoria && <div className="row text-sm muted">Prioridade definida automaticamente: <Badge tone={PRIO_TOM[prioridade]}>{prioridade}</Badge></div>}
-          <Field label="Título" required error={erros.titulo}><input className="input" maxLength={120} value={f.titulo} onChange={set('titulo')} placeholder="Ex.: Computador da recepção não liga" /></Field>
-          <Field label="Descrição" hint="Quanto mais detalhes, mais rápido o atendimento."><textarea className="textarea" rows={4} maxLength={2000} value={f.descricao} onChange={set('descricao')} /></Field>
+          <Field label="Descreva o problema" required error={erros.descricao} hint="Diga o que aconteceu e onde. Quanto mais detalhes, mais rápido o atendimento."><textarea className="textarea" rows={5} maxLength={2000} value={f.descricao} onChange={set('descricao')} placeholder="Ex.: O computador da recepção não liga desde cedo." /></Field>
           <Field label={`Fotos do problema (opcional, até ${FOTO_MAX_PORTAL})`}><PhotoPicker value={fotos} onChange={setFotos} max={FOTO_MAX_PORTAL} /></Field>
           {busy && fotos.length > 0 && <div className="progress"><div style={{ width: `${Math.max(prog, 3)}%` }} /></div>}
           <Button type="submit" size="lg" icon={Send} loading={busy} block>{busy && fotos.length ? 'Enviando fotos…' : 'Enviar chamado'}</Button>

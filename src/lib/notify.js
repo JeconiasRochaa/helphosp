@@ -20,8 +20,8 @@ let seq = 0;
 const listeners = new Set();
 
 const lerPrefs = () => {
-  try { return { som: true, push: true, toasts: true, ...(JSON.parse(localStorage.getItem(PREFS_KEY)) || {}) }; }
-  catch { return { som: true, push: true, toasts: true }; }
+  try { return { som: true, push: true, toasts: true, toque: 'padrao', volume: 1, ...(JSON.parse(localStorage.getItem(PREFS_KEY)) || {}) }; }
+  catch { return { som: true, push: true, toasts: true, toque: 'padrao', volume: 1 }; }
 };
 const lerHist = (u) => {
   try { return JSON.parse(localStorage.getItem('hh_notif_hist_' + u)) || []; } catch { return []; }
@@ -61,11 +61,32 @@ function nota(freq, inicio, duracao, volume, tipo = 'sine') {
   filtro.type = 'lowpass'; filtro.frequency.value = 4200;
   osc.type = tipo; osc.frequency.setValueAtTime(freq, t0);
   gain.gain.setValueAtTime(0.0001, t0);
-  gain.gain.exponentialRampToValueAtTime(volume, t0 + 0.012);
+  gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume * (state.prefs.volume ?? 1)), t0 + 0.012);
   gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracao);
   osc.connect(filtro); filtro.connect(gain); gain.connect(ac.destination);
   osc.start(t0); osc.stop(t0 + duracao + 0.05);
 }
+/** Toques disponíveis para notificações de chamados/mensagens (o usuário escolhe no sino). */
+export const TOQUES = {
+  padrao: { nome: 'Padrão', tocar: () => { nota(783.99, 0, 0.13, 0.24); nota(1174.66, 0.12, 0.22, 0.22); } },
+  sino: { nome: 'Sino', tocar: () => { nota(1046.5, 0, 1.0, 0.26); nota(2093, 0, 0.5, 0.09); nota(1568, 0.01, 0.8, 0.12); } },
+  campainha: { nome: 'Campainha (ding-dong)', tocar: () => { nota(659.25, 0, 0.4, 0.3); nota(523.25, 0.4, 0.7, 0.3); } },
+  digital: { nome: 'Digital', tocar: () => { [0, 0.14, 0.28].forEach((t) => nota(1244.5, t, 0.08, 0.12, 'square')); } },
+  suave: { nome: 'Suave', tocar: () => { nota(523.25, 0, 0.35, 0.2); nota(659.25, 0.2, 0.35, 0.2); nota(783.99, 0.4, 0.6, 0.2); } },
+  alerta: { nome: 'Alerta', tocar: () => { [0, 0.22, 0.44].forEach((t, i) => nota(i % 2 ? 660 : 880, t, 0.18, 0.22, 'sawtooth')); } },
+  personalizado: { nome: 'Personalizado (seu arquivo)', tocar: null }
+};
+let audioEl = null;
+function tocarPersonalizado() {
+  const src = state.prefs.somCustom; if (!src) return TOQUES.padrao.tocar();
+  try { if (audioEl) audioEl.pause(); audioEl = new Audio(src); audioEl.volume = Math.min(1, Math.max(0.05, state.prefs.volume ?? 1)); audioEl.play().catch(() => {}); } catch { /* */ }
+}
+function tocarEscolhido(id = state.prefs.toque) {
+  if (id === 'personalizado') return tocarPersonalizado();
+  (TOQUES[id] || TOQUES.padrao).tocar();
+}
+/** Pré-escuta (ignora o interruptor de som, mas exige interação do usuário — o clique já libera o áudio). */
+function testarToque(id) { liberarAudio(); if (audioCtx() || id === 'personalizado') tocarEscolhido(id); }
 function toque(tipo = 'novo') {
   if (!state.prefs.som || !audioLiberado || !audioCtx()) return;
   switch (tipo) {
@@ -73,8 +94,7 @@ function toque(tipo = 'novo') {
     case 'atrasado': nota(440, 0, 0.26, 0.26, 'triangle'); nota(349.23, 0.28, 0.34, 0.24, 'triangle'); break;
     case 'concluido': nota(659.25, 0, 0.12, 0.2); nota(830.61, 0.1, 0.12, 0.2); nota(1046.5, 0.2, 0.26, 0.2); break;
     case 'erro': nota(392, 0, 0.16, 0.22, 'triangle'); nota(261.63, 0.15, 0.28, 0.2, 'triangle'); break;
-    case 'mensagem': nota(880, 0, 0.09, 0.2); nota(1108.73, 0.09, 0.16, 0.2); break;
-    default: nota(783.99, 0, 0.13, 0.24); nota(1174.66, 0.12, 0.22, 0.22);
+    default: tocarEscolhido();   // 'novo' e 'mensagem' usam o toque escolhido pelo usuário
   }
 }
 
@@ -218,7 +238,7 @@ export const notify = {
   // mídia
   lightbox, fecharLightbox, moverLightbox,
   // push / som
-  pedirPermissaoPush, permissaoPush, push, toque, liberarAudio,
+  pedirPermissaoPush, permissaoPush, push, toque, liberarAudio, testarToque, TOQUES,
   // sino
   evento, marcarLida, marcarTodasLidas, removerEvento, limparHistorico,
   // prefs / sessão

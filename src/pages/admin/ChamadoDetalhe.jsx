@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import Comentarios from '@/components/Comentarios';
 import { Badge, Button, Card, EmptyState, Modal, PageHeader, PhotoGallery, PhotoPicker, PrioridadeBadge, SlaBadge, Spinner, StatusBadge, Tabs } from '@/components/ui';
 import { FOTO_MAX_EQUIPE, PRIORIDADES, STATUS_FLUXO } from '@/lib/constants';
+import SeletorExecutores from '@/components/SeletorExecutores';
 import { anexarFotosEquipe, assumirChamado, avancarStatus, definirExecutante, definirPrioridade, excluirChamado, reabrirChamado } from '@/lib/chamadosApi';
 import { fmtData, fmtDuracao, linkWhatsApp, nomeDepartamento } from '@/lib/format';
 import { slaPrazo, slaRestanteMs } from '@/lib/sla';
@@ -108,20 +109,18 @@ export default function ChamadoDetalhe() {
 
 function Executante({ c, perfil }) {
   const [aberto, setAberto] = useState(false);
-  const [lista, setLista] = useState([]);
-  const carregado = useRef(false);
-  async function abrir() {
-    setAberto(true);
-    if (carregado.current) return; carregado.current = true;
-    const s = await getDocs(query(collection(db, 'usuarios'), where('departamento', '==', 'MANUTENCAO'), where('status', '==', 'ativo'))).catch(() => null);
-    setLista(s ? s.docs.map((d) => d.data()) : []);
-  }
+  const [sel, setSel] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const { perms } = useAuth();
+  const abrir = () => { setSel(c.executantes?.length ? c.executantes : (c.executante ? String(c.executante).split(',').map((n) => ({ id: 'n-' + n.trim(), nome: n.trim() })) : [])); setAberto(true); };
+  async function salvar() { setBusy(true); try { await definirExecutante(c, sel, perfil); notify.success('Executantes definidos.', { som: false }); setAberto(false); } catch { notify.error('Não foi possível salvar.'); setBusy(false); } }
   return (
     <>
       <Button variant="outline" icon={HardHat} onClick={abrir} block>{c.executante ? `Executante: ${c.executante}` : 'Atribuir executante'}</Button>
-      {aberto && <Modal title="Atribuir executante" icon={HardHat} onClose={() => setAberto(false)} width={440}>
-        <div className="stack" style={{ gap: 8 }}>{lista.length === 0 && <span className="muted">Nenhum profissional ativo encontrado.</span>}
-          {lista.map((u) => <Button key={u.uid} variant={u.nome === c.executante ? 'primary' : 'outline'} onClick={async () => { await definirExecutante(c, u.nome, perfil); notify.success('Executante definido.', { som: false }); setAberto(false); }}>{u.nome} — {u.cargo}</Button>)}</div>
+      {aberto && <Modal title="Quem vai executar o serviço" icon={HardHat} onClose={() => setAberto(false)} width={520}
+        footer={<><Button variant="outline" onClick={() => setAberto(false)}>Cancelar</Button><Button loading={busy} onClick={salvar}>Salvar</Button></>}>
+        <p className="muted text-sm" style={{ marginTop: 0 }}>Selecione um ou mais profissionais. Quem está na escala de hoje aparece primeiro.</p>
+        <SeletorExecutores dep={perms.dep} value={sel} onChange={setSel} />
       </Modal>}
     </>
   );

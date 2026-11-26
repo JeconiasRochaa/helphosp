@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { notify } from '@/lib/notify';
 import { toDate } from '@/lib/format';
+import NotificationBell from '@/components/ui/NotificationBell';
 
 const Ctx = createContext({ chamados: [], loading: true, erro: null });
 export const useMeusChamados = () => useContext(Ctx);
@@ -33,13 +34,13 @@ function MeusChamadosProvider({ children }) {
           const antes = anterior.current.get(c.id);
           if (!antes) return;
           if (antes.status !== c.status) {
-            const concl = c.status === 'Concluído';
-            notify.evento({ categoria: 'chamado', nivel: concl ? 'success' : 'info', titulo: concl ? 'Chamado concluído' : 'Chamado atualizado',
-              mensagem: `${c.protocolo} — agora está "${c.status}"`, link: `/meus-chamados/${c.id}`, acaoTexto: 'Ver chamado', chave: `st-${c.id}-${c.status}`, som: concl ? 'concluido' : 'novo' });
+            const concl = c.status === 'Concluído'; const inic = c.status === 'Em Andamento';
+            notify.evento({ categoria: 'chamado', nivel: concl ? 'success' : 'info', titulo: concl ? 'Seu chamado foi concluído' : inic ? 'Seu chamado foi iniciado' : 'Chamado atualizado',
+              mensagem: concl ? `${c.protocolo} — ${c.titulo}. Atendimento finalizado.` : inic ? `${c.protocolo} — a equipe já começou o atendimento${c.tecnico ? ` (${c.tecnico})` : ''}.` : `${c.protocolo} — agora está "${c.status}"`, link: `/meus-chamados/${c.id}`, acaoTexto: 'Ver chamado', chave: `st-${c.id}-${c.status}`, som: concl ? 'concluido' : 'novo' });
           }
           const t = toDate(c.ultimo_comentario_em).getTime();
           if (c.ultimo_comentario_por === 'equipe' && t && t !== antes.t) {
-            notify.evento({ categoria: 'mensagem', nivel: 'info', titulo: 'A equipe respondeu seu chamado', mensagem: `${c.protocolo} — ${c.titulo}`,
+            notify.evento({ categoria: 'mensagem', nivel: 'info', titulo: `Mensagem da equipe${c.ultimo_comentario_autor ? ` (${c.ultimo_comentario_autor})` : ''}`, mensagem: c.ultimo_comentario_texto ? `${c.protocolo}: ${String(c.ultimo_comentario_texto).slice(0, 120)}` : `${c.protocolo} — ${c.titulo}`,
               link: `/meus-chamados/${c.id}`, acaoTexto: 'Ler resposta', chave: `msg-${c.id}-${t}` });
           }
         });
@@ -67,6 +68,7 @@ export default function PortalShell() {
                 <div><strong style={{ fontSize: 18, display: 'block' }}>HelpHosp</strong><span className="text-xs" style={{ opacity: .65 }}>Central de chamados</span></div>
               </Link>
               <div className="row">
+                <span className="portal-bell"><NotificationBell /></span>
                 <button className="icon-btn" style={{ background: 'rgba(255,255,255,.1)', borderColor: 'rgba(255,255,255,.2)', color: '#fff' }} onClick={alternar} aria-label="Alternar tema">{tema === 'dark' ? <Sun size={17} /> : <Moon size={17} />}</button>
                 <a href="/login" className="link-discreto"><LogIn size={12} />Acesso técnico</a>
               </div>

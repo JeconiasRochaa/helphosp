@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, BellRing, Check, CheckCheck, Trash2, Volume2, VolumeX, MonitorSmartphone, TicketPlus, MessageSquare, Clock, ShieldAlert, Info } from 'lucide-react';
-import { notify } from '@/lib/notify';
+import { Bell, BellRing, Check, CheckCheck, Trash2, Volume2, VolumeX, MonitorSmartphone, Play, Upload, TicketPlus, MessageSquare, Clock, ShieldAlert, Info } from 'lucide-react';
+import { notify, TOQUES } from '@/lib/notify';
 import { fmtRelativo } from '@/lib/format';
 import { useNotifyState } from './NotifyHost';
 
@@ -15,6 +15,7 @@ export default function NotificationBell() {
   const [aberto, setAberto] = useState(false);
   const [filtro, setFiltro] = useState('todas');
   const ref = useRef(null);
+  const arq = useRef(null);
   const naoLidas = s.historico.filter((h) => !h.lida).length;
   const perm = notify.permissaoPush();
 
@@ -52,6 +53,21 @@ export default function NotificationBell() {
             </div>
           )}
           {perm === 'denied' && <div className="text-xs muted" style={{ padding: '8px 16px 0' }}>Notificações do navegador bloqueadas. Libere nas configurações do site para receber alertas em segundo plano.</div>}
+          <div className="toque-box">
+            <div className="row" style={{ gap: 8 }}>
+              <label className="text-xs muted" htmlFor="sel-toque" style={{ flex: 'none' }}>Toque</label>
+              <select id="sel-toque" className="select" style={{ height: 30, fontSize: 12.5, flex: 1 }} value={s.prefs.toque || 'padrao'} onChange={(e) => { notify.setPrefs({ toque: e.target.value }); notify.testarToque(e.target.value); }}>
+                {Object.entries(TOQUES).map(([id, t]) => <option key={id} value={id}>{t.nome}</option>)}
+              </select>
+              <button className="btn btn-ghost btn-icon" title="Ouvir" onClick={() => notify.testarToque(s.prefs.toque || 'padrao')}><Play size={15} /></button>
+            </div>
+            <div className="row" style={{ gap: 8, marginTop: 6 }}>
+              <Volume2 size={14} className="muted" />
+              <input type="range" min="0.1" max="1" step="0.05" value={s.prefs.volume ?? 1} onChange={(e) => notify.setPrefs({ volume: Number(e.target.value) })} style={{ flex: 1 }} aria-label="Volume" />
+              <button className="btn btn-ghost btn-sm" onClick={() => arq.current?.click()}><Upload size={13} /> Meu som</button>
+              <input ref={arq} type="file" accept="audio/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (!f) return; if (f.size > 600 * 1024) return notify.warning('Use um arquivo de som de até 600 KB.'); const r = new FileReader(); r.onload = () => { notify.setPrefs({ somCustom: r.result, toque: 'personalizado' }); notify.testarToque('personalizado'); }; r.readAsDataURL(f); }} />
+            </div>
+          </div>
           <div className="notif-list" style={{ marginTop: 10 }}>
             {lista.length === 0 && <div className="empty" style={{ padding: 30 }}><Bell /><p>Nenhuma notificação por aqui.</p></div>}
             {lista.map((h) => {

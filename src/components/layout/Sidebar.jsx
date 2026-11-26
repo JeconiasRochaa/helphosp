@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useChamados } from '@/context/ChamadosContext';
 import { useConfig } from '@/context/ConfigContext';
 import { slaEstado } from '@/lib/sla';
-import Mascote from './Mascote';
 
 const COR = '#5b9bff';
 const CORES = new Proxy({}, { get: () => COR });
@@ -83,7 +82,6 @@ export default function Sidebar({ recolhido, onToggle, onNavigate, badges }) {
               return (
                 <NavLink key={i.id} style={{ '--c': CORES[i.id] }} to={i.to} end={i.end} onClick={onNavigate} title={label} className={({ isActive }) => cx('sb-item', isActive && 'ativo')}>
                   <span className="sb-ico"><Icon /></span><span className="lbl">{label}</span><Badge k={i.badge} />
-                  {loc.pathname === pathDe(i.to) || (!i.end && loc.pathname.startsWith(pathDe(i.to) + '/')) ? <Mascote /> : null}
                 </NavLink>
               );
             })}

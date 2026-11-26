@@ -68,3 +68,16 @@ Em produção (HTTPS) o navegador oferece instalar. Há botão **Instalar app** 
 - **Sidebar** modernizada (cores por módulo, chip do painel, recolher menu).
 
 Publicar regras: `firebase deploy --only firestore:rules,storage`
+
+
+## Novidades (v4.2)
+
+- **Reset de senha (administrador):** botão "Resetar senha" em Equipe. A senha volta para `123456` (o Firebase exige no mínimo 6 caracteres, por isso não pode ser `12345`) e a troca é exigida no próximo acesso. Usa a Cloud Function `resetarSenha` (`functions/`, exige plano **Blaze**: `cd functions && npm install && cd .. && firebase deploy --only functions`). Sem Blaze: `npm run resetar -- usuario` (usa o `serviceAccount.json`).
+- **Manutenção — Profissionais e Escala:** cadastro dos profissionais de campo, escala mensal (por turno, com repetição por período/dias da semana) e seleção de executores nos chamados e serviços (quem está na escala de hoje aparece primeiro).
+- **Sessão de 24 h** (sem logout por inatividade) e **uma sessão por janela/aba** na área técnica.
+- **Login:** "Salvar meu login" (lembra o usuário e pede ao navegador para guardar a senha), imagem de destaque.
+- **Painel TV** público (`/tv?dep=TI` ou `/tv?dep=MANUTENCAO`), sem login, redesenhado e com relógio grande. Lê o espelho `tv_chamados` (só tipo do problema, setor, prioridade, status e técnico). O espelho é preenchido na abertura do chamado e atualizado por qualquer técnico com o sistema aberto.
+- **Notificações ao solicitante:** chamado iniciado, concluído e mensagem do técnico (com sino e toque também no portal). Escolha de toque, volume e som próprio no sino.
+- Formulário de chamado com um único campo de descrição; botão para **baixar fotos**.
+
+Publicar regras: `firebase deploy --only firestore:rules,storage`

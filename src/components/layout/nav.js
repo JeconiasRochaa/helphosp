@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Ticket, Clock, LineChart, Hospital, Printer, Boxes, ClipboardList, Network, Users, ShieldCheck,
-  FolderOpen, CalendarDays, ClipboardCheck, Settings, UserCog, Tv, ListTodo, AlertTriangle, CheckCircle2, Layers, Server, History, Globe, Inbox
+  FolderOpen, CalendarDays, HardHat, CalendarRange, ClipboardCheck, Settings, UserCog, Tv, ListTodo, AlertTriangle, CheckCircle2, Layers, Server, History, Globe, Inbox
 } from 'lucide-react';
 
 /**
@@ -21,6 +21,10 @@ export const MENU = [
     { id: 'sla', label: 'Monitor SLA', icon: Clock, to: '/admin/sla', badge: 'atrasados' },
     { id: 'indicadores', label: 'Indicadores', icon: LineChart, to: '/admin/indicadores' },
     { id: 'tv', label: 'Painel TV', icon: Tv, to: '/tv', externo: true }
+  ] },
+  { titulo: 'Equipe de campo', perm: (p) => p.isManut, itens: [
+    { id: 'escala', label: 'Escala', icon: CalendarRange, to: '/admin/escala' },
+    { id: 'profissionais', label: 'Profissionais', icon: HardHat, to: '/admin/profissionais' }
   ] },
   { titulo: 'Gestão de TI', perm: (p) => p.podeFerramentasTI, itens: [
     { id: 'gesthosp', label: 'GestHosp', icon: Hospital, to: '/admin/gesthosp', badge: 'gesthosp' },

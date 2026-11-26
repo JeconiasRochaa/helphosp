@@ -17,6 +17,7 @@ export function gerarProtocolo() {
 }
 
 /** Cria chamado pelo portal público. `deviceUid` vincula o chamado ao aparelho (privacidade). */
+import { publicarEspelho, removerEspelho } from '@/lib/tvSync';
 export async function criarChamadoPortal(dados, fotosComprimidas = [], onProgress) {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error('Sem identidade do aparelho. Recarregue a página.');
@@ -35,6 +36,7 @@ export async function criarChamadoPortal(dados, fotosComprimidas = [], onProgres
     timeline: [evento('A Fazer', `Chamado aberto por ${dados.solicitante}` + (fotos.length ? ` com ${fotos.length} foto(s)` : ''))]
   };
   const r = await addDoc(collection(db, 'chamados'), docData);
+  publicarEspelho(r.id, docData);
   return { id: r.id, protocolo, fotos, falhaFotos };
 }
 
@@ -98,14 +100,19 @@ export async function assumirChamado(c, perfil) {
   audit('chamado.assumir', { protocolo: c.protocolo });
 }
 
-export async function definirExecutante(c, nome, perfil) {
+/** executores: [{ id, nome }] — vários profissionais podem atender o mesmo chamado. */
+export async function definirExecutante(c, executores, perfil) {
+  const lista = Array.isArray(executores) ? executores : [{ id: '', nome: String(executores) }];
+  const nomes = lista.map((x) => x.nome).join(', ');
   await updateDoc(ref(c.id), {
-    executante: nome, timeline: arrayUnion(evento(c.status, `Executante definido: ${nome} (por ${perfil.nome})`))
+    executante: nomes, executantes: lista,
+    timeline: arrayUnion(evento(c.status, nomes ? `Executante(s) definido(s): ${nomes} (por ${perfil.nome})` : `Executantes removidos (por ${perfil.nome})`))
   });
 }
 
 export async function excluirChamado(c) {
   await deleteDoc(ref(c.id));
+  removerEspelho(c.id);
   audit('chamado.excluir', { protocolo: c.protocolo, titulo: c.titulo });
 }
 
@@ -134,7 +141,9 @@ export async function adicionarComentario({ chamado, texto, visibilidade = 'publ
   if (visibilidade === 'publico') {
     batch.update(ref(chamado.id), {
       ultimo_comentario_em: serverTimestamp(), ultimo_comentario_por: autorTipo,
-      qtd_comentarios_publicos: (chamado.qtd_comentarios_publicos || 0) + 1
+      qtd_comentarios_publicos: (chamado.qtd_comentarios_publicos || 0) + 1,
+      // texto/autor da última mensagem da EQUIPE: aparece na notificação do solicitante
+      ...(autorTipo === 'equipe' ? { ultimo_comentario_autor: autor, ultimo_comentario_texto: texto.trim().slice(0, 200) } : {})
     });
   }
   await batch.commit();

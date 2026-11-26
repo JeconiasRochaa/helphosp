@@ -132,6 +132,30 @@ service cloud.firestore {
                     && (isSupervisor() || resource.data.tecnicoUid == request.auth.uid);
     }
 
+    // Profissionais de campo e escala (Manutenção): cada departamento só enxerga os seus
+    match /profissionais/{id} {
+      allow read, update, delete: if daMinhaDep(resource.data.departamento);
+      allow create: if daMinhaDep(request.resource.data.departamento) && str(request.resource.data.nome, 120);
+    }
+    match /escala/{id} {
+      allow read, update, delete: if daMinhaDep(resource.data.departamento);
+      allow create: if daMinhaDep(request.resource.data.departamento);
+    }
+
+    // Espelho PÚBLICO e mínimo dos chamados para o Painel TV (sem nome, contato, descrição ou fotos).
+    // Leitura livre (a TV não faz login); escrita: o aparelho que abriu o chamado (criação) e a equipe do departamento.
+    match /tv_chamados/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+                    && request.resource.data.keys().hasOnly(['departamento','protocolo','categoria','setor','prioridade','status','tecnico','data_abertura','data_atualizacao','tipo'])
+                    && ((isStaff() && daMinhaDep(request.resource.data.departamento))
+                        // o aparelho que abriu o chamado cria o espelho (e só dele)
+                        || (exists(/databases/$(database)/documents/chamados/$(id))
+                            && get(/databases/$(database)/documents/chamados/$(id)).data.deviceUid == request.auth.uid
+                            && request.resource.data.status == 'A Fazer'));
+      allow update, delete: if isStaff() && daMinhaDep(resource.data.departamento);
+    }
+
     // Agenda e Arquivos: cada departamento só enxerga os seus (administrador vê todos)
     match /agenda/{id} {
       allow read, update, delete: if daMinhaDep(resource.data.departamento);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, AlertTriangle, AlertCircle, Info, Zap, X, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
+import { Check, AlertTriangle, AlertCircle, Info, Zap, X, ChevronLeft, ChevronRight, HelpCircle, Download } from 'lucide-react';
+import { baixarImagem } from '@/lib/format';
 import { notify } from '@/lib/notify';
 
 const ICONES = { success: Check, error: AlertTriangle, warning: AlertCircle, info: Info, critical: Zap };
@@ -63,6 +64,7 @@ function Lightbox({ l }) {
       onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => { const dx = e.changedTouches[0].clientX - touch.current; if (multi && Math.abs(dx) > 50) notify.moverLightbox(dx > 0 ? -1 : 1); }}>
       <button className="fechar" onClick={notify.fecharLightbox} aria-label="Fechar"><X size={20} /></button>
+      <button className="baixar" onClick={() => baixarImagem(l.urls[l.indice], `helphosp-foto-${l.indice + 1}`)} aria-label="Baixar foto" title="Baixar foto"><Download size={18} /> Baixar</button>
       {multi && <button className="ant" onClick={() => notify.moverLightbox(-1)} aria-label="Anterior"><ChevronLeft size={22} /></button>}
       <img src={l.urls[l.indice]} alt={`Foto ${l.indice + 1}`} />
       {multi && <button className="prox" onClick={() => notify.moverLightbox(1)} aria-label="Próxima"><ChevronRight size={22} /></button>}

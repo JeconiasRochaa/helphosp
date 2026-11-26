@@ -1,3 +1,4 @@
+import Relogio from '@/components/Relogio';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection } from 'firebase/firestore';
@@ -119,7 +120,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Dashboard" icon={LayoutDashboard} subtitle={`${nomeDepartamento(perms.dep)} • ${hojeTxt}`} />
+      <PageHeader title="Dashboard" icon={LayoutDashboard} subtitle={nomeDepartamento(perms.dep)} actions={<Relogio />} />
       {loading ? <DashboardSkeleton /> : (
         <>
           <div className="db-stats">

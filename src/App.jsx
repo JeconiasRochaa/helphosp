@@ -39,6 +39,8 @@ const Auditoria = L(() => import('@/pages/admin/Auditoria'));
 const Arquivos = L(() => import('@/pages/admin/Arquivos'));
 const Agenda = L(() => import('@/pages/admin/Agenda'));
 const Configuracoes = L(() => import('@/pages/admin/Configuracoes'));
+const Escala = L(() => import('@/pages/admin/Escala'));
+const Profissionais = L(() => import('@/pages/admin/Profissionais'));
 const PainelTV = L(() => import('@/pages/admin/PainelTV'));
 
 export default function App() {
@@ -60,16 +62,19 @@ export default function App() {
                 </Route>
                 <Route path="/login" element={<Login />} />
                 <Route path="/setup" element={<Setup />} />
+                {/* Painel TV: livre (sem login) — lê só o espelho público e anônimo `tv_chamados` */}
+                <Route path="/tv" element={<PainelTV />} />
 
                 {/* equipe */}
                 <Route element={<RequireStaff />}>
                   <Route path="/trocar-senha" element={<TrocarSenha />} />
-                  <Route path="/tv" element={<PainelTV />} />
                   <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<Dashboard />} />
                     <Route path="chamados" element={<Chamados />} />
                     <Route path="chamados/:id" element={<ChamadoDetalhe />} />
                     <Route path="servicos" element={<Servicos />} />
+                    <Route path="escala" element={<RequirePerm check={(p) => p.isManut}><Escala /></RequirePerm>} />
+                    <Route path="profissionais" element={<RequirePerm check={(p) => p.isManut}><Profissionais /></RequirePerm>} />
                     <Route path="sla" element={<Sla />} />
                     <Route path="indicadores" element={<Indicadores />} />
                     <Route path="gesthosp" element={<RequirePerm check={(p) => p.podeFerramentasTI}><GestHosp /></RequirePerm>} />

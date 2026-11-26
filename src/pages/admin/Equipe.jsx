@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { collection, deleteDoc, doc, orderBy, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { AlertTriangle, Copy, Pencil, Plus, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
-import { db, getSecondaryAuth, usuarioParaEmail } from '@/lib/firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { AlertTriangle, Copy, KeyRound, Pencil, Plus, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
+import { app, db, getSecondaryAuth, SENHA_PADRAO, usuarioParaEmail } from '@/lib/firebase';
 import { useCollection } from '@/hooks/useFirestore';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, Badge, Button, EmptyState, Field, Modal, PageHeader, SearchInput, Spinner, Switch } from '@/components/ui';
@@ -38,6 +39,20 @@ export default function Equipe() {
       audit('equipe.remover', { usuario: m.usuario, nome: m.nome }); notify.success('Membro removido.');
     } catch (e) { console.error(e); notify.error('Não foi possível remover.'); }
   }
+  async function resetar(m) {
+    if (!(await notify.confirm(`A senha de ${m.nome} (@${m.usuario}) será redefinida para "${SENHA_PADRAO}" e ele(a) terá de criar uma nova senha no próximo acesso.`, { titulo: 'Resetar senha', confirmar: 'Resetar senha', variante: 'warning' }))) return;
+    try {
+      await httpsCallable(getFunctions(app, 'us-central1'), 'resetarSenha')({ uid: m.id });
+      notify.success(`Senha de ${m.nome} redefinida para ${SENHA_PADRAO}. Peça para trocá-la no primeiro acesso.`, { titulo: 'Senha resetada', duracao: 9000 });
+    } catch (e) {
+      console.error(e);
+      const c = String(e.code || '');
+      if (c.includes('permission-denied')) notify.error('Somente administradores podem resetar senhas.');
+      else if (c.includes('not-found') || c.includes('unavailable') || c.includes('internal') || c.includes('unauthenticated') || /fetch|network|CORS/i.test(e.message || '')) {
+        notify.alert(`A função de reset ainda não foi publicada no Firebase (ela exige o plano Blaze).\n\nAlternativa gratuita: no computador do projeto, rode\n\nnpm run resetar -- ${m.usuario}\n\nA senha vira "${SENHA_PADRAO}".`, { titulo: 'Reset indisponível por aqui', variante: 'warning' });
+      } else notify.error(e.message || 'Não foi possível resetar a senha.');
+    }
+  }
   async function removerLegado(m) {
     if (!(await notify.confirm('Este é um cadastro antigo (login por senha em texto no banco). Ele não funciona mais. Excluir é recomendado por segurança.', { titulo: 'Excluir cadastro legado', confirmar: 'Excluir' }))) return;
     await deleteDoc(doc(db, 'usuarios', m.id)).then(() => { audit('equipe.excluir_legado', { usuario: m.usuario }); notify.success('Cadastro legado excluído.'); }).catch(() => notify.error('Sem permissão.'));
@@ -66,6 +81,7 @@ export default function Equipe() {
                 </div>
                 <div className="row" style={{ justifyContent: 'center' }}>
                   <Button size="sm" variant="outline" icon={Pencil} onClick={() => setEdit(m)}>Editar</Button>
+                  {perms.isAdmin && m.id !== perfil.uid && <Button size="sm" variant="outline" icon={KeyRound} onClick={() => resetar(m)} title={`Resetar senha para ${SENHA_PADRAO}`}>Resetar senha</Button>}
                   {m.id !== perfil.uid && <Button size="sm" variant="outline" icon={Trash2} onClick={() => remover(m)} title="Remover" />}
                 </div>
               </div>
@@ -80,7 +96,7 @@ export default function Equipe() {
           ))}
         </div>
       )}
-      <div className="text-xs muted" style={{ marginTop: 16 }}><ShieldCheck size={12} style={{ verticalAlign: -2 }} /> Para redefinir a senha de alguém, use o console do Firebase (Authentication → usuário → redefinir) ou remova e recrie o membro com outro usuário.</div>
+      <div className="text-xs muted" style={{ marginTop: 16 }}><ShieldCheck size={12} style={{ verticalAlign: -2 }} /> Administradores podem resetar a senha de qualquer membro (volta para a senha padrão e a troca é exigida no próximo acesso).</div>
       {edit && <MembroModal membro={edit} onClose={() => setEdit(null)} onCriado={(r) => { setEdit(null); setSenhaNova(r); }} />}
       {senhaNova && (
         <Modal title="Membro criado" icon={ShieldCheck} onClose={() => setSenhaNova(null)} width={440} footer={<Button onClick={() => setSenhaNova(null)}>Concluir</Button>}>

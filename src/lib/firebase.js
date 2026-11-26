@@ -53,3 +53,5 @@ export function getSecondaryAuth() {
   const sec = getApps().find((a) => a.name === nome) || initializeApp(firebaseConfig, nome);
   return getAuth(sec);
 }
+
+export const SENHA_PADRAO = '123456';   // Firebase Auth exige >= 6 caracteres

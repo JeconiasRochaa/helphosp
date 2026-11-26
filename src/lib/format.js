@@ -114,3 +114,16 @@ export function paraCSV(linhas, colunas) {
   const corpo = linhas.map((l) => colunas.map((c) => esc(typeof c.valor === 'function' ? c.valor(l) : l[c.valor])).join(';'));
   return '﻿' + [cab, ...corpo].join('\r\n');
 }
+
+/** Baixa uma imagem (URL http, blob ou data URL). Se o servidor bloquear o download direto, abre em nova aba. */
+export async function baixarImagem(url, nome = 'foto') {
+  const ext = (m) => ({ 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }[m] || 'jpg');
+  try {
+    const r = await fetch(url); const b = await r.blob();
+    const u = URL.createObjectURL(b);
+    const a = document.createElement('a'); a.href = u; a.download = `${nome}.${ext(b.type)}`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 2000);
+  } catch {
+    const a = document.createElement('a'); a.href = url; a.download = `${nome}.jpg`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  }
+}

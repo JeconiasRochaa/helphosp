@@ -6,6 +6,7 @@ import { useConfig } from './ConfigContext';
 import { notify } from '@/lib/notify';
 import { slaEstado } from '@/lib/sla';
 import { toDate } from '@/lib/format';
+import { sincronizarEspelhos } from '@/lib/tvSync';
 
 const Ctx = createContext({ chamados: [], loading: true });
 export const useChamados = () => useContext(Ctx);
@@ -32,6 +33,7 @@ export function ChamadosProvider({ children }) {
       const lista = snap.docs.map((d) => ({ id: d.id, fid: d.id, ...d.data() }))
         .sort((a, b) => toDate(b.data_abertura) - toDate(a.data_abertura));
       chamadosRef.current = lista;
+      if (!snap.metadata.hasPendingWrites) sincronizarEspelhos(lista);   // alimenta o Painel TV público
       setState({ chamados: lista, loading: false });
 
       if (!primeiro.current && !snap.metadata.hasPendingWrites) {

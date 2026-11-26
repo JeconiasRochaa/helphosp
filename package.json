@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy:rules": "firebase deploy --only firestore:rules,storage",
-    "admin": "node scripts/criar-admin.mjs"
+    "admin": "node scripts/criar-admin.mjs",
+    "resetar": "node scripts/resetar-senha.mjs"
   },
   "dependencies": {
     "chart.js": "^4.6.1",

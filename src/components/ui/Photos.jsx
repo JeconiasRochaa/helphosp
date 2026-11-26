@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { Camera, ImagePlus, X } from 'lucide-react';
+import { Camera, Download, ImagePlus, X } from 'lucide-react';
+import { baixarImagem } from '@/lib/format';
 import { comprimirImagem, FOTO_MAX_BYTES } from '@/lib/images';
 import { notify } from '@/lib/notify';
 
@@ -67,9 +68,12 @@ export function PhotoGallery({ urls = [], titulo }) {
       {titulo && <div className="label" style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}><Camera size={14} />{titulo} ({lista.length})</div>}
       <div className="fotos-grid">
         {lista.map((u, i) => (
-          <button type="button" className="foto-thumb" key={u + i} onClick={() => notify.lightbox(lista, i)} aria-label={`Abrir foto ${i + 1}`}>
-            <img src={u} alt={`Foto ${i + 1}`} loading="lazy" onError={(e) => { e.currentTarget.style.opacity = .25; }} />
-          </button>
+          <div className="foto-wrap" key={u + i}>
+            <button type="button" className="foto-thumb" onClick={() => notify.lightbox(lista, i)} aria-label={`Abrir foto ${i + 1}`}>
+              <img src={u} alt={`Foto ${i + 1}`} loading="lazy" onError={(e) => { e.currentTarget.style.opacity = .25; }} />
+            </button>
+            <button type="button" className="foto-baixar" onClick={() => baixarImagem(u, `helphosp-foto-${i + 1}`)} aria-label={`Baixar foto ${i + 1}`} title="Baixar foto"><Download size={13} /></button>
+          </div>
         ))}
       </div>
     </div>
